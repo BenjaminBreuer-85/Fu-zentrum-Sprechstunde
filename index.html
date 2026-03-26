@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprechstundenbrief Generator – Fußchirurgie</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  body { margin: 0; padding: 0; background: #0d1825; }
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  input, textarea {
+    width: 100%; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 6px; padding: 7px 10px; color: #c8d6e8; font-size: 12px;
+    font-family: inherit; resize: vertical;
+  }
+  input:focus, textarea:focus { outline: 0; border-color: rgba(46,204,113,.4); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+
+/* ============================================================
+   DIAGNOSE-DATEN
+   ============================================================ */
+const DIAG = {
+  hallux_valgus: {
+    label: "Hallux valgus",
+    diagnoseText: "Hallux valgus",
+    lokBeschwerden: "im Bereich der Großzehe und des Vorfußes",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung", "Schmerztherapie", "Anpassung des Schuhwerks", "Zehengymnastik", "Dehnübungen", "Übung der intrinsischen Fußmuskulatur", "Polsterung/Schutz der Pseudoexostose"],
+    befunde: [
+      { id: "haut", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_mtp1", pos: "Druckschmerz über dem MTP-I-Gelenk medial", neg: "Kein Druckschmerz über dem MTP-I-Gelenk" },
+      { id: "pseudoex", pos: "Prominente Pseudoexostose medial tastbar", neg: "Keine wesentliche Pseudoexostose" },
+      { id: "schuhkonflikt", pos: "Schuhkonflikt medial", neg: "Kein Schuhkonflikt" },
+      { id: "bursitis", pos: "Bursitis über der Pseudoexostose", neg: "Keine Bursitis" },
+      { id: "tmt1", pos: "Druckschmerz und erhöhte Mobilität des TMT-I-Gelenkes, Hinweis auf TMT-I-Instabilität", neg: "TMT-I-Gelenk stabil, keine Hypermobilität" },
+      { id: "hallux_stellung", pos: "Hallux-valgus-Fehlstellung", neg: "Keine relevante Hallux-valgus-Fehlstellung" },
+      { id: "hallux_ip", pos: "Hallux interphalangeus", neg: "Kein Hallux interphalangeus" },
+      { id: "bew_mtp1", input: true, label: "Beweglichkeit MTP I (Ext/Flex)", placeholder: "30/0/20" },
+      { id: "kleinzehen", pos: "Begleitende Kleinzehendeformitäten", neg: "Keine Kleinzehendeformitäten" },
+      { id: "metatarsalgie", pos: "Transfermetatarsalgie", neg: "Keine Transfermetatarsalgie" },
+      { id: "beschwielung", pos: "Plantare Mehrbeschwielung unter den MT-Köpfchen", neg: "Keine plantare Mehrbeschwielung" },
+    ],
+    opMethoden: ["chevron", "chevron_akin", "lapidus", "lapidus_subcap"],
+    bildBefunde: "Hallux-valgus-Deformität mit einem IM-Winkel von __ Grad und einem HV-Winkel von __ Grad",
+    literatur: "AWMF S2e-Leitlinie Hallux valgus (Nr. 187-051, Stand 2024): https://register.awmf.org/de/leitlinien/detail/187-051",
+  },
+  hallux_rigidus: {
+    label: "Hallux rigidus",
+    diagnoseText: "Hallux rigidus",
+    lokBeschwerden: "im Bereich des Großzehengrundgelenkes",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung mit Rigidusfeder", "Schmerztherapie", "Anpassung des Schuhwerks", "Nutzung von Schuhen mit steifer Sohle", "Nutzung eines Schuhes mit Sohlenversteifung und Abrollhilfe", "Infiltrationstherapie", "Physiotherapie"],
+    befunde: [
+      { id: "haut_r", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_mtp1_dorsal", pos: "Druckschmerz über dem MTP-I-Gelenk dorsal", neg: "Kein Druckschmerz MTP I" },
+      { id: "osteophyten_palp", pos: "Palpable dorsale Osteophyten am MTP-I-Gelenk", neg: "Keine palpablen Osteophyten" },
+      { id: "bew_mtp1_r", input: true, label: "Beweglichkeit MTP I (Ext/Flex)", placeholder: "10/0/15" },
+      { id: "schmerz_endgrad", pos: "Schmerz bei endgradiger Dorsalextension", neg: "Kein Schmerz bei Dorsalextension" },
+      { id: "krepitation", pos: "Krepitation im MTP-I-Gelenk", neg: "Keine Krepitation" },
+    ],
+    opMethoden: ["cheilektomie", "mtp1_arthrodese"],
+    bildBefunde: "Arthrose des MTP-I-Gelenkes Grad __ nach Coughlin mit dorsalen Osteophyten",
+    literatur: "Anderson MR et al. (2023) Current Concepts Review: Hallux Rigidus. Foot & Ankle Orthopaedics. https://doi.org/10.1177/24730114231188123",
+  },
+  osg_instabil: {
+    label: "OSG-Instabilität",
+    diagnoseText: "Chronische laterale Bandinstabilität des oberen Sprunggelenkes",
+    lokBeschwerden: "im Bereich des oberen Sprunggelenkes mit rezidivierenden Distorsionsereignissen",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung", "Schmerztherapie", "Physiotherapie (propriozeptives Training)", "Bandage/Orthese", "Eigenübungen (Koordinationstraining)"],
+    befunde: [
+      { id: "haut_i", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_lfta", pos: "Druckschmerz über dem LFTA-Ansatz", neg: "Kein Druckschmerz über dem LFTA" },
+      { id: "aufklappen_lat", pos: "Laterales Aufklappen positiv", neg: "Laterales Aufklappen negativ" },
+      { id: "talusvorschub", pos: "Positiver Talusvorschub", neg: "Kein Talusvorschub" },
+      { id: "giving_way", pos: "Giving-way-Symptomatik", neg: "Kein Giving-way" },
+      { id: "schwellung_lat", pos: "Schwellung lateraler Kapsel-Band-Apparat", neg: "Keine Schwellung lateral" },
+      { id: "peroneal", pos: "Peronealsehnen druckschmerzhaft", neg: "Peronealsehnen unauffällig" },
+      { id: "bew_osg_i", input: true, label: "Beweglichkeit OSG (Ext/Flex)", placeholder: "15/0/40" },
+    ],
+    opMethoden: ["brostrom_gould", "brostrom_int_brace", "bandplastik_autolog"],
+    bildBefunde: "gehaltene Aufnahmen mit lateralem Aufklappen von __ Grad und Talusvorschub von __ mm",
+    literatur: "AWMF S2k-Leitlinie Frische Außenbandruptur des oberen Sprunggelenkes (Nr. 187-025): https://register.awmf.org/de/leitlinien/detail/187-025",
+  },
+  osg_arthrose: {
+    label: "OSG-Arthrose",
+    diagnoseText: "Arthrose des oberen Sprunggelenkes",
+    lokBeschwerden: "im Bereich des oberen Sprunggelenkes",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung", "Schmerztherapie", "Anpassung des Schuhwerks", "Nutzung von Schuhen mit steifer Sohle", "Nutzung eines Schuhes mit Sohlenversteifung und Abrollhilfe", "Infiltrationstherapie", "Physiotherapie"],
+    befunde: [
+      { id: "haut_a", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_osg", pos: "Druckschmerz über dem OSG", neg: "Kein Druckschmerz OSG" },
+      { id: "schwellung_osg", pos: "Schwellung und Erguss am OSG", neg: "Kein Erguss" },
+      { id: "bew_osg_a", input: true, label: "Beweglichkeit OSG (Ext/Flex)", placeholder: "5/0/30" },
+      { id: "krepitation_osg", pos: "Krepitation im OSG", neg: "Keine Krepitation" },
+      { id: "rf_achse_a", input: true, label: "Rückfußachse", placeholder: "5° valgus" },
+      { id: "impingement", pos: "Ventrales knöchernes Impingement", neg: "Kein ventrales Impingement" },
+    ],
+    opMethoden: ["ask_osg", "arthrodese_osg", "tep_infinity", "tep_inbone"],
+    bildBefunde: "Arthrose des OSG Grad __ nach Kellgren-Lawrence",
+    literatur: "Anderson DD et al. (2024) Ankle osteoarthritis: Toward new understanding and opportunities for prevention and intervention. J Orthop Res. https://doi.org/10.1002/jor.25973",
+    literaturTEP: "Colò G et al. (2025) Five decades of total ankle replacement: from early failures to fourth-generation innovations. Eur J Orthop Surg Traumatol. https://doi.org/10.1007/s00590-025-04634-5",
+  },
+  ocl: {
+    label: "OCL / Knorpelschaden",
+    diagnoseText: "Osteochondrale Läsion des Talus",
+    lokBeschwerden: "im Bereich des oberen Sprunggelenkes, belastungsabhängig",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung", "Schmerztherapie", "Physiotherapie", "Infiltrationstherapie (Hyaluronsäure, PRP/ACP etc.)", "Verzicht auf Impact-Sport", "Nahrungsergänzungsmittel (z.B. Glucosamin, Chondroitin etc.)"],
+    befunde: [
+      { id: "haut_o", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_talus", pos: "Druckschmerz über dem Talus", neg: "Kein Druckschmerz Talus" },
+      { id: "schwellung_ocl", pos: "Schwellung/Erguss am OSG", neg: "Kein Erguss" },
+      { id: "bew_osg_o", input: true, label: "Beweglichkeit OSG (Ext/Flex)", placeholder: "15/0/40" },
+      { id: "stabil_ocl", pos: "Bandapparat instabil", neg: "Bandapparat stabil" },
+    ],
+    opMethoden: ["amic", "oats", "ask_osg"],
+    bildBefunde: "osteochondrale Läsion der __ Talusschulter, Größe __ x __ mm",
+    literatur: "Walther M et al. (2024) Operative management of osteochondral lesions of the talus: 2024 recommendations of the DGOU. EFORT Open Reviews. https://doi.org/10.1530/EOR-23-0075",
+  },
+  knick_senk: {
+    label: "Knick-Senk-Fuß",
+    diagnoseText: "Pes planovalgus",
+    lokBeschwerden: "im Bereich des Rückfußes und Mittelfußes",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung", "Schmerztherapie", "Physiotherapie", "Spiraldynamik", "Anpassung des Schuhwerks", "Eigenübungen"],
+    befunde: [
+      { id: "haut_k", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "rf_valgus", pos: "Valgische Rückfußachse", neg: "Rückfußachse neutral" },
+      { id: "rf_rigide", pos: "Rigide valgische Rückfußachse", neg: "Flexible Rückfußachse, passiv korrigierbar" },
+      { id: "abflachung", pos: "Abflachung des medialen Längsgewölbes", neg: "Medialer Bogen erhalten" },
+      { id: "too_many_toes", pos: "Too-many-toes-Sign positiv", neg: "Too-many-toes-Sign negativ" },
+      { id: "single_heel", pos: "Single-Heel-Rise-Test eingeschränkt bzw. nicht möglich", neg: "Single-Heel-Rise-Test unauffällig" },
+      { id: "tib_post", pos: "Druckschmerz und Insuffizienz der Tibialis-posterior-Sehne", neg: "Tibialis-posterior-Sehne unauffällig" },
+      { id: "silfverskjoeld", pos: "Verkürzung der Achillessehne (Silfverskjöld positiv)", neg: "Silfverskjöld negativ" },
+      { id: "supination_ks", pos: "Keine signifikante Supination möglich", neg: "Supination möglich" },
+      { id: "ds_sinus", pos: "Druckschmerz auf Höhe des Sinus Tarsi", neg: "Kein Druckschmerz Sinus Tarsi" },
+      { id: "ds_innenknoe", pos: "Druckschmerz unterhalb des Innenknöchels", neg: "Kein Druckschmerz unterhalb des Innenknöchels" },
+      { id: "waden", pos: "Geringe Wadenmuskelkontraktur", neg: "Keine Wadenmuskelkontraktur" },
+    ],
+    opMethoden: ["mco", "lcot", "cotton", "calcaneus_ot", "coalition_exzision", "subtalar_arthrodese"],
+    bildBefunde: "Knick-Senk-Fuß-Deformität mit Talonavikular-Uncoverage von __ %, Meary-Winkel __ Grad",
+    literatur: "Henry JK et al. (2019) Adult-Acquired Flatfoot Deformity. Foot & Ankle Orthopaedics. https://doi.org/10.1177/2473011418820847",
+  },
+  mittelfuss_arthrose: {
+    label: "Mittelfußarthrose",
+    diagnoseText: "Arthrose der Tarsometatarsalgelenke",
+    lokBeschwerden: "im Bereich des Mittelfußes",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung", "Schmerztherapie", "Anpassung des Schuhwerks", "Nutzung von Schuhen mit steifer Sohle", "Nutzung eines Schuhes mit Sohlenversteifung und Abrollhilfe", "Infiltrationstherapie"],
+    befunde: [
+      { id: "haut_m", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_tmt", pos: "Druckschmerz über den TMT-Gelenken", neg: "Kein Druckschmerz TMT" },
+      { id: "schwellung_mf", pos: "Schwellung Mittelfuß dorsal", neg: "Keine Schwellung" },
+      { id: "prominenz_mf", pos: "Dorsale Prominenz und Osteophyten palpabel", neg: "Keine dorsale Prominenz" },
+      { id: "schuhkonflikt_mf", pos: "Schuhkonflikt dorsal", neg: "Kein Schuhkonflikt" },
+    ],
+    opMethoden: ["arthrodese_tmt"],
+    bildBefunde: "Arthrose der TMT-Gelenke __ mit dorsalen Osteophyten",
+    literatur: "Kurup H, Vasukutty N (2020) Midfoot arthritis – current concepts review. J Clin Orthop Trauma. https://doi.org/10.1016/j.jcot.2020.03.002",
+  },
+  haglund: {
+    label: "Haglund / Achillodynie",
+    diagnoseText: "Haglund-Exostose mit insertionaler Achillodynie",
+    lokBeschwerden: "im Bereich der Ferse und des Achillessehnenansatzes",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung", "Schmerztherapie", "Anpassung des Schuhwerks", "Fersenkeil", "Stoßwellentherapie", "Physiotherapie (exzentrisches Training)", "Infiltrationstherapie"],
+    befunde: [
+      { id: "haut_h", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_tuber", pos: "Druckschmerz über dem Tuber calcanei", neg: "Kein Druckschmerz Tuber" },
+      { id: "prominenz_post", pos: "Palpable posteriore Prominenz/Exostose", neg: "Keine posteriore Prominenz" },
+      { id: "bursitis_sub", pos: "Bursitis subachillea", neg: "Keine Bursitis" },
+      { id: "as_verdickung", pos: "Verdickung und Verkalkung des Achillessehnenansatzes", neg: "Achillessehnenansatz unauffällig" },
+      { id: "thompson", pos: "Thompson-Test positiv", neg: "Thompson-Test negativ" },
+      { id: "schuhkonflikt_post", pos: "Schuhkonflikt posterior", neg: "Kein Schuhkonflikt" },
+    ],
+    opMethoden: ["haglund_as_split"],
+    bildBefunde: "Haglund-Exostose mit Verkalkung am Achillessehnenansatz",
+    literatur: "Zhi X et al. (2021) Nonoperative treatment of insertional Achilles tendinopathy: a systematic review. J Orthop Surg Res. https://doi.org/10.1186/s13018-021-02370-0 (weitere Informationen zur konservativen Behandlung)",
+  },
+};
+
+const COALITIO_BEFUNDE = [
+  { id: "ds_innenknoe_c", pos: "Druckschmerz unterhalb des Innenknöchels", neg: "Kein Druckschmerz unterhalb des Innenknöchels" },
+  { id: "ds_sinus_c", pos: "Druckschmerz auf Höhe des Sinus Tarsi", neg: "Kein Druckschmerz Sinus Tarsi" },
+  { id: "rigide_c", pos: "Rigide Rückfußachse, nicht passiv korrigierbar", neg: "Flexible Rückfußachse" },
+];
+
+function coalDiagText(v) {
+  if (v === "talo_calc") return "Symptomatische ossäre Coalitio talo-calcaneare";
+  if (v === "calc_nav") return "Symptomatische ossäre Coalitio calcaneo-naviculare";
+  return "";
+}
+function coalBildText(v) {
+  if (v === "talo_calc") return "breite Coalition der medialen Gelenkfacette des Subtalargelenkes mit Osteoödem";
+  if (v === "calc_nav") return "ossäre Coalition calcaneo-naviculär";
+  return "";
+}
+
+const OPS = {
+  chevron: { k: "Chevron-Osteotomie", b: "Chevron-Osteotomie zur Korrektur der Hallux-valgus-Fehlstellung", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Über-/Unterkorrektur, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron-Osteotomie" },
+  chevron_akin: { k: "Chevron + Akin", b: "Chevron- und Akin-Osteotomie", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron- und Akin-Osteotomie" },
+  lapidus: { k: "Lapidus-Arthrodese", b: "Lapidus-Arthrodese bei TMT-I-Instabilität", r: "Infektion, Wundheilungsstörung, Pseudarthrose, Anschlussdegenerationen, Materialversagen, Thrombose", t: "Lapidus-Arthrodese" },
+  lapidus_subcap: { k: "Lapidus + Subcapitale", b: "Lapidus-Arthrodese mit subcapitaler Korrekturosteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen, Thrombose", t: "Lapidus-Arthrodese mit subcapitaler Korrektur" },
+  cheilektomie: { k: "Cheilektomie", b: "Cheilektomie zur Abtragung dorsaler Osteophyten", r: "Infektion, eingeschränkte Besserung, Rezidiv, Steifigkeit", t: "Cheilektomie MTP I" },
+  mtp1_arthrodese: { k: "MTP-I-Arthrodese", b: "Versteifung des Großzehengrundgelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "MTP-I-Arthrodese" },
+  brostrom_gould: { k: "Brostrom-Gould", b: "offene laterale Bandstabilisierung nach Brostrom-Gould", r: "Infektion, Nervenverletzung, Rezidivinstabilität, Steifigkeit, Thrombose", t: "Laterale Bandstabilisierung nach Brostrom-Gould" },
+  brostrom_int_brace: { k: "Brostrom + Internal Brace", b: "Bandstabilisierung mit Internal-Brace-Augmentation", r: "Infektion, Nervenverletzung, Rezidivinstabilität, Materialreaktion, Thrombose", t: "Laterale Bandstabilisierung mit Internal-Brace-Augmentation" },
+  bandplastik_autolog: { k: "Bandplastik autolog", b: "Bandplastik mit autologer Sehne", r: "Infektion, Entnahmestellenmorbidität, Nervenverletzung, Rezidivinstabilität, Thrombose", t: "Bandplastik mit autologer Sehne" },
+  ask_osg: { k: "ASK OSG", b: "Arthroskopie des oberen Sprunggelenkes", r: "Infektion, Nerven-/Gefäßverletzung, Knorpelschaden, eingeschränkte Besserung", t: "Arthroskopie des OSG" },
+  arthrodese_osg: { k: "OSG-Arthrodese", b: "Versteifung des oberen Sprunggelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Beinlängendifferenz, Thrombose", t: "OSG-Arthrodese" },
+  tep_infinity: { k: "OSG-TEP (Infinity)", b: "Implantation einer Sprunggelenksprothese (Infinity)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur, Instabilität, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Infinity)" },
+  tep_inbone: { k: "OSG-TEP (Inbone II)", b: "Implantation einer Sprunggelenksprothese (Inbone II)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur, Instabilität, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Inbone II)" },
+  amic: { k: "AMIC", b: "Knorpelrekonstruktion mittels AMIC-Membran und autologer Spongiosa", r: "Infektion, Transplantatversagen, unvollständige Knorpelregeneration, Thrombose", t: "AMIC-Knorpelrekonstruktion" },
+  oats: { k: "OATS", b: "autologe Knorpel-Knochen-Transplantation", r: "Infektion, Entnahmestellenmorbidität, Transplantatversagen, Thrombose", t: "Autologe Knorpel-Knochen-Transplantation (OATS)" },
+  haglund_as_split: { k: "Haglund + AS-Refix", b: "Abtragung der Haglund-Exostose mit Achillessehnen-Refixierung", r: "Infektion, Achillessehnenruptur, Reruptur, Nervenverletzung, Kalzifikationsrezidiv, Thrombose", t: "Haglund-Abtragung mit AS-Split und Refixierung" },
+  mco: { k: "MCO", b: "medialisierende Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Über-/Unterkorrektur, Thrombose", t: "Medialisierende Calcaneus-Osteotomie" },
+  lcot: { k: "LCOT", b: "verlängernde laterale Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Calcaneocuboid-Impingement, Thrombose", t: "Verlängernde Calcaneus-Osteotomie" },
+  cotton: { k: "Cotton-OT", b: "plantarflektierende Cotton-Osteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen", t: "Cotton-Osteotomie" },
+  calcaneus_ot: { k: "Calcaneus-OT", b: "Calcaneus-Osteotomie zur Achskorrektur", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Thrombose", t: "Calcaneus-Korrekturosteotomie" },
+  coalition_exzision: { k: "Coalition-Exzision", b: "Exzision der Koalition mit Interposition eines autologen Faszien-Fett-Flaps vom Unterschenkel", r: "Infekt, fehlende zufriedenstellende Korrektur, Belastungsschmerz, Peronealsehnenspasmus, Folgeeingriffe, Versteifung im Verlauf", t: "Exzision der Koalition mit Faszien-Fett-Interponat und Calcaneus-Korrekturosteotomie" },
+  subtalar_arthrodese: { k: "USG-Arthrodese", b: "primäre Versteifung des unteren Sprunggelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese des unteren Sprunggelenkes" },
+};
+
+const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
+const RISIKEN = ["Nikotinabusus", "Diabetes mellitus", "Rheumatische Erkrankung", "Eingeschränkte Mobilität", "Eingeschränkte häusliche Versorgung", "Z.n. fehlgeschlagener Voroperation", "Adipositas", "Immunsuppression"];
+
+/* ============================================================
+   UI COMPONENTS
+   ============================================================ */
+function BefTog({ b, state, onTog, val, onVal }) {
+  if (b.input) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+        <span style={{ fontSize: 11, color: "#8ab", minWidth: 180 }}>{b.label}:</span>
+        <input value={val || ""} onChange={function(e) { onVal(e.target.value); }} placeholder={b.placeholder}
+          style={{ flex: 1, background: "rgba(0,0,0,.2)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 6, padding: "5px 8px", color: "#c8d6e8", fontSize: 11, fontFamily: "inherit" }} />
+      </div>
+    );
+  }
+  var bg, bd, c, lb;
+  if (state === "pos") { bg = "rgba(93,173,236,.12)"; bd = "#5dadec"; c = "#5dadec"; lb = "✓"; }
+  else if (state === "neg") { bg = "rgba(231,76,60,.1)"; bd = "#e74c3c"; c = "#e74c3c"; lb = "✗"; }
+  else { bg = "rgba(255,255,255,.03)"; bd = "rgba(255,255,255,.1)"; c = "#555"; lb = "—"; }
+  var txt = state === "pos" ? b.pos : state === "neg" ? b.neg : (b.pos ? b.pos.split(",")[0] : "");
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, cursor: "pointer", userSelect: "none" }} onClick={onTog}>
+      <div style={{ width: 22, height: 22, borderRadius: 4, border: "1px solid " + bd, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: c, flexShrink: 0 }}>{lb}</div>
+      <span style={{ fontSize: 11, color: c }}>{txt}</span>
+    </div>
+  );
+}
+
+function Sec({ title, children, open, onToggle }) {
+  return (
+    <div style={{ background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, marginBottom: 8, overflow: "hidden" }}>
+      <div onClick={onToggle} style={{ padding: "10px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", userSelect: "none" }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "#2ecc71" }}>{open ? "▼" : "▶"} {title}</span>
+      </div>
+      {open && <div style={{ padding: "0 14px 14px" }}>{children}</div>}
+    </div>
+  );
+}
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+function App() {
+  var _s = useState, _m = useMemo;
+  var gs = _s(""), gender = gs[0], setGender = gs[1];
+  var bs2 = _s(""), begleitung = bs2[0], setBegleitung = bs2[1];
+  var ss = _s(""), seite = ss[0], setSeite = ss[1];
+  var ds = _s([]), diagnosen = ds[0], setDiagnosen = ds[1];
+  var cs = _s(false), coalitio = cs[0], setCoalitio = cs[1];
+  var cvs = _s(""), coalitioVar = cvs[0], setCoalitioVar = cvs[1];
+  var os = _s([]), opMethode = os[0], setOpMethode = os[1];
+  var oes = _s(true), opEmpfohlen = oes[0], setOpEmpfohlen = oes[1];
+  var dus = _s(""), dauer = dus[0], setDauer = dus[1];
+  var des = _s("Monaten"), dauerEinheit = des[0], setDauerEinheit = des[1];
+  var hs = _s(""), haeufigkeit = hs[0], setHaeufigkeit = hs[1];
+  var bls = _s([]), belastung = bls[0], setBelastung = bls[1];
+  var ls = _s(true), leidensdruck = ls[0], setLeidensdruck = ls[1];
+  var brs = _s(""), beruf = brs[0], setBeruf = brs[1];
+  var aks = _s(""), aktivitaet = aks[0], setAktivitaet = aks[1];
+  var vos = _s(""), vorOPs = vos[0], setVorOPs = vos[1];
+  var kbs = _s([]), konservBisher = kbs[0], setKonservBisher = kbs[1];
+  var fas = _s(""), freitextAnam = fas[0], setFreitextAnam = fas[1];
+  var ris = _s([]), risiken = ris[0], setRisiken = ris[1];
+  var frs = _s(""), freitextRisiko = frs[0], setFreitextRisiko = frs[1];
+  var bss = _s({}), befState = bss[0], setBefState = bss[1];
+  var bis = _s({}), befInputs = bis[0], setBefInputs = bis[1];
+  var fus = _s(""), freitextUnters = fus[0], setFreitextUnters = fus[1];
+  var bils = _s([{ typ: "", region: "", datum: "", befund: "" }]), bilder = bils[0], setBilder = bils[1];
+  var fabs = _s(""), freitextAbschluss = fabs[0], setFreitextAbschluss = fabs[1];
+  var secs = _s({ anam: true, risiko: false, unters: false, bild: false, abschluss: false }), sec = secs[0], setSec = secs[1];
+  var pvs = _s(false), showPv = pvs[0], setShowPv = pvs[1];
+  var ts = _s(""), toast = ts[0], setToast = ts[1];
+
+  function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
+  function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
+  function togDiag(d) { setDiagnosen(function(p) { return p.indexOf(d) >= 0 ? p.filter(function(x) { return x !== d; }) : p.concat([d]).slice(0, 2); }); setOpMethode([]); }
+  function togBef(id) { setBefState(function(p) { var n = {}; for (var x in p) n[x] = p[x]; if (!p[id]) { n[id] = "pos"; } else if (p[id] === "pos") { n[id] = "neg"; } else { delete n[id]; } return n; }); }
+
+  var dd = gender === "m" ? "Der Patient" : "Die Patientin";
+  var dd2 = gender === "m" ? "der Patient" : "die Patientin";
+  var dem = gender === "m" ? "dem Patienten" : "der Patientin";
+  var sich = gender === "m" ? "Er" : "Sie";
+
+  var availBef = _m(function() {
+    var all = [], seen = {};
+    diagnosen.forEach(function(d) {
+      var diag = DIAG[d];
+      if (diag && diag.befunde) diag.befunde.forEach(function(b) { if (!seen[b.id]) { seen[b.id] = true; all.push(b); } });
+    });
+    if (coalitio) COALITIO_BEFUNDE.forEach(function(b) { if (!seen[b.id]) { seen[b.id] = true; all.push(b); } });
+    return all;
+  }, [diagnosen, coalitio]);
+
+  var availOPs = _m(function() {
+    var all = {};
+    diagnosen.forEach(function(d) {
+      var diag = DIAG[d];
+      if (diag && diag.opMethoden) diag.opMethoden.forEach(function(m) { all[m] = true; });
+    });
+    if (coalitio) { all["coalition_exzision"] = true; all["subtalar_arthrodese"] = true; }
+    return Object.keys(all);
+  }, [diagnosen, coalitio]);
+
+  var fullText = _m(function() {
+    if (!gender || diagnosen.length === 0) return "";
+    var p = [];
+    p.push("Sehr geehrte Damen und Herren,\n\n");
+    p.push("Wir berichten über " + dd2 + ", " + (gender === "m" ? "der" : "die") + " sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vorstellte.\n\n");
+
+    // Diagnose
+    var diagParts = diagnosen.map(function(d) { return DIAG[d] ? DIAG[d].diagnoseText : ""; });
+    if (coalitio && coalitioVar) diagParts.push(coalDiagText(coalitioVar));
+    var diagText = diagParts.filter(Boolean).join(", ") + (seite ? " " + seite : "");
+    p.push("Diagnosen: " + diagText);
+
+    // Therapieempfehlung
+    var ops = opMethode.filter(function(m) { return OPS[m]; });
+    if (ops.length > 0) {
+      var opTexte = ops.map(function(m) { return OPS[m].t; });
+      p.push("\nTherapieempfehlung: Elektive operative Option: " + opTexte.join(", ") + (seite ? ", " + seite + " gewünscht" : ""));
+    }
+    p.push("\n\n");
+
+    // Anamnese
+    var anam = dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor.";
+    diagnosen.forEach(function(d, i) {
+      var loc = DIAG[d] ? DIAG[d].lokBeschwerden : "am Fuß";
+      if (i === 0) anam += " Es wurden Beschwerden " + loc + " seit " + (dauer || "___") + " " + dauerEinheit + " beklagt.";
+      else anam += " Darüber hinaus bestehen Beschwerden " + loc + ".";
+    });
+    if (haeufigkeit || belastung.length > 0) {
+      anam += " Diese treten " + (haeufigkeit || "") + (belastung.length > 0 ? " " + belastung.join(" und ") : "") + " auf.";
+    }
+    if (leidensdruck) anam += " Es besteht ein relevanter Leidensdruck.";
+    if (beruf) anam += " Die berufliche Tätigkeit als " + beruf + " ist eingeschränkt.";
+    if (aktivitaet) anam += " " + sich + " ist sportlich aktiv (" + aktivitaet + ").";
+    if (vorOPs) anam += " " + sich + " beschreibt " + vorOPs + " Voroperationen am Fuß.";
+    if (konservBisher.length > 0) anam += " Bisher erfolgten folgende konservative Maßnahmen: " + konservBisher.join(", ") + ".";
+    if (freitextAnam) anam += " " + freitextAnam;
+    p.push(anam);
+
+    // Risikofaktoren
+    if (risiken.length > 0) {
+      p.push("\n\nEs bestehen folgende Risikofaktoren: " + risiken.join(", ") + "." + (freitextRisiko ? " " + freitextRisiko : ""));
+    }
+
+    // Untersuchung
+    var bef = [];
+    availBef.forEach(function(b) {
+      if (b.input && befInputs[b.id]) bef.push(b.label + ": " + befInputs[b.id] + " Grad");
+      else if (befState[b.id] === "pos") bef.push(b.pos);
+      else if (befState[b.id] === "neg") bef.push(b.neg);
+    });
+    if (bef.length > 0 || freitextUnters) {
+      p.push("\n\nKlinische Untersuchung:\n" + bef.join(", ") + "." + (freitextUnters ? " " + freitextUnters : ""));
+    }
+
+    // Bildgebung
+    var bv = bilder.filter(function(b) { return b.typ || b.befund; });
+    if (bv.length > 0) {
+      var sText = seite === "links" ? "linken" : seite === "rechts" ? "rechten" : seite === "bds" ? "beider" : "";
+      var sKurz = seite === "links" ? "links" : seite === "rechts" ? "rechts" : seite === "bds" ? "beidseits" : "";
+      var bt = "\n\nBildgebung:\n";
+      bv.forEach(function(b, i) {
+        if (i > 0) bt += "\n";
+        var regionText = "";
+        if (b.typ === "MRT") {
+          if (b.region === "fuss") regionText = "MRT des " + sText + " Fußes";
+          else if (b.region === "osg") regionText = "MRT des " + sText + " Sprunggelenkes";
+          else regionText = "MRT " + (b.region || "___");
+        } else if (b.typ === "CT") {
+          if (b.region === "fuss") regionText = "CT des " + sText + " Fußes";
+          else if (b.region === "osg") regionText = "CT des " + sText + " Sprunggelenkes";
+          else regionText = "CT " + (b.region || "___");
+        } else if (b.typ === "Röntgen") {
+          if (b.region === "fuss_2eb") regionText = "Röntgen " + sKurz + " Fuß in 2 Ebenen";
+          else if (b.region === "fuss_2eb_stand") regionText = "Röntgen " + sKurz + " Fuß in 2 Ebenen im Stand";
+          else if (b.region === "quartett") regionText = "Röntgen " + sKurz + " Fußquartett (Fuß im Stand in 2 Ebenen, Sprunggelenk a.p. und Saltzman-Rückfußaufnahme)";
+          else regionText = "Röntgen " + (b.region || "___");
+        } else {
+          regionText = (b.typ || "___") + " " + (b.region || "___");
+        }
+        var datumText = b.datum === "heute" ? "vom heutigen Tag" : (b.datum || "___");
+        bt += regionText + " " + datumText + ": " + (b.befund || "___");
+      });
+      p.push(bt);
+    }
+
+    // Abschluss
+    var konservOptionen = [];
+    diagnosen.forEach(function(d) {
+      var diag = DIAG[d];
+      if (diag && diag.konservativ) diag.konservativ.forEach(function(k) { if (konservOptionen.indexOf(k) < 0) konservOptionen.push(k); });
+    });
+    var ab = "\n\n" + dd + " wurde über die konservativen Optionen und den möglichen Eingriff aufgeklärt.";
+    if (konservOptionen.length > 0) ab += " Konservativ könnten " + konservOptionen.join(", ") + " erfolgen.";
+    if (ops.length > 0) {
+      var opBeschr = ops.map(function(m) { return OPS[m].b; });
+      ab += "\n\nOperativ kann " + opBeschr.join(" sowie ") + " vorgenommen werden.";
+      var allRisiken = [];
+      ops.forEach(function(m) { OPS[m].r.split(", ").forEach(function(r) { if (allRisiken.indexOf(r) < 0) allRisiken.push(r); }); });
+      ab += "\n\nEs bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: " + allRisiken.join(", ") + ").";
+    }
+    if (risiken.length > 0) {
+      ab += "\n\nEs besteht aufgrund der Vorerkrankungen ein erhöhtes Risiko für Komplikationen." + (freitextRisiko ? " " + freitextRisiko : "");
+    }
+    if (freitextAbschluss) ab += "\n\n" + freitextAbschluss;
+    if (opEmpfohlen && ops.length > 0) {
+      ab += "\n\nNach gründlicher Abwägung bieten wir " + dem + " den oben genannten Eingriff an.";
+      ab += "\n\nGerne kann sich auch eine weitere Meinung eingeholt werden (beispielsweise in einem anderen zertifizierten Fußzentrum, Sie finden die Einrichtung in Ihrer Nähe auf www.clarmap.de). Der Eingriff ist elektiv.";
+    } else {
+      ab += "\n\nNach gründlicher Abwägung raten wir zu konservativer weiterer Therapie.";
+    }
+    // Literaturempfehlungen
+    var litArr = [];
+    diagnosen.forEach(function(d) {
+      var diag = DIAG[d];
+      if (diag && diag.literatur) litArr.push(diag.literatur);
+      if (diag && diag.literaturTEP && ops.some(function(o) { return o.indexOf("tep") >= 0; })) litArr.push(diag.literaturTEP);
+    });
+    if (litArr.length > 0) {
+      ab += "\n\nZur weiteren Information empfehlen wir folgende wissenschaftliche Übersichtsarbeit" + (litArr.length > 1 ? "en" : "") + ":\n" + litArr.join("\n");
+    }
+    ab += "\n\nMit freundlichen Grüßen,";
+    p.push(ab);
+    return p.join("");
+  }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, vorOPs, konservBisher, freitextAnam, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich]);
+
+  function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
+  function copy() { try { navigator.clipboard.writeText(fullText); showToast("📋 Kopiert!"); } catch (e) { } }
+
+  var C = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #2ecc71" : "1px solid rgba(255,255,255,.1)", background: s ? "rgba(46,204,113,.15)" : "rgba(255,255,255,.04)", color: s ? "#fff" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }; };
+  var CB = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #5dadec" : "1px solid rgba(255,255,255,.1)", background: s ? "rgba(93,173,236,.15)" : "rgba(255,255,255,.04)", color: s ? "#fff" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }; };
+  var GB = function(s) { return { padding: "9px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: s ? "2px solid #2ecc71" : "2px solid rgba(255,255,255,.1)", background: s ? "rgba(46,204,113,.12)" : "rgba(255,255,255,.03)", color: s ? "#fff" : "#9ab", display: "inline-flex", alignItems: "center", gap: 5, margin: 3 }; };
+  var row = { display: "flex", flexWrap: "wrap", gap: 3 };
+  var card = { background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, padding: 14, marginBottom: 10 };
+  var h3s = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#2ecc71", marginBottom: 8 };
+  var cat = { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#5a7090", margin: "10px 0 4px" };
+
+  var diagKeys = Object.keys(DIAG);
+
+  return (
+    <div style={{ fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: "#0d1825", minHeight: "100vh", color: "#dde4f0", padding: "14px 16px", maxWidth: 800, margin: "0 auto" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');*{box-sizing:border-box;margin:0;padding:0}input,textarea{width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px 10px;color:#c8d6e8;font-size:12px;font-family:inherit;resize:vertical}input:focus,textarea:focus{outline:0;border-color:rgba(46,204,113,.4)}`}</style>
+      {toast && <div style={{ position: "fixed", bottom: 16, right: 16, padding: "10px 20px", borderRadius: 8, background: "#27ae60", color: "#fff", fontSize: 12, fontWeight: 500, zIndex: 99 }}>{toast}</div>}
+
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#2ecc71,#27ae60)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
+        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 9, color: "#5a7090" }}>Fußchirurgie · v3</div></div>
+      </div>
+
+      <div style={card}>
+        <div style={h3s}>Patient & Diagnose</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          <div><div style={{ fontSize: 9, color: "#5a7090", fontWeight: 700, marginBottom: 3 }}>GESCHLECHT</div><div style={row}><div style={GB(gender === "m")} onClick={function() { setGender("m"); }}>♂ Herr</div><div style={GB(gender === "w")} onClick={function() { setGender("w"); }}>♀ Frau</div></div></div>
+          <div><div style={{ fontSize: 9, color: "#5a7090", fontWeight: 700, marginBottom: 3 }}>SEITE</div><div style={row}><div style={GB(seite === "links")} onClick={function() { setSeite(seite === "links" ? "" : "links"); }}>Links</div><div style={GB(seite === "rechts")} onClick={function() { setSeite(seite === "rechts" ? "" : "rechts"); }}>Rechts</div><div style={GB(seite === "bds")} onClick={function() { setSeite(seite === "bds" ? "" : "bds"); }}>Bds.</div></div></div>
+        </div>
+        <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#5a7090", fontWeight: 700, marginBottom: 3 }}>BEGLEITUNG (optional)</div><input value={begleitung} onChange={function(e) { setBegleitung(e.target.value); }} placeholder="z.B. des Vaters, der Mutter..." /></div>
+        <div style={cat}>Diagnose(n) – max. 2</div>
+        <div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>
+        {diagnosen.indexOf("knick_senk") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(46,204,113,.2)", paddingLeft: 10 }}>
+          <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: coalitio ? "1px solid #e67e22" : "1px solid rgba(255,255,255,.1)", background: coalitio ? "rgba(230,126,34,.12)" : "rgba(255,255,255,.04)", color: coalitio ? "#f39c12" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setCoalitio(!coalitio); setCoalitioVar(""); }}>+ Coalitio</div>
+          {coalitio && <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginTop: 4 }}>
+            <div style={CB(coalitioVar === "talo_calc")} onClick={function() { setCoalitioVar(coalitioVar === "talo_calc" ? "" : "talo_calc"); }}>Talo-Calcanear</div>
+            <div style={CB(coalitioVar === "calc_nav")} onClick={function() { setCoalitioVar(coalitioVar === "calc_nav" ? "" : "calc_nav"); }}>Calcaneo-Naviculär</div>
+          </div>}
+        </div>}
+        {diagnosen.length > 0 && <div><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
+      </div>
+
+      {gender && diagnosen.length > 0 && <div>
+        <Sec title="① Anamnese" open={sec.anam} onToggle={function() { togSec("anam"); }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
+            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Dauer</div><div style={row}>{["1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(dauer === n)} onClick={function() { setDauer(dauer === n ? "" : n); }}>{n}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Einheit</div><div style={row}>{["Wochen", "Monaten", "Jahren"].map(function(e) { return <div key={e} style={CB(dauerEinheit === e)} onClick={function() { setDauerEinheit(e); }}>{e}</div>; })}</div></div>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
+            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Häufigkeit</div><div style={row}>{["selten", "häufig", "dauerhaft"].map(function(h) { return <div key={h} style={CB(haeufigkeit === h)} onClick={function() { setHaeufigkeit(haeufigkeit === h ? "" : h); }}>{h}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Auftreten (Mehrfach)</div><div style={row}>{["bei Belastung", "in Ruhe", "nachts", "beim Gehen", "beim Sport"].map(function(b) { return <div key={b} style={CB(belastung.indexOf(b) >= 0)} onClick={function() { togArr(b, belastung, setBelastung); }}>{b}</div>; })}</div></div>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 6 }}><div style={CB(leidensdruck)} onClick={function() { setLeidensdruck(!leidensdruck); }}>Relevanter Leidensdruck</div></div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
+            <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Beruf</div><input value={beruf} onChange={function(e) { setBeruf(e.target.value); }} placeholder="z.B. Bürokauffrau..." /></div>
+            <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Sport / Aktivität</div><input value={aktivitaet} onChange={function(e) { setAktivitaet(e.target.value); }} placeholder="z.B. Hockey, Fußball..." /></div>
+            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["0","1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
+          </div>
+          <div style={cat}>Bisherige konservative Maßnahmen</div>
+          <div style={row}>{KONSERV.map(function(k) { return <div key={k} style={CB(konservBisher.indexOf(k) >= 0)} onClick={function() { togArr(k, konservBisher, setKonservBisher); }}>{k}</div>; })}</div>
+          <textarea placeholder="Freitext Anamnese..." value={freitextAnam} onChange={function(e) { setFreitextAnam(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
+        </Sec>
+
+        <Sec title="② Risikofaktoren" open={sec.risiko} onToggle={function() { togSec("risiko"); }}>
+          <div style={row}>{RISIKEN.map(function(r) { var sel = risiken.indexOf(r) >= 0; return <div key={r} style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: sel ? "1px solid #e67e22" : "1px solid rgba(255,255,255,.1)", background: sel ? "rgba(230,126,34,.12)" : "rgba(255,255,255,.04)", color: sel ? "#f39c12" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { togArr(r, risiken, setRisiken); }}>{r}</div>; })}</div>
+          <textarea placeholder="Freitext..." value={freitextRisiko} onChange={function(e) { setFreitextRisiko(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
+        </Sec>
+
+        <Sec title="③ Klinische Untersuchung" open={sec.unters} onToggle={function() { togSec("unters"); }}>
+          <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 6 }}>Klicken: — → ✓ (positiv) → ✗ (negativ) → —</div>
+          {availBef.map(function(b) { return <BefTog key={b.id} b={b} state={befState[b.id] || null} onTog={function() { togBef(b.id); }} val={befInputs[b.id]} onVal={function(v) { setBefInputs(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[b.id] = v; return n; }); }} />; })}
+          <textarea placeholder="Freitext Befund..." value={freitextUnters} onChange={function(e) { setFreitextUnters(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
+        </Sec>
+
+        <Sec title="④ Bildgebung" open={sec.bild} onToggle={function() { togSec("bild"); }}>
+          {bilder.map(function(b, i) {
+            var seitenText = seite === "links" ? "linken" : seite === "rechts" ? "rechten" : seite === "bds" ? "beider" : "";
+            var seitenKurz = seite === "links" ? "links" : seite === "rechts" ? "rechts" : seite === "bds" ? "beidseits" : "";
+            var regionOptionen = [];
+            if (b.typ === "MRT") regionOptionen = [{id:"fuss",l:"Fuß",t:"MRT des " + seitenText + " Fußes"},{id:"osg",l:"Sprunggelenk",t:"MRT des " + seitenText + " Sprunggelenkes"}];
+            else if (b.typ === "CT") regionOptionen = [{id:"fuss",l:"Fuß",t:"CT des " + seitenText + " Fußes"},{id:"osg",l:"Sprunggelenk",t:"CT des " + seitenText + " Sprunggelenkes"}];
+            else if (b.typ === "Röntgen") regionOptionen = [
+              {id:"fuss_2eb",l:"Fuß in 2 Ebenen",t:"Röntgen " + seitenKurz + " Fuß in 2 Ebenen"},
+              {id:"fuss_2eb_stand",l:"Fuß in 2 Ebenen im Stand",t:"Röntgen " + seitenKurz + " Fuß in 2 Ebenen im Stand"},
+              {id:"quartett",l:"Fußquartett",t:"Röntgen " + seitenKurz + " Fußquartett (Fuß im Stand in 2 Ebenen, Sprunggelenk a.p. und Saltzman-Rückfußaufnahme)"}
+            ];
+            var selRegion = regionOptionen.find(function(r) { return r.id === b.region; });
+            return <div key={i} style={{ padding: 8, borderRadius: 6, background: "rgba(255,255,255,.02)", border: "1px solid rgba(255,255,255,.05)", marginBottom: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: "#2ecc71", marginBottom: 4 }}>Bildgebung {i + 1}</div>
+                {bilder.length > 1 && <div style={{ fontSize: 9, color: "#e74c3c", cursor: "pointer" }} onClick={function() { setBilder(bilder.filter(function(x, j) { return j !== i; })); }}>✕ Entfernen</div>}
+              </div>
+              <div style={{ marginBottom: 4 }}>
+                <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Typ</div>
+                <div style={row}>{["MRT", "CT", "Röntgen"].map(function(t) { return <div key={t} style={CB(b.typ === t)} onClick={function() { var n = bilder.slice(); n[i] = { typ: t, region: "", datum: b.datum, befund: b.befund }; setBilder(n); }}>{t}</div>; })}</div>
+              </div>
+              {b.typ && regionOptionen.length > 0 && <div style={{ marginBottom: 4 }}>
+                <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Region {seitenKurz ? "(Seite: " + seitenKurz + ")" : ""}</div>
+                <div style={row}>{regionOptionen.map(function(r) { return <div key={r.id} style={CB(b.region === r.id)} onClick={function() { var n = bilder.slice(); n[i] = { typ: b.typ, region: r.id, datum: b.datum, befund: b.befund }; setBilder(n); }}>{r.l}</div>; })}</div>
+              </div>}
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+                <div style={{ flex: "0 0 120px" }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Datum</div><input value={b.datum === "heute" ? "" : (b.datum || "")} onChange={function(e) { var n = bilder.slice(); n[i] = { typ: b.typ, region: b.region, datum: e.target.value, befund: b.befund }; setBilder(n); }} placeholder="TT.MM.JJJJ" /></div>
+                <div style={{ display: "flex", alignItems: "flex-end" }}><div style={CB(b.datum === "heute")} onClick={function() { var n = bilder.slice(); n[i] = { typ: b.typ, region: b.region, datum: b.datum === "heute" ? "" : "heute", befund: b.befund }; setBilder(n); }}>heute (in Sprechstunde)</div></div>
+              </div>
+              <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Befund</div>
+              <textarea value={b.befund} onChange={function(e) { var n = bilder.slice(); n[i] = { typ: b.typ, region: b.region, datum: b.datum, befund: e.target.value }; setBilder(n); }} placeholder="Befund..." rows={2} />
+            </div>;
+          })}
+          <div style={CB(false)} onClick={function() { setBilder(bilder.concat([{ typ: "", region: "", datum: "", befund: "" }])); }}>+ Weitere Bildgebung</div>
+        </Sec>
+
+        <Sec title="⑤ Abschluss & Empfehlung" open={sec.abschluss} onToggle={function() { togSec("abschluss"); }}>
+          <div style={cat}>Empfehlung</div>
+          <div style={row}>
+            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: opEmpfohlen ? "1px solid #2ecc71" : "1px solid rgba(255,255,255,.1)", background: opEmpfohlen ? "rgba(46,204,113,.15)" : "rgba(255,255,255,.04)", color: opEmpfohlen ? "#2ecc71" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(true); }}>✓ OP empfohlen</div>
+            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: !opEmpfohlen ? "1px solid #e67e22" : "1px solid rgba(255,255,255,.1)", background: !opEmpfohlen ? "rgba(230,126,34,.12)" : "rgba(255,255,255,.04)", color: !opEmpfohlen ? "#f39c12" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(false); }}>Konservativ empfohlen</div>
+          </div>
+          {opMethode.length > 0 && <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: "rgba(46,204,113,.04)", border: "1px solid rgba(46,204,113,.12)" }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "#2ecc71", marginBottom: 4 }}>OP: {opMethode.map(function(m) { return OPS[m] ? OPS[m].k : m; }).join(" + ")}</div>
+          </div>}
+          <div style={{ marginTop: 8, fontSize: 9, color: "#5a7090" }}>Konservative Optionen werden automatisch aus dem Krankheitsbild übernommen.</div>
+          <textarea placeholder="Freitext Abschluss..." value={freitextAbschluss} onChange={function(e) { setFreitextAbschluss(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
+        </Sec>
+
+        <div style={card}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+            <div style={h3s}>Vorschau & Export</div>
+            <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#2ecc71", color: "#0d1825", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
+          </div>
+          <div style={{ cursor: "pointer", fontSize: 11, color: "#2ecc71", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
+          {showPv && <div style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#c0d4ec", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
