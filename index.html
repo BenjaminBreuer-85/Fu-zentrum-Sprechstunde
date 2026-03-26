@@ -356,7 +356,11 @@ function App() {
       else anam += " Darüber hinaus bestehen Beschwerden " + loc + ".";
     });
     if (haeufigkeit || belastung.length > 0) {
-      anam += " Diese treten " + (haeufigkeit || "") + (belastung.length > 0 ? " " + belastung.join(" und ") : "") + " auf.";
+      var belText = "";
+      if (belastung.length === 1) belText = belastung[0];
+      else if (belastung.length === 2) belText = belastung[0] + " und " + belastung[1];
+      else if (belastung.length > 2) belText = belastung.slice(0, -1).join(", ") + " und " + belastung[belastung.length - 1];
+      anam += " Diese treten " + (haeufigkeit || "") + (belText ? " " + belText : "") + " auf.";
     }
     if (leidensdruck) anam += " Es besteht ein relevanter Leidensdruck.";
     if (beruf) anam += " Die berufliche Tätigkeit als " + beruf + " ist eingeschränkt.";
@@ -420,13 +424,12 @@ function App() {
       if (diag && diag.konservativ) diag.konservativ.forEach(function(k) { if (konservOptionen.indexOf(k) < 0) konservOptionen.push(k); });
     });
     var ab = "\n\n" + dd + " wurde über die konservativen Optionen und den möglichen Eingriff aufgeklärt.";
-    if (konservOptionen.length > 0) ab += " Konservativ könnten " + konservOptionen.join(", ") + " erfolgen.";
+    if (konservOptionen.length > 0) ab += " Es bestehen konservative Alternativen: " + konservOptionen.join(", ") + ".";
     if (ops.length > 0) {
       var opBeschr = ops.map(function(m) { return OPS[m].b; });
-      ab += "\n\nOperativ kann " + opBeschr.join(" sowie ") + " vorgenommen werden.";
       var allRisiken = [];
       ops.forEach(function(m) { OPS[m].r.split(", ").forEach(function(r) { if (allRisiken.indexOf(r) < 0) allRisiken.push(r); }); });
-      ab += "\n\nEs bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: " + allRisiken.join(", ") + ").";
+      ab += "\n\nOperativ kann " + opBeschr.join(" sowie ") + " vorgenommen werden. Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: " + allRisiken.join(", ") + ").";
     }
     if (risiken.length > 0) {
       ab += "\n\nEs besteht aufgrund der Vorerkrankungen ein erhöhtes Risiko für Komplikationen." + (freitextRisiko ? " " + freitextRisiko : "");
@@ -455,6 +458,32 @@ function App() {
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() { try { navigator.clipboard.writeText(fullText); showToast("📋 Kopiert!"); } catch (e) { } }
+  function downloadWord() {
+    try {
+      var lines = fullText.split("\n");
+      var htmlBody = lines.map(function(line) {
+        if (!line.trim()) return "";
+        if (line.startsWith("Diagnosen:") || line.startsWith("Therapieempfehlung:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:")) {
+          return "<p style='margin:6pt 0 2pt;font-weight:bold;font-size:11pt;font-family:Arial'>" + line + "</p>";
+        }
+        if (line.startsWith("Zur weiteren Information")) {
+          return "<p style='margin:6pt 0 0;font-size:9pt;font-family:Arial;color:#555'>" + line + "</p>";
+        }
+        return "<p style='margin:2pt 0;font-size:11pt;font-family:Arial'>" + line + "</p>";
+      }).join("");
+      var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>@page{margin:2.5cm}</style></head><body>" + htmlBody + "</body></html>";
+      var blob = new Blob(["\ufeff" + html], { type: "application/msword" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "Sprechstundenbrief.doc";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("📄 Word-Datei heruntergeladen!");
+    } catch (e) { showToast("Fehler beim Download"); }
+  }
 
   var C = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #2ecc71" : "1px solid rgba(255,255,255,.1)", background: s ? "rgba(46,204,113,.15)" : "rgba(255,255,255,.04)", color: s ? "#fff" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }; };
   var CB = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #5dadec" : "1px solid rgba(255,255,255,.1)", background: s ? "rgba(93,173,236,.15)" : "rgba(255,255,255,.04)", color: s ? "#fff" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }; };
@@ -580,7 +609,10 @@ function App() {
         <div style={card}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
             <div style={h3s}>Vorschau & Export</div>
-            <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#2ecc71", color: "#0d1825", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#2ecc71", color: "#0d1825", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
+              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#3498db", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
+            </div>
           </div>
           <div style={{ cursor: "pointer", fontSize: 11, color: "#2ecc71", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
           {showPv && <div style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#c0d4ec", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
