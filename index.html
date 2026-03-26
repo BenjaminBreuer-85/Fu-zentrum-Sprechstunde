@@ -200,28 +200,29 @@ function coalBildText(v) {
 }
 
 const OPS = {
-  chevron: { k: "Chevron-Osteotomie", b: "Chevron-Osteotomie zur Korrektur der Hallux-valgus-Fehlstellung", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Über-/Unterkorrektur, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron-Osteotomie" },
-  chevron_akin: { k: "Chevron + Akin", b: "Chevron- und Akin-Osteotomie", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron- und Akin-Osteotomie" },
-  lapidus: { k: "Lapidus-Arthrodese", b: "Lapidus-Arthrodese bei TMT-I-Instabilität", r: "Infektion, Wundheilungsstörung, Pseudarthrose, Anschlussdegenerationen, Materialversagen, Thrombose", t: "Lapidus-Arthrodese" },
-  lapidus_subcap: { k: "Lapidus + Subcapitale", b: "Lapidus-Arthrodese mit subcapitaler Korrekturosteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen, Thrombose", t: "Lapidus-Arthrodese mit subcapitaler Korrektur" },
-  cheilektomie: { k: "Cheilektomie", b: "Cheilektomie zur Abtragung dorsaler Osteophyten", r: "Infektion, eingeschränkte Besserung, Rezidiv, Steifigkeit", t: "Cheilektomie MTP I" },
-  mtp1_arthrodese: { k: "MTP-I-Arthrodese", b: "Versteifung des Großzehengrundgelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "MTP-I-Arthrodese" },
-  brostrom_gould: { k: "Brostrom-Gould", b: "offene laterale Bandstabilisierung nach Brostrom-Gould", r: "Infektion, Nervenverletzung, Rezidivinstabilität, Steifigkeit, Thrombose", t: "Laterale Bandstabilisierung nach Brostrom-Gould" },
-  brostrom_int_brace: { k: "Brostrom + Internal Brace", b: "Bandstabilisierung mit Internal-Brace-Augmentation", r: "Infektion, Nervenverletzung, Rezidivinstabilität, Materialreaktion, Thrombose", t: "Laterale Bandstabilisierung mit Internal-Brace-Augmentation" },
-  bandplastik_autolog: { k: "Bandplastik autolog", b: "Bandplastik mit autologer Sehne", r: "Infektion, Entnahmestellenmorbidität, Nervenverletzung, Rezidivinstabilität, Thrombose", t: "Bandplastik mit autologer Sehne" },
-  ask_osg: { k: "ASK OSG", b: "Arthroskopie des oberen Sprunggelenkes", r: "Infektion, Nerven-/Gefäßverletzung, Knorpelschaden, eingeschränkte Besserung", t: "Arthroskopie des OSG" },
-  arthrodese_osg: { k: "OSG-Arthrodese", b: "Versteifung des oberen Sprunggelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Beinlängendifferenz, Thrombose", t: "OSG-Arthrodese" },
-  tep_infinity: { k: "OSG-TEP (Infinity)", b: "Implantation einer Sprunggelenksprothese (Infinity)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur, Instabilität, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Infinity)" },
-  tep_inbone: { k: "OSG-TEP (Inbone II)", b: "Implantation einer Sprunggelenksprothese (Inbone II)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur, Instabilität, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Inbone II)" },
-  amic: { k: "AMIC", b: "Knorpelrekonstruktion mittels AMIC-Membran und autologer Spongiosa", r: "Infektion, Transplantatversagen, unvollständige Knorpelregeneration, Thrombose", t: "AMIC-Knorpelrekonstruktion" },
-  oats: { k: "OATS", b: "autologe Knorpel-Knochen-Transplantation", r: "Infektion, Entnahmestellenmorbidität, Transplantatversagen, Thrombose", t: "Autologe Knorpel-Knochen-Transplantation (OATS)" },
-  haglund_as_split: { k: "Haglund + AS-Refix", b: "Abtragung der Haglund-Exostose mit Achillessehnen-Refixierung", r: "Infektion, Achillessehnenruptur, Reruptur, Nervenverletzung, Kalzifikationsrezidiv, Thrombose", t: "Haglund-Abtragung mit AS-Split und Refixierung" },
-  mco: { k: "MCO", b: "medialisierende Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Über-/Unterkorrektur, Thrombose", t: "Medialisierende Calcaneus-Osteotomie" },
-  lcot: { k: "LCOT", b: "verlängernde laterale Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Calcaneocuboid-Impingement, Thrombose", t: "Verlängernde Calcaneus-Osteotomie" },
-  cotton: { k: "Cotton-OT", b: "plantarflektierende Cotton-Osteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen", t: "Cotton-Osteotomie" },
-  calcaneus_ot: { k: "Calcaneus-OT", b: "Calcaneus-Osteotomie zur Achskorrektur", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Thrombose", t: "Calcaneus-Korrekturosteotomie" },
-  coalition_exzision: { k: "Coalition-Exzision", b: "Exzision der Koalition mit Interposition eines autologen Faszien-Fett-Flaps vom Unterschenkel", r: "Infekt, fehlende zufriedenstellende Korrektur, Belastungsschmerz, Peronealsehnenspasmus, Folgeeingriffe, Versteifung im Verlauf", t: "Exzision der Koalition mit Faszien-Fett-Interponat und Calcaneus-Korrekturosteotomie" },
-  subtalar_arthrodese: { k: "USG-Arthrodese", b: "primäre Versteifung des unteren Sprunggelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese des unteren Sprunggelenkes" },
+  chevron: { k: "Chevron-Osteotomie", b: "eine Chevron-Osteotomie zur Korrektur der Hallux-valgus-Fehlstellung", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Über-/Unterkorrektur, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron-Osteotomie" },
+  chevron_akin: { k: "Chevron + Akin", b: "eine Chevron- und Akin-Osteotomie", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron- und Akin-Osteotomie" },
+  lapidus: { k: "Lapidus-Arthrodese", b: "eine Lapidus-Arthrodese bei TMT-I-Instabilität", r: "Infektion, Wundheilungsstörung, Pseudarthrose, Anschlussdegenerationen, Materialversagen, Thrombose", t: "Lapidus-Arthrodese" },
+  lapidus_subcap: { k: "Lapidus + Subcapitale", b: "eine Lapidus-Arthrodese mit subcapitaler Korrekturosteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen, Thrombose", t: "Lapidus-Arthrodese mit subcapitaler Korrektur" },
+  cheilektomie: { k: "Cheilektomie", b: "eine Cheilektomie zur Abtragung dorsaler Osteophyten", r: "Infektion, eingeschränkte Besserung, Rezidiv, Steifigkeit", t: "Cheilektomie MTP I" },
+  mtp1_arthrodese: { k: "MTP-I-Arthrodese", b: "eine Versteifung des Großzehengrundgelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "MTP-I-Arthrodese" },
+  brostrom_gould: { k: "Brostrom-Gould", b: "eine offene laterale Bandstabilisierung nach Brostrom-Gould", r: "Infektion, Nervenverletzung, Rezidivinstabilität, Steifigkeit, Thrombose", t: "Laterale Bandstabilisierung nach Brostrom-Gould" },
+  brostrom_int_brace: { k: "Brostrom + Internal Brace", b: "eine Bandstabilisierung mit Internal-Brace-Augmentation", r: "Infektion, Nervenverletzung, Rezidivinstabilität, Materialreaktion, Thrombose", t: "Laterale Bandstabilisierung mit Internal-Brace-Augmentation" },
+  bandplastik_autolog: { k: "Bandplastik autolog", b: "eine Bandplastik mit autologer Sehne", r: "Infektion, Entnahmestellenmorbidität, Nervenverletzung, Rezidivinstabilität, Thrombose", t: "Bandplastik mit autologer Sehne" },
+  ask_osg: { k: "ASK OSG", b: "eine Arthroskopie des oberen Sprunggelenkes", r: "Infektion, Nerven-/Gefäßverletzung, Knorpelschaden, eingeschränkte Besserung", t: "Arthroskopie des OSG" },
+  arthrodese_osg: { k: "OSG-Arthrodese", b: "eine Versteifung des oberen Sprunggelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Beinlängendifferenz, Thrombose", t: "OSG-Arthrodese, Augmentation durch autologe Beckenkammspongiosa" },
+  tep_infinity: { k: "OSG-TEP (Infinity)", b: "die Implantation einer Sprunggelenksprothese (Infinity)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur des Innenknöchels/periimplantäre Fraktur mit Osteosynthese, Instabilität, unbefriedigende Standzeit, aufwendigerer Wechsel auf Versteifung, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Infinity)" },
+  tep_inbone: { k: "OSG-TEP (Inbone II)", b: "die Implantation einer Sprunggelenksprothese (Inbone II)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur des Innenknöchels/periimplantäre Fraktur mit Osteosynthese, Instabilität, unbefriedigende Standzeit, aufwendigerer Wechsel auf Versteifung, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Inbone II)" },
+  amic: { k: "AMIC", b: "eine Knorpelrekonstruktion mittels AMIC-Membran und autologer Spongiosa", r: "Infektion, Transplantatversagen, unvollständige Knorpelregeneration, Thrombose", t: "AMIC-Knorpelrekonstruktion" },
+  oats: { k: "OATS", b: "eine autologe Knorpel-Knochen-Transplantation", r: "Infektion, Entnahmestellenmorbidität, Transplantatversagen, Thrombose", t: "Autologe Knorpel-Knochen-Transplantation (OATS)" },
+  haglund_as_split: { k: "Haglund + AS-Refix", b: "eine Abtragung der Haglund-Exostose mit Achillessehnen-Refixierung", r: "Infektion, Achillessehnenruptur, Reruptur, Nervenverletzung, Kalzifikationsrezidiv, Thrombose", t: "Haglund-Abtragung mit AS-Split und Refixierung" },
+  mco: { k: "MCO", b: "eine medialisierende Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Über-/Unterkorrektur, Thrombose", t: "Medialisierende Calcaneus-Osteotomie" },
+  lcot: { k: "LCOT", b: "eine verlängernde laterale Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Calcaneocuboid-Impingement, Thrombose", t: "Verlängernde Calcaneus-Osteotomie, Augmentation durch autologe oder allogene Spongiosa" },
+  cotton: { k: "Cotton-OT", b: "eine plantarflektierende Cotton-Osteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen", t: "Cotton-Osteotomie, Augmentation durch autologe oder allogene Spongiosa" },
+  calcaneus_ot: { k: "Calcaneus-OT", b: "eine Calcaneus-Osteotomie zur Achskorrektur", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Thrombose", t: "Calcaneus-Korrekturosteotomie" },
+  coalition_exzision: { k: "Coalition-Exzision", b: "eine Exzision der Koalition mit Interposition eines autologen Faszien-Fett-Flaps vom Unterschenkel", r: "Infekt, fehlende zufriedenstellende Korrektur, Belastungsschmerz, Peronealsehnenspasmus, Folgeeingriffe, Versteifung im Verlauf", t: "Exzision der Koalition mit Faszien-Fett-Interponat und Calcaneus-Korrekturosteotomie" },
+  subtalar_arthrodese: { k: "USG-Arthrodese", b: "eine primäre Versteifung des unteren Sprunggelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese des unteren Sprunggelenkes, Augmentation durch autologe Beckenkammspongiosa" },
+  arthrodese_tmt: { k: "TMT-Arthrodese", b: "eine Versteifung der Tarsometatarsalgelenke", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "Arthrodese der Tarsometatarsalgelenke, Augmentation durch autologe Beckenkammspongiosa" },
 };
 
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
@@ -277,6 +278,13 @@ function App() {
   var cvs = _s(""), coalitioVar = cvs[0], setCoalitioVar = cvs[1];
   var os = _s([]), opMethode = os[0], setOpMethode = os[1];
   var oes = _s(true), opEmpfohlen = oes[0], setOpEmpfohlen = oes[1];
+  var tvs = _s(false), therapieversuch = tvs[0], setTherapieversuch = tvs[1];
+  var ozs = _s(false), oclZyste = ozs[0], setOclZyste = ozs[1];
+  var ols = _s(""), oclLok = ols[0], setOclLok = ols[1];
+  var olaes = _s(""), oclLaenge = olaes[0], setOclLaenge = olaes[1];
+  var obrs = _s(""), oclBreite = obrs[0], setOclBreite = obrs[1];
+  var ots = _s(""), oclTiefe = ots[0], setOclTiefe = ots[1];
+  var ams = _s(false), amicSpongiosa = ams[0], setAmicSpongiosa = ams[1];
   var dus = _s(""), dauer = dus[0], setDauer = dus[1];
   var des = _s("Monaten"), dauerEinheit = des[0], setDauerEinheit = des[1];
   var hs = _s(""), haeufigkeit = hs[0], setHaeufigkeit = hs[1];
@@ -284,6 +292,7 @@ function App() {
   var ls = _s(true), leidensdruck = ls[0], setLeidensdruck = ls[1];
   var brs = _s(""), beruf = brs[0], setBeruf = brs[1];
   var aks = _s(""), aktivitaet = aks[0], setAktivitaet = aks[1];
+  var ses = _s(false), sportEingeschr = ses[0], setSportEingeschr = ses[1];
   var vos = _s(""), vorOPs = vos[0], setVorOPs = vos[1];
   var kbs = _s([]), konservBisher = kbs[0], setKonservBisher = kbs[1];
   var fas = _s(""), freitextAnam = fas[0], setFreitextAnam = fas[1];
@@ -335,7 +344,21 @@ function App() {
     p.push("Wir berichten über " + dd2 + ", " + (gender === "m" ? "der" : "die") + " sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vorstellte.\n\n");
 
     // Diagnose
-    var diagParts = diagnosen.map(function(d) { return DIAG[d] ? DIAG[d].diagnoseText : ""; });
+    var diagParts = diagnosen.map(function(d) {
+      if (d === "ocl") {
+        var oclText = oclZyste ? "Zystische osteochondrale Läsion (OCL) der Talusschulter" : "Osteochondrale Läsion des Talus";
+        if (oclZyste) {
+          oclText += oclLok ? " " + oclLok : "";
+          var dims = [];
+          if (oclLaenge) dims.push("Länge " + oclLaenge + " mm");
+          if (oclBreite) dims.push("Breite " + oclBreite + " mm");
+          if (oclTiefe) dims.push("Tiefe " + oclTiefe + " mm");
+          if (dims.length > 0) oclText += " (" + dims.join(", ") + ")";
+        }
+        return oclText;
+      }
+      return DIAG[d] ? DIAG[d].diagnoseText : "";
+    });
     if (coalitio && coalitioVar) diagParts.push(coalDiagText(coalitioVar));
     var diagText = diagParts.filter(Boolean).join(", ") + (seite ? " " + seite : "");
     p.push("Diagnosen: " + diagText);
@@ -343,8 +366,12 @@ function App() {
     // Therapieempfehlung
     var ops = opMethode.filter(function(m) { return OPS[m]; });
     if (ops.length > 0) {
-      var opTexte = ops.map(function(m) { return OPS[m].t; });
-      p.push("\nTherapieempfehlung: Elektive operative Option: " + opTexte.join(", ") + (seite ? ", " + seite + " gewünscht" : ""));
+      var opTexte = ops.map(function(m) {
+        if (m === "amic" && amicSpongiosa) return "Kürettage der OCL/Zyste, Spongiosaaugmentation autolog, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
+        if (m === "amic") return "Kürettage der OCL, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
+        return OPS[m].t;
+      });
+      p.push("\nTherapieempfehlung: Elektive operative Option: " + opTexte.join(", ") + (seite ? " " + seite : "") + ", befundbezogenes Vorgehen");
     }
     p.push("\n\n");
 
@@ -364,7 +391,13 @@ function App() {
     }
     if (leidensdruck) anam += " Es besteht ein relevanter Leidensdruck.";
     if (beruf) anam += " Die berufliche Tätigkeit als " + beruf + " ist eingeschränkt.";
-    if (aktivitaet) anam += " " + sich + " ist sportlich aktiv (" + aktivitaet + ").";
+    if (aktivitaet) {
+      if (sportEingeschr) {
+        anam += " " + dd + " gibt als Hobby " + aktivitaet + " an, hierbei bestehen relevante Einschränkungen und Beschwerden.";
+      } else {
+        anam += " " + sich + " ist sportlich aktiv (" + aktivitaet + ").";
+      }
+    }
     if (vorOPs) anam += " " + sich + " beschreibt " + vorOPs + " Voroperationen am Fuß.";
     if (konservBisher.length > 0) anam += " Bisher erfolgten folgende konservative Maßnahmen: " + konservBisher.join(", ") + ".";
     if (freitextAnam) anam += " " + freitextAnam;
@@ -426,17 +459,28 @@ function App() {
     var ab = "\n\n" + dd + " wurde über die konservativen Optionen und den möglichen Eingriff aufgeklärt.";
     if (konservOptionen.length > 0) ab += " Es bestehen konservative Alternativen: " + konservOptionen.join(", ") + ".";
     if (ops.length > 0) {
-      var opBeschr = ops.map(function(m) { return "eine " + OPS[m].b; });
+      var opBeschr = ops.map(function(m) {
+        if (m === "amic" && amicSpongiosa) return "eine Kürettage der OCL/Zyste, Spongiosaaugmentation autolog, Nanofrakturierung und Deckung mit azellulärer Kollagenmembran/AMIC";
+        if (m === "amic") return "eine Kürettage der OCL, Nanofrakturierung und Deckung mit azellulärer Kollagenmembran/AMIC";
+        return OPS[m].b;
+      });
       var allRisiken = [];
       ops.forEach(function(m) { OPS[m].r.split(", ").forEach(function(r) { if (allRisiken.indexOf(r) < 0) allRisiken.push(r); }); });
       ab += "\n\nOperativ kann " + opBeschr.join(" sowie ") + " vorgenommen werden. Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: " + allRisiken.join(", ") + ").";
+      if (ops.some(function(o) { return o.indexOf("tep") >= 0; })) {
+        ab += " In der OP muss befundbezogen über die Notwendigkeit weiterer Maßnahmen zum Erreichen eines achsgerecht stehenden und stabilen Gelenkes entschieden werden, bspw. Bandstabilisierungen oder Korrekturosteotomien am Fersenbein oder Innenknöchel, ggf. auch über separate Inzisionen.";
+      }
     }
     if (risiken.length > 0) {
-      ab += "\n\nEs besteht aufgrund der Vorerkrankungen ein erhöhtes Risiko für Komplikationen." + (freitextRisiko ? " " + freitextRisiko : "");
+      ab += "\n\nEs besteht aufgrund der Risikofaktoren ein erhöhtes Risiko für Komplikationen." + (freitextRisiko ? " " + freitextRisiko : "");
     }
     if (freitextAbschluss) ab += "\n\n" + freitextAbschluss;
     if (opEmpfohlen && ops.length > 0) {
       ab += "\n\nNach gründlicher Abwägung bieten wir " + dem + " den oben genannten Eingriff an.";
+      if (therapieversuch) {
+        ab += " In Anbetracht der Befundkonstellation handelt es sich um einen Therapieversuch, inwiefern eine Befundbesserung erzielt werden kann, ist nicht klar in Aussicht zu stellen.";
+        ab += " Es besteht ein erhöhtes Risiko persistenter Beschwerden oder eines unbefriedigenden Verlaufes.";
+      }
       ab += "\n\nGerne kann sich auch eine weitere Meinung eingeholt werden (beispielsweise in einem anderen zertifizierten Fußzentrum, Sie finden die Einrichtung in Ihrer Nähe auf www.clarmap.de). Der Eingriff ist elektiv.";
     } else {
       ab += "\n\nNach gründlicher Abwägung raten wir zu konservativer weiterer Therapie.";
@@ -454,7 +498,7 @@ function App() {
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     return p.join("");
-  }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, vorOPs, konservBisher, freitextAnam, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich]);
+  }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, konservBisher, freitextAnam, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() { try { navigator.clipboard.writeText(fullText); showToast("📋 Kopiert!"); } catch (e) { } }
@@ -521,7 +565,27 @@ function App() {
             <div style={CB(coalitioVar === "calc_nav")} onClick={function() { setCoalitioVar(coalitioVar === "calc_nav" ? "" : "calc_nav"); }}>Calcaneo-Naviculär</div>
           </div>}
         </div>}
+        {diagnosen.indexOf("ocl") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 4 }}>
+            <div style={CB(oclZyste)} onClick={function() { setOclZyste(!oclZyste); }}>Zyste</div>
+          </div>
+          {oclZyste && <div>
+            <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Lokalisierung</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 4 }}>
+              <div style={CB(oclLok === "medial")} onClick={function() { setOclLok(oclLok === "medial" ? "" : "medial"); }}>Medial</div>
+              <div style={CB(oclLok === "lateral")} onClick={function() { setOclLok(oclLok === "lateral" ? "" : "lateral"); }}>Lateral</div>
+            </div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>Länge (mm)</div><input value={oclLaenge} onChange={function(e) { setOclLaenge(e.target.value); }} placeholder="mm" /></div>
+              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>Breite (mm)</div><input value={oclBreite} onChange={function(e) { setOclBreite(e.target.value); }} placeholder="mm" /></div>
+              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>Tiefe (mm)</div><input value={oclTiefe} onChange={function(e) { setOclTiefe(e.target.value); }} placeholder="mm" /></div>
+            </div>
+          </div>}
+        </div>}
         {diagnosen.length > 0 && <div><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
+        {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
+          <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
+        </div>}
       </div>
 
       {gender && diagnosen.length > 0 && <div>
@@ -538,6 +602,7 @@ function App() {
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
             <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Beruf</div><input value={beruf} onChange={function(e) { setBeruf(e.target.value); }} placeholder="z.B. Bürokauffrau..." /></div>
             <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Sport / Aktivität</div><input value={aktivitaet} onChange={function(e) { setAktivitaet(e.target.value); }} placeholder="z.B. Hockey, Fußball..." /></div>
+            {aktivitaet && <div style={{ display: "flex", alignItems: "flex-end" }}><div style={CB(sportEingeschr)} onClick={function() { setSportEingeschr(!sportEingeschr); }}>Sport eingeschränkt</div></div>}
             <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["0","1","2","3","4"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
           </div>
           <div style={cat}>Bisherige konservative Maßnahmen</div>
@@ -599,11 +664,13 @@ function App() {
             <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: opEmpfohlen ? "1px solid #2ecc71" : "1px solid rgba(255,255,255,.1)", background: opEmpfohlen ? "rgba(46,204,113,.15)" : "rgba(255,255,255,.04)", color: opEmpfohlen ? "#2ecc71" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(true); }}>✓ OP empfohlen</div>
             <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: !opEmpfohlen ? "1px solid #e67e22" : "1px solid rgba(255,255,255,.1)", background: !opEmpfohlen ? "rgba(230,126,34,.12)" : "rgba(255,255,255,.04)", color: !opEmpfohlen ? "#f39c12" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(false); }}>Konservativ empfohlen</div>
           </div>
+          {opEmpfohlen && <div style={{ marginTop: 6 }}>
+            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: therapieversuch ? "1px solid #e74c3c" : "1px solid rgba(255,255,255,.1)", background: therapieversuch ? "rgba(231,76,60,.12)" : "rgba(255,255,255,.04)", color: therapieversuch ? "#e74c3c" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setTherapieversuch(!therapieversuch); }}>⚠ Therapieversuch</div>
+          </div>}
           {opMethode.length > 0 && <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: "rgba(46,204,113,.04)", border: "1px solid rgba(46,204,113,.12)" }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: "#2ecc71", marginBottom: 4 }}>OP: {opMethode.map(function(m) { return OPS[m] ? OPS[m].k : m; }).join(" + ")}</div>
           </div>}
           <div style={{ marginTop: 8, fontSize: 9, color: "#5a7090" }}>Konservative Optionen werden automatisch aus dem Krankheitsbild übernommen.</div>
-          <textarea placeholder="Freitext Abschluss..." value={freitextAbschluss} onChange={function(e) { setFreitextAbschluss(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
         </Sec>
 
         <div style={card}>
