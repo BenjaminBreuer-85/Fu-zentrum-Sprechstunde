@@ -426,7 +426,7 @@ function App() {
     var ab = "\n\n" + dd + " wurde über die konservativen Optionen und den möglichen Eingriff aufgeklärt.";
     if (konservOptionen.length > 0) ab += " Es bestehen konservative Alternativen: " + konservOptionen.join(", ") + ".";
     if (ops.length > 0) {
-      var opBeschr = ops.map(function(m) { return OPS[m].b; });
+      var opBeschr = ops.map(function(m) { return "eine " + OPS[m].b; });
       var allRisiken = [];
       ops.forEach(function(m) { OPS[m].r.split(", ").forEach(function(r) { if (allRisiken.indexOf(r) < 0) allRisiken.push(r); }); });
       ab += "\n\nOperativ kann " + opBeschr.join(" sowie ") + " vorgenommen werden. Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: " + allRisiken.join(", ") + ").";
@@ -538,7 +538,7 @@ function App() {
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
             <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Beruf</div><input value={beruf} onChange={function(e) { setBeruf(e.target.value); }} placeholder="z.B. Bürokauffrau..." /></div>
             <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Sport / Aktivität</div><input value={aktivitaet} onChange={function(e) { setAktivitaet(e.target.value); }} placeholder="z.B. Hockey, Fußball..." /></div>
-            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["0","1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["0","1","2","3","4"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
           </div>
           <div style={cat}>Bisherige konservative Maßnahmen</div>
           <div style={row}>{KONSERV.map(function(k) { return <div key={k} style={CB(konservBisher.indexOf(k) >= 0)} onClick={function() { togArr(k, konservBisher, setKonservBisher); }}>{k}</div>; })}</div>
