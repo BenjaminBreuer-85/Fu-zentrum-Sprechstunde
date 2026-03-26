@@ -468,7 +468,7 @@ function App() {
       ops.forEach(function(m) { OPS[m].r.split(", ").forEach(function(r) { if (allRisiken.indexOf(r) < 0) allRisiken.push(r); }); });
       ab += "\n\nOperativ kann " + opBeschr.join(" sowie ") + " vorgenommen werden. Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: " + allRisiken.join(", ") + ").";
       if (ops.some(function(o) { return o.indexOf("tep") >= 0; })) {
-        ab += " In der OP muss befundbezogen über die Notwendigkeit weiterer Maßnahmen zum Erreichen eines achsgerecht stehenden und stabilen Gelenkes entschieden werden, bspw. Bandstabilisierungen oder Korrekturosteotomien am Fersenbein oder Innenknöchel, ggf. auch über separate Inzisionen.";
+        ab += " In der OP muss befundbezogen über die Notwendigkeit weiterer Maßnahmen zum Erreichen eines achsgerecht stehenden und stabilen Gelenkes entschieden werden, bspw. Bandstabilisierungen oder Korrekturosteotomien am Fersenbein oder Innenknöchel, ggf. auch über separate Inzisionen. Intraoperativ muss ebenfalls situativ über die Art der Implantationstechnik und das gewählte Prothesenmodell entschieden werden.";
       }
     }
     if (risiken.length > 0) {
@@ -602,9 +602,9 @@ function App() {
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
             <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Beruf</div><input value={beruf} onChange={function(e) { setBeruf(e.target.value); }} placeholder="z.B. Bürokauffrau..." /></div>
             <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Sport / Aktivität</div><input value={aktivitaet} onChange={function(e) { setAktivitaet(e.target.value); }} placeholder="z.B. Hockey, Fußball..." /></div>
-            {aktivitaet && <div style={{ display: "flex", alignItems: "flex-end" }}><div style={CB(sportEingeschr)} onClick={function() { setSportEingeschr(!sportEingeschr); }}>Sport eingeschränkt</div></div>}
-            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["0","1","2","3","4"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["0","1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
           </div>
+          {aktivitaet && <div style={{ marginBottom: 6 }}><div style={CB(sportEingeschr)} onClick={function() { setSportEingeschr(!sportEingeschr); }}>⚠ Sport eingeschränkt</div></div>}
           <div style={cat}>Bisherige konservative Maßnahmen</div>
           <div style={row}>{KONSERV.map(function(k) { return <div key={k} style={CB(konservBisher.indexOf(k) >= 0)} onClick={function() { togArr(k, konservBisher, setKonservBisher); }}>{k}</div>; })}</div>
           <textarea placeholder="Freitext Anamnese..." value={freitextAnam} onChange={function(e) { setFreitextAnam(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
