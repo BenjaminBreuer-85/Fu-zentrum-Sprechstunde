@@ -71,7 +71,7 @@ const DIAG = {
       { id: "metatarsalgie", pos: "Transfermetatarsalgie", neg: "Keine Transfermetatarsalgie" },
       { id: "beschwielung", pos: "Plantare Mehrbeschwielung unter den MT-Köpfchen", neg: "Keine plantare Mehrbeschwielung" },
     ],
-    opMethoden: ["chevron", "chevron_akin", "lapidus", "lapidus_subcap"],
+    opMethoden: ["chevron", "chevron_akin", "lapidus"],
     bildBefunde: "Hallux-valgus-Deformität mit einem IM-Winkel von __ Grad und einem HV-Winkel von __ Grad",
     literatur: "AWMF S2e-Leitlinie Hallux valgus (Nr. 187-051, Stand 2024): https://register.awmf.org/de/leitlinien/detail/187-051",
   },
@@ -223,17 +223,16 @@ function coalBildText(v) {
 }
 
 const OPS = {
-  chevron: { k: "Chevron-Osteotomie", b: "eine Chevron-Osteotomie zur Korrektur der Hallux-valgus-Fehlstellung", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Über-/Unterkorrektur, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron-Osteotomie" },
-  chevron_akin: { k: "Chevron + Akin", b: "eine Chevron- und Akin-Osteotomie", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron- und Akin-Osteotomie" },
-  lapidus: { k: "Lapidus-Arthrodese", b: "eine Lapidus-Arthrodese bei TMT-I-Instabilität", r: "Infektion, Wundheilungsstörung, Pseudarthrose, Anschlussdegenerationen, Materialversagen, Thrombose", t: "Lapidus-Arthrodese" },
-  lapidus_subcap: { k: "Lapidus + Subcapitale", b: "eine Lapidus-Arthrodese mit subcapitaler Korrekturosteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen, Thrombose", t: "Lapidus-Arthrodese mit subcapitaler Korrektur" },
+  chevron: { k: "Chevron-Osteotomie", b: "eine Chevron-Osteotomie zur Korrektur der Hallux-valgus-Fehlstellung", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Über-/Unterkorrektur, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron-Osteotomie, Weichteilkorrektur" },
+  chevron_akin: { k: "Chevron + Akin", b: "eine Chevron- und Akin-Osteotomie", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Pseudarthrose, Steifigkeit, Thrombose", t: "Chevron- und Akin-Osteotomie, Weichteilkorrektur" },
+  lapidus: { k: "Lapidus-Arthrodese", b: "eine modifizierte Lapidus Arthrodese (Versteifung TMT I Gelenk) bei TMT-I-Instabilität", r: "Infektion, Wundheilungsstörung, Pseudarthrose, Anschlussdegenerationen, Materialversagen, Thrombose", t: "modifizierte Lapidus Arthrodese (=Versteifung TMT I Gelenk), Weichteilkorrektur, Akin-Osteotomie, ggf. subcapitale Korrekturosteotomie additiv" },
   cheilektomie: { k: "Cheilektomie", b: "eine Cheilektomie zur Abtragung dorsaler Osteophyten", r: "Infektion, eingeschränkte Besserung, Rezidiv, Steifigkeit", t: "Cheilektomie MTP I" },
-  mtp1_arthrodese: { k: "MTP-I-Arthrodese", b: "eine Versteifung des Großzehengrundgelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "MTP-I-Arthrodese" },
+  mtp1_arthrodese: { k: "MTP-I-Arthrodese", b: "eine Versteifung des Großzehengrundgelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "MTP-I-Arthrodese (=Versteifung)" },
   brostrom_gould: { k: "Brostrom-Gould", b: "eine offene laterale Bandstabilisierung nach Brostrom-Gould", r: "Infektion, Nervenverletzung, Rezidivinstabilität, Steifigkeit, Thrombose", t: "Laterale Bandstabilisierung nach Brostrom-Gould" },
   brostrom_int_brace: { k: "Brostrom + Internal Brace", b: "eine Bandstabilisierung mit Internal-Brace-Augmentation", r: "Infektion, Nervenverletzung, Rezidivinstabilität, Materialreaktion, Thrombose", t: "Laterale Bandstabilisierung mit Internal-Brace-Augmentation" },
   bandplastik_autolog: { k: "Bandplastik autolog", b: "eine Bandplastik mit autologer Sehne", r: "Infektion, Entnahmestellenmorbidität, Nervenverletzung, Rezidivinstabilität, Thrombose", t: "Bandplastik mit autologer Sehne" },
   ask_osg: { k: "ASK OSG", b: "eine Arthroskopie des oberen Sprunggelenkes", r: "Infektion, Nerven-/Gefäßverletzung, Knorpelschaden, eingeschränkte Besserung", t: "Arthroskopie des OSG" },
-  arthrodese_osg: { k: "OSG-Arthrodese", b: "eine Versteifung des oberen Sprunggelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Beinlängendifferenz, Thrombose", t: "OSG-Arthrodese, Augmentation durch autologe Beckenkammspongiosa" },
+  arthrodese_osg: { k: "OSG-Arthrodese", b: "eine Versteifung des oberen Sprunggelenkes", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Beinlängendifferenz, Thrombose", t: "OSG-Arthrodese (=Versteifung), Augmentation durch autologe Beckenkammspongiosa" },
   tep_infinity: { k: "OSG-TEP (Infinity)", b: "die Implantation einer Sprunggelenksprothese (Infinity)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur des Innenknöchels/periimplantäre Fraktur mit Osteosynthese, Instabilität, unbefriedigende Standzeit, aufwendigerer Wechsel auf Versteifung, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Infinity)" },
   tep_inbone: { k: "OSG-TEP (Inbone II)", b: "die Implantation einer Sprunggelenksprothese (Inbone II)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur des Innenknöchels/periimplantäre Fraktur mit Osteosynthese, Instabilität, unbefriedigende Standzeit, aufwendigerer Wechsel auf Versteifung, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Inbone II)" },
   amic: { k: "AMIC", b: "eine Knorpelrekonstruktion mittels AMIC-Membran und autologer Spongiosa", r: "Infektion, Transplantatversagen, unvollständige Knorpelregeneration, Thrombose", t: "AMIC-Knorpelrekonstruktion" },
@@ -244,8 +243,8 @@ const OPS = {
   cotton: { k: "Cotton-OT", b: "eine plantarflektierende Cotton-Osteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen", t: "Cotton-Osteotomie, Augmentation durch autologe oder allogene Spongiosa" },
   calcaneus_ot: { k: "Calcaneus-OT", b: "eine Calcaneus-Osteotomie zur Achskorrektur", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Thrombose", t: "Calcaneus-Korrekturosteotomie" },
   coalition_exzision: { k: "Coalition-Exzision", b: "eine Exzision der Koalition mit Interposition eines autologen Faszien-Fett-Flaps vom Unterschenkel", r: "Infekt, fehlende zufriedenstellende Korrektur, Belastungsschmerz, Peronealsehnenspasmus, Folgeeingriffe, Versteifung im Verlauf", t: "Exzision der Koalition mit Faszien-Fett-Interponat und Calcaneus-Korrekturosteotomie" },
-  subtalar_arthrodese: { k: "USG-Arthrodese", b: "eine primäre Versteifung des unteren Sprunggelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese des unteren Sprunggelenkes, Augmentation durch autologe Beckenkammspongiosa" },
-  arthrodese_tmt: { k: "TMT-Arthrodese", b: "eine Versteifung der Tarsometatarsalgelenke", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "Arthrodese der Tarsometatarsalgelenke, Augmentation durch autologe Beckenkammspongiosa" },
+  subtalar_arthrodese: { k: "USG-Arthrodese", b: "eine primäre Versteifung des unteren Sprunggelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) des unteren Sprunggelenkes, Augmentation durch autologe Beckenkammspongiosa" },
+  arthrodese_tmt: { k: "TMT-Arthrodese", b: "eine Versteifung der Tarsometatarsalgelenke", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) der Tarsometatarsalgelenke, Augmentation durch autologe Beckenkammspongiosa" },
 };
 
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
@@ -883,7 +882,7 @@ function buildDocx(fullText,erloesText){
 // ============================================================
 // TEXT BUILDERS
 // ============================================================
-function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient":"Die Patientin",dd2=g==="m"?"der Patient":"die Patientin",sa=side==="links"?"linken":"rechten";let t="";if(typ==="me")t=`${dd} stellte sich bei uns vor zur geplanten standardisierten Metallentfernung am ${sa} Fuß. Über die operativen Alternativen und die Möglichkeit des Belassens des Materials wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;else if(typ==="tep")t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde die Implantation einer Sprunggelenksprothese am ${sa} oberen Sprunggelenk vereinbart. Die Indikation, die nicht-operativen und operativen Alternativen sowie die Details mit Komplikationen und Nachbehandlung wurden erläutert. ${dd} wünscht keine weiteren konservativen Maßnahmen. Operative Risiken wurden thematisiert.`;else t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde der operative Eingriff vereinbart. ${dd} wünscht keine Durchführung weiterer konservativer Maßnahmen. Über die operativen und nicht-operativen Alternativen wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;if(risk){t+=`\nEs erfolgte eine spezifische Aufklärung, dass ${dd2} einer Risikogruppe angehört`;if(riskTxt.trim())t+=` (${riskTxt.trim()})`;t+=` und ein erhöhtes Risiko für jegliche intra- oder postoperative Komplikation besteht.`;}if(frei.trim())t+=`\n${frei.trim()}`;return t;}
+function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient":"Die Patientin",dd2=g==="m"?"der Patient":"die Patientin",sa=side==="links"?"linken":"rechten";let t="";if(typ==="me")t=`${dd} stellte sich bei uns vor zur geplanten Metallentfernung am ${sa} Fuß. Über die operativen Alternativen und die Möglichkeit des Belassens des Materials wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;else if(typ==="tep")t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde die Implantation einer Sprunggelenksprothese am ${sa} oberen Sprunggelenk vereinbart. Die Indikation, die nicht-operativen und operativen Alternativen sowie die Details mit Komplikationen und Nachbehandlung wurden erneut erläutert. ${dd} wünscht keine weiteren konservativen Maßnahmen. Operative Risiken wurden thematisiert.`;else t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde der operative Eingriff vereinbart. ${dd} wünscht keine Durchführung weiterer konservativer Maßnahmen. Über die operativen und nicht-operativen Alternativen wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;if(risk){t+=`\nEs erfolgte eine spezifische Aufklärung, dass ${dd2} einer Risikogruppe angehört`;if(riskTxt.trim())t+=` (${riskTxt.trim()})`;t+=` und ein erhöhtes Risiko für jegliche intra- oder postoperative Komplikation besteht.`;}if(frei.trim())t+=`\n${frei.trim()}`;return t;}
 
 function buildLagerung(side,bs,ss,ana){const sa=side==="links"?"linken":"rechten";let p=[];if(ss)p.push("Single-Shot-Antibiose entsprechend Hausstandard durch die Anästhesie");p.push("Lagerung in Rückenlage, Polsterung aller druckgefährdeten Stellen, insbesondere aller Stellen an denen Nerven durch Kompression geschädigt werden könnten");p.push("Precleaning des gesamten OP-Gebietes");if(bs)p.push("Anlage der Oberschenkelblutsperre unter Nutzung eines Polsterstrumpfes und wasserdichter Versiegelung nach distal, so dass keine Flüssigkeit unter die Sperre oder in das Polster laufen kann");p.push("Abwaschen und Abdecken entsprechend den aktuellen Hygienestandards, Abkleben der Zehen und der Teile des Vorfußes, die nicht zum OP-Gebiet gehören mit Inzisionsfolie");p.push("Durchführen Team-Time-Out");if(bs)p.push("Aufblasen der Blutsperre auf 300 mmHg");let t=p.join(", ")+".";if(ana==="lokal")t+="\nSterile Applikation Lokalanästhesie.";t+="\n\nNarkoseuntersuchung des betroffenen und der angrenzenden Gelenke unter spezifischer Beachtung der Bandstabilität und der Achsverhältnisse.";return t;}
 
@@ -921,7 +920,14 @@ calc_ot_verl:`Inzision lateral über dem Calcaneus im Bereich des Sinus tarsi, c
 fraktur_fibula_einf:`Inzision über dem lateralen Malleolus im Verlauf der Fibula, ca. 6-8 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung der Fraktur an der distalen Fibula. Säuberung des Frakturspaltes, Entfernung von Hämatom und interponiertem Periost. Anatomische Reposition der Fraktur unter direkter Sicht und radiologischer Kontrolle. Temporäre Retention mittels Repositionszange. Definitive Osteosynthese mittels winkelstabiler Drittelrohrplatte lateral, sukzessives Besetzen der Schrauben nach Längenmessung. Radiologische Kontrolle in 2 Ebenen zeigt korrekte Implantatlage, anatomische Reposition und korrekte Fibulalänge. Stabilitätsprüfung der Syndesmose unter dem BV (Hook-Test), Syndesmose stabil. Spülung des Situs.`,
 fraktur_fibula_mehr:`Inzision über dem lateralen Malleolus im Verlauf der Fibula, ca. 8-10 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung der Mehrfragment-Fraktur an der distalen Fibula. Säuberung des Frakturspaltes, Entfernung von Hämatom und interponiertem Gewebe. Sortierung der Fragmente und schrittweise anatomische Reposition. Temporäre Retention mittels K-Drähten. Interfragmentäre Zugschrauben zur Kompression der Hauptfragmente. Definitive Osteosynthese mittels winkelstabiler Überbrückungsplatte lateral. Radiologische Kontrolle in 2 Ebenen zeigt anatomische Länge und Achse der Fibula. Stabilitätsprüfung der Syndesmose (Hook-Test), Syndesmose stabil. Bei Instabilität: Einbringen einer Stellschraube durch Fibula und Tibia unter BV-Kontrolle. Spülung des Situs.`,
 supramal_ot:`Anteriorer Zugang zur distalen Tibia, Längsinzision ca. 8-10 cm. Vorsichtiges Spalten des Subcutangewebes, subtile Blutstillung. Darstellung der distalen Tibiametaphyse, Abschieben des Periostes im Bereich der geplanten Osteotomie. Einsetzen von Hohmannhebeln. Planung der Osteotomie mittels K-Drähten und BV-Kontrolle anhand der präoperativen Planung. Durchführung der öffnenden Keilosteotomie mit der oszillierenden Säge unter Erhalt der Gegenkortikalis als Scharnier. Schrittweises Aufspreizen der Osteotomie bis zur gewünschten Korrektur, Kontrolle der mechanischen Achse unter dem BV. Interposition eines allogenen Knochenkeils. Definitive Osteosynthese mittels winkelstabiler Platte medial und sukzessives Besetzen der Schrauben. Radiologische Abschlusskontrolle zeigt korrekte Achsstellung mit physiologischem LDTA und TAS. Spülung des Situs.`,
+cotton_ot_autolog:`Zuwendung zum Mittelfuß. Inzision dorsomedial über dem medialen Cuneiforme, ca. 3 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Sehnenstrukturen. Darstellung des medialen Cuneiforme, Abschieben des Periostes. Durchführung einer plantarflektierenden öffnenden Osteotomie des medialen Cuneiforme mit der oszillierenden Säge unter BV-Kontrolle, Erhalt der plantaren Kortikalis. Schrittweises Aufspreizen bis zur gewünschten Plantarflexion des 1. Strahles. Interposition eines autologen Knochenkeils. Fixation mittels winkelstabiler Platte oder Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Plantarflexion des 1. Strahles. Spülung des Situs.`,
+cotton_ot_allogen:`Zuwendung zum Mittelfuß. Inzision dorsomedial über dem medialen Cuneiforme, ca. 3 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Sehnenstrukturen. Darstellung des medialen Cuneiforme, Abschieben des Periostes. Durchführung einer plantarflektierenden öffnenden Osteotomie des medialen Cuneiforme mit der oszillierenden Säge unter BV-Kontrolle, Erhalt der plantaren Kortikalis. Schrittweises Aufspreizen bis zur gewünschten Plantarflexion des 1. Strahles. Interposition eines allogenen Knochenkeils. Fixation mittels winkelstabiler Platte oder Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Plantarflexion des 1. Strahles. Spülung des Situs.`,
+tmt_arthrodese:`Zuwendung zum Mittelfuß. Dorsale Inzision über den betroffenen Tarsometatarsalgelenken. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Sehnen- und Gefäßstrukturen, subtile Blutstillung. Darstellung der TMT-Gelenke, Arthrotomie. Es zeigt sich eine fortgeschrittene Arthrose mit Knorpelverlust und Osteophytenbildung. Komplette Synovektomie, Entfernung aller Osteophyten. Entknorpelung der Gelenkflächen mittels Meißel und Kürette bis zum subchondralen Knochen. Anbohrung der Gelenkflächen zur Förderung der Durchblutung. Einstellung der korrekten Achse und Rotation, temporäre Transfixation mittels K-Drähten, radiologische Kontrolle. Einbringen von autologer Spongiosa. Definitive Osteosynthese mittels winkelstabiler Platten und/oder Zugschrauben. Radiologische Abschlusskontrolle zeigt korrekte Implantatlage und gute Achsstellung. Spülung des Situs.`,
 osg_subtalar:`Anteriorer Zugang zum OSG, Längsinzision zwischen Tibialis anterior und Extensor hallucis longus. Darstellung des oberen Sprunggelenkes, Arthrotomie. Destruiertes Gelenk, komplette Synovektomie und Entknorpelung in gleicher Weise wie bei isolierter OSG-Arthrodese. Entknorpelung der Tibia-Gelenkfläche und der Talusrolle.\nAnschließend Erweiterung des Zuganges nach lateral über den Sinus tarsi. Darstellung des unteren Sprunggelenkes, Arthrotomie und Entknorpelung der posterioren Facette. Anbohrung aller Gelenkflächen.\nEinstellung des OSG in 0° Dorsalextension, 5° Valgus, 5-10° Außenrotation. Einstellung des USG in leichter Valgusposition. Temporäre Transfixation mittels K-Drähten, radiologische Kontrolle der Achse in beiden Ebenen. Einbringen von autologer Spongiosa. Definitive Osteosynthese mittels winkelstabiler anteriorer Platte für das OSG und zwei kanülierter Zugschrauben für das USG. Radiologische Abschlusskontrolle zeigt korrekte Implantatlage und gute Achsstellung. Spülung des Situs.`,
+tep_infinity_standard:`Längsverlaufende Inzision ventral des oberen Sprunggelenkes. Darstellen des Retinaculums, Lösungen der Verwachsungen des Retinaculums mit der langen Strecksehne der Großzehe und der Tibialis anterior-Sehne. Eingehen in der Tib Ant Sehnenscheide zwischen den beiden Sehnen auf das obere Sprunggelenk. Es entleert sich ein klarer Erguss, es quillt veränderte Synovialis hervor. Synovialektomie.\nZunächst werden die ventralen Osteophyten am Talus und der Tibia entfernt.\nErhebliche flächige 4°ige Arthrose, schwerer fortgeschrittener Befund. Einbringen der Gutter-Fork und Ausrichtung des Instrumentariums. Setzen des bicorticalen 3,2er Pins, nach Einstellung der axialen Rotation mittels Ausrichtung des Pointers zur Achse der Tibia. Nun Zusammenbau des Ausrichtungsrahmens und Fixation dieses am distalen Pin und einem Pin in der Tuberositas Tibia nach BV Lokalisierung und exakter Prüfung auf korrekte Rotation des Beines sowie Ausrichtung der Beinachse von der Hüfte aus referenziert entsprechend vorheriger Planung. Einstellung des Rahmens und BV Kontrolle mit Ausrichtung in der Coronarebene mittels Alignment Wing. Korrekte Einstellung von Varus und Valgus unter Beachtung einer Ausrichtung zur mechanischen Achse des Beines.\nNun Einstellung der sagittalen Ebene über Alignment Rod unter BV Kontrolle. Einstellung Flexion und Extension, dann Fixation aller Schrauben und Besetzen von 3,2er Pins bicortical in die distale Tibia über vorgegebene Löcher. Anbringen Adjustment Block an die Pins und Fixation knapp über der Gelenkebene, Fixation der grauen Schraube. Anbringen Sizing Guide und Einstellung präzise unter BV Kontrolle. Nach genauer Einstellung Fixation. Anbringen Sizing-Arm und BV seitlich, Einstellung der korrekten Höhe true lateral und Fixation bei Fuß in 90° Position. Der Talus kann gut unter die Tibia kongruent eingestellt werden.\nMessung Tibia. Einbringen von Drähten und Kürzung dieser über Sizing Frame, Seitliches Röntgen. Alle Bohrungen finden unter seitlicher Röntgenkontrolle statt, so dass ein zu tiefes Bohren mit Schädigung des Nerven-Gefäß-Bündels vermieden werden kann. Bohren der Ecklöcher. Dann Wechsel auf Sägeblock. Einbringen von 2,4er Drähten in die Gutter-Löcher medial und lateral. Sägen unter Wasserkühlung, Entfernung des Blockes, Glätten der Resektionsflächen, Entfernung des Knochenblockes und Präparation der tibialen Ecken. Besondere Beachtung wird dem lateralen und medialen Gutter geschenkt, hier Entfernung von Osteophyten und impingementgefährdeten Knochenanteilen. Vorsichtiges Release der hinteren Kapsel am Knochen, Einbringen der entsprechenden Probeprothesen und BV Kontrolle. Einstellung der tibialen Position. Einbringen der Pegs zur Platzierung der tibialen Führung.\nEinbringen Führungsinlay zur Bohrung am Talus wird eingebracht, Exakte Einstellung unter BV. Dann Vorlegen von 2 Pins und Aufbringen Schnittblock Talus. Talar Dome Trial wird aufgelegt, Messung Größe.\nPlatzierung Pins unter BV, Wechsel auf Schnittblock, hinterer Kantenschnitt des Talus und Präparation vordere Kammer. Einbringen Tibia, Inlay und Talus Probe. Die Größen sind gut.\nPeg Drilling talar nach Fixation Taluskomponente. Ausgiebige Spülung und Wechsel der Handschuhe.\nEinbringen der tibialen Komponente nach Herstellerangaben und Einbolzen mit externem Instrument. Die Prothese sitzt fest, klinisch und radiologisch. Einbringen der talaren Komponente, Impaktierung mit Instrumentarium und Einbringen des Inlays nach Überprüfung auf korrekte Bandspannung mittels Probekomponenten. Abschluss BV Kontrolle, Stabilitätsprüfung und Überprüfung sowohl der Ausrichtung der Prothese zur Beinachse als auch die Rückfußachse. Klinisch und radiologisch stabile Bandverhältnisse bei achsgerechter Stellung und stabiler Prothese, keine impingementgefährdeten Strukturen.`,
+tep_infinity_flatcut:`Längsverlaufende Inzision ventral des oberen Sprunggelenkes. Darstellen des Retinaculums, Lösungen der Verwachsungen des Retinaculums mit der langen Strecksehne der Großzehe und der Tibialis anterior-Sehne. Eingehen in der Tib Ant Sehnenscheide zwischen den beiden Sehnen auf das obere Sprunggelenk. Es entleert sich ein klarer Erguss, es quillt veränderte Synovialis hervor. Synovialektomie.\nZunächst werden die ventralen Osteophyten am Talus und der Tibia entfernt.\nErhebliche flächige 4°ige Arthrose, schwerer fortgeschrittener Befund. Einbringen der Gutter-Fork und Ausrichtung des Instrumentariums. Setzen des bicorticalen 3,2er Pins, nach Einstellung der axialen Rotation mittels Ausrichtung des Pointers zur Achse der Tibia. Nun Zusammenbau des Ausrichtungsrahmens und Fixation dieses am distalen Pin und einem Pin in der Tuberositas Tibia nach BV Lokalisierung und exakter Prüfung auf korrekte Rotation des Beines sowie Ausrichtung der Beinachse von der Hüfte aus referenziert entsprechend vorheriger Planung. Einstellung des Rahmens und BV Kontrolle mit Ausrichtung in der Coronarebene mittels Alignment Wing. Korrekte Einstellung von Varus und Valgus unter Beachtung einer Ausrichtung zur mechanischen Achse des Beines.\nNun Einstellung der sagittalen Ebene über Alignment Rod unter BV Kontrolle. Einstellung Flexion und Extension, dann Fixation aller Schrauben und Besetzen von 3,2er Pins bicortical in die distale Tibia über vorgegebene Löcher. Anbringen Adjustment Block an die Pins und Fixation knapp über der Gelenkebene, Fixation der grauen Schraube. Anbringen Sizing Guide und Einstellung präzise unter BV Kontrolle. Nach genauer Einstellung Fixation. Anbringen Sizing-Arm und BV seitlich, Einstellung der korrekten Höhe true lateral und Fixation bei Fuß in 90° Position. Der Talus kann gut unter die Tibia kongruent eingestellt werden.\nMessung Tibia. Einbringen von Drähten und Kürzung dieser über Sizing Frame, Seitliches Röntgen. Alle Bohrungen finden unter seitlicher Röntgenkontrolle statt, so dass ein zu tiefes Bohren mit Schädigung des Nerven-Gefäß-Bündels vermieden werden kann. Bohren der Ecklöcher. Dann Wechsel auf Sägeblock. Einbringen von 2,4er Drähten in die Gutter-Löcher medial und lateral. Sägen unter Wasserkühlung, Entfernung des Blockes, Glätten der Resektionsflächen, Entfernung des Knochenblockes und Präparation der tibialen Ecken. Besondere Beachtung wird dem lateralen und medialen Gutter geschenkt, hier Entfernung von Osteophyten und impingementgefährdeten Knochenanteilen. Vorsichtiges Release der hinteren Kapsel am Knochen, Einbringen der entsprechenden Probeprothesen und BV Kontrolle. Einstellung der tibialen Position. Einbringen der Pegs zur Platzierung der tibialen Führung.\nEinbringen Führungsinlay zur Bohrung am Talus wird eingebracht, Exakte Einstellung unter BV. Dann Vorlegen von 2 Pins und Aufbringen Schnittblock Talus. Talar Dome Trial wird aufgelegt, Messung Größe.\nPlatzierung Pins unter BV, Wechsel auf Schnittblock, Durchführung der planaren Resektion am Talus (Flat-Cut). Entfernung des Knochenblocks von der Talusrolle. Einbringen Tibia, Inlay und Talus Probe. Die Größen sind gut.\nPeg Drilling talar nach Fixation Taluskomponente. Ausgiebige Spülung und Wechsel der Handschuhe.\nEinbringen der tibialen Komponente nach Herstellerangaben und Einbolzen mit externem Instrument. Die Prothese sitzt fest, klinisch und radiologisch. Einbringen der talaren Komponente (Flat-Cut), Impaktierung mit Instrumentarium und Einbringen des Inlays nach Überprüfung auf korrekte Bandspannung mittels Probekomponenten. Abschluss BV Kontrolle, Stabilitätsprüfung und Überprüfung sowohl der Ausrichtung der Prothese zur Beinachse als auch die Rückfußachse. Klinisch und radiologisch stabile Bandverhältnisse bei achsgerechter Stellung und stabiler Prothese, keine impingementgefährdeten Strukturen.`,
+tep_infinity_prophecy:`Längsverlaufende Inzision ventral des oberen Sprunggelenkes. Darstellen des Retinaculums, Lösungen der Verwachsungen des Retinaculums mit der langen Strecksehne der Großzehe und der Tibialis anterior-Sehne. Eingehen in der Tib Ant Sehnenscheide zwischen den beiden Sehnen auf das obere Sprunggelenk. Es entleert sich ein klarer Erguss, es quillt veränderte Synovialis hervor. Synovialektomie.\nErhebliche flächige 4°ige Arthrose, schwerer fortgeschrittener Befund. Die ventralen Osteophyten werden belassen, da diese in das Surface-Matching der patientenspezifischen Prophecy-Guides integriert sind. Entfernung loser Gelenkkörper.\nFreilegen der anterioren Tibia von Weichteilen im Bereich des Guide-Auflagers. Platzierung des Prophecy Tibia Resect-Through Guide auf der anterioren Tibia im Surface-Match, der Guide sitzt in einer einzigen korrekten Position. Einbringen eines 2,4 mm Steinmann-Pins zur temporären Fixation. Anbringen des Conversion Instruments und BV Kontrolle in AP-Projektion, Vergleich mit dem präoperativen Prophecy-Plan. Überprüfung der korrekten koronaren und sagittalen Ausrichtung des Guides. Die Ausrichtung entspricht der präoperativen CT-basierten Planung.\nNach Bestätigung der korrekten Position Einbringen von insgesamt vier 2,4 mm Steinmann-Pins bicortical durch den Guide in die Tibia und Kürzen der Pins. Seitliche BV Kontrolle zur Verifizierung der Flexions-/Extensionsausrichtung.\nBohren der tibialen Ecklöcher durch den Resect-Through Guide mittels Tibial Corner Drill, Einsetzen der Corner Protector Pegs zum Schutz der Ecken.\nSägen der tibialen Resektion direkt durch die Schlitze des Resect-Through Guide unter Wasserkühlung. Die talare Resektion erfolgt zu diesem Zeitpunkt noch nicht. Entfernung des Conversion Instruments, der Corner Protector Pegs und des Resect-Through Guide Inserts. Die proximalen tibialen Steinmann-Pins verbleiben.\nAbtragen des vorderen Tibia-Anteils mittels Osteotom in ca. 60° nach distal, Entfernung des Knochenblockes. Glätten der Resektionsflächen. Besondere Beachtung wird dem lateralen und medialen Gutter geschenkt, hier Entfernung von Osteophyten und impingementgefährdeten Knochenanteilen.\nPlatzierung des Prophecy Talus Alignment Guide auf dem Talusdach im Surface-Match nach Plantarflexion des Fußes. Temporäre Fixation mit einem 2,4 mm Steinmann-Pin, dann Einbringen von zwei 2,4 mm Steinmann-Pins anterior in den Talus über die vorgegebenen Löcher des Guides. Entfernung des Talus-Guides über die Pins.\nSeitliche BV Kontrolle zur Verifikation der Talus-Pin-Position, Vergleich mit dem präoperativen Prophecy-Plan.\nAufbringen des reversiblen Talar Saw Guide über die Talus-Pins, Ausrichtung mit CHMF nach oben für Chamfer-Cut. Einbringen von 2,4 mm Gutter-Pins medial und lateral zum Schutz der Malleolen. Durchführung der talaren Resektion mit der oszillierenden Säge durch den Schnittblock. Entfernung des Talusdoms. Kontrolle der Resektion mittels Osteotom.\nVorsichtiges Release der hinteren Kapsel am Knochen, Einbringen der entsprechenden Probeprothesen und BV Kontrolle. Einstellung der tibialen Position. Einbringen der Pegs zur Platzierung der tibialen Führung.\nEinbringen Führungsinlay zur Bohrung am Talus, exakte Einstellung unter BV. Talar Dome Trial wird aufgelegt, Messung Größe.\nEinbringen Tibia, Inlay und Talus Probe. Die Größen sind gut.\nPeg Drilling talar nach Fixation Taluskomponente. Ausgiebige Spülung und Wechsel der Handschuhe.\nEinbringen der tibialen Komponente nach Herstellerangaben und Einbolzen mit externem Instrument. Die Prothese sitzt fest, klinisch und radiologisch. Einbringen der talaren Komponente, Impaktierung mit Instrumentarium und Einbringen des Inlays nach Überprüfung auf korrekte Bandspannung mittels Probekomponenten. Abschluss BV Kontrolle, Stabilitätsprüfung und Überprüfung sowohl der Ausrichtung der Prothese zur Beinachse als auch die Rückfußachse. Klinisch und radiologisch stabile Bandverhältnisse bei achsgerechter Stellung und stabiler Prothese, keine impingementgefährdeten Strukturen.`,
+tep_inbone:`Längsverlaufende Inzision ventral des oberen Sprunggelenkes. Darstellen des Retinaculums, Lösungen der Verwachsungen des Retinaculums mit der langen Strecksehne der Großzehe und der Tibialis anterior-Sehne. Eingehen zwischen den beiden Sehnen auf das obere Sprunggelenk. Es entleert sich ein klarer Erguss, es quillt etwas Synovialis hervor.\nErhebliche flächige Arthrose talar und tibial, deutliche Verwachsungen. Nun Darstellung von Talus und Tibia, Entfernung des Periostes zur exakten Auflage der Prophecy Fräsenschablone tibial. Hier wird der Sitz unter BV exakt überprüft, Einstellung mit eingebrachten Pins in „Gun Sight" Ansicht. Dann Fixierung mit K-Drähten und Röntgenkontrolle. Es zeigt sich ein korrekter Sitz und achsgerechte Ausrichtung. Wechsel auf Fräsehilfen, Einstellung Erneute BV-Kontrolle in 2 Ebenen. Es zeigt sich in Abgleich mit der digitalen Planung ein korrekter Sitz, keine Überlänge der Drähte. BV Kontrolle in 2 Ebenen und Kontrolle der Achsausrichtung nach proximal um korrekte Achsausrichtung, korrekten Slope und korrekte Resektionshöhe verifizieren zu können. Nun Bohrung der Eckkanten unter BV Kontrolle zum Vermeiden einer medialen zu tiefen Bohrung und Affektion des Gefäß-Nerven-Bündels. Der Talus kann in kongruenter Position unter der Tibia eingestellt werden, Fixierung mittels K-Drähten. Röntgen ap und seitlich, gute Lage der Drähte. Bohrung Antirotationsnut unter BV Kontrolle seitlich.\nDann Sägeschnitte tibial und talar nach Vorlage der Malleolenschutzpins unter BV Kontrolle zur exakten Kontrolle der Frästiefe. Bestätigung komplette Durchtrennung mittels Resektions-Tiefenmessers. Abnahme der Fräsehilfe und Entfernung der Knochen tibial und talar. Tibial kann das Fragment nicht komplett geborgen werden, daher wird der restliche Knochen vorsichtig unter BV Kontrolle mit einem Meißel nach lateral gerichtet gespalten, dann vorsichtig mit stumpfen Klemmen entfernt. Aus dem Knochen wird reichlich autologe Spongiosa gewonnen. Nacharbeiten der Kanten mit dem Meißel, hierbei wird genau geachtet keinen übermäßigen Stress auf den Innenknöchel zu bringen. Vorsichtiges Kapselrelease mit Instrument.\nEinbringen der patientenindividuellen Box und der Bohrhilfe, BV Kontrolle auf korrekte Lage.\nAnbringen der Fixationsschraube tibial und Auflage der Fußhalterung. Diese wird arretiert und unter BV genau ausgerichtet. Dann Markierung des Eintrittspunktes plantar und vorsichtiges Vorbohren. Der Draht lässt sich gut positionieren, Ausrichtung nach der mechanischen Achse des Beines. BV Kontrolle über komplette Beinachse.\nAufsetzen Fräskopf auf den Fräseschaft mit 12mm Durchmesser, händisches Fräsen nach proximal. Dann Fräsen mit 14 mm Durchmesser nach Wechsel Fräskopf. Fräsen der Basis und Mid Stem mit 16mm, hierbei wird an der Markierung am Frässchaft im anterioren Fenster referenziert. Spülung jeweils des Gelenkraumes, dann Entfernung des Fräskopfes. Einsetzen der AP Größenlehre, Messung. Die Abdeckung mit Corticalis ist allseits sehr gut.\nNun Einbringen der tibialen Komponenten schrittweise über das anteriore Fenster mittels Gabelschlüssel und Clip, nach Einbringung Rotation der Tibiakomponente, dass die Entriegelungsöffnung anterior unter der Antirotationsnut liegt. Einbringen der Tibiakomponente, Verbindung und Einschlagen nach Spülung.\nEntfernung der Halterung.\nEinbringen der Talusprobe, Reinigung von Ossikeln und Osteophyten aus dem lateralen und medialen Gutter, vor allem tief mediale Reinigung. Visuell, radiologisch und palpatorisch guter Sitz und kein Überstand. Einsetzen Probeinlay und BV Kontrolle, guter Sitz und gutes Gleiten. Markieren der anterioren Grenze der Taluskomponente, um eine Migration während der Bewegungsprüfung auszuschließen.\nBei optimaler Position Einbringen von zwei 1,4 mm Drähten, dann erneute Bewegungsprüfung. Entfernung Probeinlay und Bohren mit Taluszapfen-Bohrer, dann Einbringen des zentralen Drahtes. Entfernung Talusdom Probe und Bohren mit Talusschaft-Fräse 10mm. Montage der Taluskomponente mit Impaktion des Verankerungszapfens. Einbringen Talusdom unter Nutzung Tibiabasisschutz. Einschlagen unter BV Kontrolle mit Domeinschläger.\nEinsetzen des Inlays über Einführhilfe mittels Befestigungsschraube. Nahtloser Bewegungsumfang ohne Impingement. Die Bandspannung ist gut balanciert, keine Kontraktur, keine Instabilität, keine Translation oder Verkippung der Komponenten bei Bewegungsprüfung oder Varus-Valgus-Stress.\nAchsgerechte Ausrichtung, BV Kontrolle in 2 Ebenen, keine Fissur oder Implantatfehllage.\nAusgiebige Spülung aller Zugänge. Öffnung der Blutsperre, nur geringe venöse Blutung, Blutstillung. Erneute ausgiebige Spülung.`,
 };
 
 function buildDMMO(mts){const main=mts.filter(m=>m<=3),extra=mts.filter(m=>m>=4);let t="Zuwendung zum Mittelfuß. Es zeigt sich radiologisch und palpatorisch ein Misalignment der Metatarsale, plantare Mehrbeschwielung. Stichinzision subkapital des MT "+main.join(" und ")+", Umfahren subkapital mit minimalinvasiven Klemmchen, jeweils Schrägosteotomie mit der perkutanen Fräse unter fortlaufender Wasserspülung unter BV-Kontrolle.";if(extra.length>0)t+=" Es zeigt sich hier noch eine relative Überlänge des MT "+extra.join(" und ")+", sodass dort in gleicher Weise eine perkutane Verkürzungsosteotomie im DMMO Stil erfolgt.";t+=" Spülung aller Zugänge.\nInsgesamt zeigt sich nun in der radiologischen Kontrolle eine sehr zufriedenstellende Korrektur des Alignements, palpatorisch gute Verbesserung der Druckverteilung.";return t;}
@@ -981,8 +987,18 @@ function OPBerichtApp(){
   const [tepTalCut,setTepTalCut]=useState("chamfer");// chamfer|flat
   const [tepInlaySz,setTepInlaySz]=useState("");// 1,1+,2,2+,3,3+,4,4+,5
   const [tepInlayMM,setTepInlayMM]=useState("");// 6-13
+  // Inbone Stem sizes
+  const [ibTopStem,setIbTopStem]=useState("");// 12|14|16
+  const [ibMidStem1,setIbMidStem1]=useState("");// 12|14|16|18
+  const [ibMidStem2,setIbMidStem2]=useState("");// ""|12|14|16|18 (optional 2nd mid stem)
+  const [ibBaseStem,setIbBaseStem]=useState("");// 16|18
+  const [ibTalarStem,setIbTalarStem]=useState("");// 10|14
   // Rückfuß
   const [rfOp,setRfOp]=useState([]);
+  // Mittelfuß
+  const [mfCotton,setMfCotton]=useState(false);
+  const [mfCottonKnochen,setMfCottonKnochen]=useState("");// autolog|allogen
+  const [mfTmt,setMfTmt]=useState([]);// ["tmt1","tmt1_3","tmt2_3","tmt2"]
   // ME
   const [meOp,setMeOp]=useState([]);
   // Weitere
@@ -1003,10 +1019,11 @@ function OPBerichtApp(){
   const hasOSG=osgOp.length>0;
   const hasTEP=!!tepType;
   const hasRF=rfOp.length>0;
+  const hasMF=mfCotton||mfTmt.length>0;
   const hasME=meOp.length>0;
   const hasUM=umOp.length>0;
   const hasFX=fxOp.length>0;
-  const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasME||hasUM||hasFX;
+  const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasMF||hasME||hasUM||hasFX;
   const needsRuhig=gz==="mtp1art"||gz==="lapidus";
 
   // Collected OPS codes
@@ -1060,131 +1077,202 @@ function OPBerichtApp(){
   const erloesData=useMemo(()=>{
     if(!hasAny)return null;
 
-    // TEP – keine H-DRG, immer stationär
-    if(hasTEP) return {label:"TEP",ops:allOPS,
-      amb:"—",n1:"Kurzlieger ~2.500 €",n2:"Kurzlieger ~3.500 €",n3:"I20C/D 4.442–6.035 €",
+    // TEP Wechsel → I43B
+    if(hasTEP&&tepType.startsWith("wechsel")) return {label:"TEP Wechsel",ops:allOPS,
+      amb:"—",n1:"Kurzlieger",n2:"Kurzlieger",n3:"I43B (volle DRG)",
       empf:"n3",
-      hint:"Keine H-DRG. Immer stationär, ab Tag 3 volle DRG.",
-      kodier:"",kontext:""};
+      hint:"Wechsel-OP immer stationär. DRG I43B. Mind. 3–5 Nächte.\n5-827.10 (Komplettwechsel), 5-827.12/13/14 (Teilwechsel).",
+      kodier:"Bei komplexem Wechsel: 5-829.b (komplexe Wechsel-OP mit Knochenersatz) mitkodieren.\nBei Ausbau: 5-827.5 + 5-829.9 (Spacer). Wiedereinbau: 5-829.g (Spacer-Entfernung).",kontext:""};
 
-    // Lapidus MIT Positivliste-Code → I20M
+    // TEP Erstimplantation → I05B
+    if(hasTEP) return {label:"TEP Erstimplantation",ops:allOPS,
+      amb:"—",n1:"Kurzlieger",n2:"Kurzlieger",n3:"I05B (volle DRG)",
+      empf:"n3",
+      hint:"Erstimplantation OSG-TEP. DRG I05B. Immer stationär, mind. 3–5 Nächte.",
+      kodier:"OPS 5-826.00. Nicht auf H-DRG-Positivliste.\nBei komplexer Erstimplantation: 5-829.a mitkodieren.",kontext:""};
+
+    // Lapidus MIT Positivliste-Code → H-DRG I20M amb / I20D stat
     if(gz==="lapidus"&&hasLapidusCompanion) return {label:"Lapidus + Zusatzeingriff",ops:allOPS,
-      amb:"H-DRG I20M 3.341 €",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
+      amb:"H-DRG I20M 3.280 €",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
       empf:"amb",
-      hint:"Ambulant: H-DRG I20M (3.341 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger-DRG I20D (~3.500 €) oder volle DRG I20D (4.442 €) sind besser.",
-      kodier:"⚠ Ambulant: 5-854.2c (Sehnentransposition) NICHT mitkodieren. Stationär: mitkodieren → Kontextfaktor → raus aus H-DRG.",
-      kontext:"Stat. Heraussteuerung: Revisionscode 5-808.a9 (bei Vor-OP) oder Spongiosa 5-784.0v mitkodieren → im OP-Bericht dokumentieren! Mehrerlös +1.100 € vs. H-DRG."};
+      hint:"Ambulant: H-DRG I20M (3.280 €). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger I20D oder volle DRG I20D (4.442 €) besser.",
+      kodier:"5-808.a4 → DRG I20D. Ambulant: 5-854.2c NICHT mitkodieren → bleibt H-DRG.\nStationär: mitkodieren → Kontextfaktor → raus aus H-DRG.\n💡 Bei 2 TMT: intercuneiforme Gelenke 1/2 und/oder 2/3 als zusätzliche Gelenke zählen → 5-808.a6 (I20C) oder 5-808.a7 (I20B)! Muss im OP-Bericht dokumentiert sein!",
+      kontext:"Stat. Heraussteuerung: Spongiosa 5-784.0v oder Revisionscode 5-808.a9 mitkodieren → Mehrerlös +1.100 € vs. H-DRG."};
 
-    // Lapidus ALLEIN → keine H-DRG
+    // Lapidus ALLEIN → I20D
     if(gz==="lapidus") return {label:"Lapidus allein",ops:allOPS,
       amb:"KEINE H-DRG",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
       empf:"n2",
-      hint:"5-808.a4 nicht auf Positivliste → keine H-DRG möglich. Stationär führen, mind. 2 Nächte.",
-      kodier:"Ambulant: Nur EBM. Für H-DRG I20M: Zusatzeingriff aus Positivliste nötig (z.B. Akin 5-788.56, Weichteilkorrektur 5-788.40).",
+      hint:"5-808.a4 nicht auf Positivliste → keine H-DRG. DRG I20D stationär. Mind. 2 Nächte.\nFür H-DRG I20M: Zusatzeingriff aus Positivliste nötig (Akin 5-788.56, Weichteilkorrektur 5-788.40).",
+      kodier:"5-808.a4 = 1 TMT → I20D. 5-808.a5 = 2 TMT → I20D.\n💡 5-808.a6 = 3 Gelenke → I20C! Intercuneiforme Gelenke 1/2 und/oder 2/3 können als zusätzliche Gelenke gezählt werden → muss im OP-Bericht dokumentiert sein! Mit beiden intercuneiform → 5-808.a7 → I20B!",
       kontext:""};
 
-    // MTP-I-Arthrodese → I20N
-    if(gz==="mtp1art") return {label:"MTP-I-Arthrodese",ops:allOPS,
-      amb:"H-DRG I20N 2.121 €",n1:"Kurzlieger I20E ~2.800 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
-      empf:"amb",
-      hint:"Ambulant: H-DRG I20N (2.121 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger I20E (~2.800 €) oder volle DRG I20E (3.728 €) sind besser.",
-      kodier:"Code: 5-808.b0 (nicht 5-809.1m!). Bei Arthroplastik (5-788.60): Kontextfaktor → keine H-DRG bei I20N!",
-      kontext:"Stat. Heraussteuerung: Spongiosa mitkodieren (5-784.0v) → Kontextfaktor → raus aus H-DRG. Im OP-Bericht dokumentieren! Reop: 5-808.b7 (bei Vor-OP). Mehrerlös +600–1.600 € vs. H-DRG."};
+    // MTP-I-Arthrodese → H-DRG I20N amb / I20E stat
+    if(gz==="mtp1art") {
+      // Check if combined with DMMO
+      const dmmoCnt=dmmo.length;
+      if(dmmoCnt>=3) return {label:"MTP-I-Arthrodese + 3 DMMO",ops:allOPS,
+        amb:"—",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
+        empf:"n2",
+        hint:"MTP-I-Arthrodese + 3 DMMO → DRG I20D. DMMO >2 nicht ambulant abrechenbar. Mind. 2 Nächte.",
+        kodier:"5-808.b0 + 5-788.54 → DRG I20D.",kontext:""};
+      if(dmmoCnt>=1) return {label:"MTP-I-Arthrodese + DMMO",ops:allOPS,
+        amb:"H-DRG I20N 2.085 €",n1:"Kurzlieger I20E ~2.800 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+        empf:"amb",
+        hint:"MTP-I-Arthrodese + DMMO → Ambulant H-DRG I20N. Stationär DRG I20E.",
+        kodier:"5-808.b0 + 5-788.52/53 → I20E stationär.",kontext:""};
+      return {label:"MTP-I-Arthrodese",ops:allOPS,
+        amb:"H-DRG I20N 2.085 €",n1:"Kurzlieger I20E ~2.800 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+        empf:"amb",
+        hint:"Ambulant: H-DRG I20N (2.085 €). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger I20E oder volle DRG I20E (3.728 €) besser.",
+        kodier:"Code: 5-808.b0. Bei Arthroplastik (5-788.60): Kontextfaktor → keine H-DRG bei I20N!",
+        kontext:"Stat. Heraussteuerung: Spongiosa 5-784.0v mitkodieren → Kontextfaktor → raus aus H-DRG. Mehrerlös +600–1.600 € vs. H-DRG."};
+    }
 
-    // Chevron/Scarf/Cheilektomie/Exostose → I20O
+    // Chevron/Scarf/Cheilektomie/Exostose → H-DRG I20O amb / I20F stat
     if(gz==="chevron"||gz==="cheilek"||gz==="scarf"||gz==="exostose"){
       const lbl=gz==="chevron"?"Chevron":gz==="cheilek"?"Cheilektomie":gz==="scarf"?"Scarf":"Exostose";
       const reopCode=gz==="chevron"?"5-788.5f":gz==="scarf"?"5-788.5j":"";
+      // Check if combined with DMMO
+      const dmmoCnt=dmmo.length;
+      if(dmmoCnt>=1) return {label:lbl+" + DMMO",ops:allOPS,
+        amb:"H-DRG I20N 2.085 €",n1:"Kurzlieger I20E ~2.800 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+        empf:"amb",
+        hint:"MT I OT + DMMO → Ambulant H-DRG I20N. Stationär DRG I20E (3.728 €).",
+        kodier:"MT I OT (z.B. 5-788.5c) + DMMO → I20E stationär.",
+        kontext:"Stat. Heraussteuerung: 5-854.0c mitkodieren → Kontextfaktor."};
       return {label:lbl,ops:allOPS,
         amb:"H-DRG I20O 1.019 €",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
         empf:"amb",
-        hint:"Ambulant: H-DRG I20O (1.019 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger I20F (~2.000 €) oder volle DRG I20F (3.040 €) sind besser.",
-        kodier:"⚠ Ambulant: Sehneneingriff (5-854.0c/2c) NICHT mitkodieren → bleibt in H-DRG.\nStationär: Sehneneingriff MITKODIEREN → Kontextfaktor → raus aus H-DRG."+(reopCode?" Reop: "+reopCode+" (bei Vor-OP → keine H-DRG).":"")+(gz==="cheilek"?" Arthroplastik 5-788.60 = Kontextfaktor → keine H-DRG!":""),
-        kontext:"Stat. Heraussteuerung: 5-854.0c (Strecksehnenverlängerung) oder 5-854.2c (FDL-Transfer) mitkodieren → im OP-Bericht dokumentieren! Mehrerlös +1.000–2.000 € vs. H-DRG."};}
+        hint:"Ambulant: H-DRG I20O (1.019 €). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger I20F oder volle DRG I20F (3.040 €) besser.",
+        kodier:"⚠ Ambulant: Sehneneingriff (5-854.0c/2c) NICHT mitkodieren → bleibt in H-DRG.\nStationär: Sehneneingriff MITKODIEREN → Kontextfaktor → raus aus H-DRG."+(reopCode?" Reop: "+reopCode+" (bei Vor-OP → keine H-DRG).":""),
+        kontext:"Stat. Heraussteuerung: 5-854.0c (Strecksehnenverlängerung) mitkodieren → Mehrerlös +1.000–2.000 € vs. H-DRG."};
+    }
 
-    // Kleinzehen/DMMO ≤2 → I20O
+    // Kleinzehen/DMMO ≤2 → H-DRG I20O / I20F
     if((Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)&&!hasDMMOover2) return {label:"Kleinzehen/DMMO",ops:allOPS,
       amb:"H-DRG I20O 1.019 €",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
       empf:"amb",
-      hint:"Ambulant: H-DRG I20O (1.019 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger-DRG ist besser.\n💡 In LA möglich → Anästhesiekosten entfallen, OP-Slot wird nicht belegt, Eingriff kann zusätzlich zum regulären Programm erfolgen.",
-      kodier:"⚠ DMMO max. 2× (5-788.52/53) für H-DRG! >2× DMMO = keine H-DRG.\n⚠ Strecksehnenverlängerung (5-854.0c) ist erlösrelevant! Bei Krallenzehe freizügig durchführen und exakt mit 5-854.0c kodieren.\nAmbulant: 5-854.0c NICHT mitkodieren. Stationär: MITKODIEREN → Kontextfaktor.",
-      kontext:"Stat. Heraussteuerung: 5-854.0c (Strecksehnenverlängerung) mitkodieren → im OP-Bericht dokumentieren! Mehrerlös +1.000–2.000 € vs. H-DRG."};
+      hint:"Ambulant: H-DRG I20O (1.019 €). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger I20F besser.\n💡 In LA möglich → Anästhesiekosten entfallen.",
+      kodier:"⚠ DMMO max. 2× (5-788.52/53) für H-DRG! >2× = keine H-DRG.\n⚠ 5-854.0c (Strecksehnenverlängerung): Bei Krallenzehe freizügig durchführen.\nAmbulant: NICHT mitkodieren. Stationär: MITKODIEREN → Kontextfaktor.",
+      kontext:"Stat. Heraussteuerung: 5-854.0c mitkodieren → Mehrerlös +1.000–2.000 € vs. H-DRG."};
 
-    // DMMO >2 → keine H-DRG
-    if(hasDMMOover2) return {label:"DMMO >2 MT",ops:allOPS,
+    // DMMO >2 → I20F (nicht ambulant, kein AOP)
+    if(hasDMMOover2) return {label:"DMMO ≥3 MT",ops:allOPS,
       amb:"KEINE H-DRG",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
       empf:"n2",
-      hint:"5-788.54/55 (3-4 MT) nicht auf Positivliste und nicht im AOP-Katalog → ambulant NICHT abrechenbar. Stationär führen.",
-      kodier:"💡 Ambulanter Ausweg: Zusätzlichen H-DRG-Code aus Positivliste verwenden (z.B. Weichteilkorrektur 5-788.40 oder Strecksehnenverlängerung 5-854.0c) → damit in H-DRG I20O (1.019 €).\nOhne Positivliste-Code: nur stationär möglich.",
+      hint:"5-788.54/55 nicht auf Positivliste und nicht im AOP-Katalog → nur stationär. DRG I20F (3.040 €). Mind. 2 Nächte.",
+      kodier:"💡 Ambulanter Ausweg: H-DRG-Code aus Positivliste dazukodieren (z.B. 5-788.40 oder 5-854.0c) → H-DRG I20O (1.019 €).\nOhne Positivliste-Code: nur stationär I20F.",
       kontext:""};
 
-    // OSG-Arthrodese → keine H-DRG
+    // OSG-Arthrodese → I13E, mit Spongiosa → I13D
     if(osgOp.includes("arthrodese_osg")) return {label:"OSG-Arthrodese",ops:allOPS,
-      amb:"—",n1:"Kurzlieger ~2.200 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+      amb:"—",n1:"Kurzlieger I13E ~2.800 €",n2:"I13E ~3.500 €",n3:"I13E ~3.500 €",
       empf:"n2",
-      hint:"Keine H-DRG. Stationär, mind. 2 Nächte für volle DRG I20E.",
-      kodier:"5-808.70 nicht auf Positivliste.",kontext:""};
+      hint:"5-808.70 → DRG I13E. Keine H-DRG. Mind. 2 Nächte.\n⚠ Immer 5-784.0n (Spongiosa autogen Tibia) mitkodieren → I13D = höherer Erlös!",
+      kodier:"5-808.70 nicht auf Positivliste. Immer 5-784.0n dazu → DRG I13D statt I13E!\nImmer spezifisch kodieren (nicht ‚sonstige').",kontext:""};
 
     // AMIC → keine H-DRG
     if(osgOp.includes("amic")) return {label:"AMIC",ops:allOPS,
-      amb:"—",n1:"Kurzlieger ~2.200 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+      amb:"—",n1:"Kurzlieger I20E ~2.800 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
       empf:"n2",
-      hint:"5-801.nk nicht auf Positivliste → keine H-DRG. Spongiosa = Kontextfaktor. Stationär führen.",
-      kodier:"",kontext:""};
+      hint:"5-801.nk nicht auf Positivliste → keine H-DRG. Stationär DRG I20E.",
+      kodier:"Immer alle Maßnahmen spezifisch kodieren.",kontext:""};
 
-    // ASK/Brostrom/Bandplastik/Arthrorise → I20O
+    // ASK/Brostrom/Bandplastik/Arthrorise → H-DRG I20O
     if(hasOSG) return {label:"OSG-Eingriff",ops:allOPS,
       amb:"H-DRG I20O 1.019 €",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
       empf:"amb",
-      hint:"Ambulant: H-DRG I20O (1.019 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden.",
-      kodier:"Arthrolyse = kein Kontextfaktor (kann mitkodiert werden ohne H-DRG-Risiko).",
-      kontext:"Stat. Heraussteuerung: Sehneneingriff (5-854.0c/2c) mitkodieren → Kontextfaktor."};
+      hint:"Ambulant: H-DRG I20O (1.019 €). Ab 1 Nacht: H-DRG vermeiden.",
+      kodier:"Arthrolyse = kein Kontextfaktor (kann mitkodiert werden).",
+      kontext:"Stat. Heraussteuerung: Sehneneingriff 5-854.0c/2c mitkodieren → Kontextfaktor."};
 
     // AS-Naht → keine H-DRG seit 2026
     if(hasASnaht) return {label:"Achillessehnennaht",ops:allOPS,
-      amb:"—",n1:"Kurzlieger ~2.200 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+      amb:"—",n1:"Kurzlieger I20E ~2.800 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
       empf:"n2",
-      hint:"Seit 2026 keine H-DRG! Stationär, mind. 2 Nächte für volle DRG.",
-      kodier:"⚠ Immer 5-855.39 (Naht Sehnenscheide) mitkodieren → höhere Vergütungsstufe!",kontext:""};
+      hint:"Seit 2026 keine H-DRG! Stationär DRG I20E. Mind. 2 Nächte.",
+      kodier:"⚠ Immer 5-855.39 (Naht Sehnenscheide) mitkodieren!",kontext:""};
 
-    // Rückfuß-Arthrodesen → keine H-DRG
-    if(hasRFarthrodese) return {label:"Rückfuß-Arthrodese",ops:allOPS,
-      amb:"—",n1:"Kurzlieger ~2.200 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+    // Rückfuß-Arthrodesen → differenziert nach Typ
+    if(rfOp.includes("osg_subtalar")) return {label:"OSG+USG-Arthrodese",ops:allOPS,
+      amb:"—",n1:"Kurzlieger",n2:"I13E ~3.500 €",n3:"I13E ~3.500 €",
       empf:"n2",
-      hint:"Rückfuß-Arthrodesen = keine H-DRG (GFFC 2026). Stationär, mind. 2 Nächte.",
-      kodier:"",kontext:""};
+      hint:"OSG+USG-Arthrodese (5-808.71). DRG I13E. Keine H-DRG. Mind. 2–3 Nächte.\n⚠ Immer 5-784.0n (Spongiosa) mitkodieren → I13D = höherer Erlös!",
+      kodier:"5-808.71 → I13E. Mit 5-784.0n → I13D!\nImmer spezifisch kodieren. Spongiosa/Span immer mitkodieren!",kontext:""};
+    if(hasRFarthrodese) return {label:"Rückfuß-Arthrodese",ops:allOPS,
+      amb:"—",n1:"Kurzlieger I13E ~2.800 €",n2:"I13E ~3.500 €",n3:"I13E ~3.500 €",
+      empf:"n2",
+      hint:"5-808.80 (Einzelgelenk TN oder Subtalar) → DRG I13E.\n5-808.81 (Double: TN+Subtalar oder TN+CC) → DRG I13E.\n5-808.82 (Triple: TN+Subtalar+CC) → DRG I20B (deutlich höherer Erlös!).\nKeine H-DRG. Stationär mind. 2 Nächte.\nSpongiosa/Span: kein Erlösunterschied bei I13E, aber immer mitkodieren!",
+      kodier:"Triple (5-808.82): Immer 5-784.1t (Span Calcaneus) + 5-783.2d (Entnahme Becken) mitkodieren!\n5-809.5 (Syndesmosenfusion) → I59Z. Mit 5-784.0 (Spongiosa) dazu → I13G!",kontext:""};
 
     // Calc-OT → keine H-DRG
     if(hasCalcOT) return {label:"Calcaneus-OT",ops:allOPS,
-      amb:"—",n1:"Kurzlieger ~2.000 €",n2:"I20D–F 3.040–4.442 €",n3:"I20D–F 3.040–4.442 €",
+      amb:"—",n1:"Kurzlieger I20F ~2.000 €",n2:"I20D–F 3.040–4.442 €",n3:"I20D–F 3.040–4.442 €",
       empf:"n2",
-      hint:"Rückfuß-Achskorrekturen = keine H-DRG. Stationär, mind. 2 Nächte.",
-      kodier:"",kontext:""};
+      hint:"Rückfuß-Achskorrekturen = keine H-DRG. Stationär mind. 2 Nächte. DRG abhängig von Komplexität.",
+      kodier:"Immer alle Maßnahmen spezifisch kodieren – ‚sonstige'-Codes vermeiden!",kontext:""};
 
-    // Haglund → I20O
+    // Haglund → H-DRG I20O
     if(hasRF) return {label:"Haglund",ops:allOPS,
       amb:"H-DRG I20O 1.019 €",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
       empf:"amb",
-      hint:"Ambulant: H-DRG I20O (1.019 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden.",
+      hint:"Ambulant: H-DRG I20O (1.019 €). Ab 1 Nacht: H-DRG vermeiden.",
       kodier:"",kontext:""};
+
+    // Mittelfuß: Cotton-OT
+    if(mfCotton&&!mfTmt.length) return {label:"Cotton-Osteotomie",ops:allOPS,
+      amb:"—",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
+      empf:"n2",
+      hint:"Cotton-OT stationär. DRG I20F (3.040 €). Mind. 2 Nächte.",
+      kodier:"Immer spezifisch kodieren. Knochenherkunft (autolog/allogen) dokumentieren.",kontext:""};
+
+    // Mittelfuß: TMT-Arthrodese
+    if(mfTmt.length>0) {
+      const hasTmt1=mfTmt.includes("tmt1");
+      const hasTmt13=mfTmt.includes("tmt1_3");
+      const hasTmt23=mfTmt.includes("tmt2_3");
+      const hasTmt2=mfTmt.includes("tmt2");
+      if(hasTmt13) return {label:"TMT-Arthrodese 1–3",ops:allOPS,
+        amb:"—",n1:"Kurzlieger",n2:"I20C–B",n3:"I20C–B (volle DRG)",
+        empf:"n2",
+        hint:"TMT 1–3 Arthrodese. 5-808.a6 (3 Gelenke) → I20C. 5-808.a7 (4 Gelenke) → I20B. Mind. 2–3 Nächte.\n💡 Intercuneiforme Gelenke 1/2 und 2/3 können als zusätzliche Gelenke gezählt und mitkodiert werden → Erhöhung auf I20B! Muss im OP-Bericht dokumentiert sein!",
+        kodier:"5-808.a4 (1 TMT) → I20D. 5-808.a5 (2 TMT) → I20D.\n5-808.a6 (3 Gelenke) → I20C. 5-808.a7/a8 (4–5 Gelenke) → I20B.\n⚠ Intercuneiforme Gelenke 1/2 und 2/3: Wenn diese im Rahmen der TMT-Arthrodese mitversteift werden, zählen sie als zusätzliche Gelenke. Dies muss exakt im OP-Bericht beschrieben und dokumentiert sein!",kontext:""};
+      if(hasTmt23) return {label:"TMT-Arthrodese 2–3",ops:allOPS,
+        amb:"—",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
+        empf:"n2",
+        hint:"TMT 2–3 Arthrodese. 5-808.a5 (2 Gelenke) → DRG I20D (4.442 €). Mind. 2 Nächte.\n💡 Intercuneiforme Gelenke 1/2 und 2/3 als zusätzliche Gelenke zählen → 5-808.a6 (3 Gelenke) → I20C! Oder mit beiden intercuneiform → 5-808.a7 → I20B! Muss im OP-Bericht dokumentiert sein!",
+        kodier:"5-808.a5 (2 TMT) → I20D.\n⚠ Intercuneiforme Gelenke prüfen: Wenn 1/2 und/oder 2/3 mitversteift → 5-808.a6 (I20C) oder 5-808.a7 (I20B). Exakte Dokumentation im OP-Bericht erforderlich!",kontext:""};
+      if(hasTmt2) return {label:"TMT-Arthrodese TMT 2",ops:allOPS,
+        amb:"—",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
+        empf:"n2",
+        hint:"TMT 2 Arthrodese. 5-808.a4 (1 Gelenk) → DRG I20D (4.442 €). Mind. 2 Nächte.",
+        kodier:"5-808.a4 → I20D.",kontext:""};
+      if(hasTmt1) return {label:"TMT-Arthrodese TMT 1",ops:allOPS,
+        amb:"—",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
+        empf:"n2",
+        hint:"TMT 1 Arthrodese (Lapidus). 5-808.a4 → DRG I20D (4.442 €). Mind. 2 Nächte.",
+        kodier:"5-808.a4 → I20D. Ohne H-DRG-Positivliste-Code → keine H-DRG.",kontext:""};
+    }
 
     // ME → keine H-DRG
     if(hasME) return {label:"ME Stellschraube",ops:allOPS,
       amb:"EBM 250–350 €",n1:"Kurzlieger I31Z ~800 €",n2:"I31Z 2.239 €",n3:"I31Z 2.239 €",
       empf:"n2",
-      hint:"5-787.1r nicht auf Positivliste → keine H-DRG. Ambulant nur EBM (250–350 €). Volle DRG ab Tag 2.\n💡 In LA möglich → Anästhesiekosten entfallen, Eingriff kann zusätzlich zum regulären Programm erfolgen.",
+      hint:"5-787.1r nicht auf Positivliste → keine H-DRG. Ambulant nur EBM (250–350 €). Volle DRG ab Tag 2.\n💡 In LA möglich → Anästhesiekosten entfallen.",
       kodier:"💡 Ambulant: Zusatzeingriff ASK (5-812.ek) → H-DRG I20O (1.019 €) statt EBM 300 €! Nur bei med. Indikation.",
       kontext:""};
 
-    // Umstellung/Fraktur → keine H-DRG
+    // Umstellung/Fraktur
     if(hasUM||hasFX) return {label:"Umstellung/Fraktur",ops:allOPS,
       amb:"—",n1:"Kurzlieger ~2.000 €",n2:"I20D–F 3.040–4.442 €",n3:"I20D–F 3.040–4.442 €",
       empf:"n2",
-      hint:"Stationär, mind. 2 Nächte für volle DRG.",
-      kodier:"",kontext:""};
+      hint:"Stationär, mind. 2 Nächte für volle DRG. DRG abhängig von Komplexität.",
+      kodier:"⚠ Grundregel: Immer alle Maßnahmen so spezifisch wie möglich kodieren. ‚Sonstige'-Codes vermeiden!\nNur bei gewollter H-DRG-Vermeidung ggf. Positivliste-Code weglassen.",
+      kontext:""};
 
     return null;
-  },[hasAny,hasTEP,hasOSG,hasRF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mitAkin,mitSubcap]);
+  },[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap]);
 
   // Text version for Word export
   const erloesText=useMemo(()=>{
@@ -1193,7 +1281,7 @@ function OPBerichtApp(){
     var t="\n\n───────────────\nERLÖSÜBERSICHT (Anlage 2a, 2026)\n───────────────\n\nOPS: "+d.ops.join(", ")+"\n\nAmbulant: "+d.amb+"\n1 Nacht (kurzstat.): "+d.n1+"\n2 Nächte (stat.): "+d.n2+"\n3+ Nächte (volle DRG): "+d.n3+"\n\nEmpfehlung: "+d.hint;
     if(d.kodier)t+="\n\nKodierhinweis: "+d.kodier;
     if(d.kontext)t+="\n\nKontextfaktor: "+d.kontext;
-    t+="\n\n(+30 € bei Nachbehandlung im KH)";
+    if(d.amb.startsWith("H-DRG"))t+="\n\n(+30 € bei Nachbehandlung im KH · Anlage 2a, 2026)";
     return t;
   },[erloesData]);
 
@@ -1277,7 +1365,41 @@ function OPBerichtApp(){
       const cutType=tepType.includes("inbone")?"Flat-Cut":(tepTalCut==="flat"?"Flat-Cut":"Chamfer-Cut");
       const talInfo=tepTalSz?` Talare Komponente Größe ${tepTalSz} (${cutType}).`:"";
       const inlayInfo=tepInlayMM?` Polyethylen-Inlay ${tepInlayMM} mm.`:"";
-      p.push(`\n\n[OSG-TEP: ${wechsel?"Wechsel auf ":"Primärimplantation "}${prothese}${prophecy} – Text wird ergänzt]\n\nImplantatdokumentation:${tibInfo}${talInfo}${inlayInfo}`);
+      // Select correct OP text based on type
+      if(tepType.includes("inbone")){
+        // Build dynamic reaming description for Inbone
+        let ibText=T.tep_inbone;
+        if(ibTopStem||ibMidStem1||ibBaseStem){
+          const reamSteps=[];
+          if(ibTopStem)reamSteps.push(`Aufsetzen Fräskopf auf den Fräseschaft mit ${ibTopStem}mm Durchmesser, händisches Fräsen nach proximal.`);
+          if(ibMidStem1&&ibMidStem1!==ibTopStem)reamSteps.push(`Dann Fräsen mit ${ibMidStem1} mm Durchmesser nach Wechsel Fräskopf.`);
+          if(ibMidStem2)reamSteps.push(`Fräsen des zweiten Mid Stem mit ${ibMidStem2}mm.`);
+          if(ibBaseStem&&ibBaseStem!==ibMidStem1)reamSteps.push(`Fräsen der Basis mit ${ibBaseStem}mm, hierbei wird an der Markierung am Frässchaft im anterioren Fenster referenziert.`);
+          else if(ibBaseStem)reamSteps.push(`Fräsen der Basis und Mid Stem mit ${ibBaseStem}mm, hierbei wird an der Markierung am Frässchaft im anterioren Fenster referenziert.`);
+          const reamDesc=reamSteps.join(" ")+` Spülung jeweils des Gelenkraumes, dann Entfernung des Fräskopfes. Einsetzen der AP Größenlehre, Messung. Die Abdeckung mit Corticalis ist allseits sehr gut.`;
+          // Replace the generic reaming paragraph
+          ibText=ibText.replace(/Aufsetzen Fräskopf.*Die Abdeckung mit Corticalis ist allseits sehr gut\./,reamDesc);
+        }
+        // Build stem construct info
+        let stemInfo="";
+        if(ibTopStem||ibMidStem1||ibBaseStem){
+          const parts=[];
+          if(ibTopStem)parts.push(`Top Stem Ø${ibTopStem}`);
+          if(ibMidStem1)parts.push(`Mid Stem Ø${ibMidStem1}`);
+          if(ibMidStem2)parts.push(`Mid Stem 2 Ø${ibMidStem2}`);
+          if(ibBaseStem)parts.push(`Base Stem Ø${ibBaseStem}`);
+          if(ibTalarStem)parts.push(`Talar Stem Ø${ibTalarStem}`);
+          stemInfo="\nStem-Konstrukt: "+parts.join(", ")+".";
+        }
+        const ibImplInfo="\n\nImplantatdokumentation:"+tibInfo+talInfo+inlayInfo+stemInfo;
+        p.push("\n\n"+ibText+ibImplInfo);
+      } else if(tepProphecy){
+        p.push("\n\n"+T.tep_infinity_prophecy+"\n\nImplantatdokumentation:"+tibInfo+talInfo+inlayInfo);
+      } else if(tepTalCut==="flat"){
+        p.push("\n\n"+T.tep_infinity_flatcut+"\n\nImplantatdokumentation:"+tibInfo+talInfo+inlayInfo);
+      } else {
+        p.push("\n\n"+T.tep_infinity_standard+"\n\nImplantatdokumentation:"+tibInfo+talInfo+inlayInfo);
+      }
     }
     rfOp.forEach(op=>{
       if(op==="haglund")p.push("\n\n"+T.haglund);
@@ -1290,6 +1412,15 @@ function OPBerichtApp(){
       else if(op==="calc_ot_verl")p.push("\n\nZuwendung zur verlängernden Calcaneus-Osteotomie.\n"+T.calc_ot_verl);
       else p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
     });
+    // Mittelfuß
+    if(mfCotton){
+      if(mfCottonKnochen==="allogen")p.push("\n\n"+T.cotton_ot_allogen);
+      else p.push("\n\n"+T.cotton_ot_autolog);
+    }
+    if(mfTmt.length>0){
+      const tmtLabel=mfTmt.map(t=>t==="tmt1"?"TMT 1":t==="tmt1_3"?"TMT 1–3":t==="tmt2_3"?"TMT 2–3":"TMT 2").join(", ");
+      p.push("\n\nZuwendung zur TMT-Arthrodese ("+tmtLabel+").\n"+T.tmt_arthrodese);
+    }
     if(meOp.includes("stell"))p.push("\n\nZuwendung zur Entfernung der Stellschraube.\n"+T.me_stell);
     meOp.filter(x=>x!=="stell").forEach(op=>{p.push(`\n\n[ME: ${op} – Text wird ergänzt]`);});
     umOp.forEach(op=>{
@@ -1304,7 +1435,7 @@ function OPBerichtApp(){
     const r=needsRuhig&&ruhig==="keine"?"orthese":ruhig;
     p.push("\n\n"+buildVerband(hasVF,bs,r));
     return p.join("");
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,rfOp,meOp,umOp,fxOp,ruhig,hasVF,hasAny,needsRuhig]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,umOp,fxOp,ruhig,hasVF,hasAny,needsRuhig]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -1500,6 +1631,34 @@ function OPBerichtApp(){
             <div style={row}>{(["3","4"].includes(tepTibSz)?["6","7","8","9","10","11","12","13"]:["6","8","10","12"]).map(d=><div key={d} style={chip(tepInlayMM===d)} onClick={()=>setTepInlayMM(tepInlayMM===d?"":d)}>{d} mm</div>)}</div>
           </div>:<div style={{fontSize:9,color:"#EF6C00"}}>Bitte zuerst Tibia-Größe wählen</div>}
 
+          {/* INBONE STEM SIZES */}
+          {tepType.includes("inbone")&&<div>
+            <div style={{...cat,marginTop:10}}>Stem-Größen (Fräsköpfe)</div>
+            <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:4}}>
+              <span style={{fontSize:10,color:"#718096",minWidth:70}}>Top Stem:</span>
+              <div style={row}>{["12","14","16"].map(d=><div key={d} style={chip(ibTopStem===d)} onClick={()=>setIbTopStem(ibTopStem===d?"":d)}>{d} mm</div>)}</div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:4}}>
+              <span style={{fontSize:10,color:"#718096",minWidth:70}}>Mid Stem:</span>
+              <div style={row}>{["12","14","16","18"].map(d=><div key={d} style={chip(ibMidStem1===d)} onClick={()=>setIbMidStem1(ibMidStem1===d?"":d)}>{d} mm</div>)}</div>
+            </div>
+            {["4","5","6"].includes(tepTibSz)&&<div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:4}}>
+              <span style={{fontSize:10,color:"#718096",minWidth:70}}>Mid Stem 2:</span>
+              <div style={row}>{["14","16","18"].map(d=><div key={d} style={chip(ibMidStem2===d)} onClick={()=>setIbMidStem2(ibMidStem2===d?"":d)}>{d} mm</div>)}</div>
+              <span style={{fontSize:9,color:"#718096"}}>(optional, Size 4–6)</span>
+            </div>}
+            <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:4}}>
+              <span style={{fontSize:10,color:"#718096",minWidth:70}}>Base Stem:</span>
+              <div style={row}>{(["2","3"].includes(tepTibSz)?["16"]:["4","5","6"].includes(tepTibSz)?["18"]:["16","18"]).map(d=><div key={d} style={chip(ibBaseStem===d)} onClick={()=>setIbBaseStem(ibBaseStem===d?"":d)}>{d} mm</div>)}</div>
+              {["2","3"].includes(tepTibSz)&&<span style={{fontSize:9,color:"#718096"}}>Size 2–3: nur 16mm</span>}
+              {["4","5","6"].includes(tepTibSz)&&<span style={{fontSize:9,color:"#718096"}}>Size 4–6: nur 18mm</span>}
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+              <span style={{fontSize:10,color:"#718096",minWidth:70}}>Talar Stem:</span>
+              <div style={row}>{["10","14"].map(d=><div key={d} style={chip(ibTalarStem===d)} onClick={()=>setIbTalarStem(ibTalarStem===d?"":d)}>{d} mm</div>)}</div>
+            </div>
+          </div>}
+
           <div style={{fontSize:9,color:"#718096",marginTop:8}}>OPS: 5-826.00 · Stationär{tepType.startsWith("wechsel")?" · Wechseloperation":""}</div>
         </div>}
       </OBSec>
@@ -1509,6 +1668,24 @@ function OPBerichtApp(){
         <div style={row}>
           {[["haglund","Haglund + AS"],["subtalar","Arthrodese Subtalar"],["osg_subtalar","Arthrodese OSG+Subtalar"],["calc_ot_var","Calc-OT Varisierend"],["calc_ot_valg","Calc-OT Valgisierend"],["calc_ot_verl","Calc-OT Verlängernd"],["peroneal","Naht Peronealsehnen"],["as_naht","Achillessehnennaht"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
+          )}
+        </div>
+      </OBSec>
+
+      {/* MITTELFUSS */}
+      <OBSec title="🦶 Mittelfuß" open={sec.mf} onToggle={()=>togSec("mf")} active={hasMF}>
+        <div style={cat}>Cotton-Osteotomie</div>
+        <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:6}}>
+          <div style={chip(mfCotton)} onClick={()=>{setMfCotton(!mfCotton);if(mfCotton)setMfCottonKnochen("");}}>Cotton-Osteotomie</div>
+          {mfCotton&&<div style={row}>
+            <div style={chip(mfCottonKnochen==="autolog")} onClick={()=>setMfCottonKnochen(mfCottonKnochen==="autolog"?"":"autolog")}>Autologer Knochen</div>
+            <div style={chip(mfCottonKnochen==="allogen")} onClick={()=>setMfCottonKnochen(mfCottonKnochen==="allogen"?"":"allogen")}>Allogener Knochen</div>
+          </div>}
+        </div>
+        <div style={cat}>TMT-Arthrodese</div>
+        <div style={row}>
+          {[["tmt1","TMT 1"],["tmt1_3","TMT 1–3"],["tmt2_3","TMT 2–3"],["tmt2","TMT 2"]].map(([k,l])=>
+            <div key={k} style={chip(mfTmt.includes(k))} onClick={()=>togArr(mfTmt,setMfTmt,k)}>{l}</div>
           )}
         </div>
       </OBSec>
@@ -1579,7 +1756,7 @@ function OPBerichtApp(){
         <div style={{marginTop:8,fontSize:10,color:"#00897B",background:"rgba(0,137,123,.04)",border:"1px solid rgba(0,137,123,.15)",borderRadius:6,padding:8}}>{erloesData.hint}</div>
         {erloesData.kodier&&<div style={{marginTop:6,fontSize:10,color:"#F57F17",background:"rgba(245,127,23,.06)",border:"1px solid rgba(245,127,23,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>📋 Kodierhinweis:</span> {erloesData.kodier}</div>}
         {erloesData.kontext&&<div style={{marginTop:6,fontSize:10,color:"#E65100",background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>🔧 Kontextfaktor (stat. Heraussteuerung):</span> {erloesData.kontext}</div>}
-        <div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
+        {erloesData.amb.startsWith("H-DRG")&&<div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>}
       </div>}
 
       {/* MOBILE PREVIEW (Handy) */}
@@ -1587,7 +1764,7 @@ function OPBerichtApp(){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
           <div style={h3s}>Vorschau & Export</div>
           <div style={{display:"flex",gap:4}}>
-            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setRfOp([]);setMeOp([]);setUmOp([]);setFxOp([]);setRuhig("keine");}}>Reset</div>
+            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setRuhig("keine");}}>Reset</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#00838F",color:"#F5F7FA",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={copy}>📋</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#005F63",color:"#fff",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
           </div>
