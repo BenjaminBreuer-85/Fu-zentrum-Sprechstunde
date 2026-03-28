@@ -294,6 +294,11 @@ function App() {
   var aks = _s(""), aktivitaet = aks[0], setAktivitaet = aks[1];
   var ses = _s(false), sportEingeschr = ses[0], setSportEingeschr = ses[1];
   var vos = _s(""), vorOPs = vos[0], setVorOPs = vos[1];
+  var sns = _s(""), stnText = sns[0], setStnText = sns[1];
+  var ef1 = _s(""), efas1 = ef1[0], setEfas1 = ef1[1];
+  var ef2 = _s(""), efas2 = ef2[0], setEfas2 = ef2[1];
+  var aof = _s(""), aofas = aof[0], setAofas = aof[1];
+  var vas = _s(""), vasScore = vas[0], setVasScore = vas[1];
   var kbs = _s([]), konservBisher = kbs[0], setKonservBisher = kbs[1];
   var fas = _s(""), freitextAnam = fas[0], setFreitextAnam = fas[1];
   var ris = _s([]), risiken = ris[0], setRisiken = ris[1];
@@ -340,9 +345,6 @@ function App() {
   var fullText = _m(function() {
     if (!gender || diagnosen.length === 0) return "";
     var p = [];
-    p.push("Sehr geehrte Damen und Herren,\n\n");
-    p.push("Wir berichten über " + dd2 + ", " + (gender === "m" ? "der" : "die") + " sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vorstellte.\n\n");
-
     // Diagnose
     var diagParts = diagnosen.map(function(d) {
       if (d === "ocl") {
@@ -362,6 +364,8 @@ function App() {
     if (coalitio && coalitioVar) diagParts.push(coalDiagText(coalitioVar));
     var diagText = diagParts.filter(Boolean).join(", ") + (seite ? " " + seite : "");
     p.push("Diagnosen: " + diagText);
+    if (vorOPs) p.push("\n- St.n. " + (stnText || "___"));
+    p.push("\n- EFAS " + (efas1 || "__") + "/" + (efas2 || "__") + ", AOFAS " + (aofas || "__") + ", VAS " + (vasScore || "__") + " (Belastung)");
 
     // Therapieempfehlung
     var ops = opMethode.filter(function(m) { return OPS[m]; });
@@ -498,7 +502,7 @@ function App() {
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     return p.join("");
-  }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, konservBisher, freitextAnam, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich]);
+  }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, freitextAnam, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() { try { navigator.clipboard.writeText(fullText); showToast("📋 Kopiert!"); } catch (e) { } }
@@ -528,6 +532,20 @@ function App() {
       showToast("📄 Word-Datei heruntergeladen!");
     } catch (e) { showToast("Fehler beim Download"); }
   }
+  function resetAll() {
+    setGender(""); setBegleitung(""); setSeite(""); setDiagnosen([]); setCoalitio(false); setCoalitioVar("");
+    setOpMethode([]); setOpEmpfohlen(true); setTherapieversuch(false);
+    setOclZyste(false); setOclLok(""); setOclLaenge(""); setOclBreite(""); setOclTiefe(""); setAmicSpongiosa(false);
+    setDauer(""); setDauerEinheit("Monaten"); setHaeufigkeit(""); setBelastung([]); setLeidensdruck(true);
+    setBeruf(""); setAktivitaet(""); setSportEingeschr(false); setVorOPs(""); setStnText("");
+    setEfas1(""); setEfas2(""); setAofas(""); setVasScore("");
+    setKonservBisher([]); setFreitextAnam(""); setRisiken([]); setFreitextRisiko("");
+    setBefState({}); setBefInputs({}); setFreitextUnters("");
+    setBilder([{ typ: "", region: "", datum: "", befund: "" }]); setFreitextAbschluss("");
+    setSec({ anam: true, risiko: false, unters: false, bild: false, abschluss: false });
+    setShowPv(false);
+    showToast("🔄 Alle Felder zurückgesetzt!");
+  }
 
   var C = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #2ecc71" : "1px solid rgba(255,255,255,.1)", background: s ? "rgba(46,204,113,.15)" : "rgba(255,255,255,.04)", color: s ? "#fff" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }; };
   var CB = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #5dadec" : "1px solid rgba(255,255,255,.1)", background: s ? "rgba(93,173,236,.15)" : "rgba(255,255,255,.04)", color: s ? "#fff" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }; };
@@ -540,15 +558,20 @@ function App() {
   var diagKeys = Object.keys(DIAG);
 
   return (
-    <div style={{ fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: "#0d1825", minHeight: "100vh", color: "#dde4f0", padding: "14px 16px", maxWidth: 800, margin: "0 auto" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');*{box-sizing:border-box;margin:0;padding:0}input,textarea{width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px 10px;color:#c8d6e8;font-size:12px;font-family:inherit;resize:vertical}input:focus,textarea:focus{outline:0;border-color:rgba(46,204,113,.4)}`}</style>
+    <div style={{ fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: "#0d1825", minHeight: "100vh", color: "#dde4f0", padding: "14px 16px" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');*{box-sizing:border-box;margin:0;padding:0}input,textarea{width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px 10px;color:#c8d6e8;font-size:12px;font-family:inherit;resize:vertical}input:focus,textarea:focus{outline:0;border-color:rgba(46,204,113,.4)}
+@media(min-width:1200px){.sb-split{display:flex!important;gap:20px}.sb-form{flex:1;min-width:0;max-width:680px}.sb-preview{flex:0 0 420px;position:sticky;top:14px;align-self:flex-start;max-height:calc(100vh - 28px);overflow-y:auto}.sb-mobile-preview{display:none!important}}
+@media(max-width:1199px){.sb-form{max-width:800px;margin:0 auto}.sb-preview{display:none!important}.sb-mobile-preview{display:block!important}}`}</style>
       {toast && <div style={{ position: "fixed", bottom: 16, right: 16, padding: "10px 20px", borderRadius: 8, background: "#27ae60", color: "#fff", fontSize: 12, fontWeight: 500, zIndex: 99 }}>{toast}</div>}
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, maxWidth: 1120, margin: "0 auto 12px" }}>
         <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#2ecc71,#27ae60)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
-        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 9, color: "#5a7090" }}>Fußchirurgie · v3</div></div>
+        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 9, color: "#5a7090" }}>Fußchirurgie · v4</div></div>
+        <div style={{ marginLeft: "auto", padding: "6px 14px", border: "1px solid rgba(231,76,60,.3)", borderRadius: 6, background: "rgba(231,76,60,.08)", color: "#e74c3c", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={resetAll}>🔄 Reset</div>
       </div>
 
+      <div className="sb-split" style={{ maxWidth: 1120, margin: "0 auto" }}>
+        <div className="sb-form">
       <div style={card}>
         <div style={h3s}>Patient & Diagnose</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
@@ -586,6 +609,15 @@ function App() {
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
         </div>}
+        {diagnosen.length > 0 && <div style={{ marginTop: 8 }}>
+          <div style={cat}>Scores</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>EFAS 1</div><input value={efas1} onChange={function(e) { setEfas1(e.target.value); }} placeholder="/" /></div>
+            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>EFAS 2</div><input value={efas2} onChange={function(e) { setEfas2(e.target.value); }} placeholder="/" /></div>
+            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>AOFAS</div><input value={aofas} onChange={function(e) { setAofas(e.target.value); }} placeholder="/" /></div>
+            <div style={{ flex: "0 0 100px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>VAS (Belastung)</div><input value={vasScore} onChange={function(e) { setVasScore(e.target.value); }} placeholder="/" /></div>
+          </div>
+        </div>}
       </div>
 
       {gender && diagnosen.length > 0 && <div>
@@ -602,8 +634,9 @@ function App() {
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
             <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Beruf</div><input value={beruf} onChange={function(e) { setBeruf(e.target.value); }} placeholder="z.B. Bürokauffrau..." /></div>
             <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Sport / Aktivität</div><input value={aktivitaet} onChange={function(e) { setAktivitaet(e.target.value); }} placeholder="z.B. Hockey, Fußball..." /></div>
-            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["0","1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["1","2","3","4"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
           </div>
+          {vorOPs && <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>St.n. (Beschreibung der Vor-OP)</div><input value={stnText} onChange={function(e) { setStnText(e.target.value); }} placeholder="z.B. Chevron-Osteotomie, Lapidus-Arthrodese..." /></div>}
           {aktivitaet && <div style={{ marginBottom: 6 }}><div style={CB(sportEingeschr)} onClick={function() { setSportEingeschr(!sportEingeschr); }}>⚠ Sport eingeschränkt</div></div>}
           <div style={cat}>Bisherige konservative Maßnahmen</div>
           <div style={row}>{KONSERV.map(function(k) { return <div key={k} style={CB(konservBisher.indexOf(k) >= 0)} onClick={function() { togArr(k, konservBisher, setKonservBisher); }}>{k}</div>; })}</div>
@@ -673,18 +706,35 @@ function App() {
           <div style={{ marginTop: 8, fontSize: 9, color: "#5a7090" }}>Konservative Optionen werden automatisch aus dem Krankheitsbild übernommen.</div>
         </Sec>
 
-        <div style={card}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
-            <div style={h3s}>Vorschau & Export</div>
+        <div className="sb-mobile-preview" style={{ display: "block" }}>
+          <div style={card}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+              <div style={h3s}>Vorschau & Export</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#2ecc71", color: "#0d1825", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
+                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#3498db", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
+              </div>
+            </div>
+            <div style={{ cursor: "pointer", fontSize: 11, color: "#2ecc71", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
+            {showPv && <div style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#c0d4ec", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
+          </div>
+        </div>
+      </div>}
+      </div>
+
+      <div className="sb-preview" style={{ display: "none" }}>
+        <div style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, padding: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
+            <div style={h3s}>Brief-Vorschau</div>
             <div style={{ display: "flex", gap: 6 }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#2ecc71", color: "#0d1825", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#3498db", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
             </div>
           </div>
-          <div style={{ cursor: "pointer", fontSize: 11, color: "#2ecc71", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
-          {showPv && <div style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#c0d4ec", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
+          <div style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#c0d4ec" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
         </div>
-      </div>}
+      </div>
+      </div>
     </div>
   );
 }
