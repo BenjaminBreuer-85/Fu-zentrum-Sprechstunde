@@ -570,9 +570,9 @@ function SprechstundenbriefApp() {
     showToast("🔄 Alle Felder zurückgesetzt!");
   }
 
-  var C = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #00897B" : "1px solid rgba(0,0,0,.1)", background: s ? "rgba(46,204,113,.15)" : "rgba(255,255,255,1)", color: s ? "#fff" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }; };
-  var CB = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #00838F" : "1px solid rgba(0,0,0,.1)", background: s ? "rgba(0,131,143,.15)" : "rgba(255,255,255,1)", color: s ? "#fff" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }; };
-  var GB = function(s) { return { padding: "9px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: s ? "2px solid #00897B" : "2px solid rgba(0,0,0,.1)", background: s ? "rgba(0,137,123,.15)" : "rgba(255,255,255,.95)", color: s ? "#fff" : "#718096", display: "inline-flex", alignItems: "center", gap: 5, margin: 3 }; };
+  var C = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #00897B" : "1px solid rgba(0,0,0,.1)", background: s ? "rgba(46,204,113,.15)" : "rgba(255,255,255,1)", color: s ? "#006B6F" : "#4A5568", display: "inline-block", margin: 2, userSelect: "none" }; };
+  var CB = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #00838F" : "1px solid rgba(0,0,0,.1)", background: s ? "rgba(0,131,143,.15)" : "rgba(255,255,255,1)", color: s ? "#006B6F" : "#4A5568", display: "inline-block", margin: 2, userSelect: "none" }; };
+  var GB = function(s) { return { padding: "9px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: s ? "2px solid #00897B" : "2px solid rgba(0,0,0,.1)", background: s ? "rgba(0,137,123,.15)" : "rgba(255,255,255,.95)", color: s ? "#006B6F" : "#4A5568", display: "inline-flex", alignItems: "center", gap: 5, margin: 3 }; };
   var row = { display: "flex", flexWrap: "wrap", gap: 3 };
   var card = { background: "rgba(255,255,255,1)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 10, padding: 14, marginBottom: 10 };
   var h3s = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#00897B", marginBottom: 8 };
@@ -582,11 +582,11 @@ function SprechstundenbriefApp() {
 
   return (
     <div style={{ fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: "#F5F7FA", minHeight: "100vh", color: "#1A2A3A", padding: "14px 16px" }}>
-      {toast && <div style={{ position: "fixed", bottom: 16, right: 16, padding: "10px 20px", borderRadius: 8, background: "#27ae60", color: "#fff", fontSize: 12, fontWeight: 500, zIndex: 99 }}>{toast}</div>}
+      {toast && <div style={{ position: "fixed", bottom: 16, right: 16, padding: "10px 20px", borderRadius: 8, background: "#00897B", color: "#fff", fontSize: 12, fontWeight: 500, zIndex: 99 }}>{toast}</div>}
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, maxWidth: 1120, margin: "0 auto 12px" }}>
-        <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#00897B,#27ae60)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
-        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 9, color: "#718096" }}>Fußchirurgie · v4</div></div>
+        <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#00838F,#006B6F)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
+        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#006B6F" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 9, color: "#718096" }}>Fußchirurgie · v4</div></div>
         <div style={{ marginLeft: "auto", padding: "6px 14px", border: "1px solid rgba(231,76,60,.3)", borderRadius: 6, background: "rgba(231,76,60,.08)", color: "#C62828", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={resetAll}>🔄 Reset</div>
       </div>
 
@@ -732,7 +732,7 @@ function SprechstundenbriefApp() {
               <div style={h3s}>Vorschau & Export</div>
               <div style={{ display: "flex", gap: 6 }}>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
-                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#3498db", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
+                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
@@ -748,7 +748,7 @@ function SprechstundenbriefApp() {
             <div style={h3s}>Brief-Vorschau</div>
             <div style={{ display: "flex", gap: 6 }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
-              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#3498db", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
+              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
             </div>
           </div>
           <div style={{ background: "rgba(0,0,0,.02)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
@@ -938,7 +938,7 @@ if(e==="kapsulo"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Hy
 // ============================================================
 // COLLAPSIBLE SECTION
 // ============================================================
-function Sec({title,open,onToggle,active,children}){
+function OBSec({title,open,onToggle,active,children}){
   return <div style={{background:active?"rgba(0,131,143,.04)":"rgba(255,255,255,.95)",border:active?"1px solid rgba(0,131,143,.15)":"1px solid rgba(0,0,0,.07)",borderRadius:10,marginBottom:6,overflow:"hidden"}}>
     <div onClick={onToggle} style={{padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",userSelect:"none"}}>
       <span style={{fontSize:13,fontWeight:600,color:active?"#00838F":"#718096"}}>{open?"▼":"▶"} {title}</span>
@@ -1357,8 +1357,8 @@ function OPBerichtApp(){
     }
   };
 
-  const chip=(sel)=>({padding:"6px 12px",borderRadius:6,fontSize:11.5,cursor:"pointer",border:sel?"1px solid #00838F":"1px solid rgba(0,0,0,.1)",background:sel?"rgba(0,131,143,.15)":"rgba(255,255,255,1)",color:sel?"#fff":"#718096",display:"inline-block",margin:2,userSelect:"none"});
-  const gb=(sel)=>({padding:"9px 18px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:sel?"2px solid #00838F":"2px solid rgba(0,0,0,.1)",background:sel?"rgba(0,131,143,.12)":"rgba(255,255,255,.95)",color:sel?"#fff":"#718096",display:"inline-flex",alignItems:"center",gap:5,margin:3});
+  const chip=(sel)=>({padding:"6px 12px",borderRadius:6,fontSize:11.5,cursor:"pointer",border:sel?"1px solid #00838F":"1px solid rgba(0,0,0,.1)",background:sel?"rgba(0,131,143,.15)":"rgba(255,255,255,1)",color:sel?"#006B6F":"#4A5568",display:"inline-block",margin:2,userSelect:"none"});
+  const gb=(sel)=>({padding:"9px 18px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:sel?"2px solid #00838F":"2px solid rgba(0,0,0,.1)",background:sel?"rgba(0,131,143,.12)":"rgba(255,255,255,.95)",color:sel?"#006B6F":"#4A5568",display:"inline-flex",alignItems:"center",gap:5,margin:3});
   const tog=(on)=>({padding:"5px 11px",borderRadius:6,fontSize:11.5,cursor:"pointer",border:on?"1px solid #00838F":"1px solid rgba(0,0,0,.1)",background:on?"rgba(0,131,143,.12)":"rgba(255,255,255,.95)",color:on?"#00838F":"#718096",display:"inline-flex",alignItems:"center",gap:3,userSelect:"none"});
   const row={display:"flex",flexWrap:"wrap",gap:3};
   const sub={marginLeft:14,marginTop:6,borderLeft:"2px solid rgba(93,173,236,.2)",paddingLeft:10};
@@ -1380,7 +1380,7 @@ function OPBerichtApp(){
 
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,maxWidth:1400,margin:"0 auto 12px"}}>
         <div style={{width:28,height:28,borderRadius:6,background:"linear-gradient(135deg,#00838F,#006B6F)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>📋</div>
-        <div><div style={{fontSize:15,fontWeight:700,color:"#fff"}}>OP-Bericht Generator</div><div style={{fontSize:9,color:"#718096"}}>Orthopädie · Entscheidungsbaum v12</div></div>
+        <div><div style={{fontSize:15,fontWeight:700,color:"#006B6F"}}>OP-Bericht Generator</div><div style={{fontSize:9,color:"#718096"}}>Orthopädie · Entscheidungsbaum v12</div></div>
       </div>
 
       <div className="ob-split">
@@ -1421,7 +1421,7 @@ function OPBerichtApp(){
       <div style={{marginBottom:10}}><div style={h3s}>③ OP-Durchführung</div>
 
       {/* VORFUSS */}
-      <Sec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF}>
+      <OBSec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF}>
         <div style={cat}>Großzehe (1. Strahl)</div>
         <div style={row}>
           {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"]].map(([k,l])=>
@@ -1441,20 +1441,20 @@ function OPBerichtApp(){
 
         <div style={cat}>DMMO (Metatarsale)</div>
         <div style={row}>{[2,3,4,5].map(mt=><div key={mt} style={chip(dmmo.includes(mt))} onClick={()=>togArr(dmmo,setDmmo,mt)}>MT {mt}</div>)}</div>
-      </Sec>
+      </OBSec>
 
       {/* OSG */}
-      <Sec title="🦵 Oberes Sprunggelenk" open={sec.osg} onToggle={()=>togSec("osg")} active={hasOSG}>
+      <OBSec title="🦵 Oberes Sprunggelenk" open={sec.osg} onToggle={()=>togSec("osg")} active={hasOSG}>
         <div style={row}>
           {[["ask","ASK OSG"],["brostrom","Brostrom-Gould"],["bandplastik_auto","Bandplastik autolog"],["arthrorise","Arthrorise"],["arthrodese_osg","Arthrodese OSG"],["amic","AMIC-Talus"],["oats","OATS"]].map(([k,l])=>
             <div key={k} style={chip(osgOp.includes(k))} onClick={()=>togArr(osgOp,setOsgOp,k)}>{l}</div>
           )}
         </div>
         {osgOp.length>0&&<div style={{fontSize:9,color:"#718096",marginTop:6}}>Ausgewählt: {osgOp.join(", ")} · Texte werden ergänzt</div>}
-      </Sec>
+      </OBSec>
 
       {/* OSG-TEP (EIGENE SEKTION) */}
-      <Sec title="🏥 OSG-Totalendoprothese" open={sec.tep} onToggle={()=>togSec("tep")} active={hasTEP}>
+      <OBSec title="🏥 OSG-Totalendoprothese" open={sec.tep} onToggle={()=>togSec("tep")} active={hasTEP}>
         <div style={cat}>Primär-TEP</div>
         <div style={row}>
           <div style={chip(tepType==="primaer_inbone")} onClick={()=>{setTepType(tepType==="primaer_inbone"?"":"primaer_inbone");setTepTalCut("flat");}}>Inbone II</div>
@@ -1502,41 +1502,41 @@ function OPBerichtApp(){
 
           <div style={{fontSize:9,color:"#718096",marginTop:8}}>OPS: 5-826.00 · Stationär{tepType.startsWith("wechsel")?" · Wechseloperation":""}</div>
         </div>}
-      </Sec>
+      </OBSec>
 
       {/* RÜCKFUSS */}
-      <Sec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF}>
+      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF}>
         <div style={row}>
           {[["haglund","Haglund + AS"],["subtalar","Arthrodese Subtalar"],["osg_subtalar","Arthrodese OSG+Subtalar"],["calc_ot_var","Calc-OT Varisierend"],["calc_ot_valg","Calc-OT Valgisierend"],["calc_ot_verl","Calc-OT Verlängernd"],["peroneal","Naht Peronealsehnen"],["as_naht","Achillessehnennaht"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
           )}
         </div>
-      </Sec>
+      </OBSec>
 
       {/* UMSTELLUNG */}
-      <Sec title="🔧 Umstellungsosteotomien" open={sec.um} onToggle={()=>togSec("um")} active={hasUM}>
+      <OBSec title="🔧 Umstellungsosteotomien" open={sec.um} onToggle={()=>togSec("um")} active={hasUM}>
         <div style={row}>
           <div style={chip(umOp.includes("supramal"))} onClick={()=>togArr(umOp,setUmOp,"supramal")}>Supramalleolär Tibia</div>
         </div>
-      </Sec>
+      </OBSec>
 
       {/* FRAKTUREN */}
-      <Sec title="🩹 Frakturen" open={sec.fx} onToggle={()=>togSec("fx")} active={hasFX}>
+      <OBSec title="🩹 Frakturen" open={sec.fx} onToggle={()=>togSec("fx")} active={hasFX}>
         <div style={row}>
           {[["fibula_einf","Fibulafraktur einfach"],["fibula_mehr","Fibulafraktur Mehrfragment"]].map(([k,l])=>
             <div key={k} style={chip(fxOp.includes(k))} onClick={()=>togArr(fxOp,setFxOp,k)}>{l}</div>
           )}
         </div>
-      </Sec>
+      </OBSec>
 
       {/* ME */}
-      <Sec title="🔩 Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={hasME}>
+      <OBSec title="🔩 Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={hasME}>
         <div style={row}>
           {[["stell","Stellschraube dist. Fibula"],["revision_ose","Revision OSE + Wechsel"]].map(([k,l])=>
             <div key={k} style={chip(meOp.includes(k))} onClick={()=>togArr(meOp,setMeOp,k)}>{l}</div>
           )}
         </div>
-      </Sec>
+      </OBSec>
       </div>
 
       {/* VERBAND */}
