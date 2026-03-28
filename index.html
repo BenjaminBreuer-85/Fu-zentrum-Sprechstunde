@@ -3,20 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprechstundenbrief Generator - Fusschirurgie</title>
+<title>Fußzentrum Toolbox – Florence-Nightingale-Krankenhaus</title>
+<meta name="description" content="Dokumentations-Tools · Department Spezielle Fußchirurgie · Kaiserswerther Diakonie">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦶</text></svg>">
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { margin: 0; padding: 0; background: #0d1825; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+  body { margin: 0; padding: 0; background: #F5F7FA; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
   input, textarea {
-    width: 100%; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.08);
-    border-radius: 6px; padding: 7px 10px; color: #c8d6e8; font-size: 12px;
+    width: 100%; background: rgba(0,0,0,.03); border: 1px solid rgba(0,0,0,.12);
+    border-radius: 6px; padding: 7px 10px; color: #2D3748; font-size: 12px;
     font-family: inherit; resize: vertical;
   }
-  input:focus, textarea:focus { outline: 0; border-color: rgba(46,204,113,.4); }
+  input:focus, textarea:focus { outline: 0; border-color: rgba(0,131,143,.5); }
+  /* Sprechstundenbrief layout */
   .sb-split { max-width: 1120px; margin: 0 auto; }
   .sb-form { max-width: 800px; margin: 0 auto; }
   .sb-preview { display: none; }
@@ -27,13 +30,23 @@
     .sb-preview { display: block !important; flex: 0 0 420px; position: sticky; top: 14px; align-self: flex-start; max-height: calc(100vh - 28px); overflow-y: auto; }
     .sb-mobile-preview { display: none !important; }
   }
+  /* OP-Bericht layout */
+  .ob-split { max-width: 1200px; margin: 0 auto; }
+  .ob-form { max-width: 800px; margin: 0 auto; }
+  .ob-preview { display: none; }
+  .ob-mobile-preview { display: block; }
+  @media (min-width: 1024px) {
+    .ob-split { display: flex; gap: 20px; max-width: 1400px; }
+    .ob-form { flex: 1; min-width: 0; max-width: 750px; margin: 0; }
+    .ob-preview { display: block !important; flex: 0 0 440px; position: sticky; top: 14px; align-self: flex-start; max-height: calc(100vh - 28px); overflow-y: auto; }
+    .ob-mobile-preview { display: none !important; }
+  }
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useMemo } = React;
-
+const { useState, useMemo, useEffect, useRef } = React;
 
 /* ============================================================
    DIAGNOSE-DATEN
@@ -247,14 +260,14 @@ function BefTog({ b, state, onTog, val, onVal }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 11, color: "#8ab", minWidth: 180 }}>{b.label}:</span>
         <input value={val || ""} onChange={function(e) { onVal(e.target.value); }} placeholder={b.placeholder}
-          style={{ flex: 1, background: "rgba(0,0,0,.2)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 6, padding: "5px 8px", color: "#c8d6e8", fontSize: 11, fontFamily: "inherit" }} />
+          style={{ flex: 1, background: "rgba(0,0,0,.03)", border: "1px solid rgba(0,0,0,.1)", borderRadius: 6, padding: "5px 8px", color: "#2D3748", fontSize: 11, fontFamily: "inherit" }} />
       </div>
     );
   }
   var bg, bd, c, lb;
-  if (state === "pos") { bg = "rgba(93,173,236,.12)"; bd = "#5dadec"; c = "#5dadec"; lb = "✓"; }
-  else if (state === "neg") { bg = "rgba(231,76,60,.1)"; bd = "#e74c3c"; c = "#e74c3c"; lb = "✗"; }
-  else { bg = "rgba(255,255,255,.03)"; bd = "rgba(255,255,255,.1)"; c = "#555"; lb = "—"; }
+  if (state === "pos") { bg = "rgba(0,131,143,.12)"; bd = "#00838F"; c = "#00838F"; lb = "✓"; }
+  else if (state === "neg") { bg = "rgba(231,76,60,.1)"; bd = "#C62828"; c = "#C62828"; lb = "✗"; }
+  else { bg = "rgba(255,255,255,.95)"; bd = "rgba(0,0,0,.1)"; c = "#555"; lb = "—"; }
   var txt = state === "pos" ? b.pos : state === "neg" ? b.neg : (b.pos ? b.pos.split(",")[0] : "");
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, cursor: "pointer", userSelect: "none" }} onClick={onTog}>
@@ -266,9 +279,9 @@ function BefTog({ b, state, onTog, val, onVal }) {
 
 function Sec({ title, children, open, onToggle }) {
   return (
-    <div style={{ background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, marginBottom: 8, overflow: "hidden" }}>
+    <div style={{ background: "rgba(255,255,255,1)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 10, marginBottom: 8, overflow: "hidden" }}>
       <div onClick={onToggle} style={{ padding: "10px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", userSelect: "none" }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: "#2ecc71" }}>{open ? "▼" : "▶"} {title}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "#00897B" }}>{open ? "▼" : "▶"} {title}</span>
       </div>
       {open && <div style={{ padding: "0 14px 14px" }}>{children}</div>}
     </div>
@@ -278,7 +291,7 @@ function Sec({ title, children, open, onToggle }) {
 /* ============================================================
    MAIN
    ============================================================ */
-function App() {
+function SprechstundenbriefApp() {
   var _s = useState, _m = useMemo;
   var gs = _s(""), gender = gs[0], setGender = gs[1];
   var bs2 = _s(""), begleitung = bs2[0], setBegleitung = bs2[1];
@@ -557,24 +570,24 @@ function App() {
     showToast("🔄 Alle Felder zurückgesetzt!");
   }
 
-  var C = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #2ecc71" : "1px solid rgba(255,255,255,.1)", background: s ? "rgba(46,204,113,.15)" : "rgba(255,255,255,.04)", color: s ? "#fff" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }; };
-  var CB = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #5dadec" : "1px solid rgba(255,255,255,.1)", background: s ? "rgba(93,173,236,.15)" : "rgba(255,255,255,.04)", color: s ? "#fff" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }; };
-  var GB = function(s) { return { padding: "9px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: s ? "2px solid #2ecc71" : "2px solid rgba(255,255,255,.1)", background: s ? "rgba(46,204,113,.12)" : "rgba(255,255,255,.03)", color: s ? "#fff" : "#9ab", display: "inline-flex", alignItems: "center", gap: 5, margin: 3 }; };
+  var C = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #00897B" : "1px solid rgba(0,0,0,.1)", background: s ? "rgba(46,204,113,.15)" : "rgba(255,255,255,1)", color: s ? "#fff" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }; };
+  var CB = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #00838F" : "1px solid rgba(0,0,0,.1)", background: s ? "rgba(0,131,143,.15)" : "rgba(255,255,255,1)", color: s ? "#fff" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }; };
+  var GB = function(s) { return { padding: "9px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: s ? "2px solid #00897B" : "2px solid rgba(0,0,0,.1)", background: s ? "rgba(0,137,123,.15)" : "rgba(255,255,255,.95)", color: s ? "#fff" : "#718096", display: "inline-flex", alignItems: "center", gap: 5, margin: 3 }; };
   var row = { display: "flex", flexWrap: "wrap", gap: 3 };
-  var card = { background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, padding: 14, marginBottom: 10 };
-  var h3s = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#2ecc71", marginBottom: 8 };
-  var cat = { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#5a7090", margin: "10px 0 4px" };
+  var card = { background: "rgba(255,255,255,1)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 10, padding: 14, marginBottom: 10 };
+  var h3s = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#00897B", marginBottom: 8 };
+  var cat = { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#718096", margin: "10px 0 4px" };
 
   var diagKeys = Object.keys(DIAG);
 
   return (
-    <div style={{ fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: "#0d1825", minHeight: "100vh", color: "#dde4f0", padding: "14px 16px" }}>
+    <div style={{ fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: "#F5F7FA", minHeight: "100vh", color: "#1A2A3A", padding: "14px 16px" }}>
       {toast && <div style={{ position: "fixed", bottom: 16, right: 16, padding: "10px 20px", borderRadius: 8, background: "#27ae60", color: "#fff", fontSize: 12, fontWeight: 500, zIndex: 99 }}>{toast}</div>}
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, maxWidth: 1120, margin: "0 auto 12px" }}>
-        <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#2ecc71,#27ae60)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
-        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 9, color: "#5a7090" }}>Fußchirurgie · v4</div></div>
-        <div style={{ marginLeft: "auto", padding: "6px 14px", border: "1px solid rgba(231,76,60,.3)", borderRadius: 6, background: "rgba(231,76,60,.08)", color: "#e74c3c", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={resetAll}>🔄 Reset</div>
+        <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#00897B,#27ae60)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
+        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 9, color: "#718096" }}>Fußchirurgie · v4</div></div>
+        <div style={{ marginLeft: "auto", padding: "6px 14px", border: "1px solid rgba(231,76,60,.3)", borderRadius: 6, background: "rgba(231,76,60,.08)", color: "#C62828", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={resetAll}>🔄 Reset</div>
       </div>
 
       <div className="sb-split" style={{ maxWidth: 1120, margin: "0 auto" }}>
@@ -582,14 +595,14 @@ function App() {
       <div style={card}>
         <div style={h3s}>Patient & Diagnose</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-          <div><div style={{ fontSize: 9, color: "#5a7090", fontWeight: 700, marginBottom: 3 }}>GESCHLECHT</div><div style={row}><div style={GB(gender === "m")} onClick={function() { setGender("m"); }}>♂ Herr</div><div style={GB(gender === "w")} onClick={function() { setGender("w"); }}>♀ Frau</div></div></div>
-          <div><div style={{ fontSize: 9, color: "#5a7090", fontWeight: 700, marginBottom: 3 }}>SEITE</div><div style={row}><div style={GB(seite === "links")} onClick={function() { setSeite(seite === "links" ? "" : "links"); }}>Links</div><div style={GB(seite === "rechts")} onClick={function() { setSeite(seite === "rechts" ? "" : "rechts"); }}>Rechts</div><div style={GB(seite === "bds")} onClick={function() { setSeite(seite === "bds" ? "" : "bds"); }}>Bds.</div></div></div>
+          <div><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>GESCHLECHT</div><div style={row}><div style={GB(gender === "m")} onClick={function() { setGender("m"); }}>♂ Herr</div><div style={GB(gender === "w")} onClick={function() { setGender("w"); }}>♀ Frau</div></div></div>
+          <div><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>SEITE</div><div style={row}><div style={GB(seite === "links")} onClick={function() { setSeite(seite === "links" ? "" : "links"); }}>Links</div><div style={GB(seite === "rechts")} onClick={function() { setSeite(seite === "rechts" ? "" : "rechts"); }}>Rechts</div><div style={GB(seite === "bds")} onClick={function() { setSeite(seite === "bds" ? "" : "bds"); }}>Bds.</div></div></div>
         </div>
-        <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#5a7090", fontWeight: 700, marginBottom: 3 }}>BEGLEITUNG (optional)</div><input value={begleitung} onChange={function(e) { setBegleitung(e.target.value); }} placeholder="z.B. des Vaters, der Mutter..." /></div>
+        <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>BEGLEITUNG (optional)</div><input value={begleitung} onChange={function(e) { setBegleitung(e.target.value); }} placeholder="z.B. des Vaters, der Mutter..." /></div>
         <div style={cat}>Diagnose(n) – max. 2</div>
         <div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>
         {diagnosen.indexOf("knick_senk") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(46,204,113,.2)", paddingLeft: 10 }}>
-          <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: coalitio ? "1px solid #e67e22" : "1px solid rgba(255,255,255,.1)", background: coalitio ? "rgba(230,126,34,.12)" : "rgba(255,255,255,.04)", color: coalitio ? "#f39c12" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setCoalitio(!coalitio); setCoalitioVar(""); }}>+ Coalitio</div>
+          <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: coalitio ? "1px solid #E65100" : "1px solid rgba(0,0,0,.1)", background: coalitio ? "rgba(230,126,34,.12)" : "rgba(255,255,255,1)", color: coalitio ? "#EF6C00" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setCoalitio(!coalitio); setCoalitioVar(""); }}>+ Coalitio</div>
           {coalitio && <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginTop: 4 }}>
             <div style={CB(coalitioVar === "talo_calc")} onClick={function() { setCoalitioVar(coalitioVar === "talo_calc" ? "" : "talo_calc"); }}>Talo-Calcanear</div>
             <div style={CB(coalitioVar === "calc_nav")} onClick={function() { setCoalitioVar(coalitioVar === "calc_nav" ? "" : "calc_nav"); }}>Calcaneo-Naviculär</div>
@@ -600,15 +613,15 @@ function App() {
             <div style={CB(oclZyste)} onClick={function() { setOclZyste(!oclZyste); }}>Zyste</div>
           </div>
           {oclZyste && <div>
-            <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Lokalisierung</div>
+            <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Lokalisierung</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 4 }}>
               <div style={CB(oclLok === "medial")} onClick={function() { setOclLok(oclLok === "medial" ? "" : "medial"); }}>Medial</div>
               <div style={CB(oclLok === "lateral")} onClick={function() { setOclLok(oclLok === "lateral" ? "" : "lateral"); }}>Lateral</div>
             </div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
-              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>Länge (mm)</div><input value={oclLaenge} onChange={function(e) { setOclLaenge(e.target.value); }} placeholder="mm" /></div>
-              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>Breite (mm)</div><input value={oclBreite} onChange={function(e) { setOclBreite(e.target.value); }} placeholder="mm" /></div>
-              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>Tiefe (mm)</div><input value={oclTiefe} onChange={function(e) { setOclTiefe(e.target.value); }} placeholder="mm" /></div>
+              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#718096" }}>Länge (mm)</div><input value={oclLaenge} onChange={function(e) { setOclLaenge(e.target.value); }} placeholder="mm" /></div>
+              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#718096" }}>Breite (mm)</div><input value={oclBreite} onChange={function(e) { setOclBreite(e.target.value); }} placeholder="mm" /></div>
+              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#718096" }}>Tiefe (mm)</div><input value={oclTiefe} onChange={function(e) { setOclTiefe(e.target.value); }} placeholder="mm" /></div>
             </div>
           </div>}
         </div>}
@@ -619,10 +632,10 @@ function App() {
         {diagnosen.length > 0 && <div style={{ marginTop: 8 }}>
           <div style={cat}>Scores</div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>EFAS 1</div><input value={efas1} onChange={function(e) { setEfas1(e.target.value); }} placeholder="/" /></div>
-            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>EFAS 2</div><input value={efas2} onChange={function(e) { setEfas2(e.target.value); }} placeholder="/" /></div>
-            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>AOFAS</div><input value={aofas} onChange={function(e) { setAofas(e.target.value); }} placeholder="/" /></div>
-            <div style={{ flex: "0 0 100px" }}><div style={{ fontSize: 9, color: "#5a7090" }}>VAS (Belastung)</div><input value={vasScore} onChange={function(e) { setVasScore(e.target.value); }} placeholder="/" /></div>
+            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#718096" }}>EFAS 1</div><input value={efas1} onChange={function(e) { setEfas1(e.target.value); }} placeholder="/" /></div>
+            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#718096" }}>EFAS 2</div><input value={efas2} onChange={function(e) { setEfas2(e.target.value); }} placeholder="/" /></div>
+            <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#718096" }}>AOFAS</div><input value={aofas} onChange={function(e) { setAofas(e.target.value); }} placeholder="/" /></div>
+            <div style={{ flex: "0 0 100px" }}><div style={{ fontSize: 9, color: "#718096" }}>VAS (Belastung)</div><input value={vasScore} onChange={function(e) { setVasScore(e.target.value); }} placeholder="/" /></div>
           </div>
         </div>}
       </div>
@@ -630,20 +643,20 @@ function App() {
       {gender && diagnosen.length > 0 && <div>
         <Sec title="① Anamnese" open={sec.anam} onToggle={function() { togSec("anam"); }}>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Dauer</div><div style={row}>{["1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(dauer === n)} onClick={function() { setDauer(dauer === n ? "" : n); }}>{n}</div>; })}</div></div>
-            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Einheit</div><div style={row}>{["Wochen", "Monaten", "Jahren"].map(function(e) { return <div key={e} style={CB(dauerEinheit === e)} onClick={function() { setDauerEinheit(e); }}>{e}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Dauer</div><div style={row}>{["1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(dauer === n)} onClick={function() { setDauer(dauer === n ? "" : n); }}>{n}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Einheit</div><div style={row}>{["Wochen", "Monaten", "Jahren"].map(function(e) { return <div key={e} style={CB(dauerEinheit === e)} onClick={function() { setDauerEinheit(e); }}>{e}</div>; })}</div></div>
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Häufigkeit</div><div style={row}>{["selten", "häufig", "dauerhaft"].map(function(h) { return <div key={h} style={CB(haeufigkeit === h)} onClick={function() { setHaeufigkeit(haeufigkeit === h ? "" : h); }}>{h}</div>; })}</div></div>
-            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Auftreten (Mehrfach)</div><div style={row}>{["bei Belastung", "in Ruhe", "nachts", "beim Gehen", "beim Sport"].map(function(b) { return <div key={b} style={CB(belastung.indexOf(b) >= 0)} onClick={function() { togArr(b, belastung, setBelastung); }}>{b}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Häufigkeit</div><div style={row}>{["selten", "häufig", "dauerhaft"].map(function(h) { return <div key={h} style={CB(haeufigkeit === h)} onClick={function() { setHaeufigkeit(haeufigkeit === h ? "" : h); }}>{h}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Auftreten (Mehrfach)</div><div style={row}>{["bei Belastung", "in Ruhe", "nachts", "beim Gehen", "beim Sport"].map(function(b) { return <div key={b} style={CB(belastung.indexOf(b) >= 0)} onClick={function() { togArr(b, belastung, setBelastung); }}>{b}</div>; })}</div></div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 6 }}><div style={CB(leidensdruck)} onClick={function() { setLeidensdruck(!leidensdruck); }}>Relevanter Leidensdruck</div></div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-            <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Beruf</div><input value={beruf} onChange={function(e) { setBeruf(e.target.value); }} placeholder="z.B. Bürokauffrau..." /></div>
-            <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Sport / Aktivität</div><input value={aktivitaet} onChange={function(e) { setAktivitaet(e.target.value); }} placeholder="z.B. Hockey, Fußball..." /></div>
-            <div><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["1","2","3","4"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
+            <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Beruf</div><input value={beruf} onChange={function(e) { setBeruf(e.target.value); }} placeholder="z.B. Bürokauffrau..." /></div>
+            <div style={{ flex: 1, minWidth: 120 }}><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Sport / Aktivität</div><input value={aktivitaet} onChange={function(e) { setAktivitaet(e.target.value); }} placeholder="z.B. Hockey, Fußball..." /></div>
+            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Vor-OPs</div><div style={row}>{["1","2","3","4"].map(function(n) { return <div key={n} style={CB(vorOPs === n)} onClick={function() { setVorOPs(vorOPs === n ? "" : n); }}>{n}</div>; })}</div></div>
           </div>
-          {vorOPs && <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>St.n. (Beschreibung der Vor-OP)</div><input value={stnText} onChange={function(e) { setStnText(e.target.value); }} placeholder="z.B. Chevron-Osteotomie, Lapidus-Arthrodese..." /></div>}
+          {vorOPs && <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>St.n. (Beschreibung der Vor-OP)</div><input value={stnText} onChange={function(e) { setStnText(e.target.value); }} placeholder="z.B. Chevron-Osteotomie, Lapidus-Arthrodese..." /></div>}
           {aktivitaet && <div style={{ marginBottom: 6 }}><div style={CB(sportEingeschr)} onClick={function() { setSportEingeschr(!sportEingeschr); }}>⚠ Sport eingeschränkt</div></div>}
           <div style={cat}>Bisherige konservative Maßnahmen</div>
           <div style={row}>{KONSERV.map(function(k) { return <div key={k} style={CB(konservBisher.indexOf(k) >= 0)} onClick={function() { togArr(k, konservBisher, setKonservBisher); }}>{k}</div>; })}</div>
@@ -651,12 +664,12 @@ function App() {
         </Sec>
 
         <Sec title="② Risikofaktoren" open={sec.risiko} onToggle={function() { togSec("risiko"); }}>
-          <div style={row}>{RISIKEN.map(function(r) { var sel = risiken.indexOf(r) >= 0; return <div key={r} style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: sel ? "1px solid #e67e22" : "1px solid rgba(255,255,255,.1)", background: sel ? "rgba(230,126,34,.12)" : "rgba(255,255,255,.04)", color: sel ? "#f39c12" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { togArr(r, risiken, setRisiken); }}>{r}</div>; })}</div>
+          <div style={row}>{RISIKEN.map(function(r) { var sel = risiken.indexOf(r) >= 0; return <div key={r} style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: sel ? "1px solid #E65100" : "1px solid rgba(0,0,0,.1)", background: sel ? "rgba(230,126,34,.12)" : "rgba(255,255,255,1)", color: sel ? "#EF6C00" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { togArr(r, risiken, setRisiken); }}>{r}</div>; })}</div>
           <textarea placeholder="Freitext..." value={freitextRisiko} onChange={function(e) { setFreitextRisiko(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
         </Sec>
 
         <Sec title="③ Klinische Untersuchung" open={sec.unters} onToggle={function() { togSec("unters"); }}>
-          <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 6 }}>Klicken: — → ✓ (positiv) → ✗ (negativ) → —</div>
+          <div style={{ fontSize: 9, color: "#718096", marginBottom: 6 }}>Klicken: — → ✓ (positiv) → ✗ (negativ) → —</div>
           {availBef.map(function(b) { return <BefTog key={b.id} b={b} state={befState[b.id] || null} onTog={function() { togBef(b.id); }} val={befInputs[b.id]} onVal={function(v) { setBefInputs(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[b.id] = v; return n; }); }} />; })}
           <textarea placeholder="Freitext Befund..." value={freitextUnters} onChange={function(e) { setFreitextUnters(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
         </Sec>
@@ -674,24 +687,24 @@ function App() {
               {id:"quartett",l:"Fußquartett",t:"Röntgen " + seitenKurz + " Fußquartett (Fuß im Stand in 2 Ebenen, Sprunggelenk a.p. und Saltzman-Rückfußaufnahme)"}
             ];
             var selRegion = regionOptionen.find(function(r) { return r.id === b.region; });
-            return <div key={i} style={{ padding: 8, borderRadius: 6, background: "rgba(255,255,255,.02)", border: "1px solid rgba(255,255,255,.05)", marginBottom: 6 }}>
+            return <div key={i} style={{ padding: 8, borderRadius: 6, background: "rgba(0,107,111,.03)", border: "1px solid rgba(255,255,255,1)", marginBottom: 6 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: "#2ecc71", marginBottom: 4 }}>Bildgebung {i + 1}</div>
-                {bilder.length > 1 && <div style={{ fontSize: 9, color: "#e74c3c", cursor: "pointer" }} onClick={function() { setBilder(bilder.filter(function(x, j) { return j !== i; })); }}>✕ Entfernen</div>}
+                <div style={{ fontSize: 10, fontWeight: 600, color: "#00897B", marginBottom: 4 }}>Bildgebung {i + 1}</div>
+                {bilder.length > 1 && <div style={{ fontSize: 9, color: "#C62828", cursor: "pointer" }} onClick={function() { setBilder(bilder.filter(function(x, j) { return j !== i; })); }}>✕ Entfernen</div>}
               </div>
               <div style={{ marginBottom: 4 }}>
-                <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Typ</div>
+                <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Typ</div>
                 <div style={row}>{["MRT", "CT", "Röntgen"].map(function(t) { return <div key={t} style={CB(b.typ === t)} onClick={function() { var n = bilder.slice(); n[i] = { typ: t, region: "", datum: b.datum, befund: b.befund }; setBilder(n); }}>{t}</div>; })}</div>
               </div>
               {b.typ && regionOptionen.length > 0 && <div style={{ marginBottom: 4 }}>
-                <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Region {seitenKurz ? "(Seite: " + seitenKurz + ")" : ""}</div>
+                <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Region {seitenKurz ? "(Seite: " + seitenKurz + ")" : ""}</div>
                 <div style={row}>{regionOptionen.map(function(r) { return <div key={r.id} style={CB(b.region === r.id)} onClick={function() { var n = bilder.slice(); n[i] = { typ: b.typ, region: r.id, datum: b.datum, befund: b.befund }; setBilder(n); }}>{r.l}</div>; })}</div>
               </div>}
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
-                <div style={{ flex: "0 0 120px" }}><div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Datum</div><input value={b.datum === "heute" ? "" : (b.datum || "")} onChange={function(e) { var n = bilder.slice(); n[i] = { typ: b.typ, region: b.region, datum: e.target.value, befund: b.befund }; setBilder(n); }} placeholder="TT.MM.JJJJ" /></div>
+                <div style={{ flex: "0 0 120px" }}><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Datum</div><input value={b.datum === "heute" ? "" : (b.datum || "")} onChange={function(e) { var n = bilder.slice(); n[i] = { typ: b.typ, region: b.region, datum: e.target.value, befund: b.befund }; setBilder(n); }} placeholder="TT.MM.JJJJ" /></div>
                 <div style={{ display: "flex", alignItems: "flex-end" }}><div style={CB(b.datum === "heute")} onClick={function() { var n = bilder.slice(); n[i] = { typ: b.typ, region: b.region, datum: b.datum === "heute" ? "" : "heute", befund: b.befund }; setBilder(n); }}>heute (in Sprechstunde)</div></div>
               </div>
-              <div style={{ fontSize: 9, color: "#5a7090", marginBottom: 2 }}>Befund</div>
+              <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Befund</div>
               <textarea value={b.befund} onChange={function(e) { var n = bilder.slice(); n[i] = { typ: b.typ, region: b.region, datum: b.datum, befund: e.target.value }; setBilder(n); }} placeholder="Befund..." rows={2} />
             </div>;
           })}
@@ -701,16 +714,16 @@ function App() {
         <Sec title="⑤ Abschluss & Empfehlung" open={sec.abschluss} onToggle={function() { togSec("abschluss"); }}>
           <div style={cat}>Empfehlung</div>
           <div style={row}>
-            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: opEmpfohlen ? "1px solid #2ecc71" : "1px solid rgba(255,255,255,.1)", background: opEmpfohlen ? "rgba(46,204,113,.15)" : "rgba(255,255,255,.04)", color: opEmpfohlen ? "#2ecc71" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(true); }}>✓ OP empfohlen</div>
-            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: !opEmpfohlen ? "1px solid #e67e22" : "1px solid rgba(255,255,255,.1)", background: !opEmpfohlen ? "rgba(230,126,34,.12)" : "rgba(255,255,255,.04)", color: !opEmpfohlen ? "#f39c12" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(false); }}>Konservativ empfohlen</div>
+            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: opEmpfohlen ? "1px solid #00897B" : "1px solid rgba(0,0,0,.1)", background: opEmpfohlen ? "rgba(46,204,113,.15)" : "rgba(255,255,255,1)", color: opEmpfohlen ? "#00897B" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(true); }}>✓ OP empfohlen</div>
+            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: !opEmpfohlen ? "1px solid #E65100" : "1px solid rgba(0,0,0,.1)", background: !opEmpfohlen ? "rgba(230,126,34,.12)" : "rgba(255,255,255,1)", color: !opEmpfohlen ? "#EF6C00" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(false); }}>Konservativ empfohlen</div>
           </div>
           {opEmpfohlen && <div style={{ marginTop: 6 }}>
-            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: therapieversuch ? "1px solid #e74c3c" : "1px solid rgba(255,255,255,.1)", background: therapieversuch ? "rgba(231,76,60,.12)" : "rgba(255,255,255,.04)", color: therapieversuch ? "#e74c3c" : "#9ab", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setTherapieversuch(!therapieversuch); }}>⚠ Therapieversuch</div>
+            <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: therapieversuch ? "1px solid #C62828" : "1px solid rgba(0,0,0,.1)", background: therapieversuch ? "rgba(231,76,60,.12)" : "rgba(255,255,255,1)", color: therapieversuch ? "#C62828" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setTherapieversuch(!therapieversuch); }}>⚠ Therapieversuch</div>
           </div>}
-          {opMethode.length > 0 && <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: "rgba(46,204,113,.04)", border: "1px solid rgba(46,204,113,.12)" }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "#2ecc71", marginBottom: 4 }}>OP: {opMethode.map(function(m) { return OPS[m] ? OPS[m].k : m; }).join(" + ")}</div>
+          {opMethode.length > 0 && <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: "rgba(0,137,123,.04)", border: "1px solid rgba(0,137,123,.15)" }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "#00897B", marginBottom: 4 }}>OP: {opMethode.map(function(m) { return OPS[m] ? OPS[m].k : m; }).join(" + ")}</div>
           </div>}
-          <div style={{ marginTop: 8, fontSize: 9, color: "#5a7090" }}>Konservative Optionen werden automatisch aus dem Krankheitsbild übernommen.</div>
+          <div style={{ marginTop: 8, fontSize: 9, color: "#718096" }}>Konservative Optionen werden automatisch aus dem Krankheitsbild übernommen.</div>
         </Sec>
 
         <div className="sb-mobile-preview">
@@ -718,32 +731,1016 @@ function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
               <div style={h3s}>Vorschau & Export</div>
               <div style={{ display: "flex", gap: 6 }}>
-                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#2ecc71", color: "#0d1825", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
+                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#3498db", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
               </div>
             </div>
-            <div style={{ cursor: "pointer", fontSize: 11, color: "#2ecc71", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
-            {showPv && <div style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#c0d4ec", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
+            <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
+            {showPv && <div style={{ background: "rgba(0,0,0,.02)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
           </div>
         </div>
       </div>}
       </div>
 
       <div className="sb-preview">
-        <div style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, padding: 14 }}>
+        <div style={{ background: "rgba(255,255,255,1)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 10, padding: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
             <div style={h3s}>Brief-Vorschau</div>
             <div style={{ display: "flex", gap: 6 }}>
-              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#2ecc71", color: "#0d1825", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
+              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#3498db", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
             </div>
           </div>
-          <div style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#c0d4ec" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
+          <div style={{ background: "rgba(0,0,0,.02)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
         </div>
       </div>
       </div>
     </div>
   );
+}
+
+
+// ============================================================
+// OP-BERICHT GENERATOR
+// ============================================================
+
+// ============================================================
+// DOCX/ZIP (compact)
+// ============================================================
+function escXml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function createZip(files){
+  const enc=new TextEncoder();
+  const parts=[];const cd=[];let offset=0;const entries=Object.entries(files);
+  for(const[name,content]of entries){
+    const nameBytes=enc.encode(name);
+    const dataBytes=enc.encode(content);
+    // CRC32
+    let crc=0xFFFFFFFF;const table=new Uint32Array(256);
+    for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xEDB88320^(c>>>1):c>>>1;table[i]=c;}
+    for(let i=0;i<dataBytes.length;i++)crc=table[(crc^dataBytes[i])&0xFF]^(crc>>>8);
+    crc=(crc^0xFFFFFFFF)>>>0;
+    // Local file header
+    const lf=new ArrayBuffer(30+nameBytes.length);const lv=new DataView(lf);
+    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);lv.setUint16(8,0,true);
+    lv.setUint16(10,0,true);lv.setUint16(12,0,true);lv.setUint32(14,crc,true);
+    lv.setUint32(18,dataBytes.length,true);lv.setUint32(22,dataBytes.length,true);
+    lv.setUint16(26,nameBytes.length,true);lv.setUint16(28,0,true);
+    new Uint8Array(lf).set(nameBytes,30);
+    parts.push(new Uint8Array(lf));parts.push(dataBytes);
+    // Central directory
+    const ce=new ArrayBuffer(46+nameBytes.length);const cv=new DataView(ce);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+    cv.setUint16(8,0,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0,true);
+    cv.setUint32(16,crc,true);cv.setUint32(20,dataBytes.length,true);cv.setUint32(24,dataBytes.length,true);
+    cv.setUint16(28,nameBytes.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);
+    cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);cv.setUint32(42,offset,true);
+    new Uint8Array(ce).set(nameBytes,46);
+    cd.push(new Uint8Array(ce));
+    offset+=30+nameBytes.length+dataBytes.length;
+  }
+  let cdSize=0;cd.forEach(c=>cdSize+=c.length);
+  const eocd=new ArrayBuffer(22);const ev=new DataView(eocd);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
+  ev.setUint16(8,entries.length,true);ev.setUint16(10,entries.length,true);
+  ev.setUint32(12,cdSize,true);ev.setUint32(16,offset,true);ev.setUint16(20,0,true);
+  const allParts=[...parts,...cd,new Uint8Array(eocd)];
+  const totalLen=allParts.reduce((s,p)=>s+p.length,0);
+  const result=new Uint8Array(totalLen);let pos=0;
+  for(const p of allParts){result.set(p,pos);pos+=p.length;}
+  return result;
+}
+
+function buildDocx(fullText,erloesText){
+  const ps=[];
+  const addP=(text,bold=false,size=22)=>{
+    if(!text)return;
+    text.split('\n').forEach(line=>{
+      if(!line.trim()){ps.push('<w:p><w:pPr><w:spacing w:after="0"/></w:pPr></w:p>');return;}
+      const rpr=`<w:rPr>${bold?'<w:b/>':''}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr>`;
+      ps.push(`<w:p><w:pPr><w:spacing w:after="80" w:line="276" w:lineRule="auto"/><w:jc w:val="both"/></w:pPr><w:r>${rpr}<w:t xml:space="preserve">${escXml(line)}</w:t></w:r></w:p>`);
+    });
+  };
+  // Title
+  ps.push(`<w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="32"/><w:szCs w:val="32"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr><w:t>OP-Bericht</w:t></w:r></w:p>`);
+  addP(fullText);
+  if(erloesText){
+    ps.push(`<w:p><w:pPr><w:spacing w:before="300" w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="2E5090"/></w:rPr><w:t>Erlösübersicht</w:t></w:r></w:p>`);
+    addP(erloesText,false,20);
+  }
+  ps.push('<w:p><w:pPr><w:spacing w:before="300"/></w:pPr></w:p>');
+  addP("Operateur: ___________________________",false,20);
+  addP("Datum: ___________________________",false,20);
+
+  const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`;
+
+  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+  const docRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+    <w:name w:val="Normal"/>
+    <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
+  </w:style>
+</w:styles>`;
+
+  const document=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    ${ps.join('\n    ')}
+    <w:sectPr>
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
+    </w:sectPr>
+  </w:body>
+</w:document>`;
+
+  return {
+    "[Content_Types].xml": contentTypes,
+    "_rels/.rels": rels,
+    "word/_rels/document.xml.rels": docRels,
+    "word/document.xml": document,
+    "word/styles.xml": styles
+  };
+}
+
+// ============================================================
+// TEXT BUILDERS
+// ============================================================
+function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient":"Die Patientin",dd2=g==="m"?"der Patient":"die Patientin",sa=side==="links"?"linken":"rechten";let t="";if(typ==="me")t=`${dd} stellte sich bei uns vor zur geplanten standardisierten Metallentfernung am ${sa} Fuß. Über die operativen Alternativen und die Möglichkeit des Belassens des Materials wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;else if(typ==="tep")t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde die Implantation einer Sprunggelenksprothese am ${sa} oberen Sprunggelenk vereinbart. Die Indikation, die nicht-operativen und operativen Alternativen sowie die Details mit Komplikationen und Nachbehandlung wurden erläutert. ${dd} wünscht keine weiteren konservativen Maßnahmen. Operative Risiken wurden thematisiert.`;else t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde der operative Eingriff vereinbart. ${dd} wünscht keine Durchführung weiterer konservativer Maßnahmen. Über die operativen und nicht-operativen Alternativen wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;if(risk){t+=`\nEs erfolgte eine spezifische Aufklärung, dass ${dd2} einer Risikogruppe angehört`;if(riskTxt.trim())t+=` (${riskTxt.trim()})`;t+=` und ein erhöhtes Risiko für jegliche intra- oder postoperative Komplikation besteht.`;}if(frei.trim())t+=`\n${frei.trim()}`;return t;}
+
+function buildLagerung(side,bs,ss,ana){const sa=side==="links"?"linken":"rechten";let p=[];if(ss)p.push("Single-Shot-Antibiose entsprechend Hausstandard durch die Anästhesie");p.push("Lagerung in Rückenlage, Polsterung aller druckgefährdeten Stellen, insbesondere aller Stellen an denen Nerven durch Kompression geschädigt werden könnten");p.push("Precleaning des gesamten OP-Gebietes");if(bs)p.push("Anlage der Oberschenkelblutsperre unter Nutzung eines Polsterstrumpfes und wasserdichter Versiegelung nach distal, so dass keine Flüssigkeit unter die Sperre oder in das Polster laufen kann");p.push("Abwaschen und Abdecken entsprechend den aktuellen Hygienestandards, Abkleben der Zehen und der Teile des Vorfußes, die nicht zum OP-Gebiet gehören mit Inzisionsfolie");p.push("Durchführen Team-Time-Out");if(bs)p.push("Aufblasen der Blutsperre auf 300 mmHg");let t=p.join(", ")+".";if(ana==="lokal")t+="\nSterile Applikation Lokalanästhesie.";t+="\n\nNarkoseuntersuchung des betroffenen und der angrenzenden Gelenke unter spezifischer Beachtung der Bandstabilität und der Achsverhältnisse.";return t;}
+
+function buildVerband(hasVorfuss,bs,ruhig){let p=["Spülung aller Zugänge","Abschlussdesinfektion","schichtweiser Verschluss","Atraumatische Hautnaht","Steri-Strips"];if(hasVorfuss)p.push("Tape-Verband","Anlegen eines sterilen redressierenden Verbandes");p.push("circulärer Watte-Kompressionsverband");if(hasVorfuss)p.push("Tape-Zügelungsverband in Redressionstellung");if(bs)p.push("Öffnung der Blutsperre, die Recapillarisierung ist an allen Zehen regelrecht");if(ruhig==="orthese")p.push("Anlage Omnimed-Schiene");else if(ruhig==="gips")p.push("Anlage Gipsschiene");else if(ruhig==="cast")p.push("Anlage circulärer gepolsterter Cast");p.push("Entlagerung");return p.join(", ")+".";}
+
+// ============================================================
+// ORIGINAL OP-TEXTE (bereinigt)
+// ============================================================
+const T={
+chevron:`Zunächst manuelle Mobilisierung der plantar und dorsal verkürzten Strukturen des Großzehengrundgelenks. Incision lateral des MTP I Gelenkes streckseitig. Darstellen der Sehne des Muskulus add. hallucis. Die Sehne wird tenotomiert, die laterale Gelenkkapsel incidiert. Danach längsverlaufende Incision über der medialen Seite des Großzehengrundgelenks, Lösungen der Vernarbungen des Subkutangewebes im Bereich der Pseudoexostose, sorgfältige Blutstillung der varikös veränderten Gefäße, unter Schonung des Nerven-Gefäßbündels L-förmige Incision der medialen Kapsel, es quillt entzündliche Synovialis hervor, partielle Synovektomie. Darstellen der Sehne des Muskulus abduktor hallucis, die Sehne wird distal mit einem kräftigen Faden armiert und tenotomiert, Darstellen der Pseudoexostose und Osteotomie mit der oszillierenden Säge. Ein 1,2 mm K-Draht wird von medial in das MFK-I-Köpfchen eingebracht. Anschließend erfolgt die nach Johnson modifizierte V-förmige Osteotomie mit der oszillierenden Säge. Lateralisierung des Köpfchens um ca. 4 mm. In Repositionsstellung Osteosynthese mit einer Doppelgewindeschraube. Es handelt sich um eine belastungsstabile Osteosynthese. Visuell wird das Gelenk überprüft, es besteht sicher kein Überstand der Schraube.`,
+akin:`Es zeigt sich noch ein Hallux interphalangeus, daher Entschluss zur Akin-Osteotomie.\nVerlängerung der Incision über der medialen Seite des Großzehengrundliedes, Abschieben des Periostes. Einsetzen von zwei Hohmannhebeln. Mit einem Osteotom wird die Lage der Osteotomie festgelegt. Mit der oszillierenden Säge Durchführung der vertikalen und schrägen Osteotomie unter Schonung der lateralen Kortikalis. Reposition und Adaptation der Osteotomieflächen. Fixation der Osteotomie durch eine Faden-Osteosynthese. Die Osteosynthese ist übungsstabil versorgt.`,
+rebalancing:`Der mediale Kapselstreifen wird nach proximal versetzt und fixiert. Die Abduktorsehne wird nach distal versetzt. Danach Überprüfung der Beweglichkeit der Großzehe im Grundgelenk, es besteht eine freie Funktion bei regelrechter Korrektur der Zehe.`,
+lapidus:`Zunächst manuelle Mobilisierung der plantar und dorsal verkürzten Strukturen des Großzehengundgelenks. Incision lateral des MTP I Gelenkes streckseitig. Exploration zum lateralen Release und Darstellung der vernarbten Sehne des Muskulus add. hallucis. Die Sehne wird tenotomiert, die laterale Gelenkkapsel incidiert. Danach längsverlaufende Incision über der medialen Seite des Großzehengrundgelenks bis zum TMT I Gelenk, Lösungen der Vernarbungen des Subkutangewebes im Bereich der Pseudoexostose, Bursektomie einer entzündlich veränderten Bursa, sorgfältige Blutstillung der varikös veränderten Gefäße, unter Schonung des Nerven-Gefäßbündels L-förmige Incision der medialen Kapsel, es quillt Synovialis hervor, partielle Synovektomie.\nDarstellen der Sehne des Muskulus abduktor hallucis. Die Sehne wird distal mit einem kräftigen Faden armiert und tenotomiert, Darstellen der Pseudoexostose und Osteotomie mit der oszillierenden Säge.\n\nVerlängerung der Inzision zum TMT 1, dieses ist deutlich instabil. Stumpfes Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen über dem TMT 1, vorsichtige Präparation des Subcutangewebes unter subtiler Blutstillung. Darstellung und Schonung der Tibialis Anterior Sehne. Mobilisierung der Weichteile im Bereich des Plattenlagers.\nInzision der Kapsel und Darstellung des TMT I Gelenkes. Deutliche Synovialitis, komplette Synovektomie.\nEntknorpelung mittels Meissel, dann an der MT I Basis zurückhaltende korrigierende Entfernung der Gelenkfläche mittels oszillierender Säge nach vorheriger Lokalisierung der Osteotomie mittels K-Draht. Anbohrung proximal am MT I und am CN I mittels K-Draht. Überprüfung, dass lateral und plantar keine Knochenreste verbleiben.\nNun Interposition von autologer Spongiosa aus der abgetragenen Exostose, Einstellung des 1. Strahles mit korrigiertem IM Winkel sowie Beachtung der Korrektur von Rotation und K-Draht Transfixation MT I auf II.\n\nEs zeigt sich eine gute Stellung des TMT I Gelenkes. Vorlegen eines 1,4 mm Drahtes und radiologische Kontrolle der Position. In 2 Ebenen zeigt sich eine korrekte Lage, nun Längenmessung, Überbohren und Einbringen einer kanülierten Fixos 4,0 mit kurzem Gewinde entsprechend der vorherigen Messung. Damit sehr gute Kompression der Arthrodese in Korrekturstellung. Spülung des Situs, Kontrolle in 2 E. Nun Anlage der winkelstabilen Platte, Retention der Platte mittels K-Drähten, radiologische Kontrolle und sukzessives Besetzen der winkelstabilen Schrauben nach entsprechender Messung und BV Kontrolle. Hoke-Test, es zeigt sich keine Instabilität intercuneiform.`,
+subcapitale:`Zuwendung zur Großzehe. Hier nach Vorlage eines 1,2 K Drahtes subcapitale Osteotomie, dabei korrigierendes Abtragen im Bereich der Osteotomie zur Korrektur des DMAA Winkels. Retention mittels K-Draht, radiologisch zeigt sich nun eine korrekte Einstellung. Dann nach Vorbohren Osteosynthese mittels Doppelgewindeschraube entsprechend Längenmessung.`,
+akin_lapidus:`Bei Hallux interphalangeus und zur Zentrierung des Sehnenzuges Akin-Osteotomie.\nVerlängerung der Incision über der medialen Seite des Großzehengrundliedes, Abschieben des Periostes. Einsetzen von zwei Hohmannhebeln. Mit einem Osteotom wird die Lage der Osteotomie festgelegt. Mit der osszillierenden Säge Durchführung der vertikalen und schrägen Osteotomie unter Schonung der lateralen Kortikalis. Reposition und Adaptation der Osteotomieflächen. Fixation der Osteotomie durch eine Faden-Osteosynthese. Die Osteosynthese ist übungsstabil versorgt.`,
+mtp1_arthrodese:`Hautinzision circa 5 cm medial des MTP I Gelenk. Stumpfes Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen, vorsichtige Präparation des Subcutangewebes unter subtiler Blutstillung. Längsinzision der Kapsel und Darstellung des destruierten MTP I Gelenkes. Es zeigt sich entzündlich veränderte Synovia und es entleert sich klare Gelenkflüssigkeit. Nun Abtragung der Exostose mit der oszillierenden Säge, Abtragen von Osteophyten mit dem Luer und subtile Entknorpelung mit dem Meißel. Ebenfalls Anbohrung proximal und distal mit 1,6 mm K-Draht.\nNun Ausrichtung des MTP I Gelenkes, hier zeigt sich eine gute Stellung. Vorlegen eines 1,4 mm Drahtes über das MTP I Gelenk und radiologische Kontrolle der Position. In 2 Ebenen zeigt sich eine korrekte Lage, nun Längenmessung, Überbohren und Einbringen einer kanülierten Zugschraube mit kurzem Gewinde entsprechend der vorherigen Messung. Spülung des Situs, Kontrolle in 2 E. Nun Anlage einer winkelstabilen Variax Platte und sukzessives Besetzen der winkelstabilen Schrauben. Kontrolle unter BV, es zeigt sich eine korrekte Lage der Schrauben und klinisch eine stabile Osteosynthese mit guter Ausrichtung der Zehe in 10-15° Dorsalextension.`,
+me_stell:`Inzision im Verlauf der bestehenden Narbe über der distalen Fibula. Stumpfes Spreizen des Subcutangewebes unter Schonung der Weichteilstrukturen. Aufsuchen und Darstellen der Stellschraube. Entfernung der Stellschraube ohne Komplikationen. Kontrolle auf regelrechte knöcherne Verhältnisse. Spülung des Situs.`,
+cheilektomie:`Längsinzision medial des MTP I Gelenkes, Spalten des Subcutangewebes unter subtiler Blutstillung und Schonung des Nerven-Gefäßbündels. Längsinzision der Kapsel und Darstellung des MTP I Gelenkes. Es zeigt sich eine deutliche Osteophytenbildung dorsal und medial am Metatarsale-I-Köpfchen und an der Grundphalanxbasis. Synovialitis mit entzündlich veränderter Synovia, partielle Synovektomie. Abtragung der dorsalen und medialen Osteophyten mit der oszillierenden Säge und dem Luer. Die Gelenkfläche wird inspiziert, es zeigt sich ein umschriebener Knorpelschaden. Glättung der Resektionsflächen. Überprüfung der Dorsalextension, es besteht nun eine freie Beweglichkeit von ca. 60° Dorsalextension. Spülung des Gelenkes.`,
+exostose:`Längsinzision über der tastbaren Exostose, vorsichtiges Spalten des Subcutangewebes unter Schonung der umgebenden Strukturen, subtile Blutstillung. Darstellung der knöchernen Prominenz, Abschieben des Periostes. Abtragung der Exostose mittels oszillierender Säge und Luer. Glättung der Resektionsflächen. Spülung des Situs. Kontrolle auf regelrechte Kontur.`,
+scarf:`Zunächst manuelle Mobilisierung der plantar und dorsal verkürzten Strukturen des Großzehengrundgelenks. Incision lateral des MTP I Gelenkes streckseitig. Darstellen der Sehne des Muskulus add. hallucis. Die Sehne wird tenotomiert, die laterale Gelenkkapsel incidiert. Danach längsverlaufende Incision über der medialen Seite des Großzehengrundgelenks, Lösungen der Vernarbungen des Subkutangewebes im Bereich der Pseudoexostose, sorgfältige Blutstillung, unter Schonung des Nerven-Gefäßbündels L-förmige Incision der medialen Kapsel, es quillt entzündliche Synovialis hervor, partielle Synovektomie. Darstellen der Sehne des Muskulus abduktor hallucis, die Sehne wird distal mit einem kräftigen Faden armiert und tenotomiert, Darstellen der Pseudoexostose und Abtragung mit der oszillierenden Säge.\nNun Z-förmige Osteotomie (Scarf) des Metatarsale I mit der oszillierenden Säge. Die horizontale Osteotomie wird in Höhe der Schaftmitte durchgeführt, die proximale vertikale Osteotomie von dorsal nach plantar, die distale von plantar nach dorsal. Lateralverschiebung des plantaren Fragmentes um ca. 4-5 mm unter Korrektur des Intermetatarsalwinkels. Temporäre Fixation mittels K-Draht, radiologische Kontrolle, es zeigt sich eine gute Korrektur. Definitive Osteosynthese mittels zwei Doppelgewindeschrauben. Visuell wird das Gelenk überprüft, es besteht sicher kein Überstand der Schrauben. Abtragen des medialen Knochenüberhangs.`,
+ask_osg:`Anlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein ventrales Impingement mit Osteophytenbildung an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, Entfernung der Osteophyten mittels arthroskopischer Fräse, partielle Synovektomie. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.`,
+brostrom:`Hautinzision bogenförmig über dem lateralen Malleolus. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung des Lig. fibulotalare anterius (LFTA) und des Lig. fibulocalcaneare (LFC). Es zeigt sich ein deutlich elongiertes und insuffizientes LFTA. Raffung und Refixation des LFTA am Fibulakopf mittels Fadenankern. Überprüfung der Stabilität, deutliche Verbesserung des Talusvorschubes und der Supination. Verstärkung durch Einnähen des Retinaculum extensorum inferius (modifiziert nach Gould). Nochmalige Stabilitätskontrolle, gutes Ergebnis.`,
+arthrodese_osg:`Anteriorer Zugang zum OSG, Längsinzision zwischen Tibialis anterior und Extensor hallucis longus. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen, subtile Blutstillung. Darstellung der Gelenkkapsel, Arthrotomie. Es zeigt sich ein destruiertes Gelenk mit weitgehendem Knorpelverlust, Osteophytenbildung und Synovialitis. Komplette Synovektomie, Entfernung aller Osteophyten. Entknorpelung der Tibia-Gelenkfläche und der Talusrolle mittels Meißel und oszillierender Säge unter Beachtung der physiologischen Achse. Anbohrung beider Gelenkflächen zur Förderung der Durchblutung. Einstellung des OSG in 0° Dorsalextension, 5° Valgus, 5-10° Außenrotation. Temporäre Transfixation mittels K-Drähten, radiologische Kontrolle der Achse. Definitive Osteosynthese mittels winkelstabiler anteriorer Platte und zusätzlicher Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Implantatlage und gute Achsstellung. Spülung des Situs.`,
+amic:`Anlage der standardisierten Arthroskopie-Portale. Einbringen der Optik, systematische Inspektion. Darstellung der osteochondralen Läsion am Talus. Arthroskopisches Debridement des geschädigten Knorpels, Kürettage des Defektgrundes bis zum subchondralen Knochen. Nanofrakturierung des Defektgrundes mittels Ahle zur Stimulation der Blutung aus dem Knochenmark.\nAnschließend Mini-Arthrotomie über dem Defekt. Zuschneiden der Kollagenmembran (Chondro-Gide) auf die Defektgröße, Einbringen der Membran in den Defekt mit der porösen Seite nach unten zum Knochenmark. Fixation der Membran am Rand mittels Fibrinkleber. Kontrolle der stabilen Lage. Spülung und schichtweiser Verschluss.`,
+haglund:`Inzision lateral der Achillessehne über der Ferse. Vorsichtiges Spalten des Subcutangewebes, Darstellung der Achillessehne und der Bursa. Bursektomie der entzündlich veränderten Bursa subachillea. Längsspaltung der Achillessehne im lateralen Anteil, Darstellen der Haglund-Exostose. Abtragung der Haglund-Exostose mit der oszillierenden Säge unter Erhalt der Insertionszone. Glättung der Resektionsfläche, Kontrolle auf regelrechte Kontur, kein Impingement der Sehne mehr. Readaptation der Achillessehne mittels Naht, Verankerung am Calcaneus mittels Fadenanker. Spülung des Situs.`,
+as_naht:`Inzision medial der Achillessehne, ca. 8 cm Länge. Vorsichtiges Spalten des Subcutangewebes, Schonung des N. suralis. Darstellung des Paratenons, Längsinzision und Darstellung der rupturierten Achillessehne. Es zeigt sich eine komplette Ruptur mit degenerativ verändertem Sehnengewebe und Hämatom. Debridement der Sehnenenden, Anfrischen der Stümpfe. End-zu-End-Naht der Achillessehne mittels modifizierter Krackow-Technik mit kräftigem nicht-resorbierbarem Faden. Überprüfung der Sehnenspannung im Seitenvergleich, Thompson-Test negativ. Naht der Sehnenscheide (Paratenon) mittels resorbierbarem Faden. Spülung des Situs.`,
+arthrorise:`Inzision im Bereich des Sinus tarsi, ca. 2 cm. Stumpfes Spreizen des Subcutangewebes, Darstellen des Sinus tarsi. Exploration und Entfernung von Weichteilgewebe aus dem Sinus tarsi. Einbringen des Probeimplantates unter BV-Kontrolle, Größenbestimmung. Einbringen der definitiven Arthrorise-Schraube unter BV-Kontrolle. Radiologische Abschlusskontrolle zeigt korrekte Lage der Schraube im Sinus tarsi mit adäquater Korrektur der Rückfußvalgusstellung. Spülung des Situs.`,
+subtalar:`Schräge Inzision über dem Sinus tarsi. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Peronealsehnen und des N. suralis. Darstellung des Subtalargelenkes, Arthrotomie. Entfernung von Synovialis und Kapselgewebe. Entknorpelung der posterioren Facette des Subtalargelenkes mittels Meißel und Kürette bis zum subchondralen Knochen. Anbohrung beider Gelenkflächen. Einstellung in leichter Valgusposition des Rückfußes, temporäre Transfixation mittels K-Drähten, radiologische Kontrolle. Einbringen von autologer Spongiosa in den Arthrodesespalt. Definitive Osteosynthese mittels zwei kanülierten Zugschrauben von posterior nach anterior unter BV-Kontrolle. Kompression der Arthrodese, stabile Fixation. Radiologische Abschlusskontrolle zeigt korrekte Implantatlage.`,
+oats:`Anlage der standardisierten Arthroskopie-Portale. Einbringen der Optik, systematische Inspektion. Darstellung der osteochondralen Läsion am Talus. Arthroskopisches Debridement des geschädigten Knorpels und Vermessung des Defektes.\nMini-Arthrotomie über dem Defekt, Darstellung der osteochondralen Läsion. Entnahme eines osteochondralen Zylinders vom ipsilateralen Kniegelenk (laterale Femurkondyle, nicht-belastete Zone) mittels Hohlmeißel. Vorbereitung des Empfängerareals am Talus mit der Empfänger-Hohlmeißel, Entfernung des geschädigten Knorpel-Knochen-Zylinders. Press-fit-Implantation des entnommenen osteochondralen Zylinders in den vorbereiteten Defekt. Der Zylinder sitzt kongruent und stabil auf Niveau der umgebenden Gelenkfläche. Spülung des Gelenkes.`,
+bandplastik_auto:`Hautinzision bogenförmig über dem lateralen Malleolus. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis und der Peronealsehnen. Darstellung des lateralen Bandapparates. Es zeigt sich eine chronische Insuffizienz des Lig. fibulotalare anterius und des Lig. fibulocalcaneare.\nEntnahme eines Streifens der Peroneus brevis Sehne als autologes Transplantat, Armierung beider Enden. Anlage von Bohrkanälen in der Fibulaspitze, im Talushals und am Calcaneus. Durchführen des Sehnentransplantates durch die Bohrkanäle zur anatomischen Rekonstruktion des LFTA und des LFC. Fixation des Transplantates mittels Interferenzschrauben unter Vorspannung in 10° Plantarflexion. Stabilitätskontrolle, kein Talusvorschub, keine pathologische Supination mehr. Spülung des Situs.`,
+peroneal_naht:`Inzision bogenförmig retro- und inframalleoär lateral. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis. Darstellung des Retinaculum superius der Peronealsehnen, Inzision und Eröffnung der Sehnenscheide. Darstellung der Peroneus brevis und longus Sehne. Es zeigt sich ein Längsriss der Peroneus brevis Sehne mit degenerativ verändertem Sehnengewebe. Debridement des geschädigten Sehnenanteils, tubuläre Naht der Sehne mittels Vicryl 2-0 in fortlaufender Naht. Überprüfung der Gleitfähigkeit in der Sehnenscheide, freie Funktion. Naht der Sehnenscheide, Rekonstruktion des Retinaculum superius. Spülung des Situs.`,
+calc_ot_var:`Inzision lateral über dem Calcaneus, ca. 4 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Peronealsehnen und des N. suralis, subtile Blutstillung. Darstellung der lateralen Calcaneuswand. Einsetzen von Hohmannhebeln plantar und dorsal. Quere Osteotomie des Calcaneus mit der oszillierenden Säge unter BV-Kontrolle, ca. 1,5 cm posterior der posterioren Facette. Medialisierung des Tuber calcanei um ca. 8-10 mm zur Varisierung des Rückfußes. Temporäre Fixation mittels K-Draht, radiologische Kontrolle der Achse. Definitive Osteosynthese mittels kanülierter Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Achsstellung und Implantatlage. Spülung des Situs.`,
+calc_ot_valg:`Inzision lateral über dem Calcaneus, ca. 4 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Peronealsehnen und des N. suralis, subtile Blutstillung. Darstellung der lateralen Calcaneuswand. Einsetzen von Hohmannhebeln plantar und dorsal. Quere Osteotomie des Calcaneus mit der oszillierenden Säge unter BV-Kontrolle. Lateralisierung des Tuber calcanei um ca. 8-10 mm zur Valgisierung des Rückfußes. Temporäre Fixation mittels K-Draht, radiologische Kontrolle der Achse. Definitive Osteosynthese mittels kanülierter Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Achsstellung und Implantatlage. Spülung des Situs.`,
+calc_ot_verl:`Inzision lateral über dem Calcaneus im Bereich des Sinus tarsi, ca. 4 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Peronealsehnen und des N. suralis, subtile Blutstillung. Darstellung der lateralen Calcaneuswand. Osteotomie des anterioren Processus des Calcaneus mit der oszillierenden Säge unter BV-Kontrolle. Aufspreizen der Osteotomie und Interposition eines trikortikalen allogenen Knochenspans, Einstellung der gewünschten Verlängerung und Lateralisierung der Vorfußsäule. Kontrolle des Talonaviculargelenkes auf ausreichende Coverage. Temporäre Fixation, radiologische Kontrolle. Definitive Osteosynthese mittels winkelstabiler Platte. Radiologische Abschlusskontrolle zeigt korrekte Korrektur. Spülung des Situs.`,
+fraktur_fibula_einf:`Inzision über dem lateralen Malleolus im Verlauf der Fibula, ca. 6-8 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung der Fraktur an der distalen Fibula. Säuberung des Frakturspaltes, Entfernung von Hämatom und interponiertem Periost. Anatomische Reposition der Fraktur unter direkter Sicht und radiologischer Kontrolle. Temporäre Retention mittels Repositionszange. Definitive Osteosynthese mittels winkelstabiler Drittelrohrplatte lateral, sukzessives Besetzen der Schrauben nach Längenmessung. Radiologische Kontrolle in 2 Ebenen zeigt korrekte Implantatlage, anatomische Reposition und korrekte Fibulalänge. Stabilitätsprüfung der Syndesmose unter dem BV (Hook-Test), Syndesmose stabil. Spülung des Situs.`,
+fraktur_fibula_mehr:`Inzision über dem lateralen Malleolus im Verlauf der Fibula, ca. 8-10 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung der Mehrfragment-Fraktur an der distalen Fibula. Säuberung des Frakturspaltes, Entfernung von Hämatom und interponiertem Gewebe. Sortierung der Fragmente und schrittweise anatomische Reposition. Temporäre Retention mittels K-Drähten. Interfragmentäre Zugschrauben zur Kompression der Hauptfragmente. Definitive Osteosynthese mittels winkelstabiler Überbrückungsplatte lateral. Radiologische Kontrolle in 2 Ebenen zeigt anatomische Länge und Achse der Fibula. Stabilitätsprüfung der Syndesmose (Hook-Test), Syndesmose stabil. Bei Instabilität: Einbringen einer Stellschraube durch Fibula und Tibia unter BV-Kontrolle. Spülung des Situs.`,
+supramal_ot:`Anteriorer Zugang zur distalen Tibia, Längsinzision ca. 8-10 cm. Vorsichtiges Spalten des Subcutangewebes, subtile Blutstillung. Darstellung der distalen Tibiametaphyse, Abschieben des Periostes im Bereich der geplanten Osteotomie. Einsetzen von Hohmannhebeln. Planung der Osteotomie mittels K-Drähten und BV-Kontrolle anhand der präoperativen Planung. Durchführung der öffnenden Keilosteotomie mit der oszillierenden Säge unter Erhalt der Gegenkortikalis als Scharnier. Schrittweises Aufspreizen der Osteotomie bis zur gewünschten Korrektur, Kontrolle der mechanischen Achse unter dem BV. Interposition eines allogenen Knochenkeils. Definitive Osteosynthese mittels winkelstabiler Platte medial und sukzessives Besetzen der Schrauben. Radiologische Abschlusskontrolle zeigt korrekte Achsstellung mit physiologischem LDTA und TAS. Spülung des Situs.`,
+osg_subtalar:`Anteriorer Zugang zum OSG, Längsinzision zwischen Tibialis anterior und Extensor hallucis longus. Darstellung des oberen Sprunggelenkes, Arthrotomie. Destruiertes Gelenk, komplette Synovektomie und Entknorpelung in gleicher Weise wie bei isolierter OSG-Arthrodese. Entknorpelung der Tibia-Gelenkfläche und der Talusrolle.\nAnschließend Erweiterung des Zuganges nach lateral über den Sinus tarsi. Darstellung des unteren Sprunggelenkes, Arthrotomie und Entknorpelung der posterioren Facette. Anbohrung aller Gelenkflächen.\nEinstellung des OSG in 0° Dorsalextension, 5° Valgus, 5-10° Außenrotation. Einstellung des USG in leichter Valgusposition. Temporäre Transfixation mittels K-Drähten, radiologische Kontrolle der Achse in beiden Ebenen. Einbringen von autologer Spongiosa. Definitive Osteosynthese mittels winkelstabiler anteriorer Platte für das OSG und zwei kanülierter Zugschrauben für das USG. Radiologische Abschlusskontrolle zeigt korrekte Implantatlage und gute Achsstellung. Spülung des Situs.`,
+};
+
+function buildDMMO(mts){const main=mts.filter(m=>m<=3),extra=mts.filter(m=>m>=4);let t="Zuwendung zum Mittelfuß. Es zeigt sich radiologisch und palpatorisch ein Misalignment der Metatarsale, plantare Mehrbeschwielung. Stichinzision subkapital des MT "+main.join(" und ")+", Umfahren subkapital mit minimalinvasiven Klemmchen, jeweils Schrägosteotomie mit der perkutanen Fräse unter fortlaufender Wasserspülung unter BV-Kontrolle.";if(extra.length>0)t+=" Es zeigt sich hier noch eine relative Überlänge des MT "+extra.join(" und ")+", sodass dort in gleicher Weise eine perkutane Verkürzungsosteotomie im DMMO Stil erfolgt.";t+=" Spülung aller Zugänge.\nInsgesamt zeigt sich nun in der radiologischen Kontrolle eine sehr zufriedenstellende Korrektur des Alignements, palpatorisch gute Verbesserung der Druckverteilung.";return t;}
+
+function buildZehe(z,eingriffe,isFirst){const parts=[];eingriffe.forEach((e,i)=>{const first=isFirst&&i===0;
+if(e==="pip"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Krallenzehe D${z}, die passiv nicht redressierbar ist. Längsinzision dorsal des PIP Gelenkes, vorsichtige Präparation, Release der Strecksehne und der Seitenbänder, korrigierende Resektion des geschädigten Gelenkes unter Beachtung der korrekten Längeneinstellung in Referenz zu den umgebenden Zehen, Einstellung in orthograder Position und Kompression sowie Arthrodese über 1,4mm K-Draht, der gut liegt, Korrekte Ausrichtung der Zehe, das MTP Gelenk ist frei beweglich, Umknicken und Abknipsen des Drahtendes.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls rigide Krallenzehe, passiv nicht redressierbar. PIP-Arthrodese an D${z} in gleicher Weise, korrekte Längeneinstellung, K-Draht-Arthrodese, gute Ausrichtung.`);}
+if(e==="fdl"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Kontraktur der Beugesehnen an D${z}, daher Entscheidung zur Beugesehnentenotomie. Stichinzision auf Höhe des distalen Mittelgliedes, Durchtrennung der langen Beugesehne als auch der plantaren Kapsel. Es zeigt sich hier ein deutliches Release.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls deutliche Kontraktur der Beugesehnen. Beugesehnentenotomie an D${z} in gleicher Weise mit deutlichem Release.`);}
+if(e==="ext_teno"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Strecksehnenkontraktur der langen Strecksehne an D${z}, Lokalisierung der Sehne, oberflächliche Inzision, stumpfes Spreizen und Darstellen der Sehne, Tenotomie, deutliches Release.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls Strecksehnenkontraktur. Strecksehnentenotomie an D${z} in gleicher Weise mit deutlichem Release.`);}
+if(e==="ext_verl"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Strecksehnenkontraktur an D${z}, Lokalisierung der Sehne, oberflächliche Inzision Mini-Open, stumpfes Spreizen und Darstellen der Sehne, Z-förmige Verlängerung, Naht mittels Vicryl 2-0 in Verlängerung, deutliches Release, nun physiologische Vorspannung und Länge.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls Strecksehnenkontraktur. Strecksehnenverlängerung an D${z} in gleicher Weise, physiologische Vorspannung und Länge.`);}
+if(e==="beuge_trans"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine flexible Krallenzehe D${z} mit Hyperextension im MTP-Gelenk. Stichinzision plantar distal des PIP-Gelenkes, Identifizierung der Flexor digitorum longus Sehne, Tenotomie der langen Beugesehne, Hervorluxieren der Sehne, Spaltung der Sehne in zwei Zügel. Dorsale Inzision über dem Grundglied, Durchführung der beiden Sehnenzügel um das Grundglied nach dorsal, Vernähen der beiden Zügel unter Einstellung der Zehe in physiologischer Position mittels Vicryl 2-0.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls flexible Krallenzehe. Beugesehnentransfer an D${z} in gleicher Weise.`);}
+if(e==="kapsulo"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Hyperextensionsstellung im MTP-Gelenk D${z}. Dorsale Inzision über dem MTP-Gelenk, Darstellung der Gelenkkapsel, dorsale Kapsulotomie mittels Längs- und Querinzision. Release der Kollateralbänder, manuelle Reposition der Zehe. Überprüfung der Beweglichkeit, freie Flexion im MTP-Gelenk. Temporäre K-Draht-Transfixation des MTP-Gelenkes in Plantarflexionsstellung.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls Hyperextension im MTP-Gelenk. Dorsale Kapsulotomie MTP D${z} in gleicher Weise mit K-Draht-Transfixation.`);}
+});return parts.join("\n\n");}
+
+// ============================================================
+// COLLAPSIBLE SECTION
+// ============================================================
+function Sec({title,open,onToggle,active,children}){
+  return <div style={{background:active?"rgba(0,131,143,.04)":"rgba(255,255,255,.95)",border:active?"1px solid rgba(0,131,143,.15)":"1px solid rgba(0,0,0,.07)",borderRadius:10,marginBottom:6,overflow:"hidden"}}>
+    <div onClick={onToggle} style={{padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",userSelect:"none"}}>
+      <span style={{fontSize:13,fontWeight:600,color:active?"#00838F":"#718096"}}>{open?"▼":"▶"} {title}</span>
+      {active&&<span style={{fontSize:9,background:"rgba(0,131,143,.15)",color:"#00838F",padding:"2px 8px",borderRadius:4,fontWeight:700}}>AKTIV</span>}
+    </div>
+    {open&&<div style={{padding:"0 14px 14px"}}>{children}</div>}
+  </div>;
+}
+
+// ============================================================
+// COMPONENT
+// ============================================================
+function OPBerichtApp(){
+  const [gender,setGender]=useState("");
+  const [side,setSide]=useState("");
+  const [sektion,setSektion]=useState("");
+  const [praeType,setPraeType]=useState("standard");
+  const [risk,setRisk]=useState(false);
+  const [riskTxt,setRiskTxt]=useState("");
+  const [fprae,setFprae]=useState("");
+  const [bs,setBs]=useState(true);
+  const [ss,setSs]=useState(true);
+  const [ana,setAna]=useState("narkose");
+  const [sec,setSec]=useState({});
+  // Großzehe
+  const [gz,setGz]=useState("");
+  const [mitAkin,setMitAkin]=useState(false);
+  const [mitSubcap,setMitSubcap]=useState(false);
+  // Kleinzehen
+  const [zc,setZc]=useState({2:[],3:[],4:[],5:[]});
+  const [dmmo,setDmmo]=useState([]);
+  // OSG
+  const [osgOp,setOsgOp]=useState([]);
+  // OSG-TEP (eigene Sektion)
+  const [tepType,setTepType]=useState("");// primaer_inbone|primaer_infinity|wechsel_inbone|wechsel_infinity
+  const [tepProphecy,setTepProphecy]=useState(false);
+  const [tepTibSz,setTepTibSz]=useState("");// 1-5
+  const [tepTibLong,setTepTibLong]=useState(false);
+  const [tepTalSz,setTepTalSz]=useState("");// 1-5
+  const [tepTalCut,setTepTalCut]=useState("chamfer");// chamfer|flat
+  const [tepInlaySz,setTepInlaySz]=useState("");// 1,1+,2,2+,3,3+,4,4+,5
+  const [tepInlayMM,setTepInlayMM]=useState("");// 6-13
+  // Rückfuß
+  const [rfOp,setRfOp]=useState([]);
+  // ME
+  const [meOp,setMeOp]=useState([]);
+  // Weitere
+  const [umOp,setUmOp]=useState([]);
+  const [fxOp,setFxOp]=useState([]);
+  // UC (Unfallchirurgie/Trauma)
+  const [ucOp,setUcOp]=useState("");
+  // Verband
+  const [ruhig,setRuhig]=useState("keine");
+  const [showPv,setShowPv]=useState(false);
+  const [toast,setToast]=useState("");
+
+  const togSec=k=>setSec(p=>({...p,[k]:!p[k]}));
+  const togArr=(arr,setArr,v)=>setArr(p=>p.includes(v)?p.filter(x=>x!==v):[...p,v]);
+  const togZehe=(z,e)=>setZc(p=>{const c=p[z]||[];return{...p,[z]:c.includes(e)?c.filter(x=>x!==e):[...c,e]};});
+
+  const hasVF=!!gz||Object.values(zc).some(a=>a.length>0)||dmmo.length>0;
+  const hasOSG=osgOp.length>0;
+  const hasTEP=!!tepType;
+  const hasRF=rfOp.length>0;
+  const hasME=meOp.length>0;
+  const hasUM=umOp.length>0;
+  const hasFX=fxOp.length>0;
+  const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasME||hasUM||hasFX;
+  const needsRuhig=gz==="mtp1art"||gz==="lapidus";
+
+  // Collected OPS codes
+  const allOPS=useMemo(()=>{
+    const o=[];
+    if(gz==="chevron"){o.push("5-788.5c","5-788.40","5-786.0","5-854.2c");if(mitAkin)o.push("5-788.56");}
+    if(gz==="lapidus"){o.push("5-808.a4","5-788.40","5-786.0","5-786.k");if(mitSubcap)o.push("5-788.5c");o.push("5-854.2c");if(mitAkin)o.push("5-788.56");}
+    if(gz==="mtp1art"){o.push("5-808.b0","5-786.0");if(mitAkin)o.push("5-788.56");}
+    if(gz==="cheilek")o.push("5-788.60","5-788.40");
+    if(gz==="exostose")o.push("5-788.0");
+    if(gz==="scarf")o.push("5-788.5e");
+    const pipMap={1:"d",2:"e",3:"f",4:"g"};
+    [2,3,4,5].forEach(z=>{const e=zc[z]||[];if(e.includes("pip")){const cnt=Math.min(Object.values(zc).filter(a=>a.includes("pip")).length,4);o.push("5-808.b"+(pipMap[cnt]||"d"));}if(e.includes("ext_verl"))o.push("5-854.0c");if(e.includes("fdl"))o.push("5-854.2c");if(e.includes("ext_teno"))o.push("5-851.1a");if(e.includes("beuge_trans"))o.push("5-854.2c");});
+    if(dmmo.length===1)o.push("5-788.52");else if(dmmo.length===2)o.push("5-788.53");else if(dmmo.length===3)o.push("5-788.54");else if(dmmo.length>=4)o.push("5-788.55");
+    if(dmmo.length>0)o.push("5-786.0");
+    osgOp.forEach(op=>{
+      if(op==="ask")o.push("5-810.9k","5-812.ek","5-811.2k");
+      if(op==="brostrom")o.push("5-806.5","5-869.2");
+      if(op==="bandplastik_auto")o.push("5-806.4");
+      if(op==="arthrodese_osg")o.push("5-808.70","5-786.0");
+      if(op==="amic")o.push("5-801.nk","5-783.0","5-784.0s","5-781.an","5-786.0");
+      if(op==="oats")o.push("5-783.6","5-784.5","5-781.an","5-786.0");
+      if(op==="arthrorise")o.push("5-809.1m","5-786.0");
+    });
+    // TEP
+    if(tepType)o.push("5-826.00");
+    rfOp.forEach(op=>{
+      if(op==="haglund")o.push("5-859.1a","5-782.1t","5-853.2b","5-855.19","5-855.39","5-869.2");
+      if(op==="subtalar")o.push("5-808.80","5-786.0");
+      if(op==="osg_subtalar")o.push("5-808.71");
+      if(op==="calc_ot_var")o.push("5-781.1t","5-786.k");
+      if(op==="calc_ot_valg")o.push("5-781.0t","5-786.k");
+      if(op==="calc_ot_verl")o.push("5-781.8t","5-786.k");
+      if(op==="peroneal")o.push("5-855.29","5-855.39","5-852.29");
+      if(op==="as_naht")o.push("5-855.19","5-855.39");
+    });
+    meOp.forEach(op=>{if(op==="stell")o.push("5-787.1r");if(op==="revision_ose")o.push("5-78a.***");});
+    umOp.forEach(op=>{if(op==="supramal")o.push("5-781","5-781.8n","5-786.k","5-781.aq");});
+    fxOp.forEach(op=>{if(op==="fibula_einf")o.push("5-793.r","5-793.kr");if(op==="fibula_mehr")o.push("5-794.r","5-794.kr");});
+    return[...new Set(o)];
+  },[gz,mitAkin,mitSubcap,zc,dmmo,osgOp,tepType,rfOp,meOp,umOp,fxOp]);
+
+  // ERLÖS MATRIX (Anlage 2a, 2026)
+  // Steuerungsprinzip: H-DRG nur ambulant attraktiv. Ab 1 Nacht → Kurzlieger-DRG besser. Ab 2 Nächte → volle DRG.
+  const hasLapidusCompanion=gz==="lapidus"&&(mitAkin||mitSubcap||allOPS.includes("5-788.40"));
+  const hasDMMOover2=dmmo.length>2;
+  const hasASnaht=rfOp.includes("as_naht");
+  const hasRFarthrodese=rfOp.includes("subtalar")||rfOp.includes("osg_subtalar");
+  const hasCalcOT=rfOp.includes("calc_ot_var")||rfOp.includes("calc_ot_valg")||rfOp.includes("calc_ot_verl");
+
+  const erloesData=useMemo(()=>{
+    if(!hasAny)return null;
+
+    // TEP – keine H-DRG, immer stationär
+    if(hasTEP) return {label:"TEP",ops:allOPS,
+      amb:"—",n1:"Kurzlieger ~2.500 €",n2:"Kurzlieger ~3.500 €",n3:"I20C/D 4.442–6.035 €",
+      empf:"n3",
+      hint:"Keine H-DRG. Immer stationär, ab Tag 3 volle DRG.",
+      kodier:"",kontext:""};
+
+    // Lapidus MIT Positivliste-Code → I20M
+    if(gz==="lapidus"&&hasLapidusCompanion) return {label:"Lapidus + Zusatzeingriff",ops:allOPS,
+      amb:"H-DRG I20M 3.341 €",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
+      empf:"amb",
+      hint:"Ambulant: H-DRG I20M (3.341 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger-DRG I20D (~3.500 €) oder volle DRG I20D (4.442 €) sind besser.",
+      kodier:"⚠ Ambulant: 5-854.2c (Sehnentransposition) NICHT mitkodieren. Stationär: mitkodieren → Kontextfaktor → raus aus H-DRG.",
+      kontext:"Stat. Heraussteuerung: Revisionscode 5-808.a9 (bei Vor-OP) oder Spongiosa 5-784.0v mitkodieren → im OP-Bericht dokumentieren! Mehrerlös +1.100 € vs. H-DRG."};
+
+    // Lapidus ALLEIN → keine H-DRG
+    if(gz==="lapidus") return {label:"Lapidus allein",ops:allOPS,
+      amb:"KEINE H-DRG",n1:"Kurzlieger I20D ~3.500 €",n2:"I20D 4.442 €",n3:"I20D 4.442 €",
+      empf:"n2",
+      hint:"5-808.a4 nicht auf Positivliste → keine H-DRG möglich. Stationär führen, mind. 2 Nächte.",
+      kodier:"Ambulant: Nur EBM. Für H-DRG I20M: Zusatzeingriff aus Positivliste nötig (z.B. Akin 5-788.56, Weichteilkorrektur 5-788.40).",
+      kontext:""};
+
+    // MTP-I-Arthrodese → I20N
+    if(gz==="mtp1art") return {label:"MTP-I-Arthrodese",ops:allOPS,
+      amb:"H-DRG I20N 2.121 €",n1:"Kurzlieger I20E ~2.800 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+      empf:"amb",
+      hint:"Ambulant: H-DRG I20N (2.121 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger I20E (~2.800 €) oder volle DRG I20E (3.728 €) sind besser.",
+      kodier:"Code: 5-808.b0 (nicht 5-809.1m!). Bei Arthroplastik (5-788.60): Kontextfaktor → keine H-DRG bei I20N!",
+      kontext:"Stat. Heraussteuerung: Spongiosa mitkodieren (5-784.0v) → Kontextfaktor → raus aus H-DRG. Im OP-Bericht dokumentieren! Reop: 5-808.b7 (bei Vor-OP). Mehrerlös +600–1.600 € vs. H-DRG."};
+
+    // Chevron/Scarf/Cheilektomie/Exostose → I20O
+    if(gz==="chevron"||gz==="cheilek"||gz==="scarf"||gz==="exostose"){
+      const lbl=gz==="chevron"?"Chevron":gz==="cheilek"?"Cheilektomie":gz==="scarf"?"Scarf":"Exostose";
+      const reopCode=gz==="chevron"?"5-788.5f":gz==="scarf"?"5-788.5j":"";
+      return {label:lbl,ops:allOPS,
+        amb:"H-DRG I20O 1.019 €",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
+        empf:"amb",
+        hint:"Ambulant: H-DRG I20O (1.019 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger I20F (~2.000 €) oder volle DRG I20F (3.040 €) sind besser.",
+        kodier:"⚠ Ambulant: Sehneneingriff (5-854.0c/2c) NICHT mitkodieren → bleibt in H-DRG.\nStationär: Sehneneingriff MITKODIEREN → Kontextfaktor → raus aus H-DRG."+(reopCode?" Reop: "+reopCode+" (bei Vor-OP → keine H-DRG).":"")+(gz==="cheilek"?" Arthroplastik 5-788.60 = Kontextfaktor → keine H-DRG!":""),
+        kontext:"Stat. Heraussteuerung: 5-854.0c (Strecksehnenverlängerung) oder 5-854.2c (FDL-Transfer) mitkodieren → im OP-Bericht dokumentieren! Mehrerlös +1.000–2.000 € vs. H-DRG."};}
+
+    // Kleinzehen/DMMO ≤2 → I20O
+    if((Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)&&!hasDMMOover2) return {label:"Kleinzehen/DMMO",ops:allOPS,
+      amb:"H-DRG I20O 1.019 €",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
+      empf:"amb",
+      hint:"Ambulant: H-DRG I20O (1.019 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden → Kurzlieger-DRG ist besser.\n💡 In LA möglich → Anästhesiekosten entfallen, OP-Slot wird nicht belegt, Eingriff kann zusätzlich zum regulären Programm erfolgen.",
+      kodier:"⚠ DMMO max. 2× (5-788.52/53) für H-DRG! >2× DMMO = keine H-DRG.\n⚠ Strecksehnenverlängerung (5-854.0c) ist erlösrelevant! Bei Krallenzehe freizügig durchführen und exakt mit 5-854.0c kodieren.\nAmbulant: 5-854.0c NICHT mitkodieren. Stationär: MITKODIEREN → Kontextfaktor.",
+      kontext:"Stat. Heraussteuerung: 5-854.0c (Strecksehnenverlängerung) mitkodieren → im OP-Bericht dokumentieren! Mehrerlös +1.000–2.000 € vs. H-DRG."};
+
+    // DMMO >2 → keine H-DRG
+    if(hasDMMOover2) return {label:"DMMO >2 MT",ops:allOPS,
+      amb:"KEINE H-DRG",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
+      empf:"n2",
+      hint:"5-788.54/55 (3-4 MT) nicht auf Positivliste und nicht im AOP-Katalog → ambulant NICHT abrechenbar. Stationär führen.",
+      kodier:"💡 Ambulanter Ausweg: Zusätzlichen H-DRG-Code aus Positivliste verwenden (z.B. Weichteilkorrektur 5-788.40 oder Strecksehnenverlängerung 5-854.0c) → damit in H-DRG I20O (1.019 €).\nOhne Positivliste-Code: nur stationär möglich.",
+      kontext:""};
+
+    // OSG-Arthrodese → keine H-DRG
+    if(osgOp.includes("arthrodese_osg")) return {label:"OSG-Arthrodese",ops:allOPS,
+      amb:"—",n1:"Kurzlieger ~2.200 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+      empf:"n2",
+      hint:"Keine H-DRG. Stationär, mind. 2 Nächte für volle DRG I20E.",
+      kodier:"5-808.70 nicht auf Positivliste.",kontext:""};
+
+    // AMIC → keine H-DRG
+    if(osgOp.includes("amic")) return {label:"AMIC",ops:allOPS,
+      amb:"—",n1:"Kurzlieger ~2.200 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+      empf:"n2",
+      hint:"5-801.nk nicht auf Positivliste → keine H-DRG. Spongiosa = Kontextfaktor. Stationär führen.",
+      kodier:"",kontext:""};
+
+    // ASK/Brostrom/Bandplastik/Arthrorise → I20O
+    if(hasOSG) return {label:"OSG-Eingriff",ops:allOPS,
+      amb:"H-DRG I20O 1.019 €",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
+      empf:"amb",
+      hint:"Ambulant: H-DRG I20O (1.019 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden.",
+      kodier:"Arthrolyse = kein Kontextfaktor (kann mitkodiert werden ohne H-DRG-Risiko).",
+      kontext:"Stat. Heraussteuerung: Sehneneingriff (5-854.0c/2c) mitkodieren → Kontextfaktor."};
+
+    // AS-Naht → keine H-DRG seit 2026
+    if(hasASnaht) return {label:"Achillessehnennaht",ops:allOPS,
+      amb:"—",n1:"Kurzlieger ~2.200 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+      empf:"n2",
+      hint:"Seit 2026 keine H-DRG! Stationär, mind. 2 Nächte für volle DRG.",
+      kodier:"⚠ Immer 5-855.39 (Naht Sehnenscheide) mitkodieren → höhere Vergütungsstufe!",kontext:""};
+
+    // Rückfuß-Arthrodesen → keine H-DRG
+    if(hasRFarthrodese) return {label:"Rückfuß-Arthrodese",ops:allOPS,
+      amb:"—",n1:"Kurzlieger ~2.200 €",n2:"I20E 3.728 €",n3:"I20E 3.728 €",
+      empf:"n2",
+      hint:"Rückfuß-Arthrodesen = keine H-DRG (GFFC 2026). Stationär, mind. 2 Nächte.",
+      kodier:"",kontext:""};
+
+    // Calc-OT → keine H-DRG
+    if(hasCalcOT) return {label:"Calcaneus-OT",ops:allOPS,
+      amb:"—",n1:"Kurzlieger ~2.000 €",n2:"I20D–F 3.040–4.442 €",n3:"I20D–F 3.040–4.442 €",
+      empf:"n2",
+      hint:"Rückfuß-Achskorrekturen = keine H-DRG. Stationär, mind. 2 Nächte.",
+      kodier:"",kontext:""};
+
+    // Haglund → I20O
+    if(hasRF) return {label:"Haglund",ops:allOPS,
+      amb:"H-DRG I20O 1.019 €",n1:"Kurzlieger I20F ~2.000 €",n2:"I20F 3.040 €",n3:"I20F 3.040 €",
+      empf:"amb",
+      hint:"Ambulant: H-DRG I20O (1.019 €, +30 € bei Nachbeh.). Ab 1 Nacht: H-DRG vermeiden.",
+      kodier:"",kontext:""};
+
+    // ME → keine H-DRG
+    if(hasME) return {label:"ME Stellschraube",ops:allOPS,
+      amb:"EBM 250–350 €",n1:"Kurzlieger I31Z ~800 €",n2:"I31Z 2.239 €",n3:"I31Z 2.239 €",
+      empf:"n2",
+      hint:"5-787.1r nicht auf Positivliste → keine H-DRG. Ambulant nur EBM (250–350 €). Volle DRG ab Tag 2.\n💡 In LA möglich → Anästhesiekosten entfallen, Eingriff kann zusätzlich zum regulären Programm erfolgen.",
+      kodier:"💡 Ambulant: Zusatzeingriff ASK (5-812.ek) → H-DRG I20O (1.019 €) statt EBM 300 €! Nur bei med. Indikation.",
+      kontext:""};
+
+    // Umstellung/Fraktur → keine H-DRG
+    if(hasUM||hasFX) return {label:"Umstellung/Fraktur",ops:allOPS,
+      amb:"—",n1:"Kurzlieger ~2.000 €",n2:"I20D–F 3.040–4.442 €",n3:"I20D–F 3.040–4.442 €",
+      empf:"n2",
+      hint:"Stationär, mind. 2 Nächte für volle DRG.",
+      kodier:"",kontext:""};
+
+    return null;
+  },[hasAny,hasTEP,hasOSG,hasRF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mitAkin,mitSubcap]);
+
+  // Text version for Word export
+  const erloesText=useMemo(()=>{
+    if(!erloesData)return "";
+    var d=erloesData;
+    var t="\n\n───────────────\nERLÖSÜBERSICHT (Anlage 2a, 2026)\n───────────────\n\nOPS: "+d.ops.join(", ")+"\n\nAmbulant: "+d.amb+"\n1 Nacht (kurzstat.): "+d.n1+"\n2 Nächte (stat.): "+d.n2+"\n3+ Nächte (volle DRG): "+d.n3+"\n\nEmpfehlung: "+d.hint;
+    if(d.kodier)t+="\n\nKodierhinweis: "+d.kodier;
+    if(d.kontext)t+="\n\nKontextfaktor: "+d.kontext;
+    t+="\n\n(+30 € bei Nachbehandlung im KH)";
+    return t;
+  },[erloesData]);
+
+  // UC ERLÖS MATRIX (Trauma H-DRGs, Anlage 2a, 2026)
+  // Steuerung Trauma: H-DRG ambulant attraktiv. Bei 1 Nacht: Differenz H-DRG vs. Kurzlieger gering.
+  // Bei 2+ Nächten: volle DRG immer besser → Fokus auf 2 Tage halten.
+  const UC_EINGRIFFE={
+    klav_einf:{l:"Klavikula-Fx einfach (Platte)",ops:["5-795.30","5-795.k0"],
+      hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"3.790",pct:"84%",
+      hint:"H-DRG I21M gut bewertet (84% der DRG). Ambulant: H-DRG 3.184 €. Bei 1 Nacht: Kurzlieger ~3.200 € (kaum Differenz). Bei 2 Nächten: volle DRG 3.790 € (+606 €).\n→ Stationär: mind. 2 Nächte für volle DRG anstreben.",
+      kodier:"Positivliste: 5-795.10/.20/.30/.h0/.k0/.x0. Keine intramedulläre OSE (z.B. TEN) → nicht auf Positivliste!",kontext:""},
+    klav_mehr:{l:"Klavikula-Fx Mehrfragment (Platte)",ops:["5-796.20","5-796.k0"],
+      hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.380",pct:"83%",
+      hint:"H-DRG I29M gut bewertet (83% der DRG). Ambulant: H-DRG 3.652 €. Bei 1 Nacht: Kurzlieger ~3.500 € (H-DRG leicht besser!). Bei 2 Nächten: volle DRG 4.380 € (+728 €).\n→ Stationär: mind. 2 Nächte für volle DRG anstreben.",
+      kodier:"Positivliste: 5-796.00/.10/.20/.h0/.k0/.x0. Keine intramedulläre OSE!",kontext:""},
+    radius_dist:{l:"Distale Radiusfraktur (Platte)",ops:["5-793.36","5-793.k6","5-794.k6"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76% der DRG). Ambulant: H-DRG 3.091 €. Bei 1 Nacht: Kurzlieger ~3.000 € (ähnlich). Bei 2 Nächten: volle DRG 4.076 € (+985 €).\n→ Stationär: mind. 2 Nächte für volle DRG anstreben.",
+      kodier:"Positivliste: 5-793.36 (Platte), 5-793.k6 (winkelstab. Platte), 5-794.k6 (Mehrfragment winkelstab.).",kontext:""},
+    olekranon:{l:"Olekranon-Fx (Zuggurtung/Platte)",ops:["5-793.27","5-794.k7"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76% der DRG). Ambulant: H-DRG 3.091 €. Bei 2 Nächten: volle DRG 4.076 € (+985 €).\n→ Stationär: mind. 2 Nächte für volle DRG anstreben.",
+      kodier:"",kontext:""},
+    fibula_dist:{l:"Distale Fibulafraktur (Platte)",ops:["5-793.kr","5-794.kr"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76% der DRG). Ambulant: H-DRG 3.091 €. Bei 2 Nächten: volle DRG 4.076 € (+985 €).\n→ Stationär: mind. 2 Nächte für volle DRG anstreben.",
+      kodier:"5-793.kr (einfach) und 5-794.kr (Mehrfragment) auf Positivliste. 5-793.r (Schraube allein) NICHT auf Liste.",kontext:""},
+    ellenbogen_kompl:{l:"Komplexer Eingriff Ellenbogen/UA",ops:["5-794.k7"],
+      hdrg:"I31N",hdrgE:"3.739",basis:"I31C",basisE:"4.956",pct:"75%",
+      hint:"H-DRG I31N (75% der DRG). Ambulant: H-DRG 3.739 €. Bei 2 Nächten: volle DRG 4.956 € (+1.217 €).\n→ Stationär: mind. 2 Nächte für volle DRG anstreben.",
+      kodier:"",kontext:""},
+    me_oe:{l:"ME Obere Extremität",ops:["5-787.1x"],
+      hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"3.790",pct:"84%",
+      hint:"H-DRG I21M (84% der DRG). Ambulant: H-DRG 3.184 €. Bei 1 Nacht: Differenz gering. Bei 2 Nächten: volle DRG 3.790 € (+606 €).\n💡 In LA möglich → Anästhesiekosten entfallen, Eingriff kann zusätzlich zum regulären Programm erfolgen.",
+      kodier:"",kontext:""},
+  };
+
+  const ucErloesData=useMemo(()=>{
+    if(!ucOp||!UC_EINGRIFFE[ucOp])return null;
+    var e=UC_EINGRIFFE[ucOp];
+    return {label:e.l,ops:e.ops,
+      amb:"H-DRG "+e.hdrg+" "+e.hdrgE+" €",
+      n1:"Kurzlieger ≈ H-DRG",
+      n2:e.basis+" "+e.basisE+" €",
+      n3:e.basis+" "+e.basisE+" €",
+      empf:"amb",hint:e.hint,kodier:e.kodier,kontext:e.kontext,
+      pct:e.pct,hdrg:e.hdrg,hdrgE:e.hdrgE,basis:e.basis,basisE:e.basisE};
+  },[ucOp]);
+
+  // BUILD TEXT
+  const fullText=useMemo(()=>{
+    if(!gender||!side||!hasAny)return "";
+    const p=[];
+    p.push(buildPraeop(gender,side,risk,riskTxt,fprae,praeType));
+    p.push("\nVerlauf:\n");
+    p.push(buildLagerung(side,bs,ss,ana));
+    if(gz==="chevron"){p.push("\n\n"+T.chevron);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
+    if(gz==="lapidus"){p.push("\n\n"+T.lapidus);if(mitSubcap)p.push("\n\n"+T.subcapitale);if(mitAkin)p.push("\n\n"+T.akin_lapidus);p.push("\n\n"+T.rebalancing);}
+    if(gz==="mtp1art"){p.push("\n\n"+T.mtp1_arthrodese);if(mitAkin)p.push("\n\n"+T.akin);}
+    if(gz==="cheilek")p.push("\n\n"+T.cheilektomie);
+    if(gz==="exostose")p.push("\n\n"+T.exostose);
+    if(gz==="scarf"){p.push("\n\n"+T.scarf);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
+    let isFirstZ=true;[2,3,4,5].forEach(z=>{const e=zc[z]||[];if(e.length>0){p.push("\n\n"+buildZehe(z,e,isFirstZ));isFirstZ=false;}});
+    if(dmmo.length>0)p.push("\n\n"+buildDMMO(dmmo));
+    osgOp.forEach(op=>{
+      if(op==="ask")p.push("\n\n"+T.ask_osg);
+      else if(op==="brostrom")p.push("\n\n"+T.brostrom);
+      else if(op==="bandplastik_auto")p.push("\n\n"+T.bandplastik_auto);
+      else if(op==="arthrodese_osg")p.push("\n\n"+T.arthrodese_osg);
+      else if(op==="amic")p.push("\n\n"+T.amic);
+      else if(op==="oats")p.push("\n\n"+T.oats);
+      else if(op==="arthrorise")p.push("\n\n"+T.arthrorise);
+      else p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
+    });
+    // TEP
+    if(tepType){
+      const prothese=tepType.includes("inbone")?"Inbone II":"Infinity";
+      const wechsel=tepType.startsWith("wechsel");
+      const prophecy=tepProphecy?" mit Prophecy CT-basierter Planung":"";
+      const tibInfo=tepTibSz?` Tibiale Komponente Größe ${tepTibSz}${tepTibLong?" Long":""}.`:"";
+      const cutType=tepType.includes("inbone")?"Flat-Cut":(tepTalCut==="flat"?"Flat-Cut":"Chamfer-Cut");
+      const talInfo=tepTalSz?` Talare Komponente Größe ${tepTalSz} (${cutType}).`:"";
+      const inlayInfo=tepInlayMM?` Polyethylen-Inlay ${tepInlayMM} mm.`:"";
+      p.push(`\n\n[OSG-TEP: ${wechsel?"Wechsel auf ":"Primärimplantation "}${prothese}${prophecy} – Text wird ergänzt]\n\nImplantatdokumentation:${tibInfo}${talInfo}${inlayInfo}`);
+    }
+    rfOp.forEach(op=>{
+      if(op==="haglund")p.push("\n\n"+T.haglund);
+      else if(op==="as_naht")p.push("\n\nZuwendung zur Achillessehnennaht.\n"+T.as_naht);
+      else if(op==="subtalar")p.push("\n\n"+T.subtalar);
+      else if(op==="osg_subtalar")p.push("\n\n"+T.osg_subtalar);
+      else if(op==="peroneal")p.push("\n\n"+T.peroneal_naht);
+      else if(op==="calc_ot_var")p.push("\n\nZuwendung zur Calcaneus-Korrekturosteotomie.\n"+T.calc_ot_var);
+      else if(op==="calc_ot_valg")p.push("\n\nZuwendung zur Calcaneus-Korrekturosteotomie.\n"+T.calc_ot_valg);
+      else if(op==="calc_ot_verl")p.push("\n\nZuwendung zur verlängernden Calcaneus-Osteotomie.\n"+T.calc_ot_verl);
+      else p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
+    });
+    if(meOp.includes("stell"))p.push("\n\nZuwendung zur Entfernung der Stellschraube.\n"+T.me_stell);
+    meOp.filter(x=>x!=="stell").forEach(op=>{p.push(`\n\n[ME: ${op} – Text wird ergänzt]`);});
+    umOp.forEach(op=>{
+      if(op==="supramal")p.push("\n\nZuwendung zur supramalleolären Umstellungsosteotomie.\n"+T.supramal_ot);
+      else p.push(`\n\n[Umstellung: ${op} – Text wird ergänzt]`);
+    });
+    fxOp.forEach(op=>{
+      if(op==="fibula_einf")p.push("\n\nZuwendung zur Frakturversorgung der distalen Fibula.\n"+T.fraktur_fibula_einf);
+      else if(op==="fibula_mehr")p.push("\n\nZuwendung zur Frakturversorgung der distalen Fibula (Mehrfragment).\n"+T.fraktur_fibula_mehr);
+      else p.push(`\n\n[Fraktur: ${op} – Text wird ergänzt]`);
+    });
+    const r=needsRuhig&&ruhig==="keine"?"orthese":ruhig;
+    p.push("\n\n"+buildVerband(hasVF,bs,r));
+    return p.join("");
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,rfOp,meOp,umOp,fxOp,ruhig,hasVF,hasAny,needsRuhig]);
+
+  const canExport=gender&&side&&hasAny;
+  const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
+  const copy=async()=>{if(!canExport)return;try{await navigator.clipboard.writeText(fullText+erloesText);showToast("📋 Kopiert!");}catch{}};
+  const dlDocx=()=>{
+    if(!canExport)return;
+    try{
+      const f=buildDocx(fullText,erloesText);
+      const z=createZip(f);
+      // Convert to base64
+      const bytes=new Uint8Array(z);
+      let binary='';
+      const chunkSize=8192;
+      for(let i=0;i<bytes.length;i+=chunkSize){
+        binary+=String.fromCharCode.apply(null,bytes.subarray(i,Math.min(i+chunkSize,bytes.length)));
+      }
+      const b64=btoa(binary);
+      
+      // Try multiple download methods
+      // Method 1: Blob URL
+      try{
+        const byteArray=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+        const blob=new Blob([byteArray],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+        const url=URL.createObjectURL(blob);
+        const link=document.createElement('a');
+        link.href=url;
+        link.download=`OP-Bericht_${side}_${gender}.docx`;
+        link.click();
+        setTimeout(()=>URL.revokeObjectURL(url),5000);
+        showToast("✓ Word generiert!");
+        return;
+      }catch(e1){}
+      
+      // Method 2: Data URI
+      try{
+        const link=document.createElement('a');
+        link.href=`data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${b64}`;
+        link.download=`OP-Bericht_${side}_${gender}.docx`;
+        link.click();
+        showToast("✓ Word generiert!");
+        return;
+      }catch(e2){}
+
+      showToast("⚠ Download blockiert – Text kopiert");
+      navigator.clipboard.writeText(fullText+erloesText);
+    }catch(e){
+      console.error(e);
+      showToast("⚠ Fehler – Text wird kopiert");
+      try{navigator.clipboard.writeText(fullText+erloesText);}catch(ec){}
+    }
+  };
+
+  const chip=(sel)=>({padding:"6px 12px",borderRadius:6,fontSize:11.5,cursor:"pointer",border:sel?"1px solid #00838F":"1px solid rgba(0,0,0,.1)",background:sel?"rgba(0,131,143,.15)":"rgba(255,255,255,1)",color:sel?"#fff":"#718096",display:"inline-block",margin:2,userSelect:"none"});
+  const gb=(sel)=>({padding:"9px 18px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:sel?"2px solid #00838F":"2px solid rgba(0,0,0,.1)",background:sel?"rgba(0,131,143,.12)":"rgba(255,255,255,.95)",color:sel?"#fff":"#718096",display:"inline-flex",alignItems:"center",gap:5,margin:3});
+  const tog=(on)=>({padding:"5px 11px",borderRadius:6,fontSize:11.5,cursor:"pointer",border:on?"1px solid #00838F":"1px solid rgba(0,0,0,.1)",background:on?"rgba(0,131,143,.12)":"rgba(255,255,255,.95)",color:on?"#00838F":"#718096",display:"inline-flex",alignItems:"center",gap:3,userSelect:"none"});
+  const row={display:"flex",flexWrap:"wrap",gap:3};
+  const sub={marginLeft:14,marginTop:6,borderLeft:"2px solid rgba(93,173,236,.2)",paddingLeft:10};
+  const cat={fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:"#718096",margin:"10px 0 4px"};
+  const card={background:"rgba(255,255,255,1)",border:"1px solid rgba(0,0,0,.08)",borderRadius:10,padding:14,marginBottom:10};
+  const h3s={fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:"#00838F",marginBottom:8};
+
+  const zehenOpts=[{id:"pip",l:"PIP-Arthrodese"},{id:"fdl",l:"FDL-Tenotomie"},{id:"ext_teno",l:"Strecksehnen-Tenotomie"},{id:"ext_verl",l:"Strecksehnen-Verlängerung"},{id:"beuge_trans",l:"Beugesehnentransfer"},{id:"kapsulo",l:"Dorsale Kapsulotomie"}];
+
+  return (
+    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",minHeight:"100vh",color:"#1A2A3A",padding:"14px 16px"}}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&display=swap');*{box-sizing:border-box;margin:0;padding:0}input,textarea{width:100%;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:7px 10px;color:#2D3748;font-size:12px;font-family:inherit;resize:vertical}input:focus,textarea:focus{outline:0;border-color:rgba(93,173,236,.4)}
+.ob-split{max-width:1200px;margin:0 auto}
+.ob-form{max-width:800px;margin:0 auto}
+.ob-preview{display:none}
+.ob-mobile-preview{display:block}
+@media(min-width:1024px){.ob-split{display:flex;gap:20px;max-width:1400px}.ob-form{flex:1;min-width:0;max-width:750px;margin:0}.ob-preview{display:block!important;flex:0 0 440px;position:sticky;top:14px;align-self:flex-start;max-height:calc(100vh - 28px);overflow-y:auto}.ob-mobile-preview{display:none!important}}`}</style>
+      {toast&&<div style={{position:"fixed",bottom:16,right:16,padding:"10px 20px",borderRadius:8,background:"#005F63",color:"#fff",fontSize:12,fontWeight:500,zIndex:99}}>{toast}</div>}
+
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,maxWidth:1400,margin:"0 auto 12px"}}>
+        <div style={{width:28,height:28,borderRadius:6,background:"linear-gradient(135deg,#00838F,#006B6F)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>📋</div>
+        <div><div style={{fontSize:15,fontWeight:700,color:"#fff"}}>OP-Bericht Generator</div><div style={{fontSize:9,color:"#718096"}}>Orthopädie · Entscheidungsbaum v12</div></div>
+      </div>
+
+      <div className="ob-split">
+      <div className="ob-form">
+
+      {/* GESCHLECHT + SEITE */}
+      <div style={card}>
+        <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+          <div><div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>GESCHLECHT</div><div style={row}><div style={gb(gender==="m")} onClick={()=>setGender("m")}>♂ M</div><div style={gb(gender==="w")} onClick={()=>setGender("w")}>♀ W</div></div></div>
+          <div><div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>OP-SEITE</div><div style={row}><div style={gb(side==="links")} onClick={()=>setSide("links")}>← L</div><div style={gb(side==="rechts")} onClick={()=>setSide("rechts")}>R →</div></div></div>
+        </div>
+      </div>
+
+      {/* SEKTION */}
+      <div style={card}>
+        <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:6}}>SEKTION</div>
+        <div style={row}>
+          <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>🦶 Fuß / Sprunggelenk</div>
+          <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>🦴 UC</div>
+          <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>🏥 Endo</div>
+          <div style={gb(sektion==="ws")} onClick={()=>setSektion(sektion==="ws"?"":"ws")}>🔩 WS</div>
+        </div>
+      </div>
+
+      {sektion==="fuss"&&<>
+      {gender&&side&&<>
+      <div style={card}><div style={h3s}>① Präop</div>
+        <div style={row}>{[["standard","Standard"],["me","ME"],["tep","TEP"]].map(([k,l])=><div key={k} style={chip(praeType===k)} onClick={()=>setPraeType(k)}>{l}</div>)}</div>
+        <div style={{...row,marginTop:6}}><div style={{...tog(risk),borderColor:risk?"#E65100":"",color:risk?"#EF6C00":""}} onClick={()=>setRisk(!risk)}>⚠ Risiko</div></div>
+        {risk&&<input placeholder="Risikogrund..." value={riskTxt} onChange={e=>setRiskTxt(e.target.value)} style={{marginTop:4}}/>}
+        <textarea placeholder="Freitext..." value={fprae} onChange={e=>setFprae(e.target.value)} rows={1} style={{marginTop:4}}/>
+      </div>
+
+      <div style={card}><div style={h3s}>② Vorbereitung</div>
+        <div style={{...row,gap:6}}><div style={tog(ss)} onClick={()=>setSs(!ss)}>💊 Single-Shot</div><div style={tog(bs)} onClick={()=>setBs(!bs)}>🩸 Blutsperre</div><div style={chip(ana==="lokal")} onClick={()=>setAna(ana==="lokal"?"narkose":"lokal")}>💉 LA</div></div>
+      </div>
+
+      <div style={{marginBottom:10}}><div style={h3s}>③ OP-Durchführung</div>
+
+      {/* VORFUSS */}
+      <Sec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF}>
+        <div style={cat}>Großzehe (1. Strahl)</div>
+        <div style={row}>
+          {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"]].map(([k,l])=>
+            <div key={k} style={chip(gz===k)} onClick={()=>{setGz(gz===k?"":k);setMitAkin(false);setMitSubcap(false);}}>{l}</div>
+          )}
+        </div>
+        {gz==="chevron"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={{fontSize:9,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-788.5c, 5-788.40, 5-786.0, 5-854.2c{mitAkin?", 5-788.56":""}</div></div>}
+        {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div></div><div style={{fontSize:9,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-786.0, 5-786.k{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
+        {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={{fontSize:9,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-786.0{mitAkin?", 5-788.56":""}</div></div>}
+        {gz==="cheilek"&&<div style={sub}><div style={{fontSize:9,color:"#718096"}}>OPS: 5-788.60, 5-788.40</div></div>}
+
+        <div style={cat}>Kleinzehen D2–D5</div>
+        {[2,3,4,5].map(z=>{const sel=zc[z]||[];return <div key={z} style={{marginBottom:4,padding:sel.length?"6px 8px":"2px",borderRadius:6,background:sel.length?"rgba(0,131,143,.04)":"transparent"}}>
+          <div style={{fontSize:11,fontWeight:600,color:sel.length?"#00838F":"#718096",marginBottom:2}}>D{z}</div>
+          <div style={row}>{zehenOpts.map(e=><div key={e.id} style={chip(sel.includes(e.id))} onClick={()=>togZehe(z,e.id)}>{e.l}</div>)}</div>
+        </div>;})}
+
+        <div style={cat}>DMMO (Metatarsale)</div>
+        <div style={row}>{[2,3,4,5].map(mt=><div key={mt} style={chip(dmmo.includes(mt))} onClick={()=>togArr(dmmo,setDmmo,mt)}>MT {mt}</div>)}</div>
+      </Sec>
+
+      {/* OSG */}
+      <Sec title="🦵 Oberes Sprunggelenk" open={sec.osg} onToggle={()=>togSec("osg")} active={hasOSG}>
+        <div style={row}>
+          {[["ask","ASK OSG"],["brostrom","Brostrom-Gould"],["bandplastik_auto","Bandplastik autolog"],["arthrorise","Arthrorise"],["arthrodese_osg","Arthrodese OSG"],["amic","AMIC-Talus"],["oats","OATS"]].map(([k,l])=>
+            <div key={k} style={chip(osgOp.includes(k))} onClick={()=>togArr(osgOp,setOsgOp,k)}>{l}</div>
+          )}
+        </div>
+        {osgOp.length>0&&<div style={{fontSize:9,color:"#718096",marginTop:6}}>Ausgewählt: {osgOp.join(", ")} · Texte werden ergänzt</div>}
+      </Sec>
+
+      {/* OSG-TEP (EIGENE SEKTION) */}
+      <Sec title="🏥 OSG-Totalendoprothese" open={sec.tep} onToggle={()=>togSec("tep")} active={hasTEP}>
+        <div style={cat}>Primär-TEP</div>
+        <div style={row}>
+          <div style={chip(tepType==="primaer_inbone")} onClick={()=>{setTepType(tepType==="primaer_inbone"?"":"primaer_inbone");setTepTalCut("flat");}}>Inbone II</div>
+          <div style={chip(tepType==="primaer_infinity")} onClick={()=>{setTepType(tepType==="primaer_infinity"?"":"primaer_infinity");setTepTalCut("chamfer");}}>Infinity</div>
+        </div>
+        <div style={{...cat,marginTop:8}}>Wechsel-TEP</div>
+        <div style={row}>
+          <div style={chip(tepType==="wechsel_inbone")} onClick={()=>{setTepType(tepType==="wechsel_inbone"?"":"wechsel_inbone");setTepTalCut("flat");}}>Wechsel auf Inbone</div>
+          <div style={chip(tepType==="wechsel_infinity")} onClick={()=>{setTepType(tepType==="wechsel_infinity"?"":"wechsel_infinity");setTepTalCut("chamfer");}}>Wechsel auf Infinity</div>
+        </div>
+
+        {tepType&&<div style={{...sub,marginTop:10}}>
+          <div style={tog(tepProphecy)} onClick={()=>setTepProphecy(!tepProphecy)}>+ Prophecy (CT-basiert)</div>
+
+          {/* TIBIA */}
+          <div style={{...cat,marginTop:10}}>Tibiale Komponente</div>
+          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span style={{fontSize:10,color:"#718096",minWidth:40}}>Größe:</span>
+            <div style={row}>{["1","2","3","4","5"].map(s=><div key={s} style={chip(tepTibSz===s)} onClick={()=>setTepTibSz(tepTibSz===s?"":s)}>{s}</div>)}</div>
+          </div>
+          {["3","4","5"].includes(tepTibSz)&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
+            <span style={{fontSize:10,color:"#718096",minWidth:40}}>Länge:</span>
+            <div style={tog(tepTibLong)} onClick={()=>setTepTibLong(!tepTibLong)}>Long</div>
+          </div>}
+
+          {/* TALUS */}
+          <div style={{...cat,marginTop:10}}>Talare Komponente</div>
+          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span style={{fontSize:10,color:"#718096",minWidth:40}}>Größe:</span>
+            <div style={row}>{["1","2","3","4","5"].map(s=><div key={s} style={chip(tepTalSz===s)} onClick={()=>setTepTalSz(tepTalSz===s?"":s)}>{s}</div>)}</div>
+          </div>
+          {tepType.includes("infinity")&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
+            <span style={{fontSize:10,color:"#718096",minWidth:40}}>Schnitt:</span>
+            <div style={chip(tepTalCut==="chamfer")} onClick={()=>setTepTalCut("chamfer")}>Chamfer-Cut</div>
+            <div style={chip(tepTalCut==="flat")} onClick={()=>setTepTalCut("flat")}>Flat-Cut</div>
+          </div>}
+          {tepType.includes("inbone")&&<div style={{fontSize:9,color:"#718096",marginTop:4}}>Inbone → immer Flat-Cut</div>}
+
+          {/* INLAY */}
+          <div style={{...cat,marginTop:10}}>Polyethylen-Inlay</div>
+          {tepTibSz?<div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span style={{fontSize:10,color:"#718096",minWidth:40}}>Dicke:</span>
+            <div style={row}>{(["3","4"].includes(tepTibSz)?["6","7","8","9","10","11","12","13"]:["6","8","10","12"]).map(d=><div key={d} style={chip(tepInlayMM===d)} onClick={()=>setTepInlayMM(tepInlayMM===d?"":d)}>{d} mm</div>)}</div>
+          </div>:<div style={{fontSize:9,color:"#EF6C00"}}>Bitte zuerst Tibia-Größe wählen</div>}
+
+          <div style={{fontSize:9,color:"#718096",marginTop:8}}>OPS: 5-826.00 · Stationär{tepType.startsWith("wechsel")?" · Wechseloperation":""}</div>
+        </div>}
+      </Sec>
+
+      {/* RÜCKFUSS */}
+      <Sec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF}>
+        <div style={row}>
+          {[["haglund","Haglund + AS"],["subtalar","Arthrodese Subtalar"],["osg_subtalar","Arthrodese OSG+Subtalar"],["calc_ot_var","Calc-OT Varisierend"],["calc_ot_valg","Calc-OT Valgisierend"],["calc_ot_verl","Calc-OT Verlängernd"],["peroneal","Naht Peronealsehnen"],["as_naht","Achillessehnennaht"]].map(([k,l])=>
+            <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
+          )}
+        </div>
+      </Sec>
+
+      {/* UMSTELLUNG */}
+      <Sec title="🔧 Umstellungsosteotomien" open={sec.um} onToggle={()=>togSec("um")} active={hasUM}>
+        <div style={row}>
+          <div style={chip(umOp.includes("supramal"))} onClick={()=>togArr(umOp,setUmOp,"supramal")}>Supramalleolär Tibia</div>
+        </div>
+      </Sec>
+
+      {/* FRAKTUREN */}
+      <Sec title="🩹 Frakturen" open={sec.fx} onToggle={()=>togSec("fx")} active={hasFX}>
+        <div style={row}>
+          {[["fibula_einf","Fibulafraktur einfach"],["fibula_mehr","Fibulafraktur Mehrfragment"]].map(([k,l])=>
+            <div key={k} style={chip(fxOp.includes(k))} onClick={()=>togArr(fxOp,setFxOp,k)}>{l}</div>
+          )}
+        </div>
+      </Sec>
+
+      {/* ME */}
+      <Sec title="🔩 Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={hasME}>
+        <div style={row}>
+          {[["stell","Stellschraube dist. Fibula"],["revision_ose","Revision OSE + Wechsel"]].map(([k,l])=>
+            <div key={k} style={chip(meOp.includes(k))} onClick={()=>togArr(meOp,setMeOp,k)}>{l}</div>
+          )}
+        </div>
+      </Sec>
+      </div>
+
+      {/* VERBAND */}
+      <div style={card}><div style={h3s}>④ Verband</div>
+        <div style={row}>{[["keine","Keine"],["orthese","Omnimed"],["gips","Gipsschiene"],["cast","circ. Cast"]].map(([k,l])=><div key={k} style={chip(ruhig===k)} onClick={()=>setRuhig(k)}>{l}</div>)}</div>
+        {hasVF&&<div style={{fontSize:9,color:"#718096",marginTop:4}}>Tape/Redression auto (Vorfuß)</div>}
+        {needsRuhig&&ruhig==="keine"&&<div style={{fontSize:9,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung empfohlen → Omnimed auto</div>}
+      </div>
+
+      {/* OPS CODES */}
+      {allOPS.length>0&&<div style={card}><div style={h3s}>⑤ OPS-Codes</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{allOPS.map(c=><span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>)}</div>
+      </div>}
+
+      {/* ERLÖSMATRIX */}
+      {erloesData&&<div style={card}><div style={h3s}>💰 Erlösübersicht – {erloesData.label}</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>{erloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}}>
+          <div style={{background:erloesData.empf==="amb"?"rgba(0,137,123,.08)":"rgba(198,40,40,.06)",border:erloesData.empf==="amb"?"1px solid rgba(0,137,123,.3)":"1px solid rgba(198,40,40,.15)",borderRadius:8,padding:10,textAlign:"center"}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>AMBULANT</div>
+            <div style={{fontSize:12,fontWeight:600,color:erloesData.empf==="amb"?"#00897B":"#C62828"}}>{erloesData.amb}</div>
+            {erloesData.empf==="amb"&&<div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Empfehlung</div>}
+          </div>
+          <div style={{background:erloesData.empf==="n1"?"rgba(0,137,123,.08)":"rgba(0,107,111,.03)",border:erloesData.empf==="n1"?"1px solid rgba(0,137,123,.3)":"1px solid rgba(0,0,0,.1)",borderRadius:8,padding:10,textAlign:"center"}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>1 NACHT</div>
+            <div style={{fontSize:12,fontWeight:600,color:erloesData.empf==="n1"?"#00897B":"#2D3748"}}>{erloesData.n1}</div>
+            {erloesData.empf==="n1"&&<div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Empfehlung</div>}
+          </div>
+          <div style={{background:erloesData.empf==="n2"?"rgba(0,137,123,.08)":"rgba(0,107,111,.03)",border:erloesData.empf==="n2"?"1px solid rgba(0,137,123,.3)":"1px solid rgba(0,0,0,.1)",borderRadius:8,padding:10,textAlign:"center"}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>2 NÄCHTE</div>
+            <div style={{fontSize:12,fontWeight:600,color:erloesData.empf==="n2"?"#00897B":"#2D3748"}}>{erloesData.n2}</div>
+            {erloesData.empf==="n2"&&<div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Empfehlung</div>}
+          </div>
+          <div style={{background:erloesData.empf==="n3"?"rgba(0,137,123,.08)":"rgba(0,107,111,.03)",border:erloesData.empf==="n3"?"1px solid rgba(0,137,123,.3)":"1px solid rgba(0,0,0,.1)",borderRadius:8,padding:10,textAlign:"center"}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>3+ NÄCHTE</div>
+            <div style={{fontSize:12,fontWeight:600,color:erloesData.empf==="n3"?"#00897B":"#2D3748"}}>{erloesData.n3}</div>
+            {erloesData.empf==="n3"&&<div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Empfehlung</div>}
+          </div>
+        </div>
+        <div style={{marginTop:8,fontSize:10,color:"#00897B",background:"rgba(0,137,123,.04)",border:"1px solid rgba(0,137,123,.15)",borderRadius:6,padding:8}}>{erloesData.hint}</div>
+        {erloesData.kodier&&<div style={{marginTop:6,fontSize:10,color:"#F57F17",background:"rgba(245,127,23,.06)",border:"1px solid rgba(245,127,23,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>📋 Kodierhinweis:</span> {erloesData.kodier}</div>}
+        {erloesData.kontext&&<div style={{marginTop:6,fontSize:10,color:"#E65100",background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>🔧 Kontextfaktor (stat. Heraussteuerung):</span> {erloesData.kontext}</div>}
+        <div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
+      </div>}
+
+      {/* MOBILE PREVIEW (Handy) */}
+      {canExport&&<div className="ob-mobile-preview" style={card}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
+          <div style={h3s}>Vorschau & Export</div>
+          <div style={{display:"flex",gap:4}}>
+            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setRfOp([]);setMeOp([]);setUmOp([]);setFxOp([]);setRuhig("keine");}}>Reset</div>
+            <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#00838F",color:"#F5F7FA",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={copy}>📋</div>
+            <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#005F63",color:"#fff",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
+          </div>
+        </div>
+        <div style={{cursor:"pointer",fontSize:11,color:"#00838F",marginBottom:6}} onClick={()=>setShowPv(!showPv)}>{showPv?"▼ Ausblenden":"▶ Anzeigen"}</div>
+        {showPv&&<div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11.5,lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",maxHeight:500,overflowY:"auto"}}>{fullText}</div>}
+      </div>}
+      </>}
+      </>}
+
+      {sektion==="uc"&&<div>
+        <div style={card}>
+          <div style={h3s}>UC – Unfallchirurgie / Trauma</div>
+          <div style={{fontSize:10,color:"#718096",marginBottom:8}}>Traumatologische H-DRGs 2026 – Erlössteuerung</div>
+          <div style={cat}>Eingriff auswählen</div>
+          <div style={row}>
+            {Object.keys(UC_EINGRIFFE).map(function(k){return <div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>;})}
+          </div>
+        </div>
+
+        {ucErloesData&&<div style={card}><div style={h3s}>💰 Erlösübersicht – {ucErloesData.label}</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>{ucErloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
+          <div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>H-DRG {ucErloesData.hdrg}: <span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.hdrgE} €</span> = <span style={{color:"#EF6C00"}}>{ucErloesData.pct}</span> der vollen DRG {ucErloesData.basis} ({ucErloesData.basisE} €)</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}}>
+            <div style={{background:"rgba(0,137,123,.08)",border:"1px solid rgba(0,137,123,.3)",borderRadius:8,padding:10,textAlign:"center"}}>
+              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>AMBULANT</div>
+              <div style={{fontSize:12,fontWeight:600,color:"#00897B"}}>{ucErloesData.amb}</div>
+              <div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Empfehlung</div>
+            </div>
+            <div style={{background:"rgba(245,127,23,.06)",border:"1px solid rgba(245,127,23,.15)",borderRadius:8,padding:10,textAlign:"center"}}>
+              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>1 NACHT</div>
+              <div style={{fontSize:12,fontWeight:600,color:"#F57F17"}}>Kurzlieger</div>
+              <div style={{fontSize:9,color:"#F57F17",marginTop:4}}>≈ H-DRG (geringe Diff.)</div>
+            </div>
+            <div style={{background:"rgba(0,137,123,.08)",border:"1px solid rgba(0,137,123,.3)",borderRadius:8,padding:10,textAlign:"center"}}>
+              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>2 NÄCHTE</div>
+              <div style={{fontSize:12,fontWeight:600,color:"#00897B"}}>{ucErloesData.basis} {ucErloesData.basisE} €</div>
+              <div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Volle DRG anstreben!</div>
+            </div>
+            <div style={{background:"rgba(0,107,111,.03)",border:"1px solid rgba(0,0,0,.1)",borderRadius:8,padding:10,textAlign:"center"}}>
+              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>3+ NÄCHTE</div>
+              <div style={{fontSize:12,fontWeight:600,color:"#2D3748"}}>{ucErloesData.basisE} €</div>
+            </div>
+          </div>
+          <div style={{marginTop:8,fontSize:10,color:"#00897B",background:"rgba(0,137,123,.04)",border:"1px solid rgba(0,137,123,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}>{ucErloesData.hint}</div>
+          {ucErloesData.kodier&&<div style={{marginTop:6,fontSize:10,color:"#F57F17",background:"rgba(245,127,23,.06)",border:"1px solid rgba(245,127,23,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>📋 Kodierhinweis:</span> {ucErloesData.kodier}</div>}
+          <div style={{marginTop:8,fontSize:10,color:"#E65100",background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.15)",borderRadius:6,padding:8}}>
+            <span style={{fontWeight:700}}>⚠ Trauma-Steuerung:</span> Bei Trauma-H-DRGs ist die Differenz H-DRG vs. Kurzlieger-DRG (1 Nacht) gering. Der Fokus liegt auf <span style={{fontWeight:700}}>2 Nächte halten</span> für die volle DRG. Differenz zur H-DRG: <span style={{fontWeight:700}}>+{(parseFloat(ucErloesData.basisE.replace(".",""))-parseFloat(ucErloesData.hdrgE.replace(".",""))).toLocaleString("de-DE")} €</span>
+          </div>
+          <div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
+        </div>}
+
+        {!ucOp&&<div style={{...card,textAlign:"center",padding:30}}>
+          <div style={{fontSize:12,color:"#718096"}}>Eingriff oben auswählen für Erlösübersicht und Kodierhinweise</div>
+          <div style={{marginTop:12,fontSize:10,color:"#718096",lineHeight:1.8}}>
+            Verfügbar: Klavikula (einfach/Mehrfragment) · Distaler Radius · Olekranon · Distale Fibula · Ellenbogen komplex · ME obere Extremität
+          </div>
+        </div>}
+      </div>}
+
+      {sektion==="endo"&&<div style={card}>
+        <div style={h3s}>Endo – Endoprothetik</div>
+        <div style={{fontSize:12,color:"#718096",padding:20,textAlign:"center"}}>Modul in Vorbereitung</div>
+      </div>}
+
+      {sektion==="ws"&&<div style={card}>
+        <div style={h3s}>WS – Wirbelsäule</div>
+        <div style={{fontSize:12,color:"#718096",padding:20,textAlign:"center"}}>Modul in Vorbereitung</div>
+      </div>}
+
+      </div>{/* END ob-form */}
+
+      {/* DESKTOP SIDEBAR PREVIEW (≥1024px) */}
+      {canExport&&sektion==="fuss"&&<div className="ob-preview" style={{background:"rgba(255,255,255,.95)",border:"1px solid rgba(0,0,0,.08)",borderRadius:10,padding:16}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:6}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#00838F",textTransform:"uppercase",letterSpacing:1}}>Vorschau</div>
+          <div style={{display:"flex",gap:4}}>
+            <div style={{padding:"5px 10px",border:"none",borderRadius:5,background:"#00838F",color:"#F5F7FA",fontWeight:600,fontSize:10,cursor:"pointer"}} onClick={copy}>📋 Kopieren</div>
+            <div style={{padding:"5px 10px",border:"none",borderRadius:5,background:"#005F63",color:"#fff",fontWeight:600,fontSize:10,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
+          </div>
+        </div>
+        <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11,lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",overflowY:"auto",maxHeight:"calc(100vh - 180px)"}}>{fullText}</div>
+        {erloesData&&<div style={{marginTop:10,fontSize:9,padding:10,background:"rgba(0,137,123,.04)",border:"1px solid rgba(0,137,123,.15)",borderRadius:6,color:"#00897B",whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>💰 {erloesData.label}</span>{"\n"}Amb: {erloesData.amb}{"\n"}1N: {erloesData.n1}{"\n"}2N: {erloesData.n2}{erloesData.kodier?"\n📋 "+erloesData.kodier:""}{erloesData.kontext?"\n🔧 "+erloesData.kontext:""}</div>}
+      </div>}
+
+      </div>{/* END ob-split */}
+    </div>
+  );
+}
+
+
+// ============================================================
+// LANDING PAGE & APP WRAPPER
+// ============================================================
+
+function LandingPage({onSelect}) {
+  return (
+    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",minHeight:"100vh",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{textAlign:"center",marginBottom:40}}>
+        <div style={{fontSize:40,marginBottom:12}}>🦶</div>
+        <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>Fußzentrum Toolbox</div>
+        <div style={{fontSize:12,color:"#718096"}}>Department Spezielle Fußchirurgie · Florence-Nightingale-Krankenhaus Düsseldorf</div>
+        <div style={{fontSize:10,color:"#A0AEC0",marginTop:4}}>Kaiserswerther Diakonie</div>
+      </div>
+      <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center",maxWidth:700}}>
+        <div onClick={()=>onSelect("sb")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"30px 28px",width:300,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:12}}>📝</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Sprechstundenbrief</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Diagnosegesteuerte Arztbriefe mit Therapieempfehlung, Scores, Literatur und Word-Export</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>8 Diagnosen · Split-Screen · Word-Download</div>
+        </div>
+        <div onClick={()=>onSelect("ob")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"30px 28px",width:300,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:12}}>📋</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>OP-Bericht Generator</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>OP-Texte, OPS-Codierung, Hybrid-DRG Erlösmatrix mit Kodierhinweisen und Kontextfaktoren</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Fuß · UC/Trauma · Erlössteuerung · Word-Download</div>
+        </div>
+      </div>
+      <div style={{marginTop:40,fontSize:9,color:"#A0AEC0"}}>v2.0 · März 2026</div>
+    </div>
+  );
+}
+
+function App() {
+  const [tool, setTool] = React.useState(null);
+  
+  if (tool === "sb") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:10,fontWeight:600,display:"flex",alignItems:"center",gap:4,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>
+          ← Toolbox
+        </div>
+      </div>
+      <SprechstundenbriefApp />
+    </div>
+  );
+  
+  if (tool === "ob") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:10,fontWeight:600,display:"flex",alignItems:"center",gap:4,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>
+          ← Toolbox
+        </div>
+      </div>
+      <OPBerichtApp />
+    </div>
+  );
+  
+  return <LandingPage onSelect={setTool} />;
 }
 
 
