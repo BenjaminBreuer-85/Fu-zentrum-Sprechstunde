@@ -3,20 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprechstundenbrief Generator – Fußchirurgie</title>
+<title>Sprechstundenbrief Generator - Fusschirurgie</title>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { margin: 0; padding: 0; background: #0d1825; }
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { margin: 0; padding: 0; background: #0d1825; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
   input, textarea {
     width: 100%; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.08);
     border-radius: 6px; padding: 7px 10px; color: #c8d6e8; font-size: 12px;
     font-family: inherit; resize: vertical;
   }
   input:focus, textarea:focus { outline: 0; border-color: rgba(46,204,113,.4); }
+  .sb-split { max-width: 1120px; margin: 0 auto; }
+  .sb-form { max-width: 800px; margin: 0 auto; }
+  .sb-preview { display: none; }
+  .sb-mobile-preview { display: block; }
+  @media (min-width: 1024px) {
+    .sb-split { display: flex; gap: 20px; max-width: 1200px; }
+    .sb-form { flex: 1; min-width: 0; max-width: 700px; margin: 0; }
+    .sb-preview { display: block !important; flex: 0 0 420px; position: sticky; top: 14px; align-self: flex-start; max-height: calc(100vh - 28px); overflow-y: auto; }
+    .sb-mobile-preview { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -559,9 +569,6 @@ function App() {
 
   return (
     <div style={{ fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: "#0d1825", minHeight: "100vh", color: "#dde4f0", padding: "14px 16px" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');*{box-sizing:border-box;margin:0;padding:0}input,textarea{width:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px 10px;color:#c8d6e8;font-size:12px;font-family:inherit;resize:vertical}input:focus,textarea:focus{outline:0;border-color:rgba(46,204,113,.4)}
-@media(min-width:1200px){.sb-split{display:flex!important;gap:20px}.sb-form{flex:1;min-width:0;max-width:680px}.sb-preview{flex:0 0 420px;position:sticky;top:14px;align-self:flex-start;max-height:calc(100vh - 28px);overflow-y:auto}.sb-mobile-preview{display:none!important}}
-@media(max-width:1199px){.sb-form{max-width:800px;margin:0 auto}.sb-preview{display:none!important}.sb-mobile-preview{display:block!important}}`}</style>
       {toast && <div style={{ position: "fixed", bottom: 16, right: 16, padding: "10px 20px", borderRadius: 8, background: "#27ae60", color: "#fff", fontSize: 12, fontWeight: 500, zIndex: 99 }}>{toast}</div>}
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, maxWidth: 1120, margin: "0 auto 12px" }}>
@@ -706,7 +713,7 @@ function App() {
           <div style={{ marginTop: 8, fontSize: 9, color: "#5a7090" }}>Konservative Optionen werden automatisch aus dem Krankheitsbild übernommen.</div>
         </Sec>
 
-        <div className="sb-mobile-preview" style={{ display: "block" }}>
+        <div className="sb-mobile-preview">
           <div style={card}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
               <div style={h3s}>Vorschau & Export</div>
@@ -722,7 +729,7 @@ function App() {
       </div>}
       </div>
 
-      <div className="sb-preview" style={{ display: "none" }}>
+      <div className="sb-preview">
         <div style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, padding: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
             <div style={h3s}>Brief-Vorschau</div>
