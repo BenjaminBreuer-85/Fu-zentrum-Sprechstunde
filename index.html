@@ -908,6 +908,7 @@ ask_nano:`⚠ TEXT AUSSTEHEND – ASK + Nanofrakturierung. Bitte Text ergänzen.
 brostrom:`Hautinzision bogenförmig über dem lateralen Malleolus. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung des Lig. fibulotalare anterius (LFTA) und des Lig. fibulocalcaneare (LFC). Es zeigt sich ein deutlich elongiertes und insuffizientes LFTA. Raffung und Refixation des LFTA am Fibulakopf mittels Fadenankern. Überprüfung der Stabilität, deutliche Verbesserung des Talusvorschubes und der Supination. Verstärkung durch Einnähen des Retinaculum extensorum inferius (modifiziert nach Gould). Nochmalige Stabilitätskontrolle, gutes Ergebnis.`,
 arthrodese_osg:`Anteriorer Zugang zum OSG, Längsinzision zwischen Tibialis anterior und Extensor hallucis longus. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen, subtile Blutstillung. Darstellung der Gelenkkapsel, Arthrotomie. Es zeigt sich ein destruiertes Gelenk mit weitgehendem Knorpelverlust, Osteophytenbildung und Synovialitis. Komplette Synovektomie, Entfernung aller Osteophyten. Entknorpelung der Tibia-Gelenkfläche und der Talusrolle mittels Meißel und oszillierender Säge unter Beachtung der physiologischen Achse. Anbohrung beider Gelenkflächen zur Förderung der Durchblutung. Einstellung des OSG in 0° Dorsalextension, 5° Valgus, 5-10° Außenrotation. Temporäre Transfixation mittels K-Drähten, radiologische Kontrolle der Achse. Definitive Osteosynthese mittels winkelstabiler anteriorer Platte und zusätzlicher Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Implantatlage und gute Achsstellung. Spülung des Situs.`,
 amic:`Anlage der standardisierten Arthroskopie-Portale. Einbringen der Optik, systematische Inspektion. Darstellung der osteochondralen Läsion am Talus. Arthroskopisches Debridement des geschädigten Knorpels, Kürettage des Defektgrundes bis zum subchondralen Knochen. Nanofrakturierung des Defektgrundes mittels Ahle zur Stimulation der Blutung aus dem Knochenmark.\nAnschließend Mini-Arthrotomie über dem Defekt. Zuschneiden der Kollagenmembran (Chondro-Gide) auf die Defektgröße, Einbringen der Membran in den Defekt mit der porösen Seite nach unten zum Knochenmark. Fixation der Membran am Rand mittels Fibrinkleber. Kontrolle der stabilen Lage. Spülung und schichtweiser Verschluss.`,
+haglund_mini:`Inzision am medialen Rand des Achillessehnenansatzes, stumpfes Spalten des Gewebes, subtile Präparation unter Schutz des Achillessehnenansatzes, Mobilisierung von Verwachsungen mit der Sehne, Entfernung einer Bursitis subachillea, Einsetzen eines Hakens und vorsichtige Abtragung der deutlichen Exostose, die klar in die Achillessehne am Ansatz drückt und hier Verschleissschäden erzeugt. Ein relevanter Sehnenschaden besteht nicht, aber Zeichen von übermäßiger Druckeinwirkung mit Reizung. Nach Abtragung palpatorische und visuelle Prüfung, ausgiebige Spülung, Glättung von Kanten bis ein komplett abgerundeter physiologischer Calcaneus imponiert. In der Region in der Impingement entstehen könnte, bestehen sicher keine kritischen Strukturen mehr. Ausgiebige Spülung, Naht Sehnenscheide.`,
 haglund:`Inzision lateral der Achillessehne über der Ferse. Vorsichtiges Spalten des Subcutangewebes, Darstellung der Achillessehne und der Bursa. Bursektomie der entzündlich veränderten Bursa subachillea. Längsspaltung der Achillessehne im lateralen Anteil, Darstellen der Haglund-Exostose. Abtragung der Haglund-Exostose mit der oszillierenden Säge unter Erhalt der Insertionszone. Glättung der Resektionsfläche, Kontrolle auf regelrechte Kontur, kein Impingement der Sehne mehr. Readaptation der Achillessehne mittels Naht, Verankerung am Calcaneus mittels Fadenanker. Spülung des Situs.`,
 as_naht:`Inzision medial der Achillessehne, ca. 8 cm Länge. Vorsichtiges Spalten des Subcutangewebes, Schonung des N. suralis. Darstellung des Paratenons, Längsinzision und Darstellung der rupturierten Achillessehne. Es zeigt sich eine komplette Ruptur mit degenerativ verändertem Sehnengewebe und Hämatom. Debridement der Sehnenenden, Anfrischen der Stümpfe. End-zu-End-Naht der Achillessehne mittels modifizierter Krackow-Technik mit kräftigem nicht-resorbierbarem Faden. Überprüfung der Sehnenspannung im Seitenvergleich, Thompson-Test negativ. Naht der Sehnenscheide (Paratenon) mittels resorbierbarem Faden. Spülung des Situs.`,
 arthrorise:`Inzision im Bereich des Sinus tarsi, ca. 2 cm. Stumpfes Spreizen des Subcutangewebes, Darstellen des Sinus tarsi. Exploration und Entfernung von Weichteilgewebe aus dem Sinus tarsi. Einbringen des Probeimplantates unter BV-Kontrolle, Größenbestimmung. Einbringen der definitiven Arthrorise-Schraube unter BV-Kontrolle. Radiologische Abschlusskontrolle zeigt korrekte Lage der Schraube im Sinus tarsi mit adäquater Korrektur der Rückfußvalgusstellung. Spülung des Situs.`,
@@ -979,6 +980,7 @@ function OPBerichtApp(){
   const [dmmo,setDmmo]=useState([]);
   // OSG
   const [osgOp,setOsgOp]=useState([]);
+  const [brostromIB,setBrostromIB]=useState(false);
   // OSG-TEP (eigene Sektion)
   const [tepType,setTepType]=useState("");// primaer_inbone|primaer_infinity|wechsel_inbone|wechsel_infinity
   const [tepProphecy,setTepProphecy]=useState(false);
@@ -1041,9 +1043,9 @@ function OPBerichtApp(){
     if(dmmo.length===1)o.push("5-788.52");else if(dmmo.length===2)o.push("5-788.53");else if(dmmo.length===3)o.push("5-788.54");else if(dmmo.length>=4)o.push("5-788.55");
     if(dmmo.length>0)o.push("5-93b.0");
     osgOp.forEach(op=>{
-      if(op==="ask")o.push("5-810.9k","5-812.ek","5-811.2k");
-      if(op==="ask_nano")o.push("5-810.9k","5-812.ek","5-811.2k");
-      if(op==="brostrom")o.push("5-806.5","5-869.2");
+      if(op==="ask")o.push("5-812.ek","5-811.2k");
+      if(op==="ask_nano")o.push("5-812.ek","5-811.2k","5-812.fk");
+      if(op==="brostrom"){o.push("5-806.5","5-869.2","5-782.1r");if(brostromIB)o.push("5-806.6");}
       if(op==="bandplastik_auto")o.push("5-806.4");
       if(op==="arthrodese_osg")o.push("5-808.70","5-93b.0");
       if(op==="amic")o.push("5-801.nk","5-783.0","5-784.0s","5-781.an","5-93b.0");
@@ -1053,7 +1055,8 @@ function OPBerichtApp(){
     // TEP
     if(tepType)o.push("5-826.00");
     rfOp.forEach(op=>{
-      if(op==="haglund")o.push("5-859.1a","5-782.1t","5-853.2b","5-855.19","5-855.39","5-869.2");
+      if(op==="haglund_mini")o.push("5-782.at","5-855.39","5-859.19");
+      if(op==="haglund")o.push("5-859.19","5-854.29","5-782.1t","5-855.19","5-855.39","5-850.c9");
       if(op==="subtalar")o.push("5-808.80","5-93b.0");
       if(op==="osg_subtalar")o.push("5-808.71");
       if(op==="calc_ot_var")o.push("5-781.1t","5-93b.e");
@@ -1158,7 +1161,7 @@ function OPBerichtApp(){
     if(osgOp.includes("amic")) return {label:"AMIC",ops:allOPS,
       hdrg:"—",ebm:"—",kurz:"I20E ~2.800 €",drg:"I20E 3.728 €",hdrg_n1:"—",empf:"n2",
       ziel:"Nicht auf Positivliste → keine H-DRG. Stationär → I20E (3.728 €).",
-      kodier:"OPS: 5-801.nk + 5-783.0 + 5-784.0s + 5-781.an + 5-93b.0.\nImmer alle Maßnahmen spezifisch kodieren."};
+      kodier:"OPS: 5-801.nk + 5-783.0 + 5-784.0s + 5-781.an + 5-93b.0.\n⚠ 5-811.2k und 5-812.fk NICHT mitkodieren – stehen auf Positivliste → würde H-DRG triggern!\nImmer alle Maßnahmen spezifisch kodieren."};
 
     // ASK/Brostrom/Bandplastik/Arthrorise
     if(hasOSG) return {label:"OSG-Eingriff",ops:allOPS,
@@ -1190,11 +1193,17 @@ function OPBerichtApp(){
       ziel:"Keine H-DRG → stationär, mind. 2 Nächte. DRG abhängig von Komplexität.",
       kodier:"Immer alle Maßnahmen spezifisch kodieren – 'sonstige'-Codes vermeiden!"};
 
-    // Haglund
-    if(hasRF) return {label:"Haglund",ops:allOPS,
+    // Haglund mini open → H-DRG I20O
+    if(rfOp.includes("haglund_mini")) return {label:"Haglund mini open",ops:allOPS,
       hdrg:"I20O 1.019 €",ebm:"EBM ~300 €",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"I20O 1.019 €",empf:"amb",
-      ziel:"Ambulant → H-DRG I20O (1.019 €). Keine guten Ausschluss-Codes → ambulant bevorzugt.\n1 Nacht: gekürzte DRG I20F (~2.000 €) > H-DRG → volle DRG ansteuern.",
-      kodier:"5-782.at (Exostosenabtragung Calcaneus)."};
+      ziel:"Ambulant → H-DRG I20O (1.019 €). Keine guten Kontextprozeduren → ambulant bevorzugt.",
+      kodier:"5-782.at + 5-855.39 (Naht Sehnenscheide) + 5-859.19 (Bursektomie).\n5-855.39 und 5-859.19 werden automatisch mitkodiert."};
+
+    // Haglund + AS-Split → I27D
+    if(rfOp.includes("haglund")) return {label:"Haglund + AS-Split",ops:allOPS,
+      hdrg:"I20O 1.019 €",ebm:"EBM ~300 €",kurz:"I27D ~3.274 €",drg:"I27D 4.333 €",hdrg_n1:"I20O 1.019 €",empf:"n2",
+      ziel:"1 Nacht: gekürzte DRG I27D (3.274 €) >> H-DRG I20O → volle DRG ansteuern.\nAb 2 Nächte → volle DRG I27D (4.333 €).\nBasisfallwert 2026: 4.561,37 € · CM 0,95 (voll) / 0,673 (gekürzt).",
+      kodier:"5-859.19 + 5-854.29 + 5-782.1t + 5-855.19 + 5-855.39 + 5-850.c9 → I27D.\nAlle Codes müssen im OP-Bericht dokumentiert sein!"};
 
     // Cotton-OT
     if(mfCotton&&!mfTmt.length) return {label:"Cotton-Osteotomie",ops:allOPS,
@@ -1239,7 +1248,7 @@ function OPBerichtApp(){
       kodier:"Immer alle Maßnahmen spezifisch kodieren – 'sonstige'-Codes vermeiden!\nNur bei gewollter H-DRG-Vermeidung ggf. Positivliste-Code weglassen."};
 
     return null;
-  },[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap]);
+  },[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,brostromIB]);
 
 
   // Text version for Word export
@@ -1445,6 +1454,7 @@ function OPBerichtApp(){
       }
     }
     rfOp.forEach(op=>{
+      if(op==="haglund_mini")p.push("\n\n"+T.haglund_mini);
       if(op==="haglund")p.push("\n\n"+T.haglund);
       else if(op==="as_naht")p.push("\n\nZuwendung zur Achillessehnennaht.\n"+T.as_naht);
       else if(op==="subtalar")p.push("\n\n"+T.subtalar);
@@ -1624,7 +1634,8 @@ function OPBerichtApp(){
             <div key={k} style={chip(osgOp.includes(k))} onClick={()=>togArr(osgOp,setOsgOp,k)}>{l}</div>
           )}
         </div>
-        {osgOp.length>0&&<div style={{fontSize:9,color:"#718096",marginTop:6}}>Ausgewählt: {osgOp.join(", ")} · Texte werden ergänzt</div>}
+        {osgOp.includes("brostrom")&&<div style={{marginTop:4,marginBottom:4}}><div style={tog(brostromIB)} onClick={()=>setBrostromIB(!brostromIB)}>+ Internal Brace</div><div style={{fontSize:9,color:"#718096",marginTop:2}}>OPS: 5-806.5, 5-869.2, 5-782.1r{brostromIB?", 5-806.6 (Internal Brace)":""}</div></div>}
+        {osgOp.length>0&&!osgOp.includes("brostrom")&&<div style={{fontSize:9,color:"#718096",marginTop:6}}>Ausgewählt: {osgOp.join(", ")} · Texte werden ergänzt</div>}
       </OBSec>
 
       {/* OSG-TEP (EIGENE SEKTION) */}
@@ -1709,7 +1720,7 @@ function OPBerichtApp(){
       {/* RÜCKFUSS */}
       <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF}>
         <div style={row}>
-          {[["haglund","Haglund + AS"],["subtalar","Arthrodese Subtalar"],["osg_subtalar","Arthrodese OSG+Subtalar"],["calc_ot_var","Calc-OT Varisierend"],["calc_ot_valg","Calc-OT Valgisierend"],["calc_ot_verl","Calc-OT Verlängernd"],["peroneal","Naht Peronealsehnen"],["as_naht","Achillessehnennaht"]].map(([k,l])=>
+          {[["haglund_mini","Haglund mini open"],["haglund","Haglund + AS-Split"],["subtalar","Arthrodese Subtalar"],["osg_subtalar","Arthrodese OSG+Subtalar"],["calc_ot_var","Calc-OT Varisierend"],["calc_ot_valg","Calc-OT Valgisierend"],["calc_ot_verl","Calc-OT Verlängernd"],["peroneal","Naht Peronealsehnen"],["as_naht","Achillessehnennaht"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
           )}
         </div>
