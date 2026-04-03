@@ -81,7 +81,34 @@
 (function(){function h(){var s=document.getElementById('splash-cover');if(s){s.classList.add('fade-out');setTimeout(function(){s.remove();},800);}}setTimeout(function(){var c=setInterval(function(){var r=document.getElementById('root');if(r&&r.innerHTML.length>100){clearInterval(c);h();}},200);setTimeout(h,3000);},2000);})();
 </script>
 
-<div id="root"></div>
+<div id="root">
+  <div id="react-fallback" style="font-family:'IBM Plex Sans',system-ui,sans-serif;background:#F5F7FA;min-height:100vh;color:#1A2A3A;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div style="font-size:22px;font-weight:700;color:#006B6F;margin-bottom:4px;">Fußzentrum Toolbox</div>
+      <div style="font-size:12px;color:#718096;">Lädt...</div>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:700px;">
+      <div id="fb-sb" style="cursor:pointer;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:30px 28px;width:300px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:12px;">📝</div>
+        <div style="font-size:16px;font-weight:700;color:#006B6F;margin-bottom:6px;">Sprechstundenbrief</div>
+        <div style="font-size:11px;color:#718096;">Lädt...</div>
+      </div>
+      <div id="fb-ob" style="cursor:pointer;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:30px 28px;width:300px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:12px;">📋</div>
+        <div style="font-size:16px;font-weight:700;color:#006B6F;margin-bottom:6px;">OP-Bericht Generator</div>
+        <div style="font-size:11px;color:#718096;">Lädt...</div>
+      </div>
+    </div>
+    <div id="react-error" style="margin-top:20px;font-size:11px;color:#c00;display:none;max-width:600px;word-break:break-all;"></div>
+  </div>
+</div>
+<script>
+window.onerror = function(msg, url, line, col, error) {
+  var el = document.getElementById('react-error');
+  if(el) { el.style.display='block'; el.textContent = 'JS Error: ' + msg + ' (Line ' + line + ')'; }
+  console.error('App Error:', msg, 'Line:', line, error);
+};
+</script>
 <script type="text/babel">
 const { useState, useMemo, useEffect, useRef } = React;
 
@@ -970,7 +997,7 @@ scarf:`Zunächst manuelle Mobilisierung der plantar und dorsal verkürzten Struk
 ask_osg:`Anlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein ventrales Impingement mit Osteophytenbildung an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, Entfernung der Osteophyten mittels arthroskopischer Fräse, partielle Synovektomie. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.`,
 ask_nano:`ASK + Nanofrakturierung (Text wird dynamisch generiert).`,
 brostrom:`Hautinzision bogenförmig über dem lateralen Malleolus. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung des Lig. fibulotalare anterius (LFTA) und des Lig. fibulocalcaneare (LFC). Es zeigt sich ein deutlich elongiertes und insuffizientes LFTA. Raffung und Refixation des LFTA am Fibulakopf mittels Fadenankern. Überprüfung der Stabilität, deutliche Verbesserung des Talusvorschubes und der Supination. Verstärkung durch Einnähen des Retinaculum extensorum inferius (modifiziert nach Gould). Nochmalige Stabilitätskontrolle, gutes Ergebnis.`,
-ask_vorher_amic:`AMIC (Text wird dynamisch generiert).`,
+ask_vorher_amic:`Anlage des standardisierten Arthroskopie-Portales medial der Tibialis anterior Sehne mittels oberflächlicher Inzision und dann stumpfem Spreizen. Einbringen der Optik, systematische Inspektion. Darstellung der osteochondralen Läsion am Talus. Diese kann arthroskopisch nicht suffizient adressiert werden, daher Entscheidung für offenes Vorgehen. Es zeigen sich in der arthroskopischen Testung keine Hinweise für eine Instabilität oder eine laterale oder tibiale Läsion.`,
 arthrodese_osg:`OSG-Arthrodese (Text wird dynamisch generiert).`,
 amic:`Anlage der standardisierten Arthroskopie-Portale. Einbringen der Optik, systematische Inspektion. Darstellung der osteochondralen Läsion am Talus. Arthroskopisches Debridement des geschädigten Knorpels, Kürettage des Defektgrundes bis zum subchondralen Knochen. Nanofrakturierung des Defektgrundes mittels Ahle zur Stimulation der Blutung aus dem Knochenmark.\nAnschließend Mini-Arthrotomie über dem Defekt. Zuschneiden der Kollagenmembran (Chondro-Gide) auf die Defektgröße, Einbringen der Membran in den Defekt mit der porösen Seite nach unten zum Knochenmark. Fixation der Membran am Rand mittels Fibrinkleber. Kontrolle der stabilen Lage. Spülung und schichtweiser Verschluss.`,
 t2_nagel:`Längsverlaufende Inzision ventral des oberen Sprunggelenkes. Darstellen des Retinaculums, Lösungen der Verwachsungen des Retinaculums mit der langen Strecksehne der Großzehe und der Tibialis anterior-Sehne. Eingehen zwischen den beiden Sehnen auf das obere Sprunggelenk. Es entleert sich ein viel klarer Erguss, es quillt entzündlich veränderte Synovialis hervor.\nZunächst werden die ventralen Osteophyten am Talus und der Tibia entfernt. Deutlich kontraktes Gelenk.\nAnschließend Darstellen der Gelenkflächen, Entfernung des Restknorpels und des kompakten Knochens, sodass der spongiöse Knochen im Bereich der Tibia und des Talus freiliegt. Ebenfalls Entfernen des Knorpels an der medialen-lateralen Talusschulter am Innenknöchel und am Außenknöchel.\nÜber einen lateralen Zugang Eingehen in das hintere subtalare Gelenk. Dabei nach Hautinzision stumpfe Präparation und Einsetzen von Lidhaken zum Schutz der Peronealsehnen und des Nervus Suralis. Auch hier sehr kontraktes Gelenk mit massiver Sklerose.\nDie Gelenkfacetten werden komplett entknorpelt, der subchondrale Knochen freigelegt und angefrischt. Der Sinus tarsi wird ebenfalls von Weichteilgewebe befreit und hier der Knochen schachbrettartig perforiert.\nDie Spongiosa wird soweit entfernt, dass der Fuß anschließend in einen leichten Rückfußvalgus eingestellt werden kann, blockierende Osteophyten werden lateral entfernt und die Spitzfußstellung wird aufgehoben.\nNun wird unter Röntgen-Kontrolle von plantar her ein Führungsdraht eingebracht, dieser überbohrt und anschließend unter BV Kontrolle sukzessive bis §WIDTH§mm aufgebohrt.\nEinbringen von autologer Spongiosa in das obere und untere Sprunggelenk.\nDann Einbringung des T2-Nagel mit §LENGTH§ mm Länge und §WIDTH§ mm Durchmesser. Kontrolle der Lage des Nagels unter Bildwandler in mehreren Ebenen.\nEinbringen des Bolzens in den Talus von lateral. Bei korrekter Lage nun Verriegeln der beiden tibialen Löcher von medial. Über die Madenschraube wird Kompression auf den oberen Sprunggelenkspalt gebracht.\nKompression des USG über externes Instrument.\nWeiteres Einbringen eines Bolzens von lateral in den Calcaneus sowie von dorsal in den Calcaneus. Verschlusschraube von plantar.\nMehrfache Kontrolle unter Bildwandler, klinisch und radiologisch gute Korrektur der Rückfußachse.\nSämtliche Bolzen liegen korrekt, der Nagel liegt ebenfalls korrekt.`,
