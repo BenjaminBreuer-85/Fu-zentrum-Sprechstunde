@@ -44,6 +44,15 @@
 </style>
 </head>
 <body>
+<div id="err-display" style="display:none;position:fixed;top:0;left:0;right:0;padding:16px;background:#c00;color:#fff;font-size:13px;font-family:monospace;z-index:999999;white-space:pre-wrap;max-height:200px;overflow:auto;"></div>
+<script>
+window.onerror=function(m,f,l,c,e){
+  var d=document.getElementById('err-display');
+  if(d){d.style.display='block';d.textContent='FEHLER: '+m+'\nZeile: '+l+' Spalte: '+c;}
+  return false;
+};
+</script>
+
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useMemo, useEffect, useRef } = React;
@@ -790,132 +799,6 @@ function SprechstundenbriefApp() {
 // OP-BERICHT GENERATOR
 // ============================================================
 
-// ============================================================
-// DOCX/ZIP (compact)
-// ============================================================
-function escXml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-function createZip(files){
-  const enc=new TextEncoder();
-  const parts=[];const cd=[];let offset=0;const entries=Object.entries(files);
-  for(const[name,content]of entries){
-    const nameBytes=enc.encode(name);
-    const dataBytes=enc.encode(content);
-    // CRC32
-    let crc=0xFFFFFFFF;const table=new Uint32Array(256);
-    for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xEDB88320^(c>>>1):c>>>1;table[i]=c;}
-    for(let i=0;i<dataBytes.length;i++)crc=table[(crc^dataBytes[i])&0xFF]^(crc>>>8);
-    crc=(crc^0xFFFFFFFF)>>>0;
-    // Local file header
-    const lf=new ArrayBuffer(30+nameBytes.length);const lv=new DataView(lf);
-    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);lv.setUint16(8,0,true);
-    lv.setUint16(10,0,true);lv.setUint16(12,0,true);lv.setUint32(14,crc,true);
-    lv.setUint32(18,dataBytes.length,true);lv.setUint32(22,dataBytes.length,true);
-    lv.setUint16(26,nameBytes.length,true);lv.setUint16(28,0,true);
-    new Uint8Array(lf).set(nameBytes,30);
-    parts.push(new Uint8Array(lf));parts.push(dataBytes);
-    // Central directory
-    const ce=new ArrayBuffer(46+nameBytes.length);const cv=new DataView(ce);
-    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
-    cv.setUint16(8,0,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0,true);
-    cv.setUint32(16,crc,true);cv.setUint32(20,dataBytes.length,true);cv.setUint32(24,dataBytes.length,true);
-    cv.setUint16(28,nameBytes.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);
-    cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);cv.setUint32(42,offset,true);
-    new Uint8Array(ce).set(nameBytes,46);
-    cd.push(new Uint8Array(ce));
-    offset+=30+nameBytes.length+dataBytes.length;
-  }
-  let cdSize=0;cd.forEach(c=>cdSize+=c.length);
-  const eocd=new ArrayBuffer(22);const ev=new DataView(eocd);
-  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
-  ev.setUint16(8,entries.length,true);ev.setUint16(10,entries.length,true);
-  ev.setUint32(12,cdSize,true);ev.setUint32(16,offset,true);ev.setUint16(20,0,true);
-  const allParts=[...parts,...cd,new Uint8Array(eocd)];
-  const totalLen=allParts.reduce((s,p)=>s+p.length,0);
-  const result=new Uint8Array(totalLen);let pos=0;
-  for(const p of allParts){result.set(p,pos);pos+=p.length;}
-  return result;
-}
-
-function buildDocx(fullText,erloesText){
-  const ps=[];
-  const addP=(text,bold=false,size=22)=>{
-    if(!text)return;
-    text.split('\n').forEach(line=>{
-      if(!line.trim()){ps.push('<w:p><w:pPr><w:spacing w:after="0"/></w:pPr></w:p>');return;}
-      const rpr=`<w:rPr>${bold?'<w:b/>':''}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr>`;
-      ps.push(`<w:p><w:pPr><w:spacing w:after="80" w:line="276" w:lineRule="auto"/><w:jc w:val="both"/></w:pPr><w:r>${rpr}<w:t xml:space="preserve">${escXml(line)}</w:t></w:r></w:p>`);
-    });
-  };
-  // Title
-  ps.push(`<w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="32"/><w:szCs w:val="32"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr><w:t>OP-Bericht</w:t></w:r></w:p>`);
-  addP(fullText);
-  if(erloesText){
-    ps.push(`<w:p><w:pPr><w:spacing w:before="300" w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="2E5090"/></w:rPr><w:t>Erlösübersicht</w:t></w:r></w:p>`);
-    addP(erloesText,false,20);
-  }
-  ps.push('<w:p><w:pPr><w:spacing w:before="300"/></w:pPr></w:p>');
-  addP("Operateur: ___________________________",false,20);
-  addP("Datum: ___________________________",false,20);
-
-  const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-</Types>`;
-
-  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`;
-
-  const docRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>`;
-
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
-    <w:name w:val="Normal"/>
-    <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
-  </w:style>
-</w:styles>`;
-
-  const document=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>
-    ${ps.join('\n    ')}
-    <w:sectPr>
-      <w:pgSz w:w="11906" w:h="16838"/>
-      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
-    </w:sectPr>
-  </w:body>
-</w:document>`;
-
-  return {
-    "[Content_Types].xml": contentTypes,
-    "_rels/.rels": rels,
-    "word/_rels/document.xml.rels": docRels,
-    "word/document.xml": document,
-    "word/styles.xml": styles
-  };
-}
-
-// ============================================================
-// TEXT BUILDERS
-// ============================================================
-function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient":"Die Patientin",dd2=g==="m"?"der Patient":"die Patientin",sa=side==="links"?"linken":"rechten";let t="";if(typ==="me")t=`${dd} stellte sich bei uns vor zur geplanten Metallentfernung am ${sa} Fuß. Über die operativen Alternativen und die Möglichkeit des Belassens des Materials wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;else if(typ==="tep")t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde die Implantation einer Sprunggelenksprothese am ${sa} oberen Sprunggelenk vereinbart. Die Indikation, die nicht-operativen und operativen Alternativen sowie die Details mit Komplikationen und Nachbehandlung wurden erneut erläutert. ${dd} wünscht keine weiteren konservativen Maßnahmen. Operative Risiken wurden thematisiert.`;else t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde der operative Eingriff vereinbart. ${dd} wünscht keine Durchführung weiterer konservativer Maßnahmen. Über die operativen und nicht-operativen Alternativen wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;if(risk){t+=`\nEs erfolgte eine spezifische Aufklärung, dass ${dd2} einer Risikogruppe angehört`;if(riskTxt.trim())t+=` (${riskTxt.trim()})`;t+=` und ein erhöhtes Risiko für jegliche intra- oder postoperative Komplikation besteht.`;}if(frei.trim())t+=`\n${frei.trim()}`;return t;}
-
-function buildLagerung(side,bs,ss,ana){const sa=side==="links"?"linken":"rechten";let p=[];if(ss)p.push("Single-Shot-Antibiose entsprechend Hausstandard durch die Anästhesie");p.push("Lagerung in Rückenlage, Polsterung aller druckgefährdeten Stellen, insbesondere aller Stellen an denen Nerven durch Kompression geschädigt werden könnten");p.push("Precleaning des gesamten OP-Gebietes");if(bs)p.push("Anlage der Oberschenkelblutsperre unter Nutzung eines Polsterstrumpfes und wasserdichter Versiegelung nach distal, so dass keine Flüssigkeit unter die Sperre oder in das Polster laufen kann");p.push("Abwaschen und Abdecken entsprechend den aktuellen Hygienestandards, Abkleben der Zehen und der Teile des Vorfußes, die nicht zum OP-Gebiet gehören mit Inzisionsfolie");p.push("Durchführen Team-Time-Out");if(bs)p.push("Aufblasen der Blutsperre auf 300 mmHg");let t=p.join(", ")+".";if(ana==="lokal")t+="\nSterile Applikation Lokalanästhesie.";t+="\n\nNarkoseuntersuchung des betroffenen und der angrenzenden Gelenke unter spezifischer Beachtung der Bandstabilität und der Achsverhältnisse.";return t;}
-
-function buildVerband(hasVorfuss,bs,ruhig){let p=["Spülung aller Zugänge","Abschlussdesinfektion","schichtweiser Verschluss","Atraumatische Hautnaht","Steri-Strips"];if(hasVorfuss)p.push("Tape-Verband","Anlegen eines sterilen redressierenden Verbandes");p.push("circulärer Watte-Kompressionsverband");if(hasVorfuss)p.push("Tape-Zügelungsverband in Redressionstellung");if(bs)p.push("Öffnung der Blutsperre, die Recapillarisierung ist an allen Zehen regelrecht");if(ruhig==="orthese")p.push("Anlage Omnimed-Schiene");else if(ruhig==="gips")p.push("Anlage Gipsschiene");else if(ruhig==="cast")p.push("Anlage circulärer gepolsterter Cast");p.push("Entlagerung");return p.join(", ")+".";}
-
-// ============================================================
 // ORIGINAL OP-TEXTE (bereinigt)
 // ============================================================
 const T={
@@ -925,6 +808,7 @@ rebalancing:`Der mediale Kapselstreifen wird nach proximal versetzt und fixiert.
 lapidus:`Zunächst manuelle Mobilisierung der plantar und dorsal verkürzten Strukturen des Großzehengundgelenks. Incision lateral des MTP I Gelenkes streckseitig. Exploration zum lateralen Release und Darstellung der vernarbten Sehne des Muskulus add. hallucis. Die Sehne wird tenotomiert, die laterale Gelenkkapsel incidiert. Danach längsverlaufende Incision über der medialen Seite des Großzehengrundgelenks bis zum TMT I Gelenk, Lösungen der Vernarbungen des Subkutangewebes im Bereich der Pseudoexostose, Bursektomie einer entzündlich veränderten Bursa, sorgfältige Blutstillung der varikös veränderten Gefäße, unter Schonung des Nerven-Gefäßbündels L-förmige Incision der medialen Kapsel, es quillt Synovialis hervor, partielle Synovektomie.\nDarstellen der Sehne des Muskulus abduktor hallucis. Die Sehne wird distal mit einem kräftigen Faden armiert und tenotomiert, Darstellen der Pseudoexostose und Osteotomie mit der oszillierenden Säge.\n\nVerlängerung der Inzision zum TMT 1, dieses ist deutlich instabil. Stumpfes Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen über dem TMT 1, vorsichtige Präparation des Subcutangewebes unter subtiler Blutstillung. Darstellung und Schonung der Tibialis Anterior Sehne. Mobilisierung der Weichteile im Bereich des Plattenlagers.\nInzision der Kapsel und Darstellung des TMT I Gelenkes. Deutliche Synovialitis, komplette Synovektomie.\nEntknorpelung mittels Meissel, dann an der MT I Basis zurückhaltende korrigierende Entfernung der Gelenkfläche mittels oszillierender Säge nach vorheriger Lokalisierung der Osteotomie mittels K-Draht. Anbohrung proximal am MT I und am CN I mittels K-Draht. Überprüfung, dass lateral und plantar keine Knochenreste verbleiben.\nNun Interposition von autologer Spongiosa aus der abgetragenen Exostose, Einstellung des 1. Strahles mit korrigiertem IM Winkel sowie Beachtung der Korrektur von Rotation und K-Draht Transfixation MT I auf II.\n\nEs zeigt sich eine gute Stellung des TMT I Gelenkes. Vorlegen eines 1,4 mm Drahtes und radiologische Kontrolle der Position. In 2 Ebenen zeigt sich eine korrekte Lage, nun Längenmessung, Überbohren und Einbringen einer kanülierten Fixos 4,0 mit kurzem Gewinde entsprechend der vorherigen Messung. Damit sehr gute Kompression der Arthrodese in Korrekturstellung. Spülung des Situs, Kontrolle in 2 E. Nun Anlage der winkelstabilen Platte, Retention der Platte mittels K-Drähten, radiologische Kontrolle und sukzessives Besetzen der winkelstabilen Schrauben nach entsprechender Messung und BV Kontrolle. Hoke-Test, es zeigt sich keine Instabilität intercuneiform.`,
 subcapitale:`Zuwendung zur Großzehe. Hier nach Vorlage eines 1,2 K Drahtes subcapitale Osteotomie, dabei korrigierendes Abtragen im Bereich der Osteotomie zur Korrektur des DMAA Winkels. Retention mittels K-Draht, radiologisch zeigt sich nun eine korrekte Einstellung. Dann nach Vorbohren Osteosynthese mittels Doppelgewindeschraube entsprechend Längenmessung.`,
 akin_lapidus:`Bei Hallux interphalangeus und zur Zentrierung des Sehnenzuges Akin-Osteotomie.\nVerlängerung der Incision über der medialen Seite des Großzehengrundliedes, Abschieben des Periostes. Einsetzen von zwei Hohmannhebeln. Mit einem Osteotom wird die Lage der Osteotomie festgelegt. Mit der osszillierenden Säge Durchführung der vertikalen und schrägen Osteotomie unter Schonung der lateralen Kortikalis. Reposition und Adaptation der Osteotomieflächen. Fixation der Osteotomie durch eine Faden-Osteosynthese. Die Osteosynthese ist übungsstabil versorgt.`,
+hoffmann_tillmann:`Hautinzision circa 5 cm dorsolateral über dem MTP I Gelenk. Stumpfes Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen, vorsichtige Präparation des Subcutangewebes unter subtiler Blutstillung. Längsinzision der Kapsel und Darstellung des destruierten MTP I Gelenkes. Es zeigt sich entzündlich veränderte Synovia und es entleert sich klare Gelenkflüssigkeit. Nun Abtragung der Exostose mit der oszillierenden Säge, Abtragen von Osteophyten mit dem Luer und subtile Entknorpelung mit dem Meißel. Ebenfalls Anbohrung proximal und distal mit 1,6 mm K-Draht.\nNun Ausrichtung des MTP I Gelenkes, hier zeigt sich eine gute Stellung. Vorlegen eines 1,4 mm Drahtes über das MTP I Gelenk und radiologische Kontrolle der Position. In 2 Ebenen zeigt sich eine korrekte Lage, nun Längenmessung, Überbohren und Einbringen einer kanülierten Königseeschraube mit kurzem Gewinde entsprechend der vorherigen Messung. Spülung des Situs, Kontrolle in 2 E. Nun Anlage einer Variax Platte, Anmodelieren der Platte und sukzessives Besetzen der winkelstabilen Schrauben. Kontrolle unter BV, es zeigt sich eine korrekte Lage der Schrauben und klinisch eine stabile Arthrodese mit guter Ausrichtung der Zehe in 10-15° Dorsalextension.\nQuere Inzision über dem perkutan prominent zu tastenden Metatarsale-Köpfchen fußsohlenseitig unter Exzision der trockenen perforationsgefährdeten Ulzeration. Präparation durch das Weichteilgewebe und anschließend weitere Präparation längs. Zunächst wird das Metatarsale-II-Köpfchen dargestellt, die Kapsel längs reseziert und retrocapital das Metatarsale-Köpfchen osteotomiert. Das Köpfchen wird aus der Gelenkkapsel herauspräpariert. Danach Zuwendung zum 3. Strahl. Auch hier Sondierung des Köpfchens. Längsinzision der Gelenkkapsel, Resektion retrocapital und Herauspräparieren. Analoges Vorgehen im Bereich des 4. und 5. Strahles. Nun Kontrolle unter Bildwandler. Es zeigt sich ein guter Vorfußbogen. Die Resektion ist ausreichend vorgenommen worden.\nInzision dorsal über den PIP II-V Gelenken, jeweils Einsetzen von 2 Haken zum Schutz der Nerven-Gefäßbündel, Darstellung der Strecksehnen, Quertenotomie der Sehnen. Nun Release der Seitenbänder und korrigierende Resektion der Gelenkflächen. Einstellen in Korrekturposition und Transfixation mittels K-Draht. Diese laufen achsgerecht und sind stabil.\nTransfixation in die Metatarsale, insgesamt gute Korrektur der Kleinzehen bei radiologisch und palpatorisch korrektem Alignement, korrigierende plantare Hautnaht nach Spülung.`,
 mtp1_arthrodese:`Hautinzision circa 5 cm medial des MTP I Gelenk. Stumpfes Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen, vorsichtige Präparation des Subcutangewebes unter subtiler Blutstillung. Längsinzision der Kapsel und Darstellung des destruierten MTP I Gelenkes. Es zeigt sich entzündlich veränderte Synovia und es entleert sich klare Gelenkflüssigkeit. Nun Abtragung der Exostose mit der oszillierenden Säge, Abtragen von Osteophyten mit dem Luer und subtile Entknorpelung mit dem Meißel. Ebenfalls Anbohrung proximal und distal mit 1,6 mm K-Draht.\nNun Ausrichtung des MTP I Gelenkes, hier zeigt sich eine gute Stellung. Vorlegen eines 1,4 mm Drahtes über das MTP I Gelenk und radiologische Kontrolle der Position. In 2 Ebenen zeigt sich eine korrekte Lage, nun Längenmessung, Überbohren und Einbringen einer kanülierten Zugschraube mit kurzem Gewinde entsprechend der vorherigen Messung. Spülung des Situs, Kontrolle in 2 E. Nun Anlage einer winkelstabilen Variax Platte und sukzessives Besetzen der winkelstabilen Schrauben. Kontrolle unter BV, es zeigt sich eine korrekte Lage der Schrauben und klinisch eine stabile Osteosynthese mit guter Ausrichtung der Zehe in 10-15° Dorsalextension.`,
 me_stell:`Inzision im Verlauf der bestehenden Narbe über der distalen Fibula. Stumpfes Spreizen des Subcutangewebes unter Schonung der Weichteilstrukturen. Aufsuchen und Darstellen der Stellschraube. Entfernung der Stellschraube ohne Komplikationen. Kontrolle auf regelrechte knöcherne Verhältnisse. Spülung des Situs.`,
 cheilektomie:`Längsinzision medial des MTP I Gelenkes, Spalten des Subcutangewebes unter subtiler Blutstillung und Schonung des Nerven-Gefäßbündels. Längsinzision der Kapsel und Darstellung des MTP I Gelenkes. Es zeigt sich eine deutliche Osteophytenbildung dorsal und medial am Metatarsale-I-Köpfchen und an der Grundphalanxbasis. Synovialitis mit entzündlich veränderter Synovia, partielle Synovektomie. Abtragung der dorsalen und medialen Osteophyten mit der oszillierenden Säge und dem Luer. Die Gelenkfläche wird inspiziert, es zeigt sich ein umschriebener Knorpelschaden. Glättung der Resektionsflächen. Überprüfung der Dorsalextension, es besteht nun eine freie Beweglichkeit von ca. 60° Dorsalextension. Spülung des Gelenkes.`,
@@ -957,8 +841,12 @@ peroneal_tenodese:`⚠ TEXT AUSSTEHEND – Peronealsehnen-Tenodese. OP-Bericht b
 calc_ot_var:`Inzision lateral über dem Calcaneus, ca. 4 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Peronealsehnen und des N. suralis, subtile Blutstillung. Darstellung der lateralen Calcaneuswand. Einsetzen von Hohmannhebeln plantar und dorsal. Quere Osteotomie des Calcaneus mit der oszillierenden Säge unter BV-Kontrolle, ca. 1,5 cm posterior der posterioren Facette. Medialisierung des Tuber calcanei um ca. 8-10 mm zur Varisierung des Rückfußes. Temporäre Fixation mittels K-Draht, radiologische Kontrolle der Achse. Definitive Osteosynthese mittels kanülierter Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Achsstellung und Implantatlage. Spülung des Situs.`,
 calc_ot_valg:`Inzision lateral über dem Calcaneus, ca. 4 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Peronealsehnen und des N. suralis, subtile Blutstillung. Darstellung der lateralen Calcaneuswand. Einsetzen von Hohmannhebeln plantar und dorsal. Quere Osteotomie des Calcaneus mit der oszillierenden Säge unter BV-Kontrolle. Lateralisierung des Tuber calcanei um ca. 8-10 mm zur Valgisierung des Rückfußes. Temporäre Fixation mittels K-Draht, radiologische Kontrolle der Achse. Definitive Osteosynthese mittels kanülierter Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Achsstellung und Implantatlage. Spülung des Situs.`,
 calc_ot_verl:`Inzision lateral über dem Calcaneus im Bereich des Sinus tarsi, ca. 4 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Peronealsehnen und des N. suralis, subtile Blutstillung. Darstellung der lateralen Calcaneuswand. Osteotomie des anterioren Processus des Calcaneus mit der oszillierenden Säge unter BV-Kontrolle. Aufspreizen der Osteotomie und Interposition eines trikortikalen allogenen Knochenspans, Einstellung der gewünschten Verlängerung und Lateralisierung der Vorfußsäule. Kontrolle des Talonaviculargelenkes auf ausreichende Coverage. Temporäre Fixation, radiologische Kontrolle. Definitive Osteosynthese mittels winkelstabiler Platte. Radiologische Abschlusskontrolle zeigt korrekte Korrektur. Spülung des Situs.`,
-fraktur_fibula_einf:`Inzision über dem lateralen Malleolus im Verlauf der Fibula, ca. 6-8 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung der Fraktur an der distalen Fibula. Säuberung des Frakturspaltes, Entfernung von Hämatom und interponiertem Periost. Anatomische Reposition der Fraktur unter direkter Sicht und radiologischer Kontrolle. Temporäre Retention mittels Repositionszange. Definitive Osteosynthese mittels winkelstabiler Drittelrohrplatte lateral, sukzessives Besetzen der Schrauben nach Längenmessung. Radiologische Kontrolle in 2 Ebenen zeigt korrekte Implantatlage, anatomische Reposition und korrekte Fibulalänge. Stabilitätsprüfung der Syndesmose unter dem BV (Hook-Test), Syndesmose stabil. Spülung des Situs.`,
-fraktur_fibula_mehr:`Inzision über dem lateralen Malleolus im Verlauf der Fibula, ca. 8-10 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung des N. suralis, subtile Blutstillung. Darstellung der Mehrfragment-Fraktur an der distalen Fibula. Säuberung des Frakturspaltes, Entfernung von Hämatom und interponiertem Gewebe. Sortierung der Fragmente und schrittweise anatomische Reposition. Temporäre Retention mittels K-Drähten. Interfragmentäre Zugschrauben zur Kompression der Hauptfragmente. Definitive Osteosynthese mittels winkelstabiler Überbrückungsplatte lateral. Radiologische Kontrolle in 2 Ebenen zeigt anatomische Länge und Achse der Fibula. Stabilitätsprüfung der Syndesmose (Hook-Test), Syndesmose stabil. Bei Instabilität: Einbringen einer Stellschraube durch Fibula und Tibia unter BV-Kontrolle. Spülung des Situs.`,
+duokopf:`Scharfe Inzision ca. 15 cm über dem Trochanter an der §DK_SEITE§ Hüfte, Durchtrennung des Subcutangewebes, subtile Blutstillung und Präparation bis auf die Muskelfaszie. Längsspaltung dieser mit der Schere und weitere Präparation ventral auf den Schenkelhals zwischen Musc. tensor fascia lata und Glutealmuskulatur.\nEinsetzen von entsprechenden Hohmann-Haken direkt unter sowie auf den Schenkelhals. T-förmige Inzision der Kapsel und anschließende Resektion zur Darstellung der Fraktur.\nNachresektion des Schenkelhalses unter Bildung einer Knochenscheibe, diese wird zunächst extrahiert, anschließend der Hüftkopf mit dem Korkenzieher. Es wird eine §DK_SHELL§ mm Kopfschale bemessen.\nUmlagerung des Beines und Zuwendung zum Schaft. Eröffnung mit dem kleinen scharfen Löffel.\nAnschließend schrittweises Aufraspeln, diesmal bis auf §DK_SHAFT§ mm. Wahl des §DK_SHAFT§ mm CCA-Schaftes, Vorbereitung des Refobacin-Palacos und Einbringen eines Zementstoppers. Bei richtiger Konsistenz des Zementes Einbringen des Zementes, Einbringen der §DK_SHAFT§ mm CCA-Schaftprothese. Eintreiben auf die richtige Höhe und Warten auf Aushärtung des Zementes. Überschüssiger Zement wird direkt abgetragen. Anschließend Reposition mit §DK_HEAD§-32 mm Probekopf, ein Querfinger kann zwischen Kopf und Pfanne gebracht werden. Wahl des §DK_HEAD§-28 mm Metallkopfes, Luxation, Wechsel von Probekopf auf 28 mm Kopf und §DK_SHELL§ mm Kopfschale. Reposition. Überprüfung der Gelenkführung, keine Luxationstendenz, kein Teleskopphänomen.\nAusgiebige Spülung und Blutstillung. Einlage einer Redondrainage.`,
+tfna:`Zunächst geschlossene Reposition der Fraktur mit Hilfe des Repositionstisches unter BV-Kontrolle in 2E.\nNun ausgiebige Hautdesinfektion und sterile Abdeckung des OP-Gebietes entsprechend den aktuellen Hygienestandards.\nScharfe Hautinzision proximal der Trochanterspitze ca. 5 cm längs verlaufend. Durchtrennung des subkutanen Fettgewebes, Längsinzision der Oberschenkelfaszie und subtile Blutstillung.\nEingehen auf die Trochanterspitze und Einbringen eines Führungsdrahtes und BV-Kontrolle. Nach regelrechter Lage des eingebrachten Führungsdrahtes in beiden Ebenen mit Auffädeln des distalen Frakturfragmentes Überbohren desselben mit dem dafür vorgesehenen Spiralbohrer. Nun dann Einbringen eines §TFNA_ANGLE§°x §TFNA_LENGTH§x§TFNA_DIAM§ mm TFN-A, der problemlos über die Fraktur nach distal vorgeschoben wird. Der Nagel wird soweit nach distal vorgeschoben, dass die Schenkelhalsklinge zentral im Schenkelhals zu liegen kommen kann.\nNun dann mit Hilfe des Zielbügels und der dafür vorgesehenen Zielbohrbuchsen über eine Stichinzision Einbringen des Führungsdrahtes für die Schenkelhalsklinge. Nach Kontrolle der regelrechten Lage Aufbohren mit Hilfe des Stufenbohrers bis §TFNA_BLADE§ mm. Nun Einbringen der entsprechend langen Schenkelhalsklinge, die nach regelrechter Lokalisation arretiert wird. Es kommt zu einer guten Annäherung der Frakturfragmente bei regelrechten achsengerechten Stellungsverhältnissen. Anschließend Stichinzision und Einbringen der dafür vorgesehenen Zielbohrbuchsen über den Zielbügel für die distale statische Verrieglung. Vorbohren und Einbringen der Corticalisschraube. Entfernung des Zielbügels und Einbringen einer proximalen Verriegelungskappe. Die anschließende radiologische Kontrolle zeigt weitgehend achsengerechte Stellungsverhältnisse bei regelrechter Lage des eingebrachten Osteosynthesematerials.`,
+radius_aptus:`Zunächst Hautschnitt über dem distalen Unterarm §SIDE_ADJ§ radialseitig über der FCR-Sehne. Durchtrennung des Subcutangewebes unter Blutstillung. Weitere Präparation streng radialseitig der Sehne bis auf den zerrissenen M. pronator quadratus. Dieser wird am radialen Ansatz abgelöst und nach ulnar abgeschoben. Darstellung der Fraktur. Es zeigt sich eine mehrfragmentäre distale Radiusfraktur mit Dislokation. Säuberung des Frakturspaltes, anschließend Hervorhebeln des distalen Fragmentes mit dem Raspatorium, Reposition. Halten des Repositionsergebnisses und Anpassen einer 3-Loch-winkelstabilen Aptusplatte. Besetzen des ovalen Plattenloches und Feinjustierung unter BV-Kontrolle. Anschließend Besetzen des T-Schenkels mit vier winkelstabilen Schrauben. Im Schaftbereich werden insgesamt drei Corticalisschrauben eingedreht. BV-Kontrolle. Sicher keine intraartikuläre Lage der Schrauben. Dynamische Untersuchung bei der sich keine SL-Dissoziation zeigt, DRUG stabil.`,
+klav_wsp:`Hautinzision über der Clavicula. Präparation des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen bis auf die Clavicula. Inzision der Faszie. Es entleert sich Hämatom. Die Fraktur zeigt sich wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung. Zunächst Darstellung und Reinigung der Frakturenden. Vorsichtige Reposition der Frakturenden und Sicherung mit einer Klemme, das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclage gesichert werden. Anpassen der winkelstabilen Platte. Vorerst Auflage der Schablone, bei guter Passform der Originalplatte und monocortical Fixierung mit K-Drähten, Bilddokumentation. Die Fraktur steht reponiert, durch Cerclage und Klemmen besteht Kompression. Es zeigt sich eine korrekte Plattenlage. Besetzen der Plattenlöcher mit winkelstabilen Schrauben nach Vorbohren und Längenmessung. Entfernung der Repositionszange. Intraoperative Röntgenkontrolle. Die Schrauben sitzen korrekt.`,
+fraktur_fibula_einf:`Scharfe Inzision über dem Außenknöchel und Darstellung der distalen Fibula sowie der Fraktur unter größtmöglicher Schonung des Periostes und nach Einsetzen von zwei Hohmann-Haken. Säuberung des Frakturspaltes und Spülung, anschließend Reposition der Fraktur und Retention mit Krokodilklemme.\nNun Einbringen einer Zugschraube und Kontrolle der korrekten Lage unter BV in 2 Ebenen. Dann Vorbiegen und Anpassen einer Drittelrohrplatte und Fixierung dieser mit Klemmen. Kontrolle unter BV, korrekte Lage, so dass die Löcher besetzt werden, teilweise mit winkelstabilen Schrauben. Abschließende BV Kontrolle, Hakenzugtest: Die Syndesmose ist stabil, medial clear space regelrecht, Spülung des Situs, Blutstillung.`,
+fraktur_fibula_mehr:`Scharfe Inzision über dem Außenknöchel und Darstellung der distalen Fibula sowie der mehrfragmentären Fraktur unter größtmöglicher Schonung des Periostes und nach Einsetzen von zwei Hohmann-Haken. Säuberung des Frakturspaltes und Spülung, anschließend sorgfältige Reposition der Fragmente bzw. der Fraktur und Retention mit Krokodilklemme.\nNun Einbringen einer Zugschraube und Kontrolle der korrekten Lage unter BV in 2 Ebenen. Dann Vorbiegen und Anpassen einer 6 Loch Drittelrohrplatte und Fixierung dieser mit 2 Schrauben. Kontrolle unter BV, korrekte Lage, so dass die weiteren Löcher besetzt werden. Abschließende BV Kontrolle, Hakenzugtest: Die Syndesmose ist stabil, medial clear space regelrecht, Spülung des Situs, Blutstillung.`,
 supramal_ot:`Anteriorer Zugang zur distalen Tibia, Längsinzision ca. 8-10 cm. Vorsichtiges Spalten des Subcutangewebes, subtile Blutstillung. Darstellung der distalen Tibiametaphyse, Abschieben des Periostes im Bereich der geplanten Osteotomie. Einsetzen von Hohmannhebeln. Planung der Osteotomie mittels K-Drähten und BV-Kontrolle anhand der präoperativen Planung. Durchführung der öffnenden Keilosteotomie mit der oszillierenden Säge unter Erhalt der Gegenkortikalis als Scharnier. Schrittweises Aufspreizen der Osteotomie bis zur gewünschten Korrektur, Kontrolle der mechanischen Achse unter dem BV. Interposition eines allogenen Knochenkeils. Definitive Osteosynthese mittels winkelstabiler Platte medial und sukzessives Besetzen der Schrauben. Radiologische Abschlusskontrolle zeigt korrekte Achsstellung mit physiologischem LDTA und TAS. Spülung des Situs.`,
 cotton_ot_autolog:`Zuwendung zum Mittelfuß. Inzision dorsomedial über dem medialen Cuneiforme, ca. 3 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Sehnenstrukturen. Darstellung des medialen Cuneiforme, Abschieben des Periostes. Durchführung einer plantarflektierenden öffnenden Osteotomie des medialen Cuneiforme mit der oszillierenden Säge unter BV-Kontrolle, Erhalt der plantaren Kortikalis. Schrittweises Aufspreizen bis zur gewünschten Plantarflexion des 1. Strahles. Interposition eines autologen Knochenkeils. Fixation mittels winkelstabiler Platte oder Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Plantarflexion des 1. Strahles. Spülung des Situs.`,
 cotton_ot_allogen:`Zuwendung zum Mittelfuß. Inzision dorsomedial über dem medialen Cuneiforme, ca. 3 cm. Vorsichtiges Spalten des Subcutangewebes unter Schonung der Sehnenstrukturen. Darstellung des medialen Cuneiforme, Abschieben des Periostes. Durchführung einer plantarflektierenden öffnenden Osteotomie des medialen Cuneiforme mit der oszillierenden Säge unter BV-Kontrolle, Erhalt der plantaren Kortikalis. Schrittweises Aufspreizen bis zur gewünschten Plantarflexion des 1. Strahles. Interposition eines allogenen Knochenkeils. Fixation mittels winkelstabiler Platte oder Zugschraube. Radiologische Abschlusskontrolle zeigt korrekte Plantarflexion des 1. Strahles. Spülung des Situs.`,
@@ -1064,7 +952,23 @@ function OPBerichtApp(){
   const [meOp,setMeOp]=useState([]);
   // Weitere
   const [umOp,setUmOp]=useState([]);
-  const [fxOp,setFxOp]=useState([]);
+  const [fxSyndes,setFxSyndes]=useState(false);
+  const [dkShell,setDkShell]=useState("");
+  const [dkShaft,setDkShaft]=useState("");
+  const [dkHead,setDkHead]=useState("");
+  const [tfnaAngle,setTfnaAngle]=useState("130");
+  const [tfnaLength,setTfnaLength]=useState("235");
+  const [tfnaDiam,setTfnaDiam]=useState("");
+  const [tfnaBlade,setTfnaBlade]=useState("");
+  const [fxSyndes,setFxSyndes]=useState(false);
+  const [dkShell,setDkShell]=useState("");
+  const [dkShaft,setDkShaft]=useState("");
+  const [dkHead,setDkHead]=useState("");
+  const [tfnaAngle,setTfnaAngle]=useState("130");
+  const [tfnaLength,setTfnaLength]=useState("235");
+  const [tfnaDiam,setTfnaDiam]=useState("");
+  const [tfnaBlade,setTfnaBlade]=useState("");
+  const [fxOp,fxSyndes,setFxOp]=useState([]);
   // UC (Unfallchirurgie/Trauma)
   const [ucOp,setUcOp]=useState("");
   // Verband
@@ -1092,7 +996,7 @@ function OPBerichtApp(){
     const o=[];
     if(gz==="chevron"){o.push("5-788.5c","5-788.40","5-93b.0","5-854.2c");if(mitAkin)o.push("5-788.56");}
     if(gz==="lapidus"){o.push("5-808.a4","5-788.40","5-93b.0","5-93b.e","5-784.0u");if(mitSubcap)o.push("5-788.5c");o.push("5-854.2c");if(mitAkin)o.push("5-788.56");}
-    if(gz==="mtp1art"){o.push("5-808.b0","5-93b.0","5-93b.e");if(mitAkin)o.push("5-788.56");}
+    if(gz==="mtp1art"){if(hoffTill){o.push("5-808.b0","5-93b.0","5-93b.e","5-788.60","5-788.60","5-788.60","5-788.60","5-808.b2","5-808.b2","5-808.b2","5-808.b2");}else{o.push("5-808.b0","5-93b.0","5-93b.e");if(mitAkin)o.push("5-788.56");}}
     if(gz==="cheilek")o.push("5-788.00");
     if(gz==="exostose")o.push("5-788.00");
     if(gz==="scarf")o.push("5-788.5e");
@@ -1139,9 +1043,10 @@ function OPBerichtApp(){
     if(coalLCOT)o.push("5-781.4t","5-784.7t");  // LCOT Calcaneus
 
     umOp.forEach(op=>{if(op==="supramal")o.push("5-781","5-781.8n","5-93b.e","5-781.aq");});
-    fxOp.forEach(op=>{if(op==="fibula_einf")o.push("5-793.r","5-793.kr");if(op==="fibula_mehr")o.push("5-794.r","5-794.kr");});
+    fxOp.forEach(op=>{if(op==="fibula_einf")o.push("5-793.r","5-793.kr");if(op==="fibula_mehr")o.push("5-794.r","5-794.kr");});if(fxSyndes&&fxOp.length>0)o.push("5-795.k9");
+    if(fxOp.length>0&&fxSyndes)o.push("5-795.kr");
     return[...new Set(o)];
-  },[gz,mitAkin,mitSubcap,zc,dmmo,osgOp,tepType,rfOp,meOp,umOp,fxOp]);
+  },[gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,rfOp,meOp,umOp,fxOp]);
 
   // ERLÖS MATRIX (Anlage 2a, 2026)
   // Steuerungsprinzip: H-DRG nur ambulant attraktiv. Ab 1 Nacht → Kurzlieger-DRG besser. Ab 2 Nächte → volle DRG.
@@ -1347,7 +1252,7 @@ function OPBerichtApp(){
       kodier:"Immer alle Maßnahmen spezifisch kodieren – 'sonstige'-Codes vermeiden!\nNur bei gewollter H-DRG-Vermeidung ggf. Positivliste-Code weglassen."};
 
     return null;
-  },[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,mdoFDL,mdoCotton,t2Length,t2Width,t2Becken,arthroBds,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa]);
+  },[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,mdoFDL,mdoCotton,t2Length,t2Width,t2Becken,arthroBds,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa]);
 
 
   // Text version for Word export
@@ -1366,22 +1271,6 @@ function OPBerichtApp(){
   // Steuerung Trauma: H-DRG ambulant attraktiv. Bei 1 Nacht: Differenz H-DRG vs. Kurzlieger gering.
   // Bei 2+ Nächten: volle DRG immer besser → Fokus auf 2 Tage halten.
   const UC_EINGRIFFE={
-    klav_einf_pl:{l:"Klavikula einfach (Platte)",ops:["5-795.30"],
-      hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"3.790",pct:"84%",
-      hint:"H-DRG I21M (84%). Ambulant: 3.184 €. Volle DRG ab 2 Nächte: 3.790 €.",
-      kodier:"5-795.30 (Platte). Positivliste."},
-    klav_einf_wsp:{l:"Klavikula einfach (winkelstab. Platte)",ops:["5-795.k0"],
-      hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"3.790",pct:"84%",
-      hint:"H-DRG I21M (84%). Ambulant: 3.184 €. Volle DRG ab 2 Nächte: 3.790 €.",
-      kodier:"5-795.k0 (winkelstab. Platte). Positivliste."},
-    klav_mehr_pl:{l:"Klavikula Mehrfragment (Platte)",ops:["5-796.20"],
-      hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.380",pct:"83%",
-      hint:"H-DRG I29M (83%). Ambulant: 3.652 €. Volle DRG ab 2 Nächte: 4.380 €.",
-      kodier:"5-796.20 (Platte). Positivliste."},
-    klav_mehr_wsp:{l:"Klavikula Mehrfragment (winkelstab. Platte)",ops:["5-796.k0"],
-      hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.380",pct:"83%",
-      hint:"H-DRG I29M (83%). Ambulant: 3.652 €. Volle DRG ab 2 Nächte: 4.380 €.",
-      kodier:"5-796.k0 (winkelstab. Platte). Positivliste."},
     radius_einf_pl:{l:"Radius distal einfach (Platte)",ops:["5-793.36"],
       hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
       hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.",
@@ -1394,6 +1283,38 @@ function OPBerichtApp(){
       hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
       hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.",
       kodier:"5-794.k6 (Mehrfragment winkelstab. Platte). Positivliste."},
+    fibula_einf_schr:{l:"Fibula distal einfach (Schraube)",ops:["5-793.1r"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-793.1r auf Positivliste.",
+      kodier:"5-793.1r (Schraube). Positivliste. Syndesmose prüfen → ggf. Stellschraube."},
+    fibula_einf_pl:{l:"Fibula distal einfach (Platte)",ops:["5-793.3r"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-793.3r auf Positivliste.",
+      kodier:"5-793.3r (Platte). Positivliste."},
+    fibula_einf_wsp:{l:"Fibula distal einfach (winkelstab. Platte)",ops:["5-793.kr"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-793.kr auf Positivliste.",
+      kodier:"5-793.kr (winkelstab. Platte). Positivliste."},
+    fibula_mehr_schr:{l:"Fibula distal Mehrfragment (Schraube)",ops:["5-794.0r"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-794.0r auf Positivliste.",
+      kodier:"5-794.0r (Mehrfragment Schraube). Positivliste."},
+    fibula_mehr_pl:{l:"Fibula distal Mehrfragment (Platte)",ops:["5-794.2r"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-794.2r auf Positivliste.",
+      kodier:"5-794.2r (Mehrfragment Platte). Positivliste."},
+    fibula_mehr_wsp:{l:"Fibula distal Mehrfragment (winkelstab. Platte)",ops:["5-794.kr"],
+      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
+      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-794.kr auf Positivliste.",
+      kodier:"5-794.kr (Mehrfragment winkelstab. Platte). Positivliste."},
+    duokopf:{l:"Duokopf (prox. Femur)",ops:[],
+      hdrg:"—",hdrgE:"—",basis:"I08B",basisE:"6.500",pct:"—",
+      hint:"⚠ Keine H-DRG für proximales Femur. Immer stationär, volle DRG anstreben.",
+      kodier:"⚠ OPS-Codes im Verlauf prüfen!"},
+    tfna:{l:"TFNA (prox. Femur)",ops:["5-794.k1"],
+      hdrg:"—",hdrgE:"—",basis:"I08B",basisE:"6.500",pct:"—",
+      hint:"⚠ Keine H-DRG für proximales Femur. Immer stationär, volle DRG ab 2 Nächte anstreben.",
+      kodier:"⚠ OPS-Codes im Verlauf prüfen!"},
     olekranon_einf_schr:{l:"Olekranon einfach (Schraube)",ops:["5-793.17"],
       hdrg:"I31N",hdrgE:"3.739",basis:"I31C",basisE:"4.956",pct:"75%",
       hint:"H-DRG I31N (75%). Ambulant: 3.739 €. Volle DRG ab 2 Nächte: 4.956 €.",
@@ -1426,30 +1347,6 @@ function OPBerichtApp(){
       hdrg:"I31N",hdrgE:"3.739",basis:"I31C",basisE:"4.956",pct:"75%",
       hint:"H-DRG I31N (75%). Ambulant: 3.739 €. Volle DRG ab 2 Nächte: 4.956 €.",
       kodier:"5-794.k7 (Mehrfragment winkelstab. Platte). Positivliste."},
-    fibula_einf_schr:{l:"Fibula distal einfach (Schraube)",ops:["5-793.1r"],
-      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
-      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-793.1r auf Positivliste.",
-      kodier:"5-793.1r (Schraube). Positivliste. Syndesmose prüfen → ggf. Stellschraube."},
-    fibula_einf_pl:{l:"Fibula distal einfach (Platte)",ops:["5-793.3r"],
-      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
-      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-793.3r auf Positivliste.",
-      kodier:"5-793.3r (Platte). Positivliste."},
-    fibula_einf_wsp:{l:"Fibula distal einfach (winkelstab. Platte)",ops:["5-793.kr"],
-      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
-      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-793.kr auf Positivliste.",
-      kodier:"5-793.kr (winkelstab. Platte). Positivliste."},
-    fibula_mehr_schr:{l:"Fibula distal Mehrfragment (Schraube)",ops:["5-794.0r"],
-      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
-      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-794.0r auf Positivliste.",
-      kodier:"5-794.0r (Mehrfragment Schraube). Positivliste."},
-    fibula_mehr_pl:{l:"Fibula distal Mehrfragment (Platte)",ops:["5-794.2r"],
-      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
-      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-794.2r auf Positivliste.",
-      kodier:"5-794.2r (Mehrfragment Platte). Positivliste."},
-    fibula_mehr_wsp:{l:"Fibula distal Mehrfragment (winkelstab. Platte)",ops:["5-794.kr"],
-      hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.076",pct:"76%",
-      hint:"H-DRG I13N (76%). Ambulant: 3.091 €. Volle DRG ab 2 Nächte: 4.076 €.\n5-794.kr auf Positivliste.",
-      kodier:"5-794.kr (Mehrfragment winkelstab. Platte). Positivliste."},
     radius_prox_einf_schr:{l:"Radius proximal einfach (Schraube)",ops:["5-793.14"],
       hdrg:"I31N",hdrgE:"3.739",basis:"I31C",basisE:"4.956",pct:"75%",
       hint:"H-DRG I31N (75%). Ambulant: 3.739 €. Volle DRG ab 2 Nächte: 4.956 €.\n5-793.14 auf Positivliste.",
@@ -1462,11 +1359,33 @@ function OPBerichtApp(){
       hdrg:"I31N",hdrgE:"3.739",basis:"I31C",basisE:"4.956",pct:"75%",
       hint:"H-DRG I31N (75%). Ambulant: 3.739 €. Volle DRG ab 2 Nächte: 4.956 €.",
       kodier:""},
-    me_oe:{l:"ME Obere Extremität",ops:[],
-      hdrg:"—",hdrgE:"—",basis:"—",basisE:"—",pct:"—",
-      hint:"⚠ 5-787 (Metallentfernung) steht NICHT auf der H-DRG Positivliste → keine H-DRG möglich!\nAmbulant: nur EBM. Stationär: volle DRG (abhängig von Lokalisation).\n💡 In LA möglich → Anästhesiekosten entfallen.\n💡 Kombination mit anderem Eingriff aus Positivliste prüfen (z.B. ASK) → dann kann H-DRG getriggert werden.",
-      kodier:"⚠ ME exakt nach Lokalisation kodieren – kein 'Sonstige'-Code (5-787.1x)!\nME einer winkelstabilen Platte darf nicht als 'ME sonstige' kodiert werden."},
-  };
+    klav_einf_pl:{l:"Klavikula einfach (Platte)",ops:["5-795.30"],
+      hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"3.790",pct:"84%",
+      hint:"H-DRG I21M (84%). Ambulant: 3.184 €. Volle DRG ab 2 Nächte: 3.790 €.",
+      kodier:"5-795.30 (Platte). Positivliste."},
+    klav_einf_wsp:{l:"Klavikula einfach (winkelstab. Platte)",ops:["5-795.k0"],
+      hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"3.790",pct:"84%",
+      hint:"H-DRG I21M (84%). Ambulant: 3.184 €. Volle DRG ab 2 Nächte: 3.790 €.",
+      kodier:"5-795.k0 (winkelstab. Platte). Positivliste."},
+    klav_mehr_pl:{l:"Klavikula Mehrfragment (Platte)",ops:["5-796.20"],
+      hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.380",pct:"83%",
+      hint:"H-DRG I29M (83%). Ambulant: 3.652 €. Volle DRG ab 2 Nächte: 4.380 €.",
+      kodier:"5-796.20 (Platte). Positivliste."},
+    klav_mehr_wsp:{l:"Klavikula Mehrfragment (winkelstab. Platte)",ops:["5-796.k0"],
+      hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.380",pct:"83%",
+      hint:"H-DRG I29M (83%). Ambulant: 3.652 €. Volle DRG ab 2 Nächte: 4.380 €.",
+      kodier:"5-796.k0 (winkelstab. Platte). Positivliste."},};
+
+const UC_TEXT_MAP={
+  radius_einf_pl:"radius_aptus",radius_einf_wsp:"radius_aptus",radius_mehr_wsp:"radius_aptus",
+  klav_einf_wsp:"klav_wsp",klav_mehr_wsp:"klav_wsp",
+  klav_einf_pl:"klav_wsp",klav_mehr_pl:"klav_wsp",
+  tfna:"tfna",
+  duokopf:"duokopf",
+  fibula_einf_schr:"fraktur_fibula_einf",fibula_einf_pl:"fraktur_fibula_einf",fibula_einf_wsp:"fraktur_fibula_einf",
+  fibula_mehr_schr:"fraktur_fibula_mehr",fibula_mehr_pl:"fraktur_fibula_mehr",fibula_mehr_wsp:"fraktur_fibula_mehr",
+};
+
 
   const ucErloesData=useMemo(()=>{
     if(!ucOp||!UC_EINGRIFFE[ucOp])return null;
@@ -1490,7 +1409,7 @@ function OPBerichtApp(){
     p.push(buildLagerung(side,bs,ss,ana));
     if(gz==="chevron"){p.push("\n\n"+T.chevron);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
     if(gz==="lapidus"){p.push("\n\n"+T.lapidus);if(mitSubcap)p.push("\n\n"+T.subcapitale);if(mitAkin)p.push("\n\n"+T.akin_lapidus);p.push("\n\n"+T.rebalancing);}
-    if(gz==="mtp1art"){p.push("\n\n"+T.mtp1_arthrodese);if(mitAkin)p.push("\n\n"+T.akin);}
+    if(gz==="mtp1art"){if(hoffTill){p.push("\n\n"+T.hoffmann_tillmann);}else{p.push("\n\n"+T.mtp1_arthrodese);if(mitAkin)p.push("\n\n"+T.akin);}}
     if(gz==="cheilek")p.push("\n\n"+T.cheilektomie);
     if(gz==="exostose")p.push("\n\n"+T.exostose);
     if(gz==="scarf"){p.push("\n\n"+T.scarf);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
@@ -1643,8 +1562,7 @@ function OPBerichtApp(){
         if(arthroBds){
           p.push("\n\n"+T.arthrorise);
         } else {
-          var artSide=side==="rechts"?"rechten":"linken";
-          var artText="Palpation des Sinus Tarsi, Stichinzision und Stumpfes Spreizen auf den Calcaneus. Nun Einbringen eines Drahtes unter BV Kontrolle und in forcierter Inversionsstellung des Fußes in den Calcaneus nach plantar auf das CC Gelenk hinlaufend. Gute Lage des Drahtes, nun Überbohren und Einbringen einer Talus Stopp Schraube. Kontrolle BV in 2 Ebenen, hier zeigt sich eine korrekte Stellung.\nKlinische Kontrolle der Rückfußstellung und Beweglichkeit, regelrechte Korrektur, 10-15° Resteversion möglich.";
+          var artText="Palpation des Sinus Tarsi, Stichinzision und Stumpfes Spreizen auf den Calcaneus. Nun Einbringen eines Drahtes unter BV Kontrolle und in forcierter Inversionsstellung des Fu\u00dfes in den Calcaneus nach plantar auf das CC Gelenk hinlaufend. Gute Lage des Drahtes, nun \u00dcberbohren und Einbringen einer Talus Stopp Schraube. Kontrolle BV in 2 Ebenen, hier zeigt sich eine korrekte Stellung.\nKlinische Kontrolle der R\u00fcckfu\u00dfstellung und Beweglichkeit, regelrechte Korrektur, 10-15\u00b0 Resteversion m\u00f6glich.";
           p.push("\n\n"+artText);
         }
       }
@@ -1682,14 +1600,22 @@ function OPBerichtApp(){
       else p.push(`\n\n[Umstellung: ${op} – Text wird ergänzt]`);
     });
     fxOp.forEach(op=>{
-      if(op==="fibula_einf")p.push("\n\nZuwendung zur Frakturversorgung der distalen Fibula.\n"+T.fraktur_fibula_einf);
-      else if(op==="fibula_mehr")p.push("\n\nZuwendung zur Frakturversorgung der distalen Fibula (Mehrfragment).\n"+T.fraktur_fibula_mehr);
+      if(op==="fibula_einf"){
+        var fxText=T.fraktur_fibula_einf;
+        if(fxSyndes)fxText=fxText.replace("Hakenzugtest: Die Syndesmose ist stabil, medial clear space regelrecht, Spülung des Situs, Blutstillung.","Hakenzugtest: Die Syndesmose ist instabil, medial clear space pathologisch. Darstellung der gerissenen vorderen Syndesmose und Reposition von eingeschlagenen Syndesmosenanteilen. Reposition der Syndesmose und Retention mit Klemme, genaue Prüfung auf korrekte Einstellung und Rotation. Vorbohren für die Stellschraube ca. 30° von plantar geneigt zur Horizontalen unter BV Kontrolle, dann Einbringen einer tricorticalen Stellschraube, diese wird sanft angezogen. Naht der Syndesmose. Nun korrekte Einstellung der Syndesmose, korrekte Schraubenlage in 2 Ebenen. Spülung des Situs, Blutstillung.");
+        p.push("\n\nZuwendung zur Frakturversorgung der distalen Fibula.\n"+fxText);
+      }
+      else if(op==="fibula_mehr"){
+        var fxMText=T.fraktur_fibula_mehr;
+        if(fxSyndes)fxMText=fxMText.replace("Hakenzugtest: Die Syndesmose ist stabil, medial clear space regelrecht, Spülung des Situs, Blutstillung.","Hakenzugtest: Die Syndesmose ist instabil, medial clear space pathologisch. Darstellung der gerissenen vorderen Syndesmose und Reposition von eingeschlagenen Syndesmosenanteilen. Reposition der Syndesmose und Retention mit Klemme, genaue Prüfung auf korrekte Einstellung und Rotation. Vorbohren für die Stellschraube ca. 30° von plantar geneigt zur Horizontalen unter BV Kontrolle, dann Einbringen einer tricorticalen Stellschraube, diese wird sanft angezogen. Naht der Syndesmose. Nun korrekte Einstellung der Syndesmose, korrekte Schraubenlage in 2 Ebenen. Spülung des Situs, Blutstillung.");
+        p.push("\n\nZuwendung zur Frakturversorgung der distalen Fibula (Mehrfragment).\n"+fxMText);
+      }
       else p.push(`\n\n[Fraktur: ${op} – Text wird ergänzt]`);
     });
     const r=needsRuhig&&ruhig==="keine"?"orthese":ruhig;
     p.push("\n\n"+buildVerband(hasVF,bs,r));
     return p.join("");
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,umOp,fxOp,ruhig,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,umOp,fxOp,ruhig,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -1810,12 +1736,12 @@ function OPBerichtApp(){
         <div style={cat}>Großzehe (1. Strahl)</div>
         <div style={row}>
           {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"]].map(([k,l])=>
-            <div key={k} style={chip(gz===k)} onClick={()=>{setGz(gz===k?"":k);setMitAkin(false);setMitSubcap(false);}}>{l}</div>
+            <div key={k} style={chip(gz===k)} onClick={()=>{setGz(gz===k?"":k);setMitAkin(false);setHoffTill(false);setMitSubcap(false);}}>{l}</div>
           )}
         </div>
         {gz==="chevron"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={{fontSize:9,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-788.5c, 5-788.40, 5-93b.0, 5-854.2c{mitAkin?", 5-788.56":""}</div></div>}
         {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div></div><div style={{fontSize:9,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-93b.0, 5-93b.e{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
-        {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={{fontSize:9,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · Stat: +5-784.0v (Spongiosa) · Amb: 5-784.0v NICHT kodieren!</div></div>}
+        {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(hoffTill)} onClick={()=>setHoffTill(!hoffTill)}>Hoffmann-Tillmann</div><div style={{fontSize:9,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · Stat: +5-784.0v (Spongiosa) · Amb: 5-784.0v NICHT kodieren!</div></div>}
         {gz==="cheilek"&&<div style={sub}><div style={{fontSize:9,color:"#718096"}}>OPS: 5-788.00 (Exostosenabtragung MT I) · Amb: H-DRG I20O · Stat: 5-854.2c/0c erwägen → I20E</div></div>}
 
         <div style={cat}>Kleinzehen D2–D5</div>
@@ -2025,7 +1951,15 @@ function OPBerichtApp(){
 
       {/* FRAKTUREN - Fibula → UC-Modul */}
       <OBSec title="🩹 Frakturen (Fuß)" open={sec.fx} onToggle={()=>togSec("fx")} active={hasFX}>
-        <div style={{fontSize:10,color:"#718096",padding:8}}>Fußfrakturen werden hier ergänzt. Fibulafrakturen → UC/Trauma-Modul.</div>
+        <div style={row}>
+          {[["fibula_einf","Weber B einfach (WSP)"],["fibula_mehr","Weber B/C Mehrfragment"]].map(([k,l])=>
+            <div key={k} style={chip(fxOp.includes(k))} onClick={()=>togArr(fxOp,setFxOp,k)}>{l}</div>
+          )}
+        </div>
+        {fxOp.length>0&&<div style={{marginTop:4}}>
+          <div style={tog(fxSyndes)} onClick={()=>setFxSyndes(!fxSyndes)}>+ Syndesmose</div>
+          <div style={{fontSize:9,color:"#718096",marginTop:2}}>{fxSyndes?"Syndesmose instabil → Stellschraube":"Syndesmose stabil (Standard)"}</div>
+        </div>}
       </OBSec>
 
       {/* ME */}
@@ -2082,7 +2016,7 @@ function OPBerichtApp(){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
           <div style={h3s}>Vorschau & Export</div>
           <div style={{display:"flex",gap:4}}>
-            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setRuhig("keine");setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);setMdoTyp("");setMdoFDL(false);setMdoCotton("");setT2Length("200");setT2Width("11");setT2Becken(false);setArthroBds(true);setArthroBds(true);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);}}>Reset</div>
+            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setFxSyndes(false);setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");setRuhig("keine");setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);setMdoTyp("");setMdoFDL(false);setMdoCotton("");setT2Length("200");setT2Width("11");setT2Becken(false);setArthroBds(true);setArthroBds(true);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);}}>Reset</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#00838F",color:"#F5F7FA",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={copy}>📋</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#005F63",color:"#fff",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
           </div>
@@ -2135,6 +2069,26 @@ function OPBerichtApp(){
           <div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
         </div>}
 
+        {ucOp==="duokopf"&&<div style={{marginTop:12,display:"flex",gap:12,flexWrap:"wrap"}}>
+          <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Kopfschale</div><select value={dkShell} onChange={e=>setDkShell(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["38","40","42","44","46","48","50","52","54","56"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
+          <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Schaft (CCA)</div><select value={dkShaft} onChange={e=>setDkShaft(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["7.5","10","11.25","12.5"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
+          <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Kopfgröße</div><select value={dkHead} onChange={e=>setDkHead(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["S","M","L"].map(v=><option key={v} value={v}>{v}</option>)}</select></div>
+        </div>}
+        {ucOp==="tfna"&&<div style={{marginTop:12,display:"flex",gap:12,flexWrap:"wrap"}}>
+          <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Winkel</div><select value={tfnaAngle} onChange={e=>setTfnaAngle(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}>{["125","130"].map(v=><option key={v} value={v}>{v}°</option>)}</select></div>
+          <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Nagellänge</div><select value={tfnaLength} onChange={e=>setTfnaLength(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}>{["235","340"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
+          <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Durchmesser</div><select value={tfnaDiam} onChange={e=>setTfnaDiam(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["9","10","11","12"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
+          <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Klingenlänge</div><select value={tfnaBlade} onChange={e=>setTfnaBlade(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["75","80","85","90","95","100","105","110"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
+        </div>}
+        {ucOp&&UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:6}}>📝 OP-Bericht</div>
+          <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links"):T[UC_TEXT_MAP[ucOp]])}</div>
+          <div style={{display:"flex",gap:6,marginTop:8}}>
+            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{navigator.clipboard.writeText(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links"):T[UC_TEXT_MAP[ucOp]]);showToast("Kopiert!");}}>📋 Text kopieren</div>
+          </div>
+        </div>}
+        {ucOp&&!UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12,fontSize:10,color:"#718096",fontStyle:"italic"}}>OP-Text für diesen Eingriff noch nicht hinterlegt.</div>}
+
         {!ucOp&&<div style={{...card,textAlign:"center",padding:30}}>
           <div style={{fontSize:12,color:"#718096"}}>Eingriff oben auswählen für Erlösübersicht und Kodierhinweise</div>
           <div style={{marginTop:12,fontSize:10,color:"#718096",lineHeight:1.8}}>
@@ -2170,11 +2124,137 @@ function OPBerichtApp(){
 
       </div>{/* END ob-split */}
     </div>
+        {fxOp.length>0&&<div style={{marginTop:6}}>
+          <div style={{display:"flex",gap:4}}>
+            <div style={tog(fxSyndes)} onClick={()=>setFxSyndes(!fxSyndes)}>+ Syndesmose</div>
+          </div>
+          <div style={{fontSize:9,color:"#718096",marginTop:2}}>{fxSyndes?"Syndesmose instabil → Stellschraube + Naht":"Syndesmose stabil (Hakenzugtest negativ)"}</div>
+        </div>}
   );
 }
 
+// ============================================================
+function escXml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+function createZip(files){
+  const enc=new TextEncoder();
+  const parts=[];const cd=[];let offset=0;const entries=Object.entries(files);
+  for(const[name,content]of entries){
+    const nameBytes=enc.encode(name);
+    const dataBytes=enc.encode(content);
+    // CRC32
+    let crc=0xFFFFFFFF;const table=new Uint32Array(256);
+    for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xEDB88320^(c>>>1):c>>>1;table[i]=c;}
+    for(let i=0;i<dataBytes.length;i++)crc=table[(crc^dataBytes[i])&0xFF]^(crc>>>8);
+    crc=(crc^0xFFFFFFFF)>>>0;
+    // Local file header
+    const lf=new ArrayBuffer(30+nameBytes.length);const lv=new DataView(lf);
+    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);lv.setUint16(8,0,true);
+    lv.setUint16(10,0,true);lv.setUint16(12,0,true);lv.setUint32(14,crc,true);
+    lv.setUint32(18,dataBytes.length,true);lv.setUint32(22,dataBytes.length,true);
+    lv.setUint16(26,nameBytes.length,true);lv.setUint16(28,0,true);
+    new Uint8Array(lf).set(nameBytes,30);
+    parts.push(new Uint8Array(lf));parts.push(dataBytes);
+    // Central directory
+    const ce=new ArrayBuffer(46+nameBytes.length);const cv=new DataView(ce);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+    cv.setUint16(8,0,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0,true);
+    cv.setUint32(16,crc,true);cv.setUint32(20,dataBytes.length,true);cv.setUint32(24,dataBytes.length,true);
+    cv.setUint16(28,nameBytes.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);
+    cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);cv.setUint32(42,offset,true);
+    new Uint8Array(ce).set(nameBytes,46);
+    cd.push(new Uint8Array(ce));
+    offset+=30+nameBytes.length+dataBytes.length;
+  }
+  let cdSize=0;cd.forEach(c=>cdSize+=c.length);
+  const eocd=new ArrayBuffer(22);const ev=new DataView(eocd);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
+  ev.setUint16(8,entries.length,true);ev.setUint16(10,entries.length,true);
+  ev.setUint32(12,cdSize,true);ev.setUint32(16,offset,true);ev.setUint16(20,0,true);
+  const allParts=[...parts,...cd,new Uint8Array(eocd)];
+  const totalLen=allParts.reduce((s,p)=>s+p.length,0);
+  const result=new Uint8Array(totalLen);let pos=0;
+  for(const p of allParts){result.set(p,pos);pos+=p.length;}
+  return result;
+}
 
+function buildDocx(fullText,erloesText){
+  const ps=[];
+  const addP=(text,bold=false,size=22)=>{
+    if(!text)return;
+    text.split('\n').forEach(line=>{
+      if(!line.trim()){ps.push('<w:p><w:pPr><w:spacing w:after="0"/></w:pPr></w:p>');return;}
+      const rpr=`<w:rPr>${bold?'<w:b/>':''}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr>`;
+      ps.push(`<w:p><w:pPr><w:spacing w:after="80" w:line="276" w:lineRule="auto"/><w:jc w:val="both"/></w:pPr><w:r>${rpr}<w:t xml:space="preserve">${escXml(line)}</w:t></w:r></w:p>`);
+    });
+  };
+  // Title
+  ps.push(`<w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="32"/><w:szCs w:val="32"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr><w:t>OP-Bericht</w:t></w:r></w:p>`);
+  addP(fullText);
+  if(erloesText){
+    ps.push(`<w:p><w:pPr><w:spacing w:before="300" w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="2E5090"/></w:rPr><w:t>Erlösübersicht</w:t></w:r></w:p>`);
+    addP(erloesText,false,20);
+  }
+  ps.push('<w:p><w:pPr><w:spacing w:before="300"/></w:pPr></w:p>');
+  addP("Operateur: ___________________________",false,20);
+  addP("Datum: ___________________________",false,20);
+
+  const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`;
+
+  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+  const docRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+    <w:name w:val="Normal"/>
+    <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
+  </w:style>
+</w:styles>`;
+
+  const document=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    ${ps.join('\n    ')}
+    <w:sectPr>
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
+    </w:sectPr>
+  </w:body>
+</w:document>`;
+
+  return {
+    "[Content_Types].xml": contentTypes,
+    "_rels/.rels": rels,
+    "word/_rels/document.xml.rels": docRels,
+    "word/document.xml": document,
+    "word/styles.xml": styles
+  };
+}
+
+// ============================================================
+// TEXT BUILDERS
+// ============================================================
+function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient":"Die Patientin",dd2=g==="m"?"der Patient":"die Patientin",sa=side==="links"?"linken":"rechten";let t="";if(typ==="me")t=`${dd} stellte sich bei uns vor zur geplanten Metallentfernung am ${sa} Fuß. Über die operativen Alternativen und die Möglichkeit des Belassens des Materials wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;else if(typ==="tep")t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde die Implantation einer Sprunggelenksprothese am ${sa} oberen Sprunggelenk vereinbart. Die Indikation, die nicht-operativen und operativen Alternativen sowie die Details mit Komplikationen und Nachbehandlung wurden erneut erläutert. ${dd} wünscht keine weiteren konservativen Maßnahmen. Operative Risiken wurden thematisiert.`;else t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde der operative Eingriff vereinbart. ${dd} wünscht keine Durchführung weiterer konservativer Maßnahmen. Über die operativen und nicht-operativen Alternativen wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;if(risk){t+=`\nEs erfolgte eine spezifische Aufklärung, dass ${dd2} einer Risikogruppe angehört`;if(riskTxt.trim())t+=` (${riskTxt.trim()})`;t+=` und ein erhöhtes Risiko für jegliche intra- oder postoperative Komplikation besteht.`;}if(frei.trim())t+=`\n${frei.trim()}`;return t;}
+
+function buildLagerung(side,bs,ss,ana){const sa=side==="links"?"linken":"rechten";let p=[];if(ss)p.push("Single-Shot-Antibiose entsprechend Hausstandard durch die Anästhesie");p.push("Lagerung in Rückenlage, Polsterung aller druckgefährdeten Stellen, insbesondere aller Stellen an denen Nerven durch Kompression geschädigt werden könnten");p.push("Precleaning des gesamten OP-Gebietes");if(bs)p.push("Anlage der Oberschenkelblutsperre unter Nutzung eines Polsterstrumpfes und wasserdichter Versiegelung nach distal, so dass keine Flüssigkeit unter die Sperre oder in das Polster laufen kann");p.push("Abwaschen und Abdecken entsprechend den aktuellen Hygienestandards, Abkleben der Zehen und der Teile des Vorfußes, die nicht zum OP-Gebiet gehören mit Inzisionsfolie");p.push("Durchführen Team-Time-Out");if(bs)p.push("Aufblasen der Blutsperre auf 300 mmHg");let t=p.join(", ")+".";if(ana==="lokal")t+="\nSterile Applikation Lokalanästhesie.";t+="\n\nNarkoseuntersuchung des betroffenen und der angrenzenden Gelenke unter spezifischer Beachtung der Bandstabilität und der Achsverhältnisse.";return t;}
+
+function buildVerband(hasVorfuss,bs,ruhig){let p=["Spülung aller Zugänge","Abschlussdesinfektion","schichtweiser Verschluss","Atraumatische Hautnaht","Steri-Strips"];if(hasVorfuss)p.push("Tape-Verband","Anlegen eines sterilen redressierenden Verbandes");p.push("circulärer Watte-Kompressionsverband");if(hasVorfuss)p.push("Tape-Zügelungsverband in Redressionstellung");if(bs)p.push("Öffnung der Blutsperre, die Recapillarisierung ist an allen Zehen regelrecht");if(ruhig==="orthese")p.push("Anlage Omnimed-Schiene");else if(ruhig==="gips")p.push("Anlage Gipsschiene");else if(ruhig==="cast")p.push("Anlage circulärer gepolsterter Cast");p.push("Entlagerung");return p.join(", ")+".";}
 
 // ============================================================
 // LANDING PAGE & APP WRAPPER
