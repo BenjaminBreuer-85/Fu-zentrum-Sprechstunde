@@ -1203,7 +1203,7 @@ function OPBerichtApp(){
     }
 
     // Supramalleolare OT → I13E
-    if(hasUM) return {label:"Supramalleolare OT",ops:allOPS,
+    if(rfOp.includes("supramal_ot")) return {label:"Supramalleolare OT",ops:allOPS,
       hdrg:"—",ebm:"—",kurz:"I13E ~4.600 €",drg:"I13E 5.829 €",hdrg_n1:"—",empf:"n2",
       ziel:"Keine H-DRG → stationär ≥2 Nächte → I13E (CM 1,278 = 5.829 €).\nGleiche DRG für Dome, Open Wedge und Closed Wedge.",
       kodier:"Valgisierend: 5-781.0n. Varisierend: 5-781.1n. Immer + 5-93b.e.\nFibula-OT: + 5-781.0r (valg.) / 5-781.1r (var.).\nSpongiosa Open Wedge: 5-784.7n (allogen) oder 5-784.1n (autolog) – nicht erlösrelevant."};
@@ -1570,10 +1570,7 @@ const UC_TEXT_MAP={
     if(meOp.includes("stell"))p.push("\n\nZuwendung zur Entfernung der Stellschraube.\n"+T.me_stell);
     meOp.filter(x=>x!=="stell").forEach(op=>{p.push(`\n\n[ME: ${op} – Text wird ergänzt]`);});
 
-    umOp.forEach(op=>{
-      
-      else p.push(`\n\n[Umstellung: ${op} – Text wird ergänzt]`);
-    });
+    // umOp entfernt (supramal jetzt in rfOp)
     fxOp.forEach(op=>{
       if(op==="fibula_einf"){
         var fxText=T.fraktur_fibula_einf.replace(/§FRAKTURART§/g,"").replace(/§REPOSITION§/g,"Reposition der Fraktur").replace(/§PLATTENART§/g,"winkelstabilen Platte").replace(/§SCHRAUBENART§/g,", teilweise mit winkelstabilen Schrauben");
