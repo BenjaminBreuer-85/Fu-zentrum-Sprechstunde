@@ -1895,14 +1895,6 @@ const UC_TEXT_MAP={
           </div>}
           <div style={{fontSize:9,color:"#718096",marginTop:2}}>{peronealTyp==="naht"?"Naht Peroneus Brevis":peronealTyp==="tenodese"?"Tenodese Per. "+(peronealLongus?"Longus":"Brevis"):peronealTyp==="luxation"?"Luxation":"Variante wählen"}</div>
         </div>}
-        {rfOp.includes("peroneal")&&<div style={{marginTop:4,marginBottom:4}}>
-          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-            <div style={chip(peronealTyp==="naht")} onClick={()=>setPeronealTyp(peronealTyp==="naht"?"":"naht")}>Naht Brevis</div>
-            <div style={chip(peronealTyp==="tenodese")} onClick={()=>setPeronealTyp(peronealTyp==="tenodese"?"":"tenodese")}>Tenodese</div>
-            <div style={chip(peronealTyp==="luxation")} onClick={()=>setPeronealTyp(peronealTyp==="luxation"?"":"luxation")}>Luxation</div>
-          </div>
-          <div style={{fontSize:9,color:"#718096",marginTop:2}}>{peronealTyp==="naht"?"Naht Peroneus Brevis":peronealTyp==="tenodese"?"Tenodese Peronealsehnen":peronealTyp==="luxation"?"Peronealsehnen-Luxation":"Variante wählen"}</div>
-        </div>}
         {rfOp.includes("os_tib_ext")&&<div style={{marginTop:4,marginBottom:4}}>
           <div style={tog(osTibMDO)} onClick={()=>setOsTibMDO(!osTibMDO)}>+ MDO (Calcaneusosteotomie)</div>
           <div style={{fontSize:9,color:"#718096",marginTop:2}}>OPS: 5-782.0e, 5-854.2b{osTibMDO?", 5-781.1t, 5-93b.0 (MDO)":""}</div>
@@ -1914,38 +1906,7 @@ const UC_TEXT_MAP={
           </div>
           <div style={{fontSize:9,color:"#718096",marginTop:2}}>{arthroBds?"Arthrorise bds (links zuerst, dann rechts)":"Arthrorise einseitig ("+(side||"Seite wählen")+")"}</div>
         </div>}
-           <div style={{fontSize:9,color:"#718096",marginTop:2}}>{hohlfussTyp==="lambrinudi"?"Triple-Arthrodese nach Lambrinudi":hohlfussTyp==="dwyer"?"Dwyer-Calcaneusosteotomie"+(dwyerSteindler?" + Steindler":"")+(dwyerElevMT1?" + Elev. MT I":"")+(dwyerJones?" + Jones":"")+(dwyerPeroneal?" + Peroneal-Transfer":""):"Variante wählen"}</div>
-        </div>}
-        {rfOp.includes("peroneal")&&<div style={{marginTop:4,marginBottom:4}}>
-          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-            <div style={chip(peronealTyp==="naht")} onClick={()=>setPeronealTyp(peronealTyp==="naht"?"":"naht")}>Naht Brevis</div>
-            <div style={chip(peronealTyp==="tenodese")} onClick={()=>setPeronealTyp(peronealTyp==="tenodese"?"":"tenodese")}>Tenodese</div>
-            <div style={chip(peronealTyp==="luxation")} onClick={()=>setPeronealTyp(peronealTyp==="luxation"?"":"luxation")}>Luxation</div>
-          </div>
-          {peronealTyp==="tenodese"&&<div style={{marginTop:4}}>
-            <div style={tog(peronealLongus)} onClick={()=>setPeronealLongus(!peronealLongus)}>Longus (statt Brevis)</div>
-          </div>}
-          <div style={{fontSize:9,color:"#718096",marginTop:2}}>{peronealTyp==="naht"?"Naht Peroneus Brevis":peronealTyp==="tenodese"?"Tenodese Per. "+(peronealLongus?"Longus":"Brevis"):peronealTyp==="luxation"?"Luxation":"Variante wählen"}</div>
-        </div>}
-        {rfOp.includes("peroneal")&&<div style={{marginTop:4,marginBottom:4}}>
-          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-            <div style={chip(peronealTyp==="naht")} onClick={()=>setPeronealTyp(peronealTyp==="naht"?"":"naht")}>Naht Brevis</div>
-            <div style={chip(peronealTyp==="tenodese")} onClick={()=>setPeronealTyp(peronealTyp==="tenodese"?"":"tenodese")}>Tenodese</div>
-            <div style={chip(peronealTyp==="luxation")} onClick={()=>setPeronealTyp(peronealTyp==="luxation"?"":"luxation")}>Luxation</div>
-          </div>
-          <div style={{fontSize:9,color:"#718096",marginTop:2}}>{peronealTyp==="naht"?"Naht Peroneus Brevis":peronealTyp==="tenodese"?"Tenodese Peronealsehnen":peronealTyp==="luxation"?"Peronealsehnen-Luxation":"Variante wählen"}</div>
-        </div>}
-        {rfOp.includes("os_tib_ext")&&<div style={{marginTop:4,marginBottom:4}}>
-          <div style={tog(osTibMDO)} onClick={()=>setOsTibMDO(!osTibMDO)}>+ MDO (Calcaneusosteotomie)</div>
-          <div style={{fontSize:9,color:"#718096",marginTop:2}}>OPS: 5-782.0e, 5-854.2b{osTibMDO?", 5-781.1t, 5-93b.0 (MDO)":""}</div>
-        </div>}
-        {rfOp.includes("arthrorise")&&<div style={{marginTop:4,marginBottom:4}}>
-          <div style={{display:"flex",gap:4}}>
-            <div style={tog(!arthroBds)} onClick={()=>setArthroBds(false)}>Einseitig</div>
-            <div style={tog(arthroBds)} onClick={()=>setArthroBds(true)}>Beidseitig</div>
-          </div>
-        </div>}
-        {(rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen"))&&<div style={{marginTop:6}}>
+{(rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen"))&&<div style={{marginTop:6}}>
           <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
             <div style={tog(mdoFDL)} onClick={()=>setMdoFDL(!mdoFDL)}>+ FDL-Transfer</div>
             <div style={tog(mdoCotton==="autolog")} onClick={()=>setMdoCotton(mdoCotton==="autolog"?"":"autolog")}>+ Cotton autolog</div>
@@ -2306,6 +2267,8 @@ function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient
 function buildLagerung(side,bs,ss,ana,lage){const sa=side==="links"?"linken":"rechten";let p=[];if(ss)p.push("Single-Shot-Antibiose entsprechend Hausstandard durch die Anästhesie");p.push("Lagerung in "+(lage==="bauch"?"Bauchlage":"Rückenlage")+", Polsterung aller druckgefährdeten Stellen, insbesondere aller Stellen an denen Nerven durch Kompression geschädigt werden könnten");p.push("Precleaning des gesamten OP-Gebietes");if(bs)p.push("Anlage der Oberschenkelblutsperre unter Nutzung eines Polsterstrumpfes und wasserdichter Versiegelung nach distal, so dass keine Flüssigkeit unter die Sperre oder in das Polster laufen kann");p.push("Abwaschen und Abdecken entsprechend den aktuellen Hygienestandards, Abkleben der Zehen und der Teile des Vorfußes, die nicht zum OP-Gebiet gehören mit Inzisionsfolie");p.push("Durchführen Team-Time-Out");if(bs)p.push("Aufblasen der Blutsperre auf 300 mmHg");let t=p.join(", ")+".";if(ana==="lokal")t+="\nSterile Applikation Lokalanästhesie.";t+="\n\nNarkoseuntersuchung des betroffenen und der angrenzenden Gelenke unter spezifischer Beachtung der Bandstabilität und der Achsverhältnisse.\nEinzeichnen der relevanten Anatomie des OP-Gebietes, insbesondere Verlauf von Nerven, Gefäßen, Sehnen und knöcherner Marker.";return t;}
 
 function buildVerband(hasVorfuss,bs,ruhig){let p=["Spülung aller Zugänge","Abschlussdesinfektion","schichtweiser Verschluss","Atraumatische Hautnaht","Steri-Strips"];if(hasVorfuss)p.push("Tape-Verband","Anlegen eines sterilen redressierenden Verbandes");p.push("circulärer Watte-Kompressionsverband");if(hasVorfuss)p.push("Tape-Zügelungsverband in Redressionstellung");if(bs)p.push("Öffnung der Blutsperre, die Recapillarisierung ist an allen Zehen regelrecht");if(ruhig==="orthese")p.push("Anlage Omnimed-Schiene");else if(ruhig==="gips")p.push("Anlage Gipsschiene");else if(ruhig==="cast")p.push("Anlage circulärer gepolsterter Cast");p.push("Entlagerung");return p.join(", ")+".";}
+}
+
 
 // ============================================================
 // LANDING PAGE & APP WRAPPER
