@@ -2033,6 +2033,7 @@ const UC_TEXT_MAP={
         {showPv&&<div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11.5,lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",maxHeight:500,overflowY:"auto"}}>{fullText}</div>}
       </div>}
       </>}
+      </>}
 
       {sektion==="uc"&&<div>
         <div style={card}>
@@ -2267,7 +2268,6 @@ function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient
 function buildLagerung(side,bs,ss,ana,lage){const sa=side==="links"?"linken":"rechten";let p=[];if(ss)p.push("Single-Shot-Antibiose entsprechend Hausstandard durch die Anästhesie");p.push("Lagerung in "+(lage==="bauch"?"Bauchlage":"Rückenlage")+", Polsterung aller druckgefährdeten Stellen, insbesondere aller Stellen an denen Nerven durch Kompression geschädigt werden könnten");p.push("Precleaning des gesamten OP-Gebietes");if(bs)p.push("Anlage der Oberschenkelblutsperre unter Nutzung eines Polsterstrumpfes und wasserdichter Versiegelung nach distal, so dass keine Flüssigkeit unter die Sperre oder in das Polster laufen kann");p.push("Abwaschen und Abdecken entsprechend den aktuellen Hygienestandards, Abkleben der Zehen und der Teile des Vorfußes, die nicht zum OP-Gebiet gehören mit Inzisionsfolie");p.push("Durchführen Team-Time-Out");if(bs)p.push("Aufblasen der Blutsperre auf 300 mmHg");let t=p.join(", ")+".";if(ana==="lokal")t+="\nSterile Applikation Lokalanästhesie.";t+="\n\nNarkoseuntersuchung des betroffenen und der angrenzenden Gelenke unter spezifischer Beachtung der Bandstabilität und der Achsverhältnisse.\nEinzeichnen der relevanten Anatomie des OP-Gebietes, insbesondere Verlauf von Nerven, Gefäßen, Sehnen und knöcherner Marker.";return t;}
 
 function buildVerband(hasVorfuss,bs,ruhig){let p=["Spülung aller Zugänge","Abschlussdesinfektion","schichtweiser Verschluss","Atraumatische Hautnaht","Steri-Strips"];if(hasVorfuss)p.push("Tape-Verband","Anlegen eines sterilen redressierenden Verbandes");p.push("circulärer Watte-Kompressionsverband");if(hasVorfuss)p.push("Tape-Zügelungsverband in Redressionstellung");if(bs)p.push("Öffnung der Blutsperre, die Recapillarisierung ist an allen Zehen regelrecht");if(ruhig==="orthese")p.push("Anlage Omnimed-Schiene");else if(ruhig==="gips")p.push("Anlage Gipsschiene");else if(ruhig==="cast")p.push("Anlage circulärer gepolsterter Cast");p.push("Entlagerung");return p.join(", ")+".";}
-}
 
 
 // ============================================================
