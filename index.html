@@ -967,6 +967,11 @@ function OPBerichtApp(){
   const hasME=meOp.length>0;
   const hasUM=umOp.length>0;
   const hasFX=fxOp.length>0;
+  const hasASnaht=rfOp.includes("as_naht");
+  const hasRFarthrodese=rfOp.includes("subtalar")||(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi");
+  const hasCalcOT=rfOp.includes("calc_ot_verl");
+  const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||Object.values(zc).some(a=>a.length>0));
+  const hasDMMOover2=dmmo.length>2;
   const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasMF||hasME||hasUM||hasFX||coalTyp!=="";
   const needsRuhig=gz==="mtp1art"||gz==="lapidus";
 
