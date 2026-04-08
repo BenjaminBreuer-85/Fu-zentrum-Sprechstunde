@@ -1691,11 +1691,11 @@ const UC_TEXT_MAP={
           <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>🦴 UC</div>
           <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>🏥 Endo</div>
           <div style={gb(sektion==="ws")} onClick={()=>setSektion(sektion==="ws"?"":"ws")}>🔩 WS</div>
+
         </div>
       </div>
 
       {sektion==="fuss"&&<>
-      {gender&&side&&<>
       <div style={card}><div style={h3s}>① Präop</div>
         <div style={row}>{[["standard","Standard"],["me","ME"],["tep","TEP"]].map(([k,l])=><div key={k} style={chip(praeType===k)} onClick={()=>setPraeType(k)}>{l}</div>)}</div>
         <div style={{...row,marginTop:6}}><div style={{...tog(risk),borderColor:risk?"#E65100":"",color:risk?"#EF6C00":""}} onClick={()=>setRisk(!risk)}>⚠ Risiko</div></div>
@@ -2039,7 +2039,6 @@ const UC_TEXT_MAP={
         {showPv&&<div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11.5,lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",maxHeight:500,overflowY:"auto"}}>{fullText}</div>}
       </div>}
       </>}
-      </>}
 
       {sektion==="uc"&&<div>
         <div style={card}>
@@ -2280,10 +2279,181 @@ function buildVerband(hasVorfuss,bs,ruhig){let p=["Spülung aller Zugänge","Abs
 // LANDING PAGE & APP WRAPPER
 // ============================================================
 
+// ============================================================
+// H-DRG POSITIVLISTEN-SUCHE (Tool 3)
+// ============================================================
+function HDRGSearch(){
+  const [q,setQ]=useState("");
+  const [results,setResults]=useState([]);
+  const [searched,setSearched]=useState(false);
+
+  // Complete H-DRG Positivliste 2026 - Orthopädie/UC relevant
+  const HDRG_LIST=[
+    // === FUSS / SPRUNGGELENK ===
+    {code:"5-056.9",desc:"Neurolyse und Dekompression: Nerven Fuß",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.0v",desc:"Inzision Knochen: Exploration: Metatarsale",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.0w",desc:"Inzision Knochen: Exploration: Phalangen Fuß",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.1s",desc:"Inzision Knochen: Knochenbohrung: Talus",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.1t",desc:"Inzision Knochen: Knochenbohrung: Kalkaneus",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.1u",desc:"Inzision Knochen: Knochenbohrung: Tarsale",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.1v",desc:"Inzision Knochen: Knochenbohrung: Metatarsale",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.1w",desc:"Inzision Knochen: Knochenbohrung: Phalangen Fuß",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.6u",desc:"Inzision Knochen: Debridement: Tarsale",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.6v",desc:"Inzision Knochen: Debridement: Metatarsale",drg:"I20O",bereich:"Fuß"},
+    {code:"5-780.6w",desc:"Inzision Knochen: Debridement: Phalangen Fuß",drg:"I20O",bereich:"Fuß"},
+    {code:"5-782.1s",desc:"Exzision Knochengewebe: Part. Resektion mit Weichteil: Talus",drg:"I20O",bereich:"Fuß"},
+    {code:"5-782.1t",desc:"Exzision Knochengewebe: Part. Resektion mit Weichteil: Kalkaneus",drg:"I20O/I27D",bereich:"Fuß"},
+    {code:"5-782.1u",desc:"Exzision Knochengewebe: Part. Resektion mit Weichteil: Tarsale",drg:"I20O",bereich:"Fuß"},
+    {code:"5-782.as",desc:"Exzision Knochengewebe: Part. Resektion offen chir.: Talus",drg:"I20O",bereich:"Fuß"},
+    {code:"5-782.at",desc:"Exzision Knochengewebe: Part. Resektion offen chir.: Kalkaneus",drg:"I20O/I27D",bereich:"Fuß"},
+    {code:"5-782.ar",desc:"Exzision Knochengewebe: Part. Resektion offen chir.: Fibula distal",drg:"I59Z",bereich:"Fuß"},
+    {code:"5-788.00",desc:"Operationen an Metatarsale und Phalangen: Exostosenabtragung MT I",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.06",desc:"Operationen an MT/Phalangen: Osteotomie Akin",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.40",desc:"Op. an MT/Phalangen: Weichteilkorrektur MTP I",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.5c",desc:"Op. an MT/Phalangen: Osteotomie Chevron/Austin",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.5e",desc:"Op. an MT/Phalangen: Osteotomie Scarf",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.5f",desc:"Op. an MT/Phalangen: Osteotomie Chevron Re-OP",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.52",desc:"Op. an MT/Phalangen: Osteotomie DMMO 1 MT",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.53",desc:"Op. an MT/Phalangen: Osteotomie DMMO 2 MT",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.56",desc:"Op. an MT/Phalangen: Osteotomie sonstige Phalanx",drg:"I20O",bereich:"Fuß"},
+    {code:"5-788.60",desc:"Op. an MT/Phalangen: Arthroplastik MTP I (Kontextfaktor!)",drg:"I20O (Kontext!)",bereich:"Fuß"},
+    {code:"5-800.0r",desc:"Offen chir. OP Gelenk: Arthrotomie: Zehengelenk",drg:"I20O",bereich:"Fuß"},
+    {code:"5-800.3r",desc:"Offen chir. OP Gelenk: Debridement: Zehengelenk",drg:"I20O",bereich:"Fuß"},
+    {code:"5-800.4q",desc:"Offen chir. OP Gelenk: Synovialektomie part.: MTP",drg:"I20O",bereich:"Fuß"},
+    {code:"5-800.5q",desc:"Offen chir. OP Gelenk: Synovialektomie total: MTP",drg:"I20O",bereich:"Fuß"},
+    {code:"5-800.6q",desc:"Offen chir. OP Gelenk: Arthrolyse: MTP",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.b0",desc:"Offen chir. Arthrodese: MTP I",drg:"I20N",bereich:"Fuß"},
+    {code:"5-808.b1",desc:"Offen chir. Arthrodese: IP Digitus I",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.b9",desc:"Offen chir. Arthrodese: MTP II-V, 1 Gelenk",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.ba",desc:"Offen chir. Arthrodese: MTP II-V, 2 Gelenke",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.bb",desc:"Offen chir. Arthrodese: MTP II-V, 3 Gelenke",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.bc",desc:"Offen chir. Arthrodese: MTP II-V, 4 Gelenke",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.bd",desc:"Offen chir. Arthrodese: PIP II-V, 1 Gelenk",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.be",desc:"Offen chir. Arthrodese: PIP II-V, 2 Gelenke",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.bf",desc:"Offen chir. Arthrodese: PIP II-V, 3 Gelenke",drg:"I20O",bereich:"Fuß"},
+    {code:"5-808.bg",desc:"Offen chir. Arthrodese: PIP II-V, 4 Gelenke",drg:"I20O",bereich:"Fuß"},
+    {code:"5-809.0q",desc:"Andere Gelenk-OP: Banddurchtrennung: MTP",drg:"I20O",bereich:"Fuß"},
+    {code:"5-809.1m",desc:"Andere Gelenk-OP: Arthrorise offen chir.: USG",drg:"I20O",bereich:"Fuß"},
+    {code:"5-809.1n",desc:"Andere Gelenk-OP: Arthrorise offen chir.: Tarsalgelenk",drg:"I20O",bereich:"Fuß"},
+    {code:"5-809.2q",desc:"Andere Gelenk-OP: Temporäre Fixation: MTP",drg:"I20O",bereich:"Fuß"},
+    {code:"5-809.2r",desc:"Andere Gelenk-OP: Temporäre Fixation: Zehengelenk",drg:"I20O",bereich:"Fuß"},
+    {code:"5-811.2k",desc:"Arthroskopische OP Synovialis: Synovektomie part.: OSG",drg:"I20O",bereich:"OSG"},
+    {code:"5-812.ek",desc:"Arthroskopische OP: Chondroplastik: OSG",drg:"I20O",bereich:"OSG"},
+    {code:"5-812.fk",desc:"Arthroskopische OP: Subchondrale Knocheneröffnung: OSG",drg:"I20O",bereich:"OSG"},
+    {code:"5-812.fm",desc:"Arthroskopische OP: Subchondrale Knocheneröffnung: USG",drg:"I20O",bereich:"OSG"},
+    {code:"5-812.kk",desc:"Arthroskopische OP: Osteophytenresektion: OSG",drg:"I20O",bereich:"OSG"},
+    {code:"5-850.b9",desc:"Bandplastik: Fuß",drg:"I59Z",bereich:"Fuß"},
+    {code:"5-851.1a",desc:"Durchtrennung Muskel/Sehne: Tenotomie offen chir.: Fuß",drg:"I20O",bereich:"Fuß"},
+    {code:"5-854.0c",desc:"Sehnenverlängerung: Fuß",drg:"I20O (Kontext!)",bereich:"Fuß"},
+    {code:"5-854.2c",desc:"Sehnentransfer Fuß (FDL etc.)",drg:"I20O (Kontext!)",bereich:"Fuß"},
+    {code:"5-859.1a",desc:"Andere OP an Sehnen: Bursektomie Fuß",drg:"I20O",bereich:"Fuß"},
+    // === FRAKTUREN TIBIA/FIBULA ===
+    {code:"5-793.1n",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Schraube: Tibia distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-793.1r",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Schraube: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-793.3r",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Platte: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-793.hn",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Ohne OS: Tibia distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-793.hr",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Ohne OS: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-793.kr",desc:"Off. Repos. einfache Fraktur Gelenkbereich: WSP: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-793.xn",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Sonstige: Tibia distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.0n",desc:"Off. Repos. MFF Gelenkbereich: Schraube: Tibia distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.0r",desc:"Off. Repos. MFF Gelenkbereich: Schraube: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.1r",desc:"Off. Repos. MFF Gelenkbereich: Zuggurtung: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.2r",desc:"Off. Repos. MFF Gelenkbereich: Platte: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.hn",desc:"Off. Repos. MFF Gelenkbereich: Ohne OS: Tibia distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.hr",desc:"Off. Repos. MFF Gelenkbereich: Ohne OS: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.kr",desc:"Off. Repos. MFF Gelenkbereich: WSP: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.xn",desc:"Off. Repos. MFF Gelenkbereich: Sonstige: Tibia distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    {code:"5-794.xr",desc:"Off. Repos. MFF Gelenkbereich: Sonstige: Fibula distal",drg:"I13N",bereich:"Fraktur Tibia/Fibula"},
+    // === METATARSALE/PHALANGEN FRAKTUREN ===
+    {code:"5-790.1v",desc:"Geschl. Repos. Fraktur mit OS: Draht/Zuggurtung: Metatarsale",drg:"I20O",bereich:"Fuß Fraktur"},
+    {code:"5-790.1w",desc:"Geschl. Repos. Fraktur mit OS: Draht/Zuggurtung: Phalangen Fuß",drg:"I20O",bereich:"Fuß Fraktur"},
+    {code:"5-790.xv",desc:"Geschl. Repos. Fraktur mit OS: Sonstige: Metatarsale",drg:"I20O",bereich:"Fuß Fraktur"},
+    {code:"5-790.xw",desc:"Geschl. Repos. Fraktur mit OS: Sonstige: Phalangen Fuß",drg:"I20O",bereich:"Fuß Fraktur"},
+    {code:"5-79a.1r",desc:"Geschl. Repos. Gelenkluxation mit OS: Zuggurtung: Zehengelenk",drg:"I20O",bereich:"Fuß Fraktur"},
+    // === KLAVIKULA ===
+    {code:"5-790.k0",desc:"Geschl. Repos. Fraktur mit OS: WSP: Klavikula",drg:"I21M",bereich:"Klavikula"},
+    {code:"5-795.10",desc:"Off. Repos. einfache Fraktur kl. Knochen: Schraube: Klavikula",drg:"I21M",bereich:"Klavikula"},
+    {code:"5-795.20",desc:"Off. Repos. einfache Fraktur kl. Knochen: Zuggurtung: Klavikula",drg:"I21M",bereich:"Klavikula"},
+    {code:"5-795.30",desc:"Off. Repos. einfache Fraktur kl. Knochen: Platte: Klavikula",drg:"I21M",bereich:"Klavikula"},
+    {code:"5-795.h0",desc:"Off. Repos. einfache Fraktur kl. Knochen: Ohne OS: Klavikula",drg:"I21M",bereich:"Klavikula"},
+    {code:"5-795.k0",desc:"Off. Repos. einfache Fraktur kl. Knochen: WSP: Klavikula",drg:"I21M",bereich:"Klavikula"},
+    {code:"5-795.x0",desc:"Off. Repos. einfache Fraktur kl. Knochen: Sonstige: Klavikula",drg:"I21M",bereich:"Klavikula"},
+    {code:"5-796.00",desc:"Off. Repos. MFF kl. Knochen: Schraube: Klavikula",drg:"I29M",bereich:"Klavikula"},
+    {code:"5-796.10",desc:"Off. Repos. MFF kl. Knochen: Zuggurtung: Klavikula",drg:"I29M",bereich:"Klavikula"},
+    {code:"5-796.20",desc:"Off. Repos. MFF kl. Knochen: Platte: Klavikula",drg:"I29M",bereich:"Klavikula"},
+    {code:"5-796.h0",desc:"Off. Repos. MFF kl. Knochen: Ohne OS: Klavikula",drg:"I29M",bereich:"Klavikula"},
+    {code:"5-796.k0",desc:"Off. Repos. MFF kl. Knochen: WSP: Klavikula",drg:"I29M",bereich:"Klavikula"},
+    {code:"5-796.x0",desc:"Off. Repos. MFF kl. Knochen: Sonstige: Klavikula",drg:"I29M",bereich:"Klavikula"},
+    // === ELLENBOGEN (Olekranon / Radius proximal) ===
+    {code:"5-790.13",desc:"Geschl. Repos. Fraktur mit OS: Zuggurtung: Humerus distal",drg:"I21M",bereich:"Ellenbogen"},
+    {code:"5-790.25",desc:"Geschl. Repos. Fraktur mit OS: Intramedullärer Draht: Radiusschaft",drg:"I21M",bereich:"Ellenbogen"},
+    {code:"5-790.28",desc:"Geschl. Repos. Fraktur mit OS: Intramedullärer Draht: Ulnaschaft",drg:"I21M",bereich:"Ellenbogen"},
+    {code:"5-793.14",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Schraube: Radius prox.",drg:"I21M",bereich:"Ellenbogen"},
+    {code:"5-793.27",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Zuggurtung: Ulna prox.",drg:"I21M",bereich:"Ellenbogen"},
+    {code:"5-794.04",desc:"Off. Repos. MFF Gelenkbereich: Schraube: Radius proximal",drg:"I21M",bereich:"Ellenbogen"},
+    {code:"5-794.k7",desc:"Off. Repos. MFF Gelenkbereich: WSP: Ulna proximal (Olekranon)",drg:"I31N",bereich:"Ellenbogen"},
+    // === RADIUS DISTAL ===
+    {code:"5-793.36",desc:"Off. Repos. einfache Fraktur Gelenkbereich: Platte: Radius distal",drg:"I21M",bereich:"Radius distal"},
+    {code:"5-793.k6",desc:"Off. Repos. einfache Fraktur Gelenkbereich: WSP: Radius distal",drg:"I21M",bereich:"Radius distal"},
+    {code:"5-794.26",desc:"Off. Repos. MFF Gelenkbereich: Platte: Radius distal",drg:"I21M",bereich:"Radius distal"},
+    {code:"5-794.k6",desc:"Off. Repos. MFF Gelenkbereich: WSP: Radius distal",drg:"I21M",bereich:"Radius distal"},
+  ];
+
+  const doSearch=()=>{
+    if(!q.trim()){setResults([]);setSearched(false);return;}
+    setSearched(true);
+    const term=q.trim().toLowerCase();
+    // Exact match
+    const exact=HDRG_LIST.filter(x=>x.code.toLowerCase()===term);
+    if(exact.length>0){setResults(exact.map(x=>({...x,match:"exact"})));return;}
+    // Code prefix match (e.g. "5-788" finds all 5-788.xx)
+    const prefix=HDRG_LIST.filter(x=>x.code.toLowerCase().startsWith(term));
+    if(prefix.length>0){setResults(prefix.map(x=>({...x,match:"prefix"})));return;}
+    // Text search in description + code
+    const text=HDRG_LIST.filter(x=>x.code.toLowerCase().includes(term)||x.desc.toLowerCase().includes(term)||x.bereich.toLowerCase().includes(term)||x.drg.toLowerCase().includes(term));
+    setResults(text.map(x=>({...x,match:"text"})));
+  };
+
+  return <div style={{padding:16}}>
+    <div style={{display:"flex",gap:8,marginBottom:12}}>
+      <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")doSearch();}} placeholder="OPS-Code oder Suchbegriff (z.B. 5-788.5c, Klavikula, Fibula...)" style={{flex:1,padding:"8px 12px",borderRadius:6,border:"1px solid rgba(0,107,111,.3)",fontSize:12,background:"rgba(255,255,255,.95)"}}/>
+      <div onClick={doSearch} style={{padding:"8px 16px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>🔍 Suchen</div>
+    </div>
+    {searched&&results.length===0&&<div style={{padding:16,textAlign:"center",color:"#E65100",background:"rgba(230,81,0,.06)",borderRadius:8,border:"1px solid rgba(230,81,0,.15)"}}>
+      <div style={{fontSize:13,fontWeight:600}}>❌ Nicht auf H-DRG Positivliste</div>
+      <div style={{fontSize:11,marginTop:4}}>Der Code "{q}" ist nicht in der Hybrid-DRG Positivliste 2026 enthalten.</div>
+      <div style={{fontSize:10,marginTop:8,color:"#718096"}}>Tipp: Versuchen Sie einen kürzeren Code (z.B. "5-788") oder einen Suchbegriff (z.B. "Fibula", "Osteotomie")</div>
+    </div>}
+    {results.length>0&&<div>
+      <div style={{fontSize:10,color:"#718096",marginBottom:6}}>{results.length} Treffer · {results[0].match==="exact"?"✅ Exakter Treffer":results[0].match==="prefix"?"📋 Codes mit gleichem Prefix":"🔍 Textsuche"}</div>
+      {results.map(function(r,i){return <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:6,border:r.match==="exact"?"2px solid #00897B":"1px solid rgba(0,0,0,.1)",background:r.match==="exact"?"rgba(0,137,123,.08)":"rgba(255,255,255,.95)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:12,fontWeight:700,color:"#00838F"}}>{r.code}</span>
+            <span style={{fontSize:10,marginLeft:8,color:"#2D3748"}}>{r.desc}</span>
+          </div>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>
+            <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,131,143,.15)",color:"#00838F",fontWeight:700}}>{r.drg}</span>
+            <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,0,0,.06)",color:"#718096"}}>{r.bereich}</span>
+          </div>
+        </div>
+      </div>;})}
+    </div>}
+    {!searched&&<div style={{padding:20,textAlign:"center",color:"#718096"}}>
+      <div style={{fontSize:12,marginBottom:8}}>OPS-Code eingeben → Prüfung ob auf H-DRG Positivliste 2026</div>
+      <div style={{fontSize:10,lineHeight:1.8}}>
+        Beispiele: <span style={{fontFamily:"monospace",color:"#00838F"}}>5-788.5c</span> (Chevron) · <span style={{fontFamily:"monospace",color:"#00838F"}}>5-793.kr</span> (Weber B WSP) · <span style={{fontFamily:"monospace",color:"#00838F"}}>5-808.a4</span> (Lapidus – nicht auf Liste!)<br/>
+        Oder Freitext: <span style={{color:"#00838F"}}>Klavikula</span> · <span style={{color:"#00838F"}}>Fibula</span> · <span style={{color:"#00838F"}}>Arthrodese</span> · <span style={{color:"#00838F"}}>I20O</span>
+      </div>
+      <div style={{marginTop:12,fontSize:9,color:"#a0aec0"}}>Basis: Anlage zum Beschluss des erweiterten ergänzten Bewertungsausschusses, 8. Sitzung 28.04.2025 · §115f SGB V · 904 OPS-Codes gesamt · Orthopädie/UC-Auszug</div>
+    </div>}
+  </div>;
+}
+
 function LandingPage({onSelect}) {
   return (
-    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",minHeight:"100vh",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20}}>
-      <div style={{textAlign:"center",marginBottom:40}}>
+    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"40px 20px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginBottom:16}}>
           <img src="data:image/jpeg;base64,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" style={{width:56,height:56,borderRadius:12,objectFit:"cover"}} alt=""/>
           <img src="data:image/jpeg;base64,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" style={{width:56,height:56,borderRadius:12,objectFit:"cover"}} alt=""/>
@@ -2295,8 +2465,8 @@ function LandingPage({onSelect}) {
         <div style={{fontSize:12,color:"#718096"}}>Department Spezielle Fußchirurgie · Florence-Nightingale-Krankenhaus Düsseldorf</div>
         <div style={{fontSize:10,color:"#A0AEC0",marginTop:4}}>Kaiserswerther Diakonie</div>
       </div>
-      <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center",maxWidth:700}}>
-        <div onClick={()=>onSelect("sb")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"30px 28px",width:300,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
+      <div style={{display:"flex",gap:12,flexWrap:"wrap",justifyContent:"center",maxWidth:900}}>
+        <div onClick={()=>onSelect("sb")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:12}}>📝</div>
@@ -2304,7 +2474,7 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Diagnosegesteuerte Arztbriefe mit Therapieempfehlung, Scores, Literatur und Word-Export</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>8 Diagnosen · Split-Screen · Word-Download</div>
         </div>
-        <div onClick={()=>onSelect("ob")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"30px 28px",width:300,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
+        <div onClick={()=>onSelect("ob")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:12}}>📋</div>
@@ -2312,8 +2482,16 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>OP-Texte, OPS-Codierung, Hybrid-DRG Erlösmatrix mit Kodierhinweisen und Kontextprozeduren</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Fuß · UC/Trauma · Erlössteuerung · Word-Download</div>
         </div>
+        <div onClick={()=>onSelect("hdrg")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:12}}>🔍</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>H-DRG Positivliste</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Prüfen ob ein OPS-Code auf der Hybrid-DRG Positivliste 2026 steht. Code- und Freitextsuche.</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>904 OPS · §115f SGB V · Anlage 2a 2026</div>
+        </div>
       </div>
-      <div style={{marginTop:40,fontSize:9,color:"#A0AEC0"}}>v2.1 · März 2026</div>
+      <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.2 · April 2026</div>
     </div>
   );
 }
@@ -2343,11 +2521,35 @@ function App() {
     </div>
   );
   
+  
+  if (tool === "hdrg") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:11,fontWeight:600}}>
+          ← Toolbox
+        </div>
+      </div>
+      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:900,margin:"0 auto",padding:"60px 16px 40px"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🔍 H-DRG Positivlisten-Suche 2026</div>
+          <div style={{fontSize:11,color:"#718096"}}>Prüfung ob OPS-Codes auf der Hybrid-DRG Positivliste stehen · §115f SGB V · Anlage 2a</div>
+        </div>
+        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
+          <HDRGSearch/>
+        </div>
+        <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>Basis: Beschluss ergBA 8. Sitzung 28.04.2025 · 69 H-DRGs · 904 OPS-Codes · Orthopädie/UC-Auszug</div>
+      </div>
+    </div>
+  );
+
   return <LandingPage onSelect={setTool} />;
 }
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+
+
 </script>
 
 <div id="impressum-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9999;overflow-y:auto;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
@@ -2360,7 +2562,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
     <p style="margin:4px 0;">Dr. med. Benjamin Breuer<br>Departmentleiter Spezielle Fu&szlig;chirurgie<br><br>Berufliche Erreichbarkeit:<br>Florence-Nightingale-Krankenhaus<br>Kaiserswerther Diakonie<br>Kreuzbergstra&szlig;e 79<br>40489 D&uuml;sseldorf</p>
     <p style="margin:8px 0;font-size:12px;color:#8899aa;font-style:italic;">Privat betriebenes Tool von Dr. med. Benjamin Breuer. Kein offizielles Angebot der Kaiserswerther Diakonie oder des Florence-Nightingale-Krankenhauses.</p>
     <h3 style="color:#006B6F;font-size:14px;margin:16px 0 8px;">Kontakt</h3>
-    <p style="margin:4px 0;">Telefon: 0211 409-5000<br>E-Mail: breuerb@fnk.de</p>
+    <p style="margin:4px 0;">Telefon: 0211 409-5000<br>E-Mail: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0b69796e7e6e79694b6d6560256f6e">[email&#160;protected]</a></p>
     <h3 style="color:#006B6F;font-size:14px;margin:16px 0 8px;">Berufsbezeichnung</h3>
     <p style="margin:4px 0;">Arzt / Facharzt f&uuml;r Orthop&auml;die und Unfallchirurgie<br>Verliehen in der Bundesrepublik Deutschland<br>Zust&auml;ndige Kammer: &Auml;rztekammer Nordrhein</p>
     <h3 style="color:#006B6F;font-size:14px;margin:16px 0 8px;">Haftungsausschluss</h3>
@@ -2373,8 +2575,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </div>
 <div style="text-align:center;padding:12px 0;font-size:11px;color:#5a7090;font-family:'IBM Plex Sans',sans-serif;">
   <span style="cursor:pointer;text-decoration:underline;" onclick="document.getElementById('impressum-overlay').style.display='flex'">Impressum &amp; Datenschutz</span>
-  <span style="margin:0 8px;">&middot;</span>
-  <span>&copy; 2026 Dr. med. Benjamin Breuer</span>
-</div>
-</body>
-</html>
+  <
