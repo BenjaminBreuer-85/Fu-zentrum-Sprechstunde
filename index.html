@@ -3193,7 +3193,7 @@ function HDRGSearch(){
     {code:"8-840.1x",desc:"(Perkutan-)transluminale Implantation von nicht medikamentefreisetzenden Stents: Zwei Stents: Sonstige",bereich:"Gefäßintervention"},
     {code:"8-84d.0s",desc:"(Perkutan-)transluminale Implantation von aus Einzeldrähten verwobenen Nitinolstents: Ein Stent: Arterien Oberschenkel",bereich:"Gefäßintervention"},
     {code:"8-84d.0x",desc:"(Perkutan-)transluminale Implantation von aus Einzeldrähten verwobenen Nitinolstents: Ein Stent: Sonstige",bereich:"Gefäßintervention"}
-  ]
+  ];
 
   const doSearch=()=>{
     if(!q.trim()){setResults([]);setSearched(false);return;}
@@ -3206,7 +3206,7 @@ function HDRGSearch(){
     const prefix=HDRG_LIST.filter(x=>x.code.toLowerCase().startsWith(term));
     if(prefix.length>0){setResults(prefix.map(x=>({...x,match:"prefix"})));return;}
     // Text search in description + code
-    const text=HDRG_LIST.filter(x=>x.code.toLowerCase().includes(term)||x.desc.toLowerCase().includes(term)||x.bereich.toLowerCase().includes(term)||x.drg.toLowerCase().includes(term));
+    const text=HDRG_LIST.filter(x=>x.code.toLowerCase().includes(term)||x.desc.toLowerCase().includes(term)||x.bereich.toLowerCase().includes(term));
     setResults(text.map(x=>({...x,match:"text"})));
   };
 
@@ -3229,7 +3229,7 @@ function HDRGSearch(){
             <span style={{fontSize:10,marginLeft:8,color:"#2D3748"}}>{r.desc}</span>
           </div>
           <div style={{display:"flex",gap:6,alignItems:"center"}}>
-            <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,131,143,.15)",color:"#00838F",fontWeight:700}}>{r.drg}</span>
+            <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,131,143,.15)",color:"#00838F",fontWeight:700}}>✅ H-DRG</span>
             <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,0,0,.06)",color:"#718096"}}>{r.bereich}</span>
           </div>
         </div>
