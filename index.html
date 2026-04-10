@@ -528,16 +528,12 @@ function SprechstundenbriefApp() {
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() {
-    try {
-      if(navigator.clipboard&&navigator.clipboard.writeText){
-        navigator.clipboard.writeText(fullText).then(function(){showToast("📋 Kopiert!");}).catch(function(){fallbackCopy(fullText);});
-      } else {fallbackCopy(fullText);}
-    } catch(e){fallbackCopy(fullText);}
+    fallbackCopy(fullText);
   }
   function fallbackCopy(text){
     var ta=document.createElement("textarea");
-    ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";
-    document.body.appendChild(ta);ta.select();
+    ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.focus();ta.select();
     try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Kopieren fehlgeschlagen");}
     document.body.removeChild(ta);
   }
@@ -1610,8 +1606,8 @@ const UC_TEXT_MAP={
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
-  function obFallbackCopy(text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Kopieren fehlgeschlagen");}document.body.removeChild(ta);}
-  const copy=()=>{if(!canExport)return;try{navigator.clipboard.writeText(fullText+erloesText).then(function(){showToast("📋 Kopiert!");}).catch(function(){obFallbackCopy(fullText+erloesText);});}catch(e){obFallbackCopy(fullText+erloesText);}};
+  function obFallbackCopy(text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";ta.style.opacity="0";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Kopieren fehlgeschlagen");}document.body.removeChild(ta);}
+  const copy=()=>{if(!canExport)return;obFallbackCopy(fullText+erloesText);};
   const dlDocx=()=>{
     if(!canExport)return;
     try{
@@ -1652,11 +1648,11 @@ const UC_TEXT_MAP={
       }catch(e2){}
 
       showToast("⚠ Download blockiert – Text kopiert");
-      try{navigator.clipboard.writeText(fullText+erloesText).then(function(){}).catch(function(){obFallbackCopy(fullText+erloesText);});}catch(e){obFallbackCopy(fullText+erloesText);}
+      obFallbackCopy(fullText+erloesText)
     }catch(e){
       console.error(e);
       showToast("⚠ Fehler – Text wird kopiert");
-      try{navigator.clipboard.writeText(fullText+erloesText).then(function(){}).catch(function(){obFallbackCopy(fullText+erloesText);});}catch(ec){obFallbackCopy(fullText+erloesText);}
+      obFallbackCopy(fullText+erloesText);
     }
   };
 
@@ -2122,7 +2118,7 @@ const UC_TEXT_MAP={
           <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:6}}>📝 OP-Bericht</div>
           <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]])}</div>
           <div style={{display:"flex",gap:6,marginTop:8}}>
-            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{var ucCopyText=ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]];try{navigator.clipboard.writeText(ucCopyText).then(function(){showToast("Kopiert!")}).catch(function(){obFallbackCopy(ucCopyText)})}catch(e){obFallbackCopy(ucCopyText)}}}>📋 Text kopieren</div>
+            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{var ucCopyText=ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]];obFallbackCopy(ucCopyText)}}>📋 Text kopieren</div>
           </div>
         </div>}
         {ucOp&&!UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12,fontSize:10,color:"#718096",fontStyle:"italic"}}>OP-Text für diesen Eingriff noch nicht hinterlegt.</div>}
