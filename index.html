@@ -527,7 +527,20 @@ function SprechstundenbriefApp() {
   }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, freitextAnam, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
-  function copy() { try { navigator.clipboard.writeText(fullText); showToast("📋 Kopiert!"); } catch (e) { } }
+  function copy() {
+    try {
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(fullText).then(function(){showToast("📋 Kopiert!");}).catch(function(){fallbackCopy(fullText);});
+      } else {fallbackCopy(fullText);}
+    } catch(e){fallbackCopy(fullText);}
+  }
+  function fallbackCopy(text){
+    var ta=document.createElement("textarea");
+    ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Kopieren fehlgeschlagen");}
+    document.body.removeChild(ta);
+  }
   function downloadWord() {
     try {
       var lines = fullText.split("\n");
@@ -1597,7 +1610,8 @@ const UC_TEXT_MAP={
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
-  const copy=async()=>{if(!canExport)return;try{await navigator.clipboard.writeText(fullText+erloesText);showToast("📋 Kopiert!");}catch{}};
+  function obFallbackCopy(text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Kopieren fehlgeschlagen");}document.body.removeChild(ta);}
+  const copy=()=>{if(!canExport)return;try{navigator.clipboard.writeText(fullText+erloesText).then(function(){showToast("📋 Kopiert!");}).catch(function(){obFallbackCopy(fullText+erloesText);});}catch(e){obFallbackCopy(fullText+erloesText);}};
   const dlDocx=()=>{
     if(!canExport)return;
     try{
@@ -1638,11 +1652,11 @@ const UC_TEXT_MAP={
       }catch(e2){}
 
       showToast("⚠ Download blockiert – Text kopiert");
-      navigator.clipboard.writeText(fullText+erloesText);
+      try{navigator.clipboard.writeText(fullText+erloesText).then(function(){}).catch(function(){obFallbackCopy(fullText+erloesText);});}catch(e){obFallbackCopy(fullText+erloesText);}
     }catch(e){
       console.error(e);
       showToast("⚠ Fehler – Text wird kopiert");
-      try{navigator.clipboard.writeText(fullText+erloesText);}catch(ec){}
+      try{navigator.clipboard.writeText(fullText+erloesText).then(function(){}).catch(function(){obFallbackCopy(fullText+erloesText);});}catch(ec){obFallbackCopy(fullText+erloesText);}
     }
   };
 
@@ -2108,7 +2122,7 @@ const UC_TEXT_MAP={
           <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:6}}>📝 OP-Bericht</div>
           <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]])}</div>
           <div style={{display:"flex",gap:6,marginTop:8}}>
-            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{navigator.clipboard.writeText(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]]);showToast("Kopiert!");}}>📋 Text kopieren</div>
+            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{var ucCopyText=ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]];try{navigator.clipboard.writeText(ucCopyText).then(function(){showToast("Kopiert!")}).catch(function(){obFallbackCopy(ucCopyText)})}catch(e){obFallbackCopy(ucCopyText)}}}>📋 Text kopieren</div>
           </div>
         </div>}
         {ucOp&&!UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12,fontSize:10,color:"#718096",fontStyle:"italic"}}>OP-Text für diesen Eingriff noch nicht hinterlegt.</div>}
@@ -3193,7 +3207,75 @@ function HDRGSearch(){
     {code:"8-840.1x",desc:"(Perkutan-)transluminale Implantation von nicht medikamentefreisetzenden Stents: Zwei Stents: Sonstige",bereich:"Gefäßintervention"},
     {code:"8-84d.0s",desc:"(Perkutan-)transluminale Implantation von aus Einzeldrähten verwobenen Nitinolstents: Ein Stent: Arterien Oberschenkel",bereich:"Gefäßintervention"},
     {code:"8-84d.0x",desc:"(Perkutan-)transluminale Implantation von aus Einzeldrähten verwobenen Nitinolstents: Ein Stent: Sonstige",bereich:"Gefäßintervention"}
-  ];
+  ,
+    // === KONTEXTPROZEDUREN (codieren aus H-DRG heraus!) ===
+    {code:"5-784.0v",desc:"Tx von Spongiosa, autogen offen chir.: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-784.0w",desc:"Tx von Spongiosa, autogen offen chir.: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-784.1v",desc:"Tx kortikospong. Span, autogen offen chir.: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-784.3v",desc:"Knochentransplantation, nicht gefäßgestielt: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-784.cv",desc:"Tx von Spongiosa, autogen endoskopisch: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-784.cw",desc:"Tx von Spongiosa, autogen endoskopisch: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-784.xv",desc:"Sonstige Knochentransplantation und -transposition: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-784.xw",desc:"Sonstige Knochentransplantation und -transposition: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-785.2v",desc:"Implantation von keramischem Knochenersatz: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-785.2w",desc:"Implantation von keramischem Knochenersatz: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-785.3v",desc:"Implantation keramischer Knochenersatz, resorbierbar: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-785.3w",desc:"Implantation keramischer Knochenersatz, resorbierbar: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-785.6v",desc:"Implantation sonstiger alloplastischer Knochenersatz ohne Medikamentenzusatz: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-785.6w",desc:"Implantation sonstiger alloplastischer Knochenersatz ohne Medikamentenzusatz: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-788.60",desc:"Arthroplastik: Metatarsophalangealgelenk 1",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-788.62",desc:"Arthroplastik: Metatarsophalangealgelenk 2-5, 2 Gelenke",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-788.63",desc:"Arthroplastik: Metatarsophalangealgelenk 2-5, 3 Gelenke",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-788.64",desc:"Arthroplastik: Metatarsophalangealgelenk 2-5, 4 Gelenke",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-788.69",desc:"Arthroplastik: Kleinzehengelenk Digitus II-V, 4 Gelenke",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-788.6a",desc:"Arthroplastik: Kleinzehengelenk Digitus II-V, 5 oder mehr Gelenke",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-795.1v",desc:"Off. Reposition einfache Fraktur: Schraube: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-795.1w",desc:"Off. Reposition einfache Fraktur: Schraube: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-795.2v",desc:"Off. Reposition einfache Fraktur: Draht/Zuggurtung: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-795.2w",desc:"Off. Reposition einfache Fraktur: Draht/Zuggurtung: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-795.3v",desc:"Off. Reposition einfache Fraktur: Platte: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-795.kv",desc:"Off. Reposition einfache Fraktur: WSP: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-795.kw",desc:"Off. Reposition einfache Fraktur: WSP: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.0v",desc:"Off. Reposition MFF: Schraube: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.0w",desc:"Off. Reposition MFF: Schraube: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.1v",desc:"Off. Reposition MFF: Draht/Zuggurtung: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.1w",desc:"Off. Reposition MFF: Draht/Zuggurtung: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.2v",desc:"Off. Reposition MFF: Platte: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.2w",desc:"Off. Reposition MFF: Platte: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.3v",desc:"Off. Reposition MFF: Fixateur externe: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.3w",desc:"Off. Reposition MFF: Fixateur externe: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.ev",desc:"Off. Reposition MFF: Blount-Klammer: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.gv",desc:"Off. Reposition MFF: Intramedullärer Draht: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.gw",desc:"Off. Reposition MFF: Intramedullärer Draht: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.hv",desc:"Off. Reposition MFF: Ohne Osteosynthese: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.hw",desc:"Off. Reposition MFF: Ohne Osteosynthese: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.kv",desc:"Off. Reposition MFF: WSP: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.kw",desc:"Off. Reposition MFF: WSP: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.mv",desc:"Off. Reposition MFF: Ringfixateur: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.nv",desc:"Off. Reposition MFF: Bewegungsfixateur: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.nw",desc:"Off. Reposition MFF: Bewegungsfixateur: Phalangen Fuß",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-796.pv",desc:"Off. Reposition MFF: Verriegelungsnagel: Metatarsale",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.0b",desc:"Rekonstruktion Sehnen: Verlängerung: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.0c",desc:"Rekonstruktion Sehnen: Verlängerung: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.1b",desc:"Rekonstruktion Sehnen: Verkürzung: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.1c",desc:"Rekonstruktion Sehnen: Verkürzung: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.2b",desc:"Rekonstruktion Sehnen: (Part.) Transposition: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.2c",desc:"Rekonstruktion Sehnen: (Part.) Transposition: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.3b",desc:"Rekonstruktion Sehnen: Augmentation: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.3c",desc:"Rekonstruktion Sehnen: Augmentation: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.4b",desc:"Rekonstruktion Sehnen: Ersatzplastik: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.4c",desc:"Rekonstruktion Sehnen: Ersatzplastik: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.5b",desc:"Ersatzplastik Sehnen mit Interponat: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.5c",desc:"Ersatzplastik Sehnen mit Interponat: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.6b",desc:"Schaffung Transplantatlager Sehnen: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.6c",desc:"Schaffung Transplantatlager Sehnen: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.7b",desc:"Rekonstruktion Sehnen: Transplantation: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.7c",desc:"Rekonstruktion Sehnen: Transplantation: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.8b",desc:"Rekonstruktion Sehnen: Transplantatwechsel: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.8c",desc:"Rekonstruktion Sehnen: Transplantatwechsel: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.9b",desc:"Transplantatentfernung Sehnen: Fußwurzel",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-854.9c",desc:"Transplantatentfernung Sehnen: Mittelfuß und Zehen",bereich:"⚠ KONTEXTPROZEDUR"},
+    {code:"5-855.19",desc:"Naht einer Sehne, primär: Unterschenkel",bereich:"⚠ KONTEXTPROZEDUR"}];
 
   const doSearch=()=>{
     if(!q.trim()){setResults([]);setSearched(false);return;}
@@ -3218,19 +3300,19 @@ function HDRGSearch(){
     {searched&&results.length===0&&<div style={{padding:16,textAlign:"center",color:"#E65100",background:"rgba(230,81,0,.06)",borderRadius:8,border:"1px solid rgba(230,81,0,.15)"}}>
       <div style={{fontSize:13,fontWeight:600}}>❌ Nicht auf H-DRG Positivliste</div>
       <div style={{fontSize:11,marginTop:4}}>Der Code "{q}" ist nicht in der Hybrid-DRG Positivliste 2026 enthalten.</div>
-      <div style={{fontSize:10,marginTop:8,color:"#718096"}}>Tipp: Versuchen Sie einen kürzeren Code (z.B. "5-788") oder einen Suchbegriff (z.B. "Fibula", "Osteotomie")</div>
+      <div style={{fontSize:10,marginTop:8,color:"#718096"}}>Tipp: Versuchen Sie einen kürzeren Code (z.B. "5-788") oder einen Suchbegriff (z.B. "Fibula", "Osteotomie", "Kontextprozedur")</div>
     </div>}
     {results.length>0&&<div>
       <div style={{fontSize:10,color:"#718096",marginBottom:6}}>{results.length} Treffer · {results[0].match==="exact"?"✅ Exakter Treffer":results[0].match==="prefix"?"📋 Codes mit gleichem Prefix":"🔍 Textsuche"}</div>
-      {results.map(function(r,i){return <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:6,border:r.match==="exact"?"2px solid #00897B":"1px solid rgba(0,0,0,.1)",background:r.match==="exact"?"rgba(0,137,123,.08)":"rgba(255,255,255,.95)"}}>
+      {results.map(function(r,i){return <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:6,border:r.match==="exact"?(r.bereich.includes("KONTEXT")?"2px solid #E65100":"2px solid #00897B"):"1px solid rgba(0,0,0,.1)",background:r.match==="exact"?(r.bereich.includes("KONTEXT")?"rgba(230,81,0,.06)":"rgba(0,137,123,.08)"):"rgba(255,255,255,.95)"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
             <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:12,fontWeight:700,color:"#00838F"}}>{r.code}</span>
             <span style={{fontSize:10,marginLeft:8,color:"#2D3748"}}>{r.desc}</span>
           </div>
           <div style={{display:"flex",gap:6,alignItems:"center"}}>
-            <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,131,143,.15)",color:"#00838F",fontWeight:700}}>✅ H-DRG</span>
-            <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,0,0,.06)",color:"#718096"}}>{r.bereich}</span>
+            {r.bereich.includes("KONTEXT")?<span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(230,81,0,.12)",color:"#E65100",fontWeight:700}}>⚠ Kontextprozedur</span>:<span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,131,143,.15)",color:"#00838F",fontWeight:700}}>✅ H-DRG</span>}
+            <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,0,0,.06)",color:"#718096"}}>{r.bereich.includes("KONTEXT")?"Fuß/Sprunggelenk":r.bereich}</span>
           </div>
         </div>
       </div>;})}
@@ -3239,9 +3321,9 @@ function HDRGSearch(){
       <div style={{fontSize:12,marginBottom:8}}>OPS-Code eingeben → Prüfung ob auf H-DRG Positivliste 2026</div>
       <div style={{fontSize:10,lineHeight:1.8}}>
         Beispiele: <span style={{fontFamily:"monospace",color:"#00838F"}}>5-788.5c</span> (Chevron) · <span style={{fontFamily:"monospace",color:"#00838F"}}>5-793.kr</span> (Weber B WSP) · <span style={{fontFamily:"monospace",color:"#00838F"}}>5-808.a4</span> (Lapidus – nicht auf Liste!)<br/>
-        Oder Freitext: <span style={{color:"#00838F"}}>Klavikula</span> · <span style={{color:"#00838F"}}>Fibula</span> · <span style={{color:"#00838F"}}>Arthrodese</span> · <span style={{color:"#00838F"}}>I20O</span>
+        Oder Freitext: <span style={{color:"#00838F"}}>Klavikula</span> · <span style={{color:"#00838F"}}>Fibula</span> · <span style={{color:"#00838F"}}>Arthrodese</span> · <span style={{color:"#E65100"}}>Kontextprozedur</span>
       </div>
-      <div style={{marginTop:12,fontSize:9,color:"#a0aec0"}}>Basis: Anlage zum Beschluss des erweiterten ergänzten Bewertungsausschusses, 8. Sitzung 28.04.2025 · §115f SGB V · 904 OPS-Codes (vollständig)</div>
+      <div style={{marginTop:12,fontSize:9,color:"#a0aec0"}}>Basis: Anlage zum Beschluss des erweiterten ergänzten Bewertungsausschusses, 8. Sitzung 28.04.2025 · §115f SGB V · 904 OPS + 67 Kontextprozeduren</div>
     </div>}
   </div>;
 }
@@ -3333,7 +3415,7 @@ function App() {
         <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
           <HDRGSearch/>
         </div>
-        <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>Basis: Beschluss ergBA 8. Sitzung 28.04.2025 · 69 H-DRGs · 904 OPS-Codes (vollständig)</div>
+        <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>Basis: Beschluss ergBA 8. Sitzung 28.04.2025 · 69 H-DRGs · 904 OPS + 67 Kontextprozeduren</div>
       </div>
     </div>
   );
