@@ -531,11 +531,22 @@ function SprechstundenbriefApp() {
     fallbackCopy(fullText);
   }
   function fallbackCopy(text){
-    var ta=document.createElement("textarea");
-    ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";ta.style.opacity="0";
-    document.body.appendChild(ta);ta.focus();ta.select();
-    try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Kopieren fehlgeschlagen");}
-    document.body.removeChild(ta);
+    var div=document.createElement("div");
+    var lines=text.split("\n");
+    for(var i=0;i<lines.length;i++){
+      if(i>0)div.appendChild(document.createElement("br"));
+      div.appendChild(document.createTextNode(lines[i]));
+    }
+    div.style.cssText="position:fixed;top:0;left:0;width:90%;max-height:1px;overflow:hidden;opacity:0.01;-webkit-user-select:all;user-select:all;";
+    document.body.appendChild(div);
+    var range=document.createRange();
+    range.selectNodeContents(div);
+    var sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
+    sel.removeAllRanges();
+    document.body.removeChild(div);
   }
   function downloadWord() {
     try {
@@ -855,11 +866,14 @@ if(e==="kapsulo"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Hy
 // ============================================================
 // COLLAPSIBLE SECTION
 // ============================================================
-function OBSec({title,open,onToggle,active,children}){
+function OBSec({title,open,onToggle,active,onReset,children}){
   return <div style={{background:active?"rgba(0,131,143,.04)":"rgba(255,255,255,.95)",border:active?"1px solid rgba(0,131,143,.15)":"1px solid rgba(0,0,0,.07)",borderRadius:10,marginBottom:6,overflow:"hidden"}}>
     <div onClick={onToggle} style={{padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",userSelect:"none"}}>
       <span style={{fontSize:13,fontWeight:600,color:active?"#00838F":"#718096"}}>{open?"▼":"▶"} {title}</span>
-      {active&&<span style={{fontSize:9,background:"rgba(0,131,143,.15)",color:"#00838F",padding:"2px 8px",borderRadius:4,fontWeight:700}}>AKTIV</span>}
+      <div style={{display:"flex",gap:6,alignItems:"center"}}>
+        {active&&<span style={{fontSize:9,background:"rgba(0,131,143,.15)",color:"#00838F",padding:"2px 8px",borderRadius:4,fontWeight:700}}>AKTIV</span>}
+        {active&&onReset&&<span onClick={function(e){e.stopPropagation();onReset();}} style={{fontSize:10,color:"#E65100",cursor:"pointer",padding:"2px 6px",borderRadius:4,background:"rgba(230,81,0,.08)",fontWeight:700}}>✕ Reset</span>}
+      </div>
     </div>
     {open&&<div style={{padding:"0 14px 14px"}}>{children}</div>}
   </div>;
@@ -984,7 +998,80 @@ function OPBerichtApp(){
   const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasMF||hasME||hasUM||hasFX||coalTyp!=="";
   const needsRuhig=gz==="mtp1art"||gz==="lapidus";
 
-  // Collected OPS codes
+
+  // ============================================================
+  // ICD-10 CODES – automatisch pro Eingriff
+  // ============================================================
+  const icdCodes=useMemo(()=>{
+    const s=side==="rechts"?"R":"L";
+    const codes=[];
+    // VORFUSS
+    if(gz==="chevron"||gz==="scarf")codes.push({hd:true,code:"M20.1"+s,desc:"Hallux valgus (acquisitus)"});
+    if(gz==="lapidus")codes.push({hd:true,code:"M20.1"+s,desc:"Hallux valgus (acquisitus)"});
+    if(gz==="mtp1art"){if(hoffTill){codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});}else{codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});}}
+    if(gz==="cheilek")codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});
+    if(gz==="exostose")codes.push({hd:true,code:"M89.75"+s,desc:"Exostose Fuß"});
+    if(mitAkin&&!codes.find(c=>c.code.startsWith("M20.5")))codes.push({hd:false,code:"M20.5"+s,desc:"Sonstige Deformität der Zehe (Hallux interphalangeus)"});
+    // Kleinzehen
+    if(Object.values(zc).some(a=>a.includes("pip")))codes.push({hd:codes.length===0,code:"M20.4"+s,desc:"Hammerzehe(n)"});
+    if(dmmo.length>0&&codes.length===0)codes.push({hd:true,code:"M77.4"+s,desc:"Metatarsalgie"});
+    if(dmmo.length>0&&codes.length>0&&!codes.find(c=>c.code.startsWith("M77.4")))codes.push({hd:false,code:"M77.4"+s,desc:"Metatarsalgie"});
+    // OSG
+    osgOp.forEach(op=>{
+      if(op==="ask")codes.push({hd:codes.length===0,code:"M24.87"+s,desc:"Sonstige Gelenkveränderung OSG (Impingement)"});
+      if(op==="ask_nano")codes.push({hd:codes.length===0,code:"M93.27"+s,desc:"Osteochondrosis dissecans OSG"});
+      if(op==="brostrom")codes.push({hd:codes.length===0,code:"M24.27"+s,desc:"Chronische Bandinstabilität OSG"});
+      if(op==="amic")codes.push({hd:codes.length===0,code:"M93.27"+s,desc:"Osteochondrosis dissecans Talus"});
+      if(op==="arthrodese_osg")codes.push({hd:codes.length===0,code:"M19.07"+s,desc:"Primäre Arthrose OSG"});
+      if(op==="t2_nagel"){codes.push({hd:codes.length===0,code:"M19.07"+s,desc:"Primäre Arthrose OSG"});codes.push({hd:false,code:"M19.17"+s,desc:"Posttraumatische Arthrose USG"});}
+      if(op==="arthrorise")codes.push({hd:codes.length===0,code:"Q66.5"+s,desc:"Plattfuß (Pes planovalgus)"});
+    });
+    // TEP
+    if(tepType)codes.push({hd:true,code:"M19.07"+s,desc:"Primäre Arthrose OSG"});
+    // RÜCKFUSS
+    rfOp.forEach(op=>{
+      if(op==="haglund_mini"||op==="haglund")codes.push({hd:codes.length===0,code:"M76.6"+s,desc:"Achillessehnenenthesiopathie (Haglund)"});
+      if(op==="as_naht")codes.push({hd:codes.length===0,code:"S86.0"+s,desc:"Verletzung der Achillessehne"});
+      if(op==="subtalar")codes.push({hd:codes.length===0,code:"M19.17"+s,desc:"Posttraumatische Arthrose USG"});
+      if(op==="mdo_mini"||op==="mdo_offen")codes.push({hd:codes.length===0,code:"M21.4"+s,desc:"Plattfuß (Pes planus)"});
+      if(op==="calc_ot_verl")codes.push({hd:codes.length===0,code:"M21.4"+s,desc:"Plattfuß (Pes planus)"});
+      if(op==="peroneal"){
+        if(peronealTyp==="luxation")codes.push({hd:codes.length===0,code:"M67.46"+s,desc:"Peronealsehnenluxation"});
+        else codes.push({hd:codes.length===0,code:"M66.27"+s,desc:"Spontanruptur Peronealsehne"});
+      }
+      if(op==="os_tib_ext")codes.push({hd:codes.length===0,code:"Q74.2"+s,desc:"Os tibiale externum (symptomatisch)"});
+      if(op==="supramal_ot"){
+        if(supramalTyp==="closed")codes.push({hd:codes.length===0,code:"M21.17"+s,desc:"Varusdeformität Unterschenkel/OSG"});
+        else codes.push({hd:codes.length===0,code:"M21.07"+s,desc:"Valgusdeformität Unterschenkel/OSG"});
+      }
+      if(op==="hohlfuss")codes.push({hd:codes.length===0,code:"Q66.7"+s,desc:"Pes cavus"});
+    });
+    // COALITIO
+    if(coalTyp)codes.push({hd:codes.length===0,code:"Q66.5"+s,desc:"Tarsale Coalitio"});
+    // MITTELFUSS
+    if(mfCotton)codes.push({hd:codes.length===0,code:"M21.4"+s,desc:"Plattfuß (Pes planus)"});
+    if(mfTmt.length>0)codes.push({hd:codes.length===0,code:"M19.87"+s,desc:"Sonstige Arthrose Tarsometatarsalgelenk"});
+    // ME
+    if(meOp.includes("stell"))codes.push({hd:true,code:"Z47.0"+s,desc:"Entfernung Osteosynthesematerial"});
+    // FRAKTUREN
+    fxOp.forEach(op=>{
+      if(op==="fibula_einf"||op==="fibula_mehr"){codes.push({hd:codes.length===0,code:"S82.6"+s,desc:"Fraktur des Außenknöchels"});
+        if(fxSyndes)codes.push({hd:false,code:"S93.43"+s,desc:"Verletzung der Syndesmose"});}
+    });
+    // UC
+    if(ucOp){
+      if(ucOp.startsWith("klav"))codes.push({hd:true,code:"S42.0"+s,desc:"Fraktur der Klavikula"});
+      if(ucOp.startsWith("olekranon"))codes.push({hd:true,code:"S52.0"+s,desc:"Fraktur des Olekranon"});
+      if(ucOp.startsWith("radius_einf")||ucOp.startsWith("radius_mehr"))codes.push({hd:true,code:"S52.5"+s,desc:"Distale Radiusfraktur"});
+      if(ucOp.startsWith("radius_prox"))codes.push({hd:true,code:"S52.1"+s,desc:"Fraktur des Radiuskopfes"});
+      if(ucOp==="tfna")codes.push({hd:true,code:"S72.1"+s,desc:"Pertrochantäre Femurfraktur"});
+      if(ucOp==="duokopf")codes.push({hd:true,code:"S72.0"+s,desc:"Schenkelhalsfraktur"});
+      if(ucOp.startsWith("fibula"))codes.push({hd:true,code:"S82.6"+s,desc:"Fraktur des Außenknöchels"});
+    }
+    return codes;
+  },[gz,mitAkin,hoffTill,zc,dmmo,osgOp,tepType,rfOp,peronealTyp,supramalTyp,hohlfussTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side]);
+
+    // Collected OPS codes
   const [allOPS,erloesData]=useMemo(()=>{
     const o=[];
     if(gz==="chevron"){o.push("5-788.5c","5-788.40","5-93b.0","5-854.2c");if(mitAkin)o.push("5-788.56");}
@@ -1243,6 +1330,13 @@ function OPBerichtApp(){
     return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,mdoFDL,mdoCotton,t2Length,t2Width,t2Becken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,hohlfussTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa]);
 
   // Text version for Word export
+  const icdText=useMemo(()=>{
+    if(icdCodes.length===0)return "";
+    var t="\nICD-10 DIAGNOSEN:\n";
+    icdCodes.forEach(function(c){t+=(c.hd?"HD: ":"ND: ")+c.code+" "+c.desc+"\n";});
+    return t;
+  },[icdCodes]);
+
   const erloesText=useMemo(()=>{
     if(!erloesData)return "";
     var d=erloesData;
@@ -1357,6 +1451,24 @@ const UC_TEXT_MAP={
       empf:hasHDRG?"amb":"n2",hint:e.hint,kodier:e.kodier,
       pct:e.pct,hdrg:e.hdrg,hdrgE:e.hdrgE,basis:e.basis,basisE:e.basisE};
   },[ucOp]);
+
+  // UC full text for Word export
+  const ucFullText=useMemo(()=>{
+    if(!ucOp||!UC_TEXT_MAP||!UC_TEXT_MAP[ucOp])return "";
+    var t=T[UC_TEXT_MAP[ucOp]];
+    if(ucOp==="tfna")t=t.replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___");
+    else if(ucOp==="duokopf")t=t.replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken");
+    else if(ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox"))t=t.replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben");
+    else if(ucOp&&ucOp.startsWith("fibula"))t=t.replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":"");
+    else if(ucOp&&ucOp.startsWith("klav"))t=t.replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben");
+    return t;
+  },[ucOp,side,tfnaAngle,tfnaLength,tfnaDiam,tfnaBlade,dkShell,dkShaft,dkHead]);
+
+  const ucErloesText=useMemo(()=>{
+    if(!ucErloesData)return "";
+    return "\n\nERLÖSÜBERSICHT – "+ucErloesData.label+"\nH-DRG: "+ucErloesData.hdrg+" "+ucErloesData.hdrgE+" €\nVolle DRG: "+ucErloesData.basis+" "+ucErloesData.basisE+" €\n"+ucErloesData.hint;
+  },[ucErloesData]);
+
 
   // BUILD TEXT
   const fullText=useMemo(()=>{
@@ -1606,12 +1718,29 @@ const UC_TEXT_MAP={
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
-  function obFallbackCopy(text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.left="-9999px";ta.style.opacity="0";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Kopieren fehlgeschlagen");}document.body.removeChild(ta);}
-  const copy=()=>{if(!canExport)return;obFallbackCopy(fullText+erloesText);};
+  function obFallbackCopy(text){
+    var div=document.createElement("div");
+    var lines=text.split("\n");
+    for(var i=0;i<lines.length;i++){
+      if(i>0)div.appendChild(document.createElement("br"));
+      div.appendChild(document.createTextNode(lines[i]));
+    }
+    div.style.cssText="position:fixed;top:0;left:0;width:90%;max-height:1px;overflow:hidden;opacity:0.01;-webkit-user-select:all;user-select:all;";
+    document.body.appendChild(div);
+    var range=document.createRange();
+    range.selectNodeContents(div);
+    var sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
+    sel.removeAllRanges();
+    document.body.removeChild(div);
+  }
+  const copy=()=>{if(!canExport)return;obFallbackCopy(fullText+icdText+erloesText);};
   const dlDocx=()=>{
     if(!canExport)return;
     try{
-      const f=buildDocx(fullText,erloesText);
+      const f=buildDocx(fullText+icdText,erloesText);
       const z=createZip(f);
       // Convert to base64
       const bytes=new Uint8Array(z);
@@ -1648,11 +1777,11 @@ const UC_TEXT_MAP={
       }catch(e2){}
 
       showToast("⚠ Download blockiert – Text kopiert");
-      obFallbackCopy(fullText+erloesText)
+      obFallbackCopy(fullText+icdText+erloesText)
     }catch(e){
       console.error(e);
       showToast("⚠ Fehler – Text wird kopiert");
-      obFallbackCopy(fullText+erloesText);
+      obFallbackCopy(fullText+icdText+erloesText);
     }
   };
 
@@ -1690,6 +1819,7 @@ const UC_TEXT_MAP={
         <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
           <div><div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>GESCHLECHT</div><div style={row}><div style={gb(gender==="m")} onClick={()=>setGender("m")}>♂ M</div><div style={gb(gender==="w")} onClick={()=>setGender("w")}>♀ W</div></div></div>
           <div><div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>OP-SEITE</div><div style={row}><div style={gb(side==="links")} onClick={()=>setSide("links")}>← L</div><div style={gb(side==="rechts")} onClick={()=>setSide("rechts")}>R →</div></div></div>
+          <div><div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>ALTER</div><div style={row}><div style={gb(alter==="erw")} onClick={()=>setAlter(alter==="erw"?"":"erw")}>≥18 J.</div><div style={{...gb(alter==="kind"),borderColor:alter==="kind"?"#E65100":"",color:alter==="kind"?"#E65100":"",background:alter==="kind"?"rgba(230,81,0,.08)":""}} onClick={()=>setAlter(alter==="kind"?"":"kind")}>{"<18 J. ⚠"}</div></div></div>
         </div>
       </div>
 
@@ -1720,7 +1850,7 @@ const UC_TEXT_MAP={
       <div style={{marginBottom:10}}><div style={h3s}>③ OP-Durchführung</div>
 
       {/* VORFUSS */}
-      <OBSec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF}>
+      <OBSec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF} onReset={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);}}>
         <div style={cat}>Großzehe (1. Strahl)</div>
         <div style={row}>
           {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"]].map(([k,l])=>
@@ -1743,7 +1873,7 @@ const UC_TEXT_MAP={
       </OBSec>
 
       {/* OSG */}
-      <OBSec title="🦵 Oberes Sprunggelenk" open={sec.osg} onToggle={()=>togSec("osg")} active={hasOSG}>
+      <OBSec title="🦵 Oberes Sprunggelenk" open={sec.osg} onToggle={()=>togSec("osg")} active={hasOSG} onReset={()=>{setOsgOp([]);setBrostromIB(false);setAskOsteo(false);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);setNanoSeite("medial");setOsgArtSchraube(true);setOsgArtPlatte(true);setOsgArtSpongiosa(false);}}>
         <div style={row}>
           {[["ask_nano","ASK + Nanofrakturierung"],["brostrom","Brostrom-Gould"],["arthrodese_osg","Arthrodese OSG"],["amic","AMIC-Talus"],["t2_nagel","T2 Nagel (TTC)"]].map(([k,l])=>
             <div key={k} style={chip(osgOp.includes(k))} onClick={()=>togArr(osgOp,setOsgOp,k)}>{l}</div>
@@ -1787,7 +1917,7 @@ const UC_TEXT_MAP={
       </OBSec>
 
       {/* OSG-TEP (EIGENE SEKTION) */}
-      <OBSec title="🏥 OSG-Totalendoprothese" open={sec.tep} onToggle={()=>togSec("tep")} active={hasTEP}>
+      <OBSec title="🏥 OSG-Totalendoprothese" open={sec.tep} onToggle={()=>togSec("tep")} active={hasTEP} onReset={()=>{setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");}}>
         <div style={cat}>Primär-TEP</div>
         <div style={row}>
           <div style={chip(tepType==="primaer_inbone")} onClick={()=>{setTepType(tepType==="primaer_inbone"?"":"primaer_inbone");setTepTalCut("flat");}}>Inbone II</div>
@@ -1866,7 +1996,7 @@ const UC_TEXT_MAP={
       </OBSec>
 
       {/* RÜCKFUSS */}
-      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF}>
+      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);}}>
         <div style={row}>
           {[["haglund_mini","Haglund mini open"],["haglund","Haglund + AS-Split"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["as_naht","Achillessehnennaht"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
@@ -1933,7 +2063,7 @@ const UC_TEXT_MAP={
         
       </OBSec>
 
-      <OBSec title="🦴 Coalitio" open={sec.coal} onToggle={()=>togSec("coal")} active={coalTyp!==""}>
+      <OBSec title="🦴 Coalitio" open={sec.coal} onToggle={()=>togSec("coal")} active={coalTyp!==""} onReset={()=>{setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);}}>
         <div style={row}>
           {[["tc","Talocalcaneare"],["cn","Calcaneo-Naviculare"]].map(([k,l])=>
             <div key={k} style={chip(coalTyp===k)} onClick={()=>setCoalTyp(coalTyp===k?"":k)}>{l}</div>
@@ -1949,7 +2079,7 @@ const UC_TEXT_MAP={
       </OBSec>
 
             {/* MITTELFUSS */}
-      <OBSec title="🦶 Mittelfuß" open={sec.mf} onToggle={()=>togSec("mf")} active={hasMF}>
+      <OBSec title="🦶 Mittelfuß" open={sec.mf} onToggle={()=>togSec("mf")} active={hasMF} onReset={()=>{setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);}}>
         <div style={cat}>Cotton-Osteotomie</div>
         <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:6}}>
           <div style={chip(mfCotton)} onClick={()=>{setMfCotton(!mfCotton);if(mfCotton)setMfCottonKnochen("");}}>Cotton-Osteotomie</div>
@@ -1967,14 +2097,14 @@ const UC_TEXT_MAP={
       </OBSec>
 
       {/* UMSTELLUNG */}
-      <OBSec title="🔧 Umstellungsosteotomien" open={sec.um} onToggle={()=>togSec("um")} active={hasUM}>
+      <OBSec title="🔧 Umstellungsosteotomien" open={sec.um} onToggle={()=>togSec("um")} active={hasUM} onReset={()=>{setUmOp([]);}}>
         <div style={row}>
           
         </div>
       </OBSec>
 
       {/* FRAKTUREN - Fibula → UC-Modul */}
-      <OBSec title="🩹 Frakturen (Fuß)" open={sec.fx} onToggle={()=>togSec("fx")} active={hasFX}>
+      <OBSec title="🩹 Frakturen (Fuß)" open={sec.fx} onToggle={()=>togSec("fx")} active={hasFX} onReset={()=>{setFxOp([]);setFxSyndes(false);}}>
         <div style={row}>
           {[["fibula_einf","Weber B einfach (WSP)"],["fibula_mehr","Weber B/C Mehrfragment"]].map(([k,l])=>
             <div key={k} style={chip(fxOp.includes(k))} onClick={()=>togArr(fxOp,setFxOp,k)}>{l}</div>
@@ -1987,7 +2117,7 @@ const UC_TEXT_MAP={
       </OBSec>
 
       {/* ME */}
-      <OBSec title="🔩 Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={hasME}>
+      <OBSec title="🔩 Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={hasME} onReset={()=>{setMeOp([]);}}>
         <div style={row}>
           {[["stell","Stellschraube dist. Fibula"],["revision_ose","Revision OSE + Wechsel"]].map(([k,l])=>
             <div key={k} style={chip(meOp.includes(k))} onClick={()=>togArr(meOp,setMeOp,k)}>{l}</div>
@@ -2009,6 +2139,18 @@ const UC_TEXT_MAP={
       </div>}
 
       {/* ERLÖSMATRIX */}
+      {icdCodes.length>0&&<div style={{...card,marginBottom:6}}><div style={h3s}>🏥 ICD-10 Diagnosen</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{icdCodes.map(function(c,i){return <div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 8px",borderRadius:6,border:c.hd?"2px solid #00838F":"1px solid rgba(0,0,0,.1)",background:c.hd?"rgba(0,131,143,.06)":"rgba(255,255,255,.95)"}}>
+          <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:11,fontWeight:700,color:"#00838F"}}>{c.code}</span>
+          <span style={{fontSize:10,color:"#2D3748"}}>{c.desc}</span>
+          {c.hd&&<span style={{fontSize:8,padding:"1px 4px",borderRadius:3,background:"#00838F",color:"#fff",fontWeight:700}}>HD</span>}
+        </div>;})}</div>
+      </div>}
+      {alter==="kind"&&erloesData&&<div style={{margin:"0 0 6px",padding:"10px 14px",borderRadius:8,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
+        <div style={{fontSize:13,fontWeight:700,color:"#E65100"}}>⛔ KEIN H-DRG MÖGLICH – Patient {"<"}18 Jahre!</div>
+        <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
+        <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
+      </div>}
       {erloesData&&<div style={card}><div style={h3s}>💰 Erlösübersicht – {erloesData.label}</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:10}}>{erloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:4,marginBottom:10}}>
@@ -2031,7 +2173,13 @@ const UC_TEXT_MAP={
           })}
         </div>
         <div style={{marginTop:6,fontSize:10,color:"#006B6F",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>🎯 Ökonomisches Codierziel:</span> {erloesData.ziel}</div>
-        {erloesData.kodier&&<div style={{marginTop:6,fontSize:10,color:"#F57F17",background:"rgba(245,127,23,.06)",border:"1px solid rgba(245,127,23,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>📋 Kodierhinweise:</span> {erloesData.kodier}</div>}
+        {erloesData.kodier&&<div style={{marginTop:10,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
+        <div style={{background:"#E65100",padding:"6px 12px",display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:14}}>⚠</span>
+          <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>KODIERHINWEISE – Erlösrelevant!</span>
+        </div>
+        <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-line"}}>{erloesData.kodier}</div>
+      </div>}
         {erloesData.hdrg!=="—"&&<div style={{marginTop:4,fontSize:9,color:"#718096"}}>H-DRG: Anlage 2a, §115f SGB V, 2026 · +30 € bei Nachbehandlung im KH</div>}
       </div>}
 
@@ -2067,7 +2215,19 @@ const UC_TEXT_MAP={
           </div>;})}
         </div>
 
-        {ucErloesData&&<div style={card}><div style={h3s}>💰 Erlösübersicht – {ucErloesData.label}</div>
+        {icdCodes.length>0&&<div style={{...card,marginBottom:6}}><div style={h3s}>🏥 ICD-10 Diagnosen</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{icdCodes.map(function(c,i){return <div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 8px",borderRadius:6,border:c.hd?"2px solid #00838F":"1px solid rgba(0,0,0,.1)",background:c.hd?"rgba(0,131,143,.06)":"rgba(255,255,255,.95)"}}>
+          <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:11,fontWeight:700,color:"#00838F"}}>{c.code}</span>
+          <span style={{fontSize:10,color:"#2D3748"}}>{c.desc}</span>
+          {c.hd&&<span style={{fontSize:8,padding:"1px 4px",borderRadius:3,background:"#00838F",color:"#fff",fontWeight:700}}>HD</span>}
+        </div>;})}</div>
+      </div>}
+      {alter==="kind"&&ucErloesData&&<div style={{margin:"0 0 6px",padding:"10px 14px",borderRadius:8,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
+        <div style={{fontSize:13,fontWeight:700,color:"#E65100"}}>⛔ KEIN H-DRG MÖGLICH – Patient {"<"}18 Jahre!</div>
+        <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
+        <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
+      </div>}
+      {ucErloesData&&<div style={card}><div style={h3s}>💰 Erlösübersicht – {ucErloesData.label}</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>{ucErloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
           <div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>H-DRG {ucErloesData.hdrg}: <span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.hdrgE} €</span> = <span style={{color:"#EF6C00"}}>{ucErloesData.pct}</span> der vollen DRG {ucErloesData.basis} ({ucErloesData.basisE} €)</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}}>
@@ -2092,7 +2252,13 @@ const UC_TEXT_MAP={
             </div>
           </div>
           <div style={{marginTop:8,fontSize:10,color:"#00897B",background:"rgba(0,137,123,.04)",border:"1px solid rgba(0,137,123,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>💡 Erlössteuerung:</span> {ucErloesData.hint}</div>
-          {ucErloesData.kodier&&<div style={{marginTop:6,fontSize:10,color:"#F57F17",background:"rgba(245,127,23,.06)",border:"1px solid rgba(245,127,23,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>📋 Kodierung:</span> {ucErloesData.kodier}</div>}
+          {ucErloesData.kodier&&<div style={{marginTop:10,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
+          <div style={{background:"#E65100",padding:"6px 12px",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{fontSize:14}}>⚠</span>
+            <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>KODIERHINWEISE – Erlösrelevant!</span>
+          </div>
+          <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-line"}}>{ucErloesData.kodier}</div>
+        </div>}
           <div style={{marginTop:8,fontSize:10,color:"#E65100",background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.15)",borderRadius:6,padding:8}}>
             <span style={{fontWeight:700}}>⚠ Trauma-Steuerung:</span> Bei Trauma-H-DRGs ist die Differenz H-DRG vs. Kurzlieger-DRG (1 Nacht) gering. Der Fokus liegt auf <span style={{fontWeight:700}}>2 Nächte halten</span> für die volle DRG. Differenz zur H-DRG: <span style={{fontWeight:700}}>+{(parseFloat(ucErloesData.basisE.replace(".",""))-parseFloat(ucErloesData.hdrgE.replace(".",""))).toLocaleString("de-DE")} €</span>
           </div>
@@ -2118,7 +2284,8 @@ const UC_TEXT_MAP={
           <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:6}}>📝 OP-Bericht</div>
           <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]])}</div>
           <div style={{display:"flex",gap:6,marginTop:8}}>
-            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{var ucCopyText=ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]];obFallbackCopy(ucCopyText)}}>📋 Text kopieren</div>
+            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{obFallbackCopy(ucFullText+ucErloesText)}}>📋 Text kopieren</div>
+            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#00838F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{try{var icdT="";if(icdCodes.length>0){icdT="\n\nICD-10 DIAGNOSEN:\n";icdCodes.forEach(function(c){icdT+=(c.hd?"HD: ":"ND: ")+c.code+" "+c.desc+"\n";});}var f=buildDocx(ucFullText+icdT,ucErloesText);var z=createZip(f);var bytes=new Uint8Array(z);var b="";for(var i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]);var d="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,"+btoa(b);var a=document.createElement("a");a.href=d;a.download="UC_OP_Bericht.docx";document.body.appendChild(a);a.click();document.body.removeChild(a);showToast("📄 Word heruntergeladen!");}catch(e){console.error(e);showToast("⚠ Fehler beim Download");}}}>📄 Word</div>
           </div>
         </div>}
         {ucOp&&!UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12,fontSize:10,color:"#718096",fontStyle:"italic"}}>OP-Text für diesen Eingriff noch nicht hinterlegt.</div>}
