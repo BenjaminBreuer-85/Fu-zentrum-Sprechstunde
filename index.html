@@ -3492,6 +3492,69 @@ function HDRGSearch(){
   </div>;
 }
 
+
+// ============================================================
+// OP-MANUALE – Bibliothek (Tool 4)
+// ============================================================
+function OPManuale(){
+  const [q,setQ]=useState("");
+  const [openCat,setOpenCat]=useState({});
+  const togCat=k=>setOpenCat(p=>({...p,[k]:!p[k]}));
+
+  const MANUALE=[
+    {cat:"🦿 OSG-Totalendoprothese",items:[
+      {title:"Infinity Prophecy Resect-Through",desc:"Prophecy Navigationssystem, Resect-Through Technique",file:"Infinity Prophecy Resect-Through.pdf"},
+      {title:"Infinity Prophecy Pin Through",desc:"Prophecy Navigationssystem, Pin-Through Technique",file:"Infinity Prophecy Pin Through.pdf"},
+      {title:"Infinity konventionell",desc:"Infinity Total Ankle, konventionelle Implantationstechnik",file:"Infinity konventionell.pdf"},
+      {title:"Inbone II Prophecy",desc:"Inbone II mit Prophecy Navigationssystem",file:"Inbone II Prophecy.pdf"},
+      {title:"Inbone II konventionell",desc:"Inbone II Total Ankle, konventionelle Implantationstechnik",file:"Inbone II konventionell.pdf"},
+    ]},
+  ];
+
+  const BASE_URL="https://benjaminbreuer-85.github.io/Fu-zentrum-Sprechstunde/manuale/";
+
+  const filtered=q.trim()?MANUALE.map(function(cat){
+    var items=cat.items.filter(function(it){
+      var term=q.trim().toLowerCase();
+      return it.title.toLowerCase().includes(term)||it.desc.toLowerCase().includes(term)||it.file.toLowerCase().includes(term)||cat.cat.toLowerCase().includes(term);
+    });
+    return items.length>0?{cat:cat.cat,items:items}:null;
+  }).filter(Boolean):MANUALE;
+
+  return <div style={{padding:16}}>
+    <div style={{display:"flex",gap:8,marginBottom:16}}>
+      <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Suche nach Titel, Implantat, Technik..." style={{flex:1,padding:"8px 12px",borderRadius:6,border:"1px solid rgba(0,107,111,.3)",fontSize:12,background:"rgba(255,255,255,.95)"}}/>
+      {q&&<div onClick={()=>setQ("")} style={{padding:"8px 12px",borderRadius:6,background:"rgba(0,0,0,.06)",fontSize:12,cursor:"pointer",color:"#718096"}}>✕</div>}
+    </div>
+    {filtered.length===0&&<div style={{padding:20,textAlign:"center",color:"#718096"}}>
+      <div style={{fontSize:13}}>Keine Treffer für "{q}"</div>
+    </div>}
+    {filtered.map(function(cat){
+      var isOpen=openCat[cat.cat]!==false;
+      return <div key={cat.cat} style={{marginBottom:8,border:"1px solid rgba(0,0,0,.08)",borderRadius:10,overflow:"hidden",background:"#fff"}}>
+        <div onClick={()=>togCat(cat.cat)} style={{padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(0,131,143,.03)"}}>
+          <span style={{fontSize:13,fontWeight:600,color:"#006B6F"}}>{isOpen?"▼":"▶"} {cat.cat}</span>
+          <span style={{fontSize:10,color:"#718096"}}>{cat.items.length} {cat.items.length===1?"Dokument":"Dokumente"}</span>
+        </div>
+        {isOpen&&<div style={{padding:"8px 14px 14px"}}>
+          {cat.items.map(function(it,i){return <a key={i} href={BASE_URL+it.file} target="_blank" rel="noopener noreferrer" style={{display:"block",textDecoration:"none",padding:"10px 12px",marginBottom:4,borderRadius:6,border:"1px solid rgba(0,0,0,.08)",background:"rgba(255,255,255,.95)",transition:"all .15s",cursor:"pointer"}}
+            onMouseEnter={function(e){e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.background="rgba(0,131,143,.04)";}}
+            onMouseLeave={function(e){e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.background="rgba(255,255,255,.95)";}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:20}}>📄</span>
+              <div>
+                <div style={{fontSize:12,fontWeight:600,color:"#006B6F"}}>{it.title}</div>
+                <div style={{fontSize:10,color:"#718096",marginTop:2}}>{it.desc}</div>
+              </div>
+            </div>
+          </a>;})}
+        </div>}
+      </div>;
+    })}
+    <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>PDFs werden direkt von GitHub geladen · Klick öffnet in neuem Tab</div>
+  </div>;
+}
+
 function LandingPage({onSelect}) {
   return (
     <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"40px 20px 20px"}}>
@@ -3533,7 +3596,16 @@ function LandingPage({onSelect}) {
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>904 OPS · §115f SGB V · Anlage 2a 2026</div>
         </div>
       </div>
-      <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.2 · April 2026</div>
+      <div onClick={()=>onSelect("manuale")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:12}}>📚</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>OP-Manuale</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Sortierte Sammlung von OP-Technik-Manualen und Implantatsystemen als PDF.</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Infinity · Inbone II · Prophecy · konventionell</div>
+        </div>
+      </div>
+      <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.3 · April 2026</div>
     </div>
   );
 }
@@ -3584,7 +3656,27 @@ function App() {
     </div>
   );
 
-  return <LandingPage onSelect={setTool} />;
+
+  if (tool === "manuale") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:11,fontWeight:600}}>
+          ← Toolbox
+        </div>
+      </div>
+      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:700,margin:"0 auto",padding:"60px 16px 40px"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📚 OP-Manuale</div>
+          <div style={{fontSize:11,color:"#718096"}}>Operative Technique Guides · Implantatsysteme · PDF-Bibliothek</div>
+        </div>
+        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
+          <OPManuale/>
+        </div>
+      </div>
+    </div>
+  );
+
+    return <LandingPage onSelect={setTool} />;
 }
 
 
