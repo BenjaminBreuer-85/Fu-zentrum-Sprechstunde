@@ -3595,8 +3595,7 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Prüfen ob ein OPS-Code auf der Hybrid-DRG Positivliste 2026 steht. Code- und Freitextsuche.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>904 OPS · §115f SGB V · Anlage 2a 2026</div>
         </div>
-      </div>
-      <div onClick={()=>onSelect("manuale")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+        <div onClick={()=>onSelect("manuale")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:12}}>📚</div>
