@@ -291,7 +291,32 @@ function Sec({ title, children, open, onToggle }) {
    MAIN
    ============================================================ */
 function SprechstundenbriefApp() {
-  var _s = useState, _m = useMemo;
+  
+// Fallsteuerung: opMethode → H-DRG / AOP / Stationär
+const OP_STEUERUNG={
+  chevron:{typ:"hdrg",drg:"I20O",erloes:"1.007 €",hinweis:"Ambulant H-DRG empfohlen"},
+  chevron_akin:{typ:"hdrg",drg:"I20O",erloes:"1.007 €",hinweis:"Ambulant H-DRG empfohlen"},
+  lapidus:{typ:"aop",drg:"I20D",erloes:"4.710 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
+  cheilektomie:{typ:"hdrg",drg:"I20O",erloes:"1.007 €",hinweis:"Ambulant H-DRG empfohlen"},
+  mtp1_arthrodese:{typ:"hdrg",drg:"I20N",erloes:"2.085 €",hinweis:"Ambulant H-DRG empfohlen"},
+  brostrom_gould:{typ:"stat",drg:"I59Z",erloes:"3.225 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
+  brostrom_int_brace:{typ:"stat",drg:"I59Z",erloes:"3.225 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
+  bandplastik_autolog:{typ:"stat",drg:"I59Z",erloes:"3.225 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
+  ask_osg:{typ:"hdrg",drg:"I20O",erloes:"1.007 €",hinweis:"Ambulant H-DRG empfohlen"},
+  arthrodese_osg:{typ:"stat",drg:"I13E",erloes:"5.829 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
+  tep_infinity:{typ:"stat",drg:"I05B",erloes:"8.773 € (stat.)",hinweis:"Stationär, MVWD 6,2 T"},
+  tep_inbone:{typ:"stat",drg:"I05B",erloes:"8.773 € (stat.)",hinweis:"Stationär, MVWD 6,2 T"},
+  amic:{typ:"stat",drg:"I13G",erloes:"4.539 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
+  mco:{typ:"stat",drg:"I20C",erloes:"5.068 € (stat.)",hinweis:"Stationär ≥2 Nächte"},
+  lcot:{typ:"stat",drg:"I20C",erloes:"5.068 € (stat.)",hinweis:"In Kombination mit Calc-OT"},
+  cotton:{typ:"stat",drg:"I20C",erloes:"5.068 € (stat.)",hinweis:"Stationär ≥2 Nächte"},
+  calcaneus_ot:{typ:"stat",drg:"I20C",erloes:"5.068 € (stat.)",hinweis:"Stationär ≥2 Nächte"},
+  coalition_exzision:{typ:"stat",drg:"I27D",erloes:"4.333 € (stat.)",hinweis:"Stationär"},
+  subtalar_arthrodese:{typ:"stat",drg:"I13E",erloes:"5.829 € (stat.)",hinweis:"Stationär ≥2 Nächte"},
+  arthrodese_tmt:{typ:"stat",drg:"I20D",erloes:"4.710 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
+};
+
+var _s = useState, _m = useMemo;
   var gs = _s(""), gender = gs[0], setGender = gs[1];
   var bs2 = _s(""), begleitung = bs2[0], setBegleitung = bs2[1];
   var ss = _s(""), seite = ss[0], setSeite = ss[1];
@@ -648,7 +673,25 @@ function SprechstundenbriefApp() {
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
         </div>}
-        {diagnosen.length > 0 && <div style={{ marginTop: 8 }}>
+        {opMethode.length > 0 && <div style={{ marginTop: 8, padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(0,107,111,.2)", background: "rgba(0,107,111,.04)" }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#006B6F", marginBottom: 6 }}>📋 Fallsteuerung</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+          {opMethode.map(function(m) {
+            var s = OP_STEUERUNG[m];
+            if (!s) return null;
+            var bgCol = s.typ === "hdrg" ? "rgba(0,131,143,.12)" : s.typ === "aop" ? "rgba(25,118,210,.12)" : "rgba(230,81,0,.1)";
+            var txtCol = s.typ === "hdrg" ? "#00838F" : s.typ === "aop" ? "#1565C0" : "#E65100";
+            var icon = s.typ === "hdrg" ? "🔄" : s.typ === "aop" ? "📋" : "🏥";
+            var label = s.typ === "hdrg" ? "H-DRG" : s.typ === "aop" ? "AOP" : "Stationär";
+            var opName = OPS[m] ? OPS[m] : m;
+            return <div key={m} style={{ fontSize: 10, padding: "4px 8px", borderRadius: 6, background: bgCol, color: txtCol, lineHeight: 1.4 }}>
+              <span style={{ fontWeight: 700 }}>{icon} {label}</span> {s.drg} · {s.erloes}
+              <div style={{ fontSize: 9, color: "#718096", marginTop: 1 }}>{s.hinweis}</div>
+            </div>;
+          })}
+          </div>
+        </div>}
+                {diagnosen.length > 0 && <div style={{ marginTop: 8 }}>
           <div style={cat}>Scores</div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             <div style={{ flex: "0 0 70px" }}><div style={{ fontSize: 9, color: "#718096" }}>EFAS 1</div><input value={efas1} onChange={function(e) { setEfas1(e.target.value); }} placeholder="/" /></div>
@@ -1076,7 +1119,7 @@ function OPBerichtApp(){
     if(coalLCOT)P("Tutogene Block 20×10×10 (LCOT)","Tutogene",333);
     // MITTELFUSS
     if(mfCotton&&mfCottonKnochen==="allogen")P("Tutogene Block 20×10×10 (Cotton)","Tutogene",333);
-    if(mfTmt.length>0){var tmtCount=mfTmt.length;P(tmtCount+"× Variax Curved 4L + 4× Variax 2,7 (TMT)","Stryker",tmtCount*271.21);}
+    if(mfTmt.length>0){var tmtGelenke=0;mfTmt.forEach(function(t){if(t==="tmt1"||t==="tmt2")tmtGelenke+=1;if(t==="tmt2_3")tmtGelenke+=2;if(t==="tmt1_3")tmtGelenke+=3;});if(tmtGelenke>0)P(tmtGelenke+"× Variax Curved 4L + 4× Variax 2,7 (TMT ×"+tmtGelenke+" Gelenke)","Stryker",tmtGelenke*271.21);}
     // FRAKTUREN
     fxOp.forEach(op=>{
       if(op==="fibula_einf")PEND("Weber B einfach Implantate","–");
@@ -1223,19 +1266,19 @@ function OPBerichtApp(){
     // ============================================================
 
     // Lapidus
-    if(gz==="lapidus") return [o,{label:"Lapidus",ops:o,
+    if(gz==="lapidus"&&(_prio==="lapidus"||_cm<=1.033)) return [o,{label:"Lapidus",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20D ~3.700 €",drg:"I20D 4.710 €",hdrg_n1:"—",empf:"n2",
       ziel:"Keine H-DRG (5-808.a4 nicht auf Positivliste) → stationär, mind. 2 Nächte → volle DRG I20D (CM 1,033 = 4.710 €).",
       kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-784.0u (Spongiosa aus Exostose).\n5-854.2c (Sehnentransfer) mitkodieren."}];
 
     // MTP-I-Arthrodese
-    if(gz==="mtp1art") {
+    if(gz==="mtp1art"&&_isVF) {
       const dmmoCnt=dmmo.length;
-      if(dmmoCnt>=3) return [o,{label:"MTP-I-Arthrodese + ≥3 DMMO",ops:o,
+      if(dmmoCnt>=3&&_isVF) return [o,{label:"MTP-I-Arthrodese + ≥3 DMMO",ops:o,
         hdrg:"—",ebm:"—",kurz:"I20D ~3.700 €",drg:"I20D 4.710 €",hdrg_n1:"—",empf:"n2",
         ziel:"≥3 DMMO → keine H-DRG. Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €).\n5-784.0v (Spongiosa) IMMER mitkodieren.",
         kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.54/55.\n5-784.0v (Spongiosa) IMMER mitkodieren → I20D. ⚠ Im OP-Bericht erwähnen!"}];
-      if(dmmoCnt>=1) return [o,{label:"MTP-I-Arthrodese + DMMO",ops:o,
+      if(dmmoCnt>=1&&_isVF) return [o,{label:"MTP-I-Arthrodese + DMMO",ops:o,
         hdrg:"I20N 2.085 €",ebm:"—",kurz:"I20E ~2.800 €",drg:"I20E 3.728 €",hdrg_n1:"I20N 2.085 €",empf:"amb",
         ziel:"Ambulant → H-DRG I20N (2.085 €). ❌ 5-784.0v NICHT kodieren!\n1 Nacht: gekürzte DRG I20E (~2.800 €).\nAb 2 Nächte: 5-784.0v mitkodieren → volle DRG I20E (3.728 €).",
         kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.52/53.\n⚠ Ambulant: 5-784.0v NICHT kodieren → H-DRG I20N!\n⚠ Stationär: 5-784.0v IMMER → Kontextprozedur → I20E."}];
@@ -1246,26 +1289,33 @@ function OPBerichtApp(){
     }
 
     // Chevron/Scarf/Cheilektomie/Exostose
-    if(gz==="chevron"||gz==="cheilek"||gz==="scarf"||gz==="exostose"){
+    if((gz==="chevron"||gz==="cheilek"||gz==="scarf"||gz==="exostose")&&_isVF){
       const lbl=gz==="chevron"?"Chevron":gz==="cheilek"?"Cheilektomie":gz==="scarf"?"Scarf":"Exostose";
       const isOT=gz==="chevron"||gz==="scarf";
-      return [o,{label:lbl+(mitAkin?" + Akin":"")+(dmmo.length>0?" + DMMO":""),ops:o,
+      if(_isVF) return [o,{label:lbl+(mitAkin?" + Akin":"")+(dmmo.length>0?" + DMMO":""),ops:o,
         hdrg:"I20O 1.007 €",ebm:"EBM ~300 €",kurz:isOT?"I20E ~2.800 €":"I20F ~2.000 €",drg:isOT?"I20E 3.728 €":"I20F 3.040 €",hdrg_n1:"I20O 1.007 €",empf:"amb",
         ziel:"Ambulant → H-DRG I20O (1.007 €). ❌ 5-854.2c NICHT kodieren!"+(isOT?"\nStationär ≥2N: 5-854.2c IMMER mitkodieren → I20E (3.728 €).":""),
         kodier:isOT?"⚠ HEBEL-CODE: 5-854.2c (Sehnentransfer/Rebalancing).\nAmbulant: NICHT kodieren → H-DRG I20O.\nStationär: IMMER mitkodieren → Kontextprozedur → I20E.\n⚠ Sehnentransfer muss im OP-Bericht dokumentiert sein!":"OPS: 5-788.00 (Cheilektomie/Exostose) → I20O ambulant."}];
     }
 
     // Kleinzehen/DMMO ≤2
-    if((Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)&&!hasDMMOover2) return [o,{label:"Kleinzehen/DMMO",ops:o,
+    if((Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)&&!hasDMMOover2&&_isVF) return [o,{label:"Kleinzehen/DMMO",ops:o,
       hdrg:"I20O 1.007 €",ebm:"EBM ~300 €",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"I20O 1.007 €",empf:"amb",
       ziel:"Ambulant → H-DRG I20O (1.007 €).",
       kodier:"DMMO max. 2× (5-788.52/53) für H-DRG! >2× = keine H-DRG.\n5-854.0c (Strecksehnenverlängerung): Ambulant NICHT mitkodieren."}];
 
     // DMMO >2
-    if(hasDMMOover2) return [o,{label:"DMMO ≥3 MT",ops:o,
+    if(hasDMMOover2&&_isVF) return [o,{label:"DMMO ≥3 MT",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"—",empf:"n2",
       ziel:"5-788.54/55 nicht auf Positivliste → keine H-DRG. Stationär ≥2 Nächte → I20F (3.040 €).",
       kodier:"5-788.54/55 = DMMO 3–4 MT. Ambulant: H-DRG-Code dazukodieren erwägen."}];
+
+
+    // T2 Nagel TTC → I20A
+    if(osgOp.includes("t2_nagel")) return [o,{label:"T2 Nagel (TTC-Arthrodese)",ops:o,
+      hdrg:"—",ebm:"—",kurz:"I20A ~7.100 €",drg:"I20A 8.954 €",hdrg_n1:"—",empf:"n3",
+      ziel:"Immer stationär, mind. 3–5 Nächte → I20A (CM 1,963 = 8.954 €).",
+      kodier:"5-808.71 (TTC-Arthrodese)."+(t2Becken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
 
     // OSG-Arthrodese → I13E / I13D
     if(osgOp.includes("arthrodese_osg")) return [o,{label:"OSG-Arthrodese"+(osgArtSpongiosa?" + Spongiosa":""),ops:o,
@@ -1285,11 +1335,6 @@ function OPBerichtApp(){
       ziel:"Kein H-DRG! Auch mit ASK kein H-DRG.\n1 Nacht: gekürzte DRG I59Z (CM 0,576 = ~2.627 €).\nAb 2 Nächte → I59Z (CM 0,707 = 3.225 €).",
       kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+" → I59Z.\n⚠ Kein H-DRG trotz ASK!"}];
 
-    // T2 Nagel TTC → I20A
-    if(osgOp.includes("t2_nagel")) return [o,{label:"T2 Nagel (TTC-Arthrodese)",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I20A ~7.100 €",drg:"I20A 8.954 €",hdrg_n1:"—",empf:"n3",
-      ziel:"Immer stationär, mind. 3–5 Nächte → I20A (CM 1,963 = 8.954 €).",
-      kodier:"5-808.71 (TTC-Arthrodese)."+(t2Becken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
 
     // Arthrorise → kein H-DRG (Klientel <18)
     if(osgOp.includes("arthrorise")) return [o,{label:"Arthrorise",ops:o,
@@ -2276,7 +2321,7 @@ const UC_TEXT_MAP={
       {materialKosten.length>0&&<div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
         <div style={{background:"#1565C0",padding:"6px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:14}}>💶</span><span style={{fontSize:11,fontWeight:700,color:"#fff"}}>MATERIALKOSTEN</span></div>
-          <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{materialKosten.reduce(function(s,m){return s+(m.preis||0);},0).toFixed(2)} €</span>
+          <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{materialKosten.reduce(function(s,m){return s+(m.preis||0);},0).toFixed(2)} € {erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]?(materialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[erloesData.drg.split(" ")[0]]?"🟢":"🔴"):""}</span>
         </div>
         <div style={{padding:"8px 12px",background:"rgba(25,118,210,.04)"}}>
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:10}}>
@@ -2291,7 +2336,7 @@ const UC_TEXT_MAP={
               <td style={{textAlign:"right",padding:"3px 4px",color:m.preis?"#1565C0":"#E65100",fontWeight:600}}>{m.preis?m.preis.toFixed(2)+" €":"⚠️ fehlt"}</td>
             </tr>;})}</tbody>
             <tfoot><tr style={{borderTop:"2px solid rgba(0,0,0,.15)"}}>
-              <td style={{padding:"4px",fontWeight:700,color:"#1565C0"}} colSpan={2}>GESAMT</td>
+              <td style={{padding:"4px",fontWeight:700,color:erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]?(materialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[erloesData.drg.split(" ")[0]]?"#2E7D32":"#C62828"):"#1565C0"}} colSpan={2}>{erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]?(materialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[erloesData.drg.split(" ")[0]]?"🟢":"🔴"):"💶"} GESAMT</td>
               <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{materialKosten.reduce(function(s,m){return s+(m.preis||0);},0).toFixed(2)} €</td>
             </tr>
             {erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]&&<tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
