@@ -1005,7 +1005,7 @@ function OPBerichtApp(){
 
   // Grenzverweildauer (InEK Fallpauschalen-Katalog 2026)
   const GVD={
-    "I13A":{mvwd:14.4,ugvd:4,ogvd:26},"I13B":{mvwd:11.9,ugvd:3,ogvd:23},"I13C":{mvwd:8.3,ugvd:2,ogvd:19},
+    "I13A":{mvwd:14.4,ugvd:4,ogvd:26},"I13C":{mvwd:8.3,ugvd:2,ogvd:19},
     "I13D":{mvwd:6.6,ugvd:1,ogvd:15},"I13E":{mvwd:5.2,ugvd:1,ogvd:12},"I13F":{mvwd:4.1,ugvd:1,ogvd:10},
     "I13G":{mvwd:4.1,ugvd:1,ogvd:10},
     "I20A":{mvwd:9.1,ugvd:2,ogvd:20},"I20B":{mvwd:6.5,ugvd:1,ogvd:16},"I20C":{mvwd:5.2,ugvd:1,ogvd:13},
@@ -1016,6 +1016,14 @@ function OPBerichtApp(){
     "I59Z":{mvwd:2.4,ugvd:1,ogvd:5},
     "I05B":{mvwd:6.2,ugvd:1,ogvd:13},"I05C":{mvwd:5.1,ugvd:1,ogvd:10},
     "I43A":{mvwd:30.1,ugvd:9,ogvd:48},"I43B":{mvwd:8.2,ugvd:2,ogvd:16}
+  };
+
+  
+  // InEK Implantatkosten-Referenz (Datenbrowser 2026, Datenjahr 2024, Spalte 5 OP-Bereich)
+  const INEK_IMPL={
+    "I20F":71.63,"I20E":248.00,"I20D":404.23,"I20C":302.41,"I20B":508.42,"I20A":780.56,
+    "I13E":579.63,"I13D":627.87,"I13G":302.41,"I27D":42.78,"I27E":42.78,"I59Z":74.43,
+    "I05B":2643.61,"I43B":2710.12
   };
 
     // ============================================================
@@ -1280,7 +1288,7 @@ function OPBerichtApp(){
     // T2 Nagel TTC → I20A
     if(osgOp.includes("t2_nagel")) return [o,{label:"T2 Nagel (TTC-Arthrodese)",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20A ~7.100 €",drg:"I20A 8.954 €",hdrg_n1:"—",empf:"n3",
-      ziel:"Immer stationär, mind. 3–5 Nächte → I20A (CM 1,963 = 8.954 €).\nHöchster Erlös aller Fuß-Eingriffe!",
+      ziel:"Immer stationär, mind. 3–5 Nächte → I20A (CM 1,963 = 8.954 €).",
       kodier:"5-808.71 (TTC-Arthrodese)."+(t2Becken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
 
     // Arthrorise → kein H-DRG (Klientel <18)
@@ -2285,7 +2293,16 @@ const UC_TEXT_MAP={
             <tfoot><tr style={{borderTop:"2px solid rgba(0,0,0,.15)"}}>
               <td style={{padding:"4px",fontWeight:700,color:"#1565C0"}} colSpan={2}>GESAMT</td>
               <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{materialKosten.reduce(function(s,m){return s+(m.preis||0);},0).toFixed(2)} €</td>
-            </tr></tfoot>
+            </tr>
+            {erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]&&<tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
+              <td style={{padding:"4px",fontSize:9,color:"#718096"}} colSpan={2}>InEK-Referenz {erloesData.drg.split(" ")[0]} (Ø Impl.)</td>
+              <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{INEK_IMPL[erloesData.drg.split(" ")[0]].toFixed(2)} €</td>
+            </tr>}
+            {erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]&&function(){var ist=materialKosten.reduce(function(s,m){return s+(m.preis||0);},0);var soll=INEK_IMPL[erloesData.drg.split(" ")[0]];var diff=soll-ist;return <tr>
+              <td style={{padding:"4px",fontSize:9,color:diff>=0?"#2E7D32":"#C62828"}} colSpan={2}>{diff>=0?"✅ Deckungsbeitrag Implantate":"❌ Implantatkostenüberschreitung"}</td>
+              <td style={{textAlign:"right",padding:"4px",fontSize:10,color:diff>=0?"#2E7D32":"#C62828",fontWeight:700}}>{diff>=0?"+":""}{diff.toFixed(2)} €</td>
+            </tr>;}()}
+            </tfoot>
           </table>
           {materialKosten.some(function(m){return !m.preis;})&&<div style={{marginTop:4,fontSize:9,color:"#E65100"}}>⚠️ Einige Preise fehlen – Gesamtsumme ist unvollständig</div>}
         </div>
