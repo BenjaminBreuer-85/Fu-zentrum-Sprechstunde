@@ -2578,7 +2578,7 @@ function HDRGSearch(){
   const [results,setResults]=useState([]);
   const [searched,setSearched]=useState(false);
 
-  // Complete H-DRG Positivliste 2026 - Orthopädie/UC relevant
+  // OPS-Code Zuordnung: H-DRG + AOP + Kontextprozeduren 2026
   const HDRG_LIST=[
     {code:"1-265.4",desc:"Elektrophysiologische Untersuchung des Herzens, kathetergestützt: Bei Tachykardien mit schmalem QRS-Komplex oder atrialen Tachykardien",bereich:"Diagnostik"},
     {code:"1-265.8",desc:"Elektrophysiologische Untersuchung des Herzens, kathetergestützt: Bei Synkopen unklarer Genese",bereich:"Diagnostik"},
@@ -14821,8 +14821,8 @@ function HDRGSearch(){
       <div onClick={doSearch} style={{padding:"8px 16px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>🔍 Suchen</div>
     </div>
     {searched&&results.length===0&&<div style={{padding:16,textAlign:"center",color:"#E65100",background:"rgba(230,81,0,.06)",borderRadius:8,border:"1px solid rgba(230,81,0,.15)"}}>
-      <div style={{fontSize:13,fontWeight:600}}>❌ Nicht auf H-DRG Positivliste</div>
-      <div style={{fontSize:11,marginTop:4}}>Der Code "{q}" ist nicht in der Hybrid-DRG Positivliste 2026 enthalten.</div>
+      <div style={{fontSize:13,fontWeight:600}}>❌ Kein Treffer</div>
+      <div style={{fontSize:11,marginTop:4}}>Der Code "{q}" ist weder in der H-DRG-Liste, im AOP-Katalog noch bei den Kontextprozeduren enthalten.</div>
       <div style={{fontSize:10,marginTop:8,color:"#718096"}}>Tipp: Versuchen Sie einen kürzeren Code (z.B. "5-788") oder einen Suchbegriff (z.B. "Fibula", "Osteotomie", "Kontextprozedur")</div>
     </div>}
     {results.length>0&&<div>
@@ -14841,12 +14841,12 @@ function HDRGSearch(){
       </div>;})}
     </div>}
     {!searched&&<div style={{padding:20,textAlign:"center",color:"#718096"}}>
-      <div style={{fontSize:12,marginBottom:8}}>OPS-Code eingeben → Prüfung ob auf H-DRG Positivliste 2026</div>
+      <div style={{fontSize:12,marginBottom:8}}>OPS-Code eingeben → Zugehörigkeit zu H-DRG, AOP oder Kontextprozedur prüfen</div>
       <div style={{fontSize:10,lineHeight:1.8}}>
         Beispiele: <span style={{fontFamily:"monospace",color:"#00838F"}}>5-788.5c</span> (Chevron) · <span style={{fontFamily:"monospace",color:"#00838F"}}>5-793.kr</span> (Weber B WSP) · <span style={{fontFamily:"monospace",color:"#00838F"}}>5-808.a4</span> (Lapidus – nicht auf Liste!)<br/>
-        Oder Freitext: <span style={{color:"#00838F"}}>Klavikula</span> · <span style={{color:"#00838F"}}>Fibula</span> · <span style={{color:"#E65100"}}>Kontextprozedur</span> · <span style={{color:"#1565C0"}}>AOP</span>
+        Oder Freitext: <span style={{color:"#00838F"}}>Chevron</span> · <span style={{color:"#1565C0"}}>Arthroskopie</span> · <span style={{color:"#E65100"}}>Kontextprozedur</span> · <span style={{color:"#00838F"}}>Fibula</span>
       </div>
-      <div style={{marginTop:12,fontSize:9,color:"#a0aec0"}}>Basis: Anlage zum Beschluss des erweiterten ergänzten Bewertungsausschusses, 8. Sitzung 28.04.2025 · §115f SGB V · 904 H-DRG + 67 Kontextprozeduren + 11.228 AOP</div>
+      
     </div>}
   </div>;
 }
@@ -14865,8 +14865,15 @@ function OPManuale(){
       {title:"Infinity Prophecy Resect-Through",desc:"Prophecy Navigationssystem, Resect-Through Technique",url:"https://drive.google.com/file/d/1hvCBbPDcbxDumRczXybeo4ldyq_PXFzW/preview"},
       {title:"Infinity Prophecy Pin Through",desc:"Prophecy Navigationssystem, Pin-Through Technique",url:"https://drive.google.com/file/d/1rGRfJGcgk-WyAShNXwVRfbgHysRTsxw9/preview"},
       {title:"Infinity konventionell",desc:"Infinity Total Ankle, konventionelle Implantationstechnik",url:"https://drive.google.com/file/d/1lpKmt5smvoHLK9HjyPybUFZs7rTYWyC_/preview"},
-      {title:"Inbone II Prophecy",desc:"Inbone II mit Prophecy Navigationssystem",file:"Inbone II Prophecy.pdf"},
-      {title:"Inbone II konventionell",desc:"Inbone II Total Ankle, konventionelle Implantationstechnik",file:"Inbone II konventionell.pdf"},
+      {title:"Inbone II Prophecy",desc:"Inbone II mit Prophecy Navigationssystem",url:"https://drive.google.com/file/d/18Ugkhj8gzrn10ME47-cZSrGB5ucj7OGX/preview"},
+      {title:"Inbone II konventionell",desc:"Inbone II Total Ankle, konventionelle Implantationstechnik",url:"https://drive.google.com/file/d/1RSxZcqS23PV1Cu5nCMEccjL9_he3kRNg/preview"},
+    ]},
+    {cat:"🦵 OSG / Rückfuß",items:[
+      {title:"Arthrex Brostrom-Gould",desc:"Laterale Bandstabilisierung OSG, Operative Technik",url:"https://drive.google.com/file/d/1bMjQclTvZE1pWz8zdu-4NiHQgn_sBMwo/preview"},
+      {title:"Arthrex OSG-Arthrodese",desc:"Ankle Fusion Plate, Operative Technik",url:"https://drive.google.com/file/d/1FEAlf9852uEsAD72GBCw9IQqfzlYgBtG/preview"},
+    ]},
+    {cat:"🔩 Implantatsysteme",items:[
+      {title:"Stryker Fixos Schrauben",desc:"Fixos II Headless Compression Screw System",url:"https://drive.google.com/file/d/1mtMaEGM4Fm06rB8g16My39TxaMDODKoM/preview"},
     ]},
   ];
 
@@ -15003,13 +15010,13 @@ function App() {
       </div>
       <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:900,margin:"0 auto",padding:"60px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
-          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🔍 H-DRG Positivlisten-Suche 2026</div>
-          <div style={{fontSize:11,color:"#718096"}}>Prüfung ob OPS-Codes auf der Hybrid-DRG Positivliste stehen · §115f SGB V · Anlage 2a</div>
+          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🔍 OPS-Code Zuordnung 2026</div>
+          <div style={{fontSize:11,color:"#718096"}}>H-DRG · AOP-Katalog · Kontextprozedur – Zugehörigkeit prüfen</div>
         </div>
         <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
           <HDRGSearch/>
         </div>
-        <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>Basis: Beschluss ergBA 8. Sitzung 28.04.2025 · 69 H-DRGs · 904 H-DRG + 67 Kontextprozeduren + 11.228 AOP</div>
+        <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>Quellen: H-DRG Positivliste (ergBA 28.04.2025, 904 OPS) · AOP-Katalog §115b (KBV Anhang 2, 11.228 OPS) · Kontextprozeduren (67 OPS)</div>
       </div>
     </div>
   );
