@@ -1013,7 +1013,9 @@ function OPBerichtApp(){
     "I21Z":{mvwd:3.4,ugvd:1,ogvd:8},
     "I27D":{mvwd:3.6,ugvd:1,ogvd:9},"I27E":{mvwd:3.4,ugvd:1,ogvd:8},
     "I31A":{mvwd:8.2,ugvd:2,ogvd:17},"I31B":{mvwd:4.8,ugvd:1,ogvd:11},"I31C":{mvwd:4.3,ugvd:1,ogvd:10},
-    "I59Z":{mvwd:2.4,ugvd:1,ogvd:5}
+    "I59Z":{mvwd:2.4,ugvd:1,ogvd:5},
+    "I05B":{mvwd:6.2,ugvd:1,ogvd:13},"I05C":{mvwd:5.1,ugvd:1,ogvd:10},
+    "I43A":{mvwd:30.1,ugvd:9,ogvd:48},"I43B":{mvwd:8.2,ugvd:2,ogvd:16}
   };
 
     // ============================================================
@@ -1021,49 +1023,60 @@ function OPBerichtApp(){
   // ============================================================
   const materialKosten=useMemo(()=>{
     const items=[];
+    const P=function(name,lief,preis){items.push({name:name,lieferant:lief,preis:preis});};
+    const PEND=function(name,lief){items.push({name:name,lieferant:lief,preis:null,hinweis:"Datensatz ausstehend"});};
     // VORFUSS
-    if(gz==="chevron")items.push({name:"Fixos HKS 2,5mm",lieferant:"Stryker",preis:null,hinweis:"Preis fehlt"});
-    if(gz==="scarf")items.push({name:"2× Fixos HKS 2,5mm",lieferant:"Stryker",preis:null,hinweis:"Preis fehlt"});
-    if(gz==="lapidus"){items.push({name:"Ortholoc Lapidus Platte",lieferant:"Stryker",preis:318.80});items.push({name:"4× Variax Bone 2,7",lieferant:"Stryker",preis:98.96});items.push({name:"Fixos HKS 4,0",lieferant:"Stryker",preis:113.05});}
-    if(gz==="mtp1art"){items.push({name:"Variax Curved Plate 4L",lieferant:"Stryker",preis:172.25});items.push({name:"4× Variax Locking 2,7",lieferant:"Stryker",preis:98.96});items.push({name:"Fixos HKS 4,0",lieferant:"Stryker",preis:113.05});}
-    if(mitSubcap)items.push({name:"Fixos HKS 2,5mm (Subcap)",lieferant:"Stryker",preis:null,hinweis:"Preis fehlt"});
-    // Akin: kein Implantat (Faden-OS)
-    // Kleinzehen
-    if(Object.values(zc).some(a=>a.includes("pip"))){var pipCount=Object.values(zc).filter(a=>a.includes("pip")).length;items.push({name:pipCount+"× K-Draht (PIP)",lieferant:"–",preis:pipCount*16});}
-    if(dmmo.length>0)items.push({name:"Axomed Fräse single-use (DMMO)",lieferant:"Axomed",preis:null,hinweis:"Preis fehlt"});
+    if(gz==="chevron")PEND("Fixos HKS 2,5mm","Stryker");
+    if(gz==="scarf"){PEND("2× Fixos HKS 2,5mm","Stryker");}
+    if(gz==="lapidus"){P("Ortholoc Lapidus Platte",  "Stryker",318.80);P("4× Variax Bone 2,7","Stryker",98.96);P("Fixos HKS 4,0","Stryker",113.05);}
+    if(gz==="mtp1art"){P("Variax Curved Plate 4L","Stryker",172.25);P("4× Variax Locking 2,7","Stryker",98.96);P("Fixos HKS 4,0","Stryker",113.05);}
+    if(mitSubcap)PEND("Fixos HKS 2,5mm (Subcap)","Stryker");
+    if(Object.values(zc).some(a=>a.includes("pip"))){var pipCount=Object.values(zc).flat().filter(x=>x==="pip").length;P(pipCount+"× K-Draht (PIP)","–",pipCount*16);}
+    if(Object.values(zc).some(a=>a.includes("weil"))){var weilCount=Object.values(zc).flat().filter(x=>x==="weil").length;PEND(weilCount+"× Fixos Twist off 2,0 (Weil)","Stryker");}
+    if(dmmo.length>0)PEND("Axomed Fräse single-use (DMMO)","Axomed");
     // OSG
     osgOp.forEach(op=>{
-      if(op==="brostrom"){items.push({name:"2× GII Quickanchor Ethibond",lieferant:"DePuy Mitek",preis:391.84});if(brostromIB){items.push({name:"2× Fibre Tak",lieferant:"Arthrex",preis:280});items.push({name:"Internal Brace",lieferant:"Arthrex",preis:507});}}
-      if(op==="amic")items.push({name:"Bio-Gide Membran + Fibrin Kleber",lieferant:"Geistlich",preis:null,hinweis:"Preis fehlt"});
-      if(op==="arthrodese_osg"){items.push({name:"2× Fixos HKS 7,0",lieferant:"Stryker",preis:297.50});if(osgArtPlatte){items.push({name:"Mini Platte",lieferant:"Arthrex",preis:290});items.push({name:"2× Arthrex 4,5 Locking",lieferant:"Arthrex",preis:100});}}
-      if(op==="t2_nagel")items.push({name:"T2 Nagel (TTC)",lieferant:"Stryker",preis:null,hinweis:"Preis fehlt"});
-      if(op==="arthrorise")items.push({name:"Kanül. Schraube 7,0",lieferant:"Königsee",preis:56});
+      if(op==="brostrom"){P("2× GII Quickanchor Ethibond","DePuy Mitek",391.84);if(brostromIB){P("2× Fibre Tak","Arthrex",280);P("Internal Brace","Arthrex",507);}}
+      if(op==="amic")PEND("Bio-Gide Membran + Fibrin Kleber","Geistlich");
+      if(op==="arthrodese_osg"){P("2× Fixos HKS 7,0","Stryker",297.50);if(osgArtPlatte){P("Mini Platte","Arthrex",290);P("2× Arthrex 4,5 Locking","Arthrex",100);}}
+      if(op==="t2_nagel")PEND("T2 Nagel (TTC)","Stryker");
+      if(op==="arthrorise")P("Kanül. Schraube 7,0","Königsee",56);
     });
     // TEP
-    if(tepType==="primaer_infinity"||tepType==="wechsel_infinity"){items.push({name:"Infinity Tibial Tray",lieferant:"Stryker",preis:1902.81});items.push({name:"Infinity Talar Dome",lieferant:"Stryker",preis:1783.81});items.push({name:"Infinity Poly Insert",lieferant:"Stryker",preis:672.35});}
-    if(tepType==="primaer_inbone"||tepType==="wechsel_inbone"){items.push({name:"Inbone Tibial Tray",lieferant:"Stryker",preis:1499.45});items.push({name:"Inbone Talar Stem",lieferant:"Stryker",preis:699.95});items.push({name:"Inbone Poly Insert",lieferant:"Stryker",preis:569.95});items.push({name:"Inbone Talar Dome",lieferant:"Stryker",preis:1405});items.push({name:"Inbone Base Stem",lieferant:"Stryker",preis:245});}
+    if(tepType==="primaer_infinity"||tepType==="wechsel_infinity"){P("Infinity Tibial Tray","Stryker",1902.81);P("Infinity Talar Dome","Stryker",1783.81);P("Infinity Poly Insert","Stryker",672.35);}
+    if(tepType==="primaer_inbone"||tepType==="wechsel_inbone"){P("Inbone Tibial Tray","Stryker",1499.45);P("Inbone Talar Dome","Stryker",1405);P("Inbone Talar Stem","Stryker",699.95);P("Inbone Poly Insert","Stryker",569.95);P("Inbone Base Stem","Stryker",245);P("Inbone Mid Stem","Stryker",245);P("Inbone Top Stem","Stryker",245);}
     // RÜCKFUSS
     rfOp.forEach(op=>{
-      if(op==="subtalar")items.push({name:"2× Fixos HKS 7,0",lieferant:"Stryker",preis:297.50});
-      if(op==="haglund_mini"||op==="haglund")items.push({name:"2× GII Quickanchor Ethibond",lieferant:"DePuy Mitek",preis:391.84});
-      if(op==="calc_ot_verl")items.push({name:"Tutogene Block 20×10×10",lieferant:"Tutogene",preis:333});
-      if(op==="peroneal"&&peronealTyp==="tenodese")items.push({name:"BioComposite Tenodese 4,75",lieferant:"Arthrex",preis:296.80});
+      if(op==="subtalar")P("2× Fixos HKS 7,0","Stryker",297.50);
+      if(op==="haglund_mini"||op==="haglund")P("2× GII Quickanchor Ethibond","DePuy Mitek",391.84);
+      if(op==="as_naht"){} // kein Implantat
+      if(op==="calc_ot_verl")P("Tutogene Block 20×10×10","Tutogene",333);
+      if(op==="peroneal"&&peronealTyp==="naht"){} // kein Implantat
+      if(op==="peroneal"&&peronealTyp==="tenodese"){} // kein Implantat (korrigiert)
+      if(op==="peroneal"&&peronealTyp==="luxation"){} // kein Implantat
+      if(op==="os_tib_ext"){} // kein Implantat
     });
+    // FHL Transfer (über MDO Toggle)
+    if(rfOp.includes("mdo_offen")||rfOp.includes("mdo_mini"))P("Arthrex Tenodese 4,75 (FHL)","Arthrex",296.80);
+    // Hohlfuß
+    if(hohlfussTyp==="dwyer")P("2× Fixos HKS 7,0 (Dwyer)","Stryker",297.50);
+    if(hohlfussTyp==="lambrinudi")PEND("Triple-Arthrodese Implantate","–");
+    // Supramal
+    if(rfOp.includes("supramal_ot")&&(supramalTyp==="wedge"))P("Tutogene Block (Keil)","Tutogene",333);
+    if(supramalBrostrom)P("2× GII Quickanchor Ethibond (Brostrom)","DePuy Mitek",391.84);
     // COALITIO
-    if(coalLCOT)items.push({name:"Tutogene Block 20×10×10 (LCOT)",lieferant:"Tutogene",preis:333});
+    if(coalLCOT)P("Tutogene Block 20×10×10 (LCOT)","Tutogene",333);
     // MITTELFUSS
-    if(mfCotton&&mfCottonKnochen==="allogen")items.push({name:"Tutogene Block 20×10×10 (Cotton)",lieferant:"Tutogene",preis:333});
-    if(mfTmt.length>0){var tmtCount=mfTmt.length;items.push({name:tmtCount+"× Variax Curved 4L + Schrauben (TMT)",lieferant:"Stryker",preis:tmtCount*271.21});}
+    if(mfCotton&&mfCottonKnochen==="allogen")P("Tutogene Block 20×10×10 (Cotton)","Tutogene",333);
+    if(mfTmt.length>0){var tmtCount=mfTmt.length;P(tmtCount+"× Variax Curved 4L + 4× Variax 2,7 (TMT)","Stryker",tmtCount*271.21);}
     // FRAKTUREN
     fxOp.forEach(op=>{
-      if(op==="fibula_mehr"){items.push({name:"LCP 1/3 Rohr 6L",lieferant:"DePuy Synthes",preis:28.55});items.push({name:"6× Locking 3,5 + 1× Kortikalis 3,5",lieferant:"DePuy Synthes",preis:82.88});}
+      if(op==="fibula_einf")PEND("Weber B einfach Implantate","–");
+      if(op==="fibula_mehr"){P("LCP 1/3 Rohr 6L","DePuy Synthes",28.55);P("6× Locking 3,5 + 1× Kortikalis 3,5","DePuy Synthes",82.88);}
     });
-    if(fxSyndes)items.push({name:"Stellschraube Kortikalis 3,5",lieferant:"DePuy Synthes",preis:11.84});
-    // SUPRAMAL
-    if(rfOp.includes("supramal_ot")&&(supramalTyp==="wedge"||supramalTyp==="dome"))items.push({name:"Tutogene Block (Keil)",lieferant:"Tutogene",preis:333});
-    if(supramalBrostrom){items.push({name:"2× GII Quickanchor Ethibond (Brostrom)",lieferant:"DePuy Mitek",preis:391.84});}
+    if(fxSyndes)P("Stellschraube Kortikalis 3,5","DePuy Synthes",11.84);
     return items;
-  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,rfOp,peronealTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom]);
+  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,rfOp,peronealTyp,hohlfussTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom]);
 
     // ============================================================
   // ICD-10 CODES – automatisch pro Eingriff
@@ -14849,9 +14862,9 @@ function OPManuale(){
 
   const MANUALE=[
     {cat:"🦿 OSG-Totalendoprothese",items:[
-      {title:"Infinity Prophecy Resect-Through",desc:"Prophecy Navigationssystem, Resect-Through Technique",file:"Infinity Prophecy Resect-Through.pdf"},
-      {title:"Infinity Prophecy Pin Through",desc:"Prophecy Navigationssystem, Pin-Through Technique",file:"Infinity Prophecy Pin Through.pdf"},
-      {title:"Infinity konventionell",desc:"Infinity Total Ankle, konventionelle Implantationstechnik",file:"Infinity konventionell.pdf"},
+      {title:"Infinity Prophecy Resect-Through",desc:"Prophecy Navigationssystem, Resect-Through Technique",url:"https://drive.google.com/file/d/1hvCBbPDcbxDumRczXybeo4ldyq_PXFzW/preview"},
+      {title:"Infinity Prophecy Pin Through",desc:"Prophecy Navigationssystem, Pin-Through Technique",url:"https://drive.google.com/file/d/1rGRfJGcgk-WyAShNXwVRfbgHysRTsxw9/preview"},
+      {title:"Infinity konventionell",desc:"Infinity Total Ankle, konventionelle Implantationstechnik",url:"https://drive.google.com/file/d/1lpKmt5smvoHLK9HjyPybUFZs7rTYWyC_/preview"},
       {title:"Inbone II Prophecy",desc:"Inbone II mit Prophecy Navigationssystem",file:"Inbone II Prophecy.pdf"},
       {title:"Inbone II konventionell",desc:"Inbone II Total Ankle, konventionelle Implantationstechnik",file:"Inbone II konventionell.pdf"},
     ]},
@@ -14883,7 +14896,7 @@ function OPManuale(){
           <span style={{fontSize:10,color:"#718096"}}>{cat.items.length} {cat.items.length===1?"Dokument":"Dokumente"}</span>
         </div>
         {isOpen&&<div style={{padding:"8px 14px 14px"}}>
-          {cat.items.map(function(it,i){return <a key={i} href={BASE_URL+it.file} target="_blank" rel="noopener noreferrer" style={{display:"block",textDecoration:"none",padding:"10px 12px",marginBottom:4,borderRadius:6,border:"1px solid rgba(0,0,0,.08)",background:"rgba(255,255,255,.95)",transition:"all .15s",cursor:"pointer"}}
+          {cat.items.map(function(it,i){return <a key={i} href={it.url||BASE_URL+it.file} target="_blank" rel="noopener noreferrer" style={{display:"block",textDecoration:"none",padding:"10px 12px",marginBottom:4,borderRadius:6,border:"1px solid rgba(0,0,0,.08)",background:"rgba(255,255,255,.95)",transition:"all .15s",cursor:"pointer"}}
             onMouseEnter={function(e){e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.background="rgba(0,131,143,.04)";}}
             onMouseLeave={function(e){e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.background="rgba(255,255,255,.95)";}}>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
@@ -14937,8 +14950,8 @@ function LandingPage({onSelect}) {
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:12}}>🔍</div>
-          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>H-DRG Positivliste</div>
-          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Prüfen ob ein OPS-Code auf der Hybrid-DRG Positivliste 2026 steht. Code- und Freitextsuche.</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>OPS-Code Zuordnung</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Zugehörigkeit zu H-DRG, AOP-Katalog oder Kontextprozedur prüfen. Code- und Freitextsuche.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>904 OPS · §115f SGB V · Anlage 2a 2026</div>
         </div>
         <div onClick={()=>onSelect("manuale")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
