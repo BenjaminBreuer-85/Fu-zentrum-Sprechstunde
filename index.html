@@ -1122,7 +1122,7 @@ function OPBerichtApp(){
     if(mfTmt.length>0){var tmtGelenke=0;mfTmt.forEach(function(t){if(t==="tmt1"||t==="tmt2")tmtGelenke+=1;if(t==="tmt2_3")tmtGelenke+=2;if(t==="tmt1_3")tmtGelenke+=3;});if(tmtGelenke>0)P(tmtGelenke+"× Variax Curved 4L + 4× Variax 2,7 (TMT ×"+tmtGelenke+" Gelenke)","Stryker",tmtGelenke*271.21);}
     // FRAKTUREN
     fxOp.forEach(op=>{
-      if(op==="fibula_einf")PEND("Weber B einfach Implantate","–");
+      if(op==="fibula_einf"){P("LCP 1/3 Rohr 6L","DePuy Synthes",28.55);P("6× Cortex Screw Stardrive 3,5","DePuy Synthes",71.04);}
       if(op==="fibula_mehr"){P("LCP 1/3 Rohr 6L","DePuy Synthes",28.55);P("6× Locking 3,5 + 1× Kortikalis 3,5","DePuy Synthes",82.88);}
     });
     if(fxSyndes)P("Stellschraube Kortikalis 3,5","DePuy Synthes",11.84);
@@ -1311,10 +1311,20 @@ function OPBerichtApp(){
       kodier:"5-788.54/55 = DMMO 3–4 MT. Ambulant: H-DRG-Code dazukodieren erwägen."}];
 
 
+    // OSG-TEP → I05B (primär) / I43B (Wechsel)
+    if(tepType&&tepType.startsWith("primaer")) return [o,{label:"OSG-TEP primär ("+(tepType.includes("inbone")?"Inbone II":"Infinity")+")",ops:o,
+      hdrg:"—",ebm:"—",kurz:"I05B gekürzt (VWD 1: Abschlag)",drg:"I05B 8.773 €",hdrg_n1:"—",empf:"n2",
+      ziel:"Immer stationär. Volle DRG I05B (CM 1,923 = 8.773 €) ab 2 Belegungstagen (= 2 Übernachtungen).\nMVWD 6,2 Tage.",
+      kodier:"5-826.00 (Implantation Endoprothese OSG)."}];
+    if(tepType&&tepType.startsWith("wechsel")) return [o,{label:"OSG-TEP Wechsel ("+(tepType.includes("inbone")?"Inbone II":"Infinity")+")",ops:o,
+      hdrg:"—",ebm:"—",kurz:"I43B gekürzt (VWD 1–2: Abschlag!)",drg:"I43B 10.819 €",hdrg_n1:"—",empf:"n3",
+      ziel:"⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen.",
+      kodier:"5-826.00 (Wechsel Endoprothese OSG).\n⚠ Patient muss mindestens 3 Tage bleiben! Am 1. und 2. Tag nach OP gibt es bei Entlassung Erlöskürzungen."}];
+
     // T2 Nagel TTC → I20A
     if(osgOp.includes("t2_nagel")) return [o,{label:"T2 Nagel (TTC-Arthrodese)",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I20A ~7.100 €",drg:"I20A 8.954 €",hdrg_n1:"—",empf:"n3",
-      ziel:"Immer stationär, mind. 3–5 Nächte → I20A (CM 1,963 = 8.954 €).",
+      hdrg:"—",ebm:"—",kurz:"I20A gekürzt (VWD 1–2: Abschlag!)",drg:"I20A 8.954 €",hdrg_n1:"—",empf:"n3",
+      ziel:"⚠ UGVD = 2 Tage! Volle DRG I20A (8.954 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag von je 0,265 CM pro Tag = ~1.209 € Kürzung pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen.",
       kodier:"5-808.71 (TTC-Arthrodese)."+(t2Becken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
 
     // OSG-Arthrodese → I13E / I13D
@@ -2307,7 +2317,7 @@ const UC_TEXT_MAP={
         <div style={{marginTop:6,fontSize:10,color:"#006B6F",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>🎯 Ökonomisches Codierziel:</span> {erloesData.ziel}</div>
         {erloesData.drg&&GVD[erloesData.drg.split(" ")[0]]&&<div style={{marginTop:6,padding:"6px 10px",background:"rgba(0,0,0,.03)",borderRadius:6,fontSize:10,display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
           <span style={{color:"#718096",fontWeight:600}}>📊 VWD {erloesData.drg.split(" ")[0]}:</span>
-          <span>UGVD <b style={{color:"#E65100"}}>{GVD[erloesData.drg.split(" ")[0]].ugvd} T</b></span>
+          <span>UGVD <b style={{color:"#E65100"}}>{GVD[erloesData.drg.split(" ")[0]].ugvd} T</b> → volle DRG ab <b>{GVD[erloesData.drg.split(" ")[0]].ugvd+1} Belegungstage ({GVD[erloesData.drg.split(" ")[0]].ugvd+1} ÜN)</b></span>
           <span>MVWD <b style={{color:"#00838F"}}>{GVD[erloesData.drg.split(" ")[0]].mvwd} T</b></span>
           <span>OGVD <b style={{color:"#1565C0"}}>{GVD[erloesData.drg.split(" ")[0]].ogvd} T</b></span>
         </div>}
