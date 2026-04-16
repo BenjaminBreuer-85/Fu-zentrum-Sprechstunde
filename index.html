@@ -711,8 +711,8 @@ var _s = useState, _m = useMemo;
             <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Einheit</div><div style={row}>{["Wochen", "Monaten", "Jahren"].map(function(e) { return <div key={e} style={CB(dauerEinheit === e)} onClick={function() { setDauerEinheit(e); }}>{e}</div>; })}</div></div>
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Häufigkeit</div><div style={row}>{["selten", "häufig", "dauerhaft"].map(function(h) { return <div key={h} style={CB(haeufigkeit === h)} onClick={function() { setHaeufigkeit(haeufigkeit === h ? "" : h); }}>{h}</div>; })}</div></div>
-            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Auftreten (Mehrfach)</div><div style={row}>{["bei Belastung", "in Ruhe", "nachts", "beim Gehen", "beim Sport"].map(function(b) { return <div key={b} style={CB(belastung.indexOf(b) >= 0)} onClick={function() { togArr(b, belastung, setBelastung); }}>{b}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Häufigkeit</div><div style={row}>{["selten", "häufig", "dauerhaft", "wechselhaft"].map(function(h) { return <div key={h} style={CB(haeufigkeit === h)} onClick={function() { setHaeufigkeit(haeufigkeit === h ? "" : h); }}>{h}</div>; })}</div></div>
+            <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Auftreten (Mehrfach)</div><div style={row}>{["bei Belastung", "in Ruhe", "nachts", "beim Gehen", "beim Sport", "im Alltag"].map(function(b) { return <div key={b} style={CB(belastung.indexOf(b) >= 0)} onClick={function() { togArr(b, belastung, setBelastung); }}>{b}</div>; })}</div></div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 6 }}><div style={CB(leidensdruck)} onClick={function() { setLeidensdruck(!leidensdruck); }}>Relevanter Leidensdruck</div></div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
@@ -2015,8 +2015,6 @@ const UC_TEXT_MAP={
         <div style={row}>
           <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>🦶 Fuß / Sprunggelenk</div>
           <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>🦴 UC</div>
-          <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>🏥 Endo</div>
-          <div style={gb(sektion==="ws")} onClick={()=>setSektion(sektion==="ws"?"":"ws")}>🔩 WS</div>
 
         </div>
       </div>
@@ -2592,16 +2590,6 @@ const UC_TEXT_MAP={
             Verfügbar: Klavikula · Radius distal · Radius proximal · Olekranon · Fibula distal · Ellenbogen komplex — jeweils einfach/Mehrfragment × Schraube/Platte/winkelstab. Platte
           </div>
         </div>}
-      </div>}
-
-      {sektion==="endo"&&<div style={card}>
-        <div style={h3s}>Endo – Endoprothetik</div>
-        <div style={{fontSize:12,color:"#718096",padding:20,textAlign:"center"}}>Modul in Vorbereitung</div>
-      </div>}
-
-      {sektion==="ws"&&<div style={card}>
-        <div style={h3s}>WS – Wirbelsäule</div>
-        <div style={{fontSize:12,color:"#718096",padding:20,textAlign:"center"}}>Modul in Vorbereitung</div>
       </div>}
 
       </div>{/* END ob-form */}
