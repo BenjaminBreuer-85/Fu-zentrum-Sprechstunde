@@ -1279,7 +1279,7 @@ function OPBerichtApp(){
     if(gz==="lapidus"&&(_prio==="lapidus"||_cm<=1.033)) return [o,{label:"Lapidus",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20D ~3.700 €",drg:"I20D 4.710 €",hdrg_n1:"—",empf:"n2",
       ziel:"Keine H-DRG (5-808.a4 nicht auf Positivliste) → stationär, mind. 2 Nächte → volle DRG I20D (CM 1,033 = 4.710 €).",
-      kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-784.0u (Spongiosa aus Exostose).\n5-854.2c (Sehnentransfer) mitkodieren."}];
+      kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-784.0u (Spongiosa aus Exostose).\n5-854.2c (Sehnentransfer) IMMER mitkodieren.\n⚠ 5-808.a4 NICHT auf H-DRG-Positivliste UND NICHT im AOP-Katalog!\n→ Nur stationär möglich. Mind. 2 Nächte für volle DRG.\n⚠ Häufiger Fehler: Lapidus als ambulant geplant → nicht abrechenbar!"}];
 
     // MTP-I-Arthrodese
     if(gz==="mtp1art"&&_isVF) {
@@ -1325,7 +1325,7 @@ function OPBerichtApp(){
     if(tepType&&tepType.startsWith("primaer")) return [o,{label:"OSG-TEP primär ("+(tepType.includes("inbone")?"Inbone II":"Infinity")+")",ops:o,
       hdrg:"—",ebm:"—",kurz:"I05B gekürzt (VWD 1: Abschlag)",drg:"I05B 8.773 €",hdrg_n1:"—",empf:"n2",
       ziel:"Immer stationär. Volle DRG I05B (CM 1,923 = 8.773 €) ab 2 Belegungstagen (= 2 Übernachtungen).\nMVWD 6,2 Tage.",
-      kodier:"5-826.00 (Implantation Endoprothese OSG)."}];
+      kodier:"5-826.00 (Implantation Endoprothese OSG).\n⚠ Nicht im AOP-Katalog, nicht auf H-DRG-Positivliste → nur stationär.\n⚠ Häufiger Fehler: VWD zu kurz → Abschlag! Mind. 2 Belegungstage für volle DRG.\n💡 MVWD 6,2 Tage — Belegungstage sorgfältig dokumentieren."}];
     if(tepType&&tepType.startsWith("wechsel")) return [o,{label:"OSG-TEP Wechsel ("+(tepType.includes("inbone")?"Inbone II":"Infinity")+")",ops:o,
       hdrg:"—",ebm:"—",kurz:"I43B gekürzt (VWD 1–2: Abschlag!)",drg:"I43B 10.819 €",hdrg_n1:"—",empf:"n3",
       ziel:"⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen.",
@@ -1335,13 +1335,13 @@ function OPBerichtApp(){
     if(osgOp.includes("t2_nagel")) return [o,{label:"T2 Nagel (TTC-Arthrodese)",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20A gekürzt (VWD 1–2: Abschlag!)",drg:"I20A 8.954 €",hdrg_n1:"—",empf:"n3",
       ziel:"⚠ UGVD = 2 Tage! Volle DRG I20A (8.954 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag von je 0,265 CM pro Tag = ~1.209 € Kürzung pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen.",
-      kodier:"5-808.71 (TTC-Arthrodese)."+(t2Becken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
+      kodier:"5-808.71 (TTC-Arthrodese).\n⚠ Häufiger Fehler: Entlassung nach 2 Nächten → 1.209 € Abschlag! Mind. 3 Nächte einplanen."+(t2Becken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
 
     // OSG-Arthrodese → I13E / I13D
     if(osgOp.includes("arthrodese_osg")) return [o,{label:"OSG-Arthrodese"+(osgArtSpongiosa?" + Spongiosa":""),ops:o,
       hdrg:"—",ebm:"—",kurz:osgArtSpongiosa?"I13D ~5.600 €":"I13E ~4.600 €",drg:osgArtSpongiosa?"I13D 7.079 €":"I13E 5.829 €",hdrg_n1:"—",empf:"n2",
       ziel:osgArtSpongiosa?"Mit Spongiosa → I13D (CM 1,552 = 7.079 €). ⚠ ERLÖSRELEVANT! +1.250 € gegenüber ohne Spongiosa.":"Ohne Spongiosa → I13E (CM 1,278 = 5.829 €).\n💡 Mit Spongiosa (5-784.0n + 5-783.0d) → I13D (7.079 €)!",
-      kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?"\n⚠ 5-784.0n + 5-783.0d (Spongiosa Tibia) → ERLÖSRELEVANT! I13E → I13D (+1.250 €).\n⚠ Spongiosa muss im OP-Bericht dokumentiert sein!":"\n💡 Toggle: + Spongiosa → I13D (7.079 € statt 5.829 €)")}];
+      kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?"\n⚠ HEBEL-CODE: 5-784.0n + 5-783.0d (Spongiosa Tibia) → I13E → I13D (+1.250 €)!\n⚠ Spongiosa muss im OP-Bericht dokumentiert sein!\n⚠ Häufiger Fehler: Spongiosa entnommen aber nicht kodiert → 1.250 € Erlösverlust!":"\n💡 Toggle: + Spongiosa → I13D (7.079 € statt 5.829 €)\n⚠ Häufiger Fehler: Spongiosa vergessen zu kodieren → 1.250 € verschenkt!")}];
 
     // AMIC → I13G / I13E
     if(osgOp.includes("amic")) return [o,{label:amicIKO?"AMIC + Innenknöchelosteotomie":"AMIC offen",ops:o,
@@ -1353,7 +1353,7 @@ function OPBerichtApp(){
     if(osgOp.includes("brostrom")) return [o,{label:"Brostrom-Gould"+(brostromIB?" + Internal Brace":""),ops:o,
       hdrg:"—",ebm:"EBM ~300 €",kurz:"I59Z ~2.627 €",drg:"I59Z 3.225 €",hdrg_n1:"—",empf:"n2",
       ziel:"Kein H-DRG! Auch mit ASK kein H-DRG.\n1 Nacht: gekürzte DRG I59Z (CM 0,576 = ~2.627 €).\nAb 2 Nächte → I59Z (CM 0,707 = 3.225 €).",
-      kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+" → I59Z.\n⚠ Kein H-DRG trotz ASK!"}];
+      kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+" → I59Z.\n⚠ KEIN H-DRG möglich — auch nicht mit zusätzlicher ASK!\n⚠ Häufiger Fehler: Brostrom als H-DRG-fähig eingestuft → Erlösverlust bei ambulanter Planung.\n→ Stationär planen, mind. 2 Nächte für volle DRG I59Z (3.225 €)."}];
 
 
     // Arthrorise → kein H-DRG (Klientel <18)
@@ -2015,9 +2015,122 @@ const UC_TEXT_MAP={
         <div style={row}>
           <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>🦶 Fuß / Sprunggelenk</div>
           <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>🦴 UC</div>
+          <div style={gb(sektion==="pdf")} onClick={()=>setSektion(sektion==="pdf"?"":"pdf")}>📄 PDF</div>
 
         </div>
       </div>
+
+      {sektion===""&&<div style={{maxWidth:900,margin:"0 auto"}}>
+        {/* HERO */}
+        <div style={{background:"linear-gradient(135deg,#004D40 0%,#00695C 40%,#00838F 100%)",borderRadius:14,padding:"36px 32px",color:"#fff",marginBottom:16,position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",top:0,right:0,width:200,height:200,background:"radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 70%)"}}></div>
+          <div style={{fontSize:28,fontWeight:800,letterSpacing:"-0.5px",marginBottom:4}}>Fußzentrum Toolbox</div>
+          <div style={{fontSize:14,opacity:.85,marginBottom:20}}>Chirurgische Dokumentation · Erlösoptimierung · Kodierunterstützung</div>
+          <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+            <div onClick={()=>setSektion("fuss")} style={{padding:"10px 20px",background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.3)",borderRadius:8,cursor:"pointer",fontSize:13,fontWeight:600,backdropFilter:"blur(4px)"}}>🦶 Fuß / Sprunggelenk</div>
+            <div onClick={()=>setSektion("uc")} style={{padding:"10px 20px",background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.3)",borderRadius:8,cursor:"pointer",fontSize:13,fontWeight:600,backdropFilter:"blur(4px)"}}>🦴 Unfallchirurgie</div>
+          </div>
+        </div>
+
+        {/* KPI CARDS */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:16}}>
+          {[
+            {n:"43+",l:"Verifizierte Eingriffe",sub:"mit Erlösmatrix",icon:"🔬"},
+            {n:"3.223",l:"AOP-Codes",sub:"KBV-verifiziert 2026",icon:"📋"},
+            {n:"70",l:"Kontextprozeduren",sub:"GFFC-abgeglichen",icon:"⚙"},
+            {n:"19",l:"InEK-Kalkulationen",sub:"Kostenstelle 5",icon:"💶"},
+          ].map(function(k){return <div key={k.l} style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:10,padding:"16px 14px",textAlign:"center"}}>
+            <div style={{fontSize:22}}>{k.icon}</div>
+            <div style={{fontSize:24,fontWeight:800,color:"#00695C",marginTop:4}}>{k.n}</div>
+            <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginTop:2}}>{k.l}</div>
+            <div style={{fontSize:9,color:"#718096",marginTop:2}}>{k.sub}</div>
+          </div>;})
+          }
+        </div>
+
+        {/* MODULE OVERVIEW */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+          <div style={{background:"#fff",border:"2px solid #00838F",borderRadius:10,padding:20,cursor:"pointer"}} onClick={()=>setSektion("fuss")}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <div style={{fontSize:16,fontWeight:700,color:"#00695C"}}>🦶 Fuß / Sprunggelenk</div>
+              <span style={{fontSize:9,padding:"3px 8px",borderRadius:20,background:"#E8F5E9",color:"#2E7D32",fontWeight:700}}>✅ AKTIV</span>
+            </div>
+            <div style={{fontSize:11,color:"#2D3748",lineHeight:1.7}}>
+              OP-Bericht-Generator · Erlösmatrix (4 Szenarien) · H-DRG-Steuerung · Materialkosten vs. InEK · Kodierempfehlungen · Hebel-Code-Warnsystem · Sprechstundenbrief-Generator
+            </div>
+            <div style={{marginTop:10,display:"flex",gap:6,flexWrap:"wrap"}}>
+              {["Vorfuß","OSG","Rückfuß","Mittelfuß","Frakturen","ME"].map(function(s){return <span key={s} style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,131,143,.08)",color:"#00838F"}}>{s}</span>;})}
+            </div>
+          </div>
+          <div style={{background:"#fff",border:"2px solid #00838F",borderRadius:10,padding:20,cursor:"pointer"}} onClick={()=>setSektion("uc")}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <div style={{fontSize:16,fontWeight:700,color:"#00695C"}}>🦴 Unfallchirurgie</div>
+              <span style={{fontSize:9,padding:"3px 8px",borderRadius:20,background:"#E8F5E9",color:"#2E7D32",fontWeight:700}}>✅ AKTIV</span>
+            </div>
+            <div style={{fontSize:11,color:"#2D3748",lineHeight:1.7}}>
+              OP-Bericht-Generator · H-DRG vs. volle DRG · Materialkosten vs. InEK-Referenz · Osteosynthese-Varianten · Platzhalter-Texte
+            </div>
+            <div style={{marginTop:10,display:"flex",gap:6,flexWrap:"wrap"}}>
+              {["Radius distal","Fibula","Olekranon","Klavikula","TFNA","Duokopf","ME"].map(function(s){return <span key={s} style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:"rgba(0,131,143,.08)",color:"#00838F"}}>{s}</span>;})}
+            </div>
+          </div>
+        </div>
+
+        {/* FEATURES */}
+        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:10,padding:20,marginBottom:16}}>
+          <div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:12}}>Kernfunktionen</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:14}}>
+            {[
+              {icon:"📝",title:"OP-Bericht-Generator",desc:"Verifizierte Textbausteine mit Platzhaltersystem. Kopieren → Word einfügen. Trebuchet MS 10pt."},
+              {icon:"💰",title:"Erlösmatrix",desc:"4-Spalten-Übersicht: ambulant / 1 Nacht / 2 Nächte / 3+ Nächte. Automatische H-DRG vs. DRG-Steuerung."},
+              {icon:"⚠",title:"Hebel-Code-System",desc:"Kontextprozeduren, die ambulant weggelassen und stationär mitkodiert werden müssen. Erlösrelevante Warnungen."},
+              {icon:"💶",title:"Materialkosten vs. InEK",desc:"Ampelsystem: Ist-Kosten vs. InEK-Referenz (Kostenstelle 5). Deckungsbeitrag auf einen Blick."},
+              {icon:"🔍",title:"H-DRG Search",desc:"Vollständige Positivliste 2026 mit AOP-Katalog und Kontextprozeduren. 3.223+ verifizierte Codes."},
+              {icon:"📨",title:"Sprechstundenbrief",desc:"Diagnosegesteuerter Arztbrief mit Scores, Literatur, OP-Empfehlung. Word-Export."},
+            ].map(function(f){return <div key={f.title} style={{padding:12,borderRadius:8,background:"rgba(0,131,143,.03)",border:"1px solid rgba(0,131,143,.08)"}}>
+              <div style={{fontSize:18,marginBottom:4}}>{f.icon}</div>
+              <div style={{fontSize:11,fontWeight:700,color:"#00695C",marginBottom:4}}>{f.title}</div>
+              <div style={{fontSize:10,color:"#555",lineHeight:1.5}}>{f.desc}</div>
+            </div>;})}
+          </div>
+        </div>
+
+        {/* DATENBASIS + DATENSCHUTZ */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+          <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:10,padding:16}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:8}}>📊 Datenbasis</div>
+            <div style={{fontSize:10,color:"#555",lineHeight:1.8}}>
+              InEK Datenbrowser 2024/2026<br/>
+              KBV AOP-Katalog Anlage 1 (2026)<br/>
+              §115f SGB V H-DRG Positivliste 2026<br/>
+              GFFC Vergütungstabelle 2026<br/>
+              InEK Fallpauschalen-Katalog 2026
+            </div>
+          </div>
+          <div style={{background:"linear-gradient(135deg,#E8F5E9,#F1F8E9)",border:"1px solid rgba(46,125,50,.15)",borderRadius:10,padding:16}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#2E7D32",marginBottom:8}}>🔒 Datenschutz</div>
+            <div style={{fontSize:10,color:"#33691E",lineHeight:1.8}}>
+              Keine Patientendaten — reines Kodier- und Dokumentationstool.<br/>
+              Keine Schnittstelle zu KIS/SAP/Orbis.<br/>
+              Keine Speicherung personenbezogener Daten.<br/>
+              Lokale Anwendung im Browser — DSGVO-konform.
+            </div>
+          </div>
+        </div>
+
+        {/* PIPELINE */}
+        <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.06)",borderRadius:10,padding:16}}>
+          <div style={{fontSize:11,fontWeight:700,color:"#718096",marginBottom:8}}>🔜 In Vorbereitung</div>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            {["Endoprothetik-Modul","Wirbelsäulen-Modul","Erlöspotenzial-Rechner"].map(function(s){return <span key={s} style={{fontSize:10,padding:"4px 10px",borderRadius:6,background:"rgba(0,0,0,.04)",color:"#718096",border:"1px dashed rgba(0,0,0,.1)"}}>{s}</span>;})}
+          </div>
+        </div>
+
+        {/* PDF EXPORT LINK */}
+        <div style={{marginTop:12,textAlign:"center"}}>
+          <div onClick={()=>setSektion("pdf")} style={{display:"inline-block",padding:"10px 24px",background:"#00838F",color:"#fff",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700}}>📄 Erlösübersichten als PDF exportieren</div>
+        </div>
+      </div>}
 
       {sektion==="fuss"&&<>
       <div style={card}><div style={h3s}>① Präop</div>
@@ -2591,6 +2704,99 @@ const UC_TEXT_MAP={
           </div>
         </div>}
       </div>}
+
+      {sektion==="pdf"&&function(){
+        var PDF_REF=[
+          {cat:"Vorfuß",items:[
+            {l:"Chevron-Osteotomie",ops:"5-788.5c, 5-788.40, 5-854.2c",amb:"H-DRG I20O 1.007 €",stat:"I20E 3.728 €",hebel:"5-854.2c amb. NICHT kodieren!",kodier:"⚠ Ambulant: 5-854.2c weglassen → H-DRG I20O.\nStationär ≥2N: 5-854.2c IMMER → I20E."},
+            {l:"Scarf-Osteotomie",ops:"5-788.5e, 5-788.40, 5-854.2c",amb:"H-DRG I20O 1.007 €",stat:"I20E 3.728 €",hebel:"5-854.2c amb. NICHT kodieren!",kodier:"⚠ Ambulant: 5-854.2c weglassen → H-DRG I20O.\nStationär ≥2N: 5-854.2c IMMER → I20E."},
+            {l:"Lapidus-Arthrodese",ops:"5-808.a4, 5-854.2c",amb:"❌ Nicht möglich",stat:"I20D 4.710 €",hebel:"Nicht im AOP, nicht auf H-DRG-Liste",kodier:"⚠ NUR stationär möglich! 5-808.a4 nicht im AOP-Katalog.\nMind. 2 Nächte für volle DRG."},
+            {l:"MTP-I-Arthrodese",ops:"5-808.b0",amb:"H-DRG I20N 2.085 €",stat:"I20E 3.728 €",hebel:"5-784.0v amb. NICHT kodieren!",kodier:"⚠ Ambulant: 5-784.0v weglassen → H-DRG I20N.\nStationär: 5-784.0v IMMER → I20E."},
+            {l:"Cheilektomie",ops:"5-788.00",amb:"H-DRG I20O 1.007 €",stat:"I20F 3.040 €",hebel:"—",kodier:"5-788.00 auf Positivliste → I20O ambulant."},
+          ]},
+          {cat:"OSG",items:[
+            {l:"OSG-Arthrodese",ops:"5-808.70",amb:"❌ Nicht möglich",stat:"I13E 5.829 €",hebel:"+ Spongiosa → I13D (+1.250 €)!",kodier:"⚠ HEBEL: 5-784.0n + 5-783.0d → I13E → I13D (7.079 €).\nSpongiosa MUSS im OP-Bericht stehen!"},
+            {l:"OSG-TEP (Infinity)",ops:"5-826.00",amb:"❌ Nicht möglich",stat:"I05B 8.773 €",hebel:"—",kodier:"Nur stationär. Mind. 2 Belegungstage.\nMVWD 6,2 Tage."},
+            {l:"Brostrom-Gould",ops:"5-806.4h",amb:"❌ Kein H-DRG",stat:"I59Z 3.225 €",hebel:"Kein H-DRG trotz ASK!",kodier:"⚠ Kein H-DRG möglich — auch nicht mit ASK.\nStationär planen, mind. 2 Nächte."},
+            {l:"AMIC offen",ops:"5-801.nk",amb:"❌ Kein H-DRG",stat:"I13G 4.539 €",hebel:"+ IKO → I13E",kodier:"5-801.nk nicht auf Positivliste.\n+ IKO: I13G → I13E (5.829 €)."},
+            {l:"Achillessehnennaht",ops:"5-855.19, 5-855.39",amb:"❌ Nicht möglich",stat:"I27E 3.389 €",hebel:"5-855.39 IMMER kodieren!",kodier:"⚠ 5-855.39 (Sehnenscheide) vergessen → I20F statt I27E!\nParatenon-Naht im OP-Bericht dokumentieren."},
+          ]},
+          {cat:"Rückfuß",items:[
+            {l:"Subtalar-Arthrodese",ops:"5-808.80",amb:"❌ Nicht möglich",stat:"I13E 5.829 €",hebel:"—",kodier:"5-808.80 (Einzel/TN). Double: 5-808.81 → I13E.\nTriple: 5-808.82 → I20B (6.816 €)."},
+            {l:"Haglund + AS-Split",ops:"5-782.at, 5-855.39",amb:"❌ Nicht möglich",stat:"I27D 3.389 €",hebel:"—",kodier:"5-782.at + 5-855.39 + Anker-Codes."},
+            {l:"Calcaneus-OT (MDO/LCOT/Dwyer)",ops:"5-781.1t",amb:"❌ Nicht möglich",stat:"I20C 5.068 €",hebel:"—",kodier:"MDO: 5-781.1t. LCOT: 5-781.8t.\nDwyer: 5-781.1t + lateraler Keil."},
+          ]},
+          {cat:"Frakturen Fuß",items:[
+            {l:"Weber B einfach (WSP)",ops:"5-793.kr",amb:"H-DRG I13N 3.091 €",stat:"I13G 4.076 €",hebel:"5-784.0r stat. IMMER kodieren!",kodier:"⚠ HEBEL: 5-784.0r (Spongiosa Fibula).\nAmbulant: NICHT kodieren → I13N.\nStationär: IMMER → I13G/F/E."},
+            {l:"Weber B/C Mehrfragment (WSP)",ops:"5-794.kr",amb:"H-DRG I13N 3.091 €",stat:"I13E 5.829 €",hebel:"5-784.0r stat. IMMER kodieren!",kodier:"Mehrfragment WSP → höhere DRG.\n5-784.0r stationär IMMER mitkodieren."},
+          ]},
+          {cat:"UC – Obere Extremität",items:[
+            {l:"Radius distal (WSP)",ops:"5-793.k6 / 5-794.k6",amb:"H-DRG I21M 3.184 €",stat:"I21Z 4.279 €",hebel:"—",kodier:"Auf Positivliste. Ambulant bevorzugt.\nStationär ≥2N → I21Z."},
+            {l:"Olekranon (WSP)",ops:"5-793.k7 / 5-794.k7",amb:"H-DRG I31N 3.739 €",stat:"I31C 5.510 €",hebel:"—",kodier:"WSP auf Positivliste.\nSchraube/Zuggurtung → I21M (3.184 €)."},
+            {l:"Klavikula (WSP)",ops:"5-795.k0 / 5-796.k0",amb:"H-DRG I29M 3.652 €",stat:"I29B 4.432 €",hebel:"—",kodier:"Auf Positivliste. Ambulant bevorzugt."},
+          ]},
+          {cat:"UC – Untere Extremität",items:[
+            {l:"TFNA (prox. Femur)",ops:"5-790.5f",amb:"❌ Keine H-DRG",stat:"I08F 6.892 €",hebel:"—",kodier:"Keine H-DRG. Immer stationär."},
+            {l:"Duokopf (prox. Femur)",ops:"5-820.41",amb:"❌ Keine H-DRG",stat:"I47B 7.977 €",hebel:"—",kodier:"Keine H-DRG. Immer stationär."},
+          ]},
+        ];
+        var _ps=React.useState(PDF_REF.reduce(function(a,c){c.items.forEach(function(it){a[it.l]=true;});return a;},{}));
+        var pdfSel=_ps[0],setPdfSel=_ps[1];
+        var allOn=Object.values(pdfSel).every(Boolean);
+        function toggleAll(){var v=!allOn;setPdfSel(function(p){var n={};Object.keys(p).forEach(function(k){n[k]=v;});return n;});}
+        function exportPDF(){
+          var sel=Object.keys(pdfSel).filter(function(k){return pdfSel[k];});
+          var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Erlösübersichten – Fußzentrum Toolbox</title><style>';
+          html+='@page{size:A4;margin:18mm 15mm;}body{font-family:"Trebuchet MS",sans-serif;font-size:10pt;color:#222;line-height:1.6;}';
+          html+='h1{font-size:16pt;color:#00695C;border-bottom:2px solid #00838F;padding-bottom:6px;margin-bottom:12px;}';
+          html+='h2{font-size:12pt;color:#00838F;margin:18px 0 6px;page-break-after:avoid;}';
+          html+='.proc{page-break-inside:avoid;margin-bottom:14px;border:1px solid #ddd;border-radius:6px;padding:10px 14px;}';
+          html+='.proc-title{font-size:11pt;font-weight:700;color:#00695C;margin-bottom:4px;}';
+          html+='.row{display:flex;gap:12px;margin:4px 0;}.lbl{font-weight:700;min-width:90px;color:#555;font-size:9pt;}';
+          html+='.val{font-size:9pt;}.warn{background:#FFF3E0;border-left:3px solid #E65100;padding:4px 8px;margin-top:6px;font-size:9pt;color:#BF360C;white-space:pre-line;}';
+          html+='.footer{margin-top:20px;padding-top:8px;border-top:1px solid #ddd;font-size:8pt;color:#999;text-align:center;}';
+          html+='</style></head><body>';
+          html+='<h1>Erlösübersichten – Fußzentrum Toolbox</h1>';
+          html+='<div style="font-size:9pt;color:#666;margin-bottom:16px;">Datenbasis: InEK 2024/2026 · KBV AOP-Katalog 2026 · §115f H-DRG Positivliste 2026 · GFFC Vergütungstabelle 2026</div>';
+          PDF_REF.forEach(function(cat){
+            var catItems=cat.items.filter(function(it){return pdfSel[it.l];});
+            if(catItems.length===0)return;
+            html+='<h2>'+cat.cat+'</h2>';
+            catItems.forEach(function(it){
+              html+='<div class="proc">';
+              html+='<div class="proc-title">'+it.l+'</div>';
+              html+='<div class="row"><span class="lbl">OPS-Codes:</span><span class="val" style="font-family:monospace;">'+it.ops+'</span></div>';
+              html+='<div class="row"><span class="lbl">Ambulant:</span><span class="val">'+it.amb+'</span></div>';
+              html+='<div class="row"><span class="lbl">Stationär:</span><span class="val">'+it.stat+'</span></div>';
+              if(it.hebel&&it.hebel!=="—")html+='<div class="row"><span class="lbl">Hebel-Code:</span><span class="val" style="color:#E65100;font-weight:700;">'+it.hebel+'</span></div>';
+              if(it.kodier)html+='<div class="warn">'+it.kodier.replace(/\n/g,'<br>')+'</div>';
+              html+='</div>';
+            });
+          });
+          html+='<div class="footer">Fußzentrum Toolbox · Erstellt am '+(new Date().toLocaleDateString("de-DE"))+'<br>🔒 Keine Patientendaten – reines Kodier- und Dokumentationstool</div>';
+          html+='</body></html>';
+          var w=window.open("","_blank");w.document.write(html);w.document.close();
+          setTimeout(function(){w.print();},500);
+        }
+        return <div style={card}>
+          <div style={h3s}>📄 PDF-Export – Erlösübersichten</div>
+          <div style={{fontSize:11,color:"#718096",marginBottom:12}}>Eingriffe auswählen und als druckfertiges PDF exportieren. Enthält: OPS-Codes, DRG-Zuordnung, Erlösmatrix, Hebel-Codes, Kodierempfehlungen.</div>
+          <div style={{display:"flex",gap:6,marginBottom:12}}>
+            <div style={{padding:"4px 12px",borderRadius:6,background:allOn?"#00838F":"rgba(0,0,0,.06)",color:allOn?"#fff":"#555",fontSize:10,fontWeight:600,cursor:"pointer"}} onClick={toggleAll}>{allOn?"✓ Alle ausgewählt":"Alle auswählen"}</div>
+            <div style={{padding:"4px 12px",borderRadius:6,background:"rgba(0,0,0,.06)",color:"#555",fontSize:10,fontWeight:600,cursor:"pointer"}} onClick={function(){setPdfSel(function(p){var n={};Object.keys(p).forEach(function(k){n[k]=false;});return n;});}}>Keine</div>
+          </div>
+          {PDF_REF.map(function(cat){return <div key={cat.cat} style={{marginBottom:12}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,131,143,.15)",paddingBottom:2}}>{cat.cat}</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+              {cat.items.map(function(it){var on=pdfSel[it.l];return <div key={it.l} style={{padding:"4px 10px",borderRadius:6,fontSize:10,cursor:"pointer",border:on?"1px solid #00838F":"1px solid rgba(0,0,0,.1)",background:on?"rgba(0,131,143,.08)":"#fff",color:on?"#00695C":"#888",fontWeight:on?600:400}} onClick={function(){setPdfSel(function(p){var n=Object.assign({},p);n[it.l]=!n[it.l];return n;});}}>{on?"✓ ":""}{it.l}</div>;})}
+            </div>
+          </div>;})}
+          <div style={{marginTop:16,display:"flex",gap:8,alignItems:"center"}}>
+            <div onClick={exportPDF} style={{padding:"10px 24px",background:"#00838F",color:"#fff",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700}}>📄 PDF generieren ({Object.values(pdfSel).filter(Boolean).length} Eingriffe)</div>
+            <div style={{fontSize:10,color:"#718096"}}>Öffnet Druckvorschau → Als PDF speichern</div>
+          </div>
+        </div>;
+      }()}
 
       </div>{/* END ob-form */}
 
