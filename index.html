@@ -203,6 +203,24 @@ const DIAG = {
     bildBefunde: "Haglund-Exostose mit Verkalkung am Achillessehnenansatz",
     literatur: "Zhi X et al. (2021) Nonoperative treatment of insertional Achilles tendinopathy: a systematic review. J Orthop Surg Res. https://doi.org/10.1186/s13018-021-02370-0 (weitere Informationen zur konservativen Behandlung)",
   },
+  juvenil_ppv: {
+    label: "Juvenil PPV",
+    diagnoseText: "Juveniler Pes planovalgus",
+    lokBeschwerden: "im Bereich des Rückfußes und des medialen Fußgewölbes",
+    konservativ: ["Belassen des Befundes", "Einlagenversorgung", "Physiotherapie", "Spiraldynamik", "Sportreduktion", "Eigenübungen", "Anpassung des Schuhwerks"],
+    befunde: [
+      { id: "haut_jppv", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "planovalgus_j", pos: "Pes planovalgus mit Rückfußvalgus", neg: "Kein Planovalgus" },
+      { id: "flex_j", pos: "Flexible Rückfußachse, passiv korrigierbar", neg: "Rigide Rückfußachse, nicht passiv korrigierbar" },
+      { id: "medarch_j", pos: "Abgeflachtes mediales Längsgewölbe", neg: "Erhaltenes mediales Längsgewölbe" },
+      { id: "tmt_j", pos: "Too-many-toes-Sign positiv", neg: "Too-many-toes-Sign negativ" },
+      { id: "silfv_j", pos: "Verkürzung der Achillessehne (Silfverskjöld positiv)", neg: "Silfverskjöld negativ" },
+      { id: "schmerz_sinus_j", pos: "Schmerzen im Bereich des Sinus Tarsi", neg: "Kein Sinustarsischmerz" },
+    ],
+    opMethoden: ["arthrorise"],
+    bildBefunde: "Pes planovalgus mit vermindertem Calcaneus-Pitch und erhöhtem talometatarsalem Winkel",
+    literatur: "Bernasconi A et al. (2021) Subtalar arthroereisis for symptomatic flatfoot. EFORT Open Rev. https://doi.org/10.1302/2058-5241.6.210009",
+  },
 };
 
 const COALITIO_BEFUNDE = [
@@ -245,6 +263,7 @@ const OPS = {
   coalition_exzision: { k: "Coalition-Exzision", b: "eine Exzision der Koalition mit Interposition eines autologen Faszien-Fett-Flaps vom Unterschenkel", r: "Infekt, fehlende zufriedenstellende Korrektur, Belastungsschmerz, Peronealsehnenspasmus, Folgeeingriffe, Versteifung im Verlauf", t: "Exzision der Koalition mit Faszien-Fett-Interponat und Calcaneus-Korrekturosteotomie" },
   subtalar_arthrodese: { k: "USG-Arthrodese", b: "eine primäre Versteifung des unteren Sprunggelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) des unteren Sprunggelenkes, Augmentation durch autologe Beckenkammspongiosa" },
   arthrodese_tmt: { k: "TMT-Arthrodese", b: "eine Versteifung der Tarsometatarsalgelenke", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) der Tarsometatarsalgelenke, Augmentation durch autologe Beckenkammspongiosa" },
+  arthrorise: { k: "Arthrorise", b: "eine Arthrorise (subtalare Schraubenarthrorise) zur Korrektur des kindlichen/juvenilen Knick-Senkfußes", r: "Infektion, Implantatlockerung, Überkorrektur mit Supinationsfehlstellung, Schmerzen im Sinus Tarsi, Implantatentfernung erforderlich, unzureichende Korrektur", t: "Subtalare Arthrorise" },
 };
 
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
@@ -422,7 +441,7 @@ var _s = useState, _m = useMemo;
         if (m === "amic") return "Kürettage der OCL, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
         return OPS[m].t;
       });
-      p.push("\nTherapieempfehlung: Elektive operative Option: " + opTexte.join(", ") + (seite ? " " + seite : "") + ", befundbezogenes Vorgehen");
+      p.push("\nElektive operative Option: " + opTexte.join(", ") + (seite ? " " + seite : "") + ", befundbezogenes Vorgehen");
     }
     p.push("\n\n");
 
@@ -578,7 +597,7 @@ var _s = useState, _m = useMemo;
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "";
-        if (line.startsWith("Diagnosen:") || line.startsWith("Therapieempfehlung:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:")) {
+        if (line.startsWith("Diagnosen:") || line.startsWith("Elektive operative Option:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:")) {
           return "<p style='margin:6pt 0 2pt;font-weight:bold;font-size:11pt;font-family:Arial'>" + line + "</p>";
         }
         if (line.startsWith("Zur weiteren Information")) {
@@ -781,7 +800,7 @@ var _s = useState, _m = useMemo;
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
-            {showPv && <div style={{ background: "rgba(0,0,0,.02)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
+            {showPv && <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
           </div>
         </div>
       </div>}
@@ -796,7 +815,7 @@ var _s = useState, _m = useMemo;
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
             </div>
           </div>
-          <div style={{ background: "rgba(0,0,0,.02)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontSize: 11.5, lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
+          <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
         </div>
       </div>
       </div>
@@ -2408,7 +2427,7 @@ const UC_TEXT_MAP={
           </div>
         </div>
         <div style={{cursor:"pointer",fontSize:11,color:"#00838F",marginBottom:6}} onClick={()=>setShowPv(!showPv)}>{showPv?"▼ Ausblenden":"▶ Anzeigen"}</div>
-        {showPv&&<div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11.5,lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",maxHeight:500,overflowY:"auto"}}>{fullText}</div>}
+        {showPv&&<div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",maxHeight:500,overflowY:"auto"}}>{fullText}</div>}
       </div>}
       </>}
 
@@ -2454,7 +2473,7 @@ const UC_TEXT_MAP={
       </div>}
       {ucMe&&<div style={card}>
         <div style={h3s}>🔩 Metallentfernung – OP-Bericht</div>
-        <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{T.me_standard}</div>
+        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{T.me_standard}</div>
         <div style={{marginTop:8,padding:"8px 12px",border:"1px dashed #E65100",borderRadius:6,background:"rgba(230,81,0,.04)",fontSize:10,color:"#BF360C"}}>
           ⚠ <b>§REGION§</b> und <b>§MATERIAL§</b> nach Kopieren manuell ersetzen (z.B. „distalen Fibula" / „Platte mit 6 Schrauben").
         </div>
@@ -2559,7 +2578,7 @@ const UC_TEXT_MAP={
         </div>}
         {ucOp&&UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12}}>
           <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:6}}>📝 OP-Bericht</div>
-          <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]])}</div>
+          <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]])}</div>
           <div style={{display:"flex",gap:6,marginTop:8}}>
             <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{obFallbackCopy(ucFullText+ucErloesText)}}>📋 Text kopieren</div>
             <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#00838F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{try{var icdT="";if(icdCodes.length>0){icdT="\n\nICD-10 DIAGNOSEN:\n";icdCodes.forEach(function(c){icdT+=(c.hd?"HD: ":"ND: ")+c.code+" "+c.desc+"\n";});}var f=buildDocx(ucFullText+icdT,ucErloesText);var z=createZip(f);var bytes=new Uint8Array(z);var b="";for(var i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]);var d="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,"+btoa(b);var a=document.createElement("a");a.href=d;a.download="UC_OP_Bericht.docx";document.body.appendChild(a);a.click();document.body.removeChild(a);showToast("📄 Word heruntergeladen!");}catch(e){console.error(e);showToast("⚠ Fehler beim Download");}}}>📄 Word</div>
@@ -2596,7 +2615,7 @@ const UC_TEXT_MAP={
             <div style={{padding:"5px 10px",border:"none",borderRadius:5,background:"#005F63",color:"#fff",fontWeight:600,fontSize:10,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
           </div>
         </div>
-        <div style={{background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontSize:11,lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",overflowY:"auto",maxHeight:"calc(100vh - 180px)"}}>{fullText}</div>
+        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",overflowY:"auto",maxHeight:"calc(100vh - 180px)"}}>{fullText}</div>
         {erloesData&&<div style={{marginTop:10,fontSize:9,padding:10,background:"rgba(0,107,111,.04)",border:"1px solid rgba(0,107,111,.12)",borderRadius:6,color:"#006B6F",whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>💰 {erloesData.label}</span>{"\n"}H-DRG: {erloesData.hdrg} | EBM: {erloesData.ebm}{"\n"}Gekürzt: {erloesData.kurz} | Volle DRG: {erloesData.drg}{"\n"}🎯 {erloesData.ziel}{erloesData.kodier?"\n📋 "+erloesData.kodier:""}</div>}
       </div>}
 
