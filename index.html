@@ -14882,17 +14882,16 @@ const UC_TEXT_MAP={
 
         {/* ÖKONOMISCHES CODIERZIEL */}
         <div style={{marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
-          <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:2}}>Ökonomisches Codierziel:</div>
-          <div style={{fontSize:11,color:"#2D3748"}}>{
-            /* ME, Cheilektomie, DMMO ≤2: nur H-DRG */
-            (erloesData.label.includes("Metallentfernung")||erloesData.label==="Cheilektomie"||erloesData.label==="Kleinzehen/DMMO"||erloesData.label==="Exostose")
-              ?"Ambulant: Hybrid-DRG "+erloesData.hdrg
-            /* Nur stationär (kein H-DRG) */
+          <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Ökonomisches Codierziel:</div>
+          {(erloesData.label.includes("Metallentfernung")||erloesData.label==="Cheilektomie"||erloesData.label==="Kleinzehen/DMMO"||erloesData.label==="Exostose")
+            ?<div style={{fontSize:11,color:"#2D3748"}}>Bei ambulanter Führung: Hybrid-DRG {erloesData.hdrg}</div>
             :erloesData.hdrg==="—"
-              ?"Stationär: Volle DRG "+(erloesData.drg||"—")+", Liegezeit ≥ 2 Tage"
-            /* Beides möglich */
-            :"Ambulant: Hybrid-DRG "+erloesData.hdrg+" | Stationär: Volle DRG "+(erloesData.drg||"—")+", Liegezeit ≥ 2 Tage"
-          }</div>
+            ?<div style={{fontSize:11,color:"#2D3748"}}>Bei stationärer Führung: Volle DRG {erloesData.drg||"—"}, Liegezeit ≥ 2 Tage</div>
+            :<div style={{fontSize:11,color:"#2D3748"}}>
+              <div>Bei ambulanter Führung: Hybrid-DRG {erloesData.hdrg}</div>
+              <div>Bei stationärer Führung: Volle DRG {erloesData.drg||"—"}, Liegezeit ≥ 2 Tage</div>
+            </div>
+          }
         </div>
 
         {/* BELEGUNGSTAGE / VWD */}
@@ -14914,25 +14913,20 @@ const UC_TEXT_MAP={
             {erloesData.hdrg!=="—"&&<div style={{marginBottom:12}}>
               <div style={{fontWeight:700,color:"#00695C",marginBottom:6,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {erloesData.hdrg}):</div>
               <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c){var isKP=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-854.0c","5-855.39"].indexOf(c)>=0;return <span key={c+"a"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:isKP?"rgba(230,81,0,.12)":"rgba(0,131,143,.08)",color:isKP?"#C62828":"#00838F",textDecoration:isKP?"line-through":"none"}}>{c}</span>;})}</span></div>
-              <div style={{whiteSpace:"pre-line"}}>{function(){var L=erloesData.kodier.split("\n"),a=L.filter(function(l){return l.includes("Ambulant")||l.includes("NICHT kodieren")||(l.includes("H-DRG")&&!l.includes("WEGE")&&!l.includes("Rückfall"));});return a.length>0?a.join("\n"):"H-DRG-Code kodieren. Kontextprozeduren NICHT mitkodieren.";}()}</div>
-              <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Kontextprozedur-Eingriff (Sehnentransfer, Spongiosa etc.) NICHT beschreiben.</div>
+              {function(){var kpNames={"5-854.2c":"Sehnentransfer/FDL","5-784.0v":"Spongiosa MTP I","5-784.0r":"Spongiosa Fibula","5-784.0n":"Spongiosa Talus","5-783.0d":"Spongiosa Beckenkamm","5-854.0c":"Strecksehnenverlängerung","5-855.39":"Achillessehnennaht"};var found=erloesData.ops.filter(function(c){return kpNames[c];});if(found.length>0)return <div>{found.map(function(c){return <div key={c} style={{color:"#C62828"}}>❌ {c} ({kpNames[c]}) NICHT kodieren</div>;})}<div style={{marginTop:2,fontStyle:"italic",color:"#004D40"}}>Im OP-Bericht: {found.map(function(c){return kpNames[c];}).join(", ")} NICHT beschreiben.</div></div>;return <div style={{fontStyle:"italic",color:"#004D40"}}>Keine Kontextprozeduren in diesem Eingriff.</div>;}()}
             </div>}
 
             {/* STATIONÄRE FÜHRUNG */}
-            <div style={{marginBottom:erloesData.kodier.includes("DMMO")?12:0}}>
+            <div>
               <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {erloesData.drg||""}):</div>
               <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c){var isH=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-854.0c"].indexOf(c)>=0;return <span key={c+"s"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:isH?"rgba(230,81,0,.15)":"rgba(0,131,143,.08)",color:isH?"#E65100":"#00838F",fontWeight:isH?700:400,border:isH?"1px solid #E65100":"none"}}>{c}{isH?" ⚠ HEBEL":""}</span>;})}</span></div>
-              <div style={{whiteSpace:"pre-line"}}>{function(){var L=erloesData.kodier.split("\n"),s=L.filter(function(l){return(l.includes("HEBEL")||l.includes("IMMER")||l.includes("Stationär")||l.includes("OP-Bericht")||l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("Nur stationär"))&&!l.includes("WEGE AUS")&&!l.includes("DMMO-REGEL")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H");});if(s.length===0)s=L.filter(function(l){return l.trim()&&!l.includes("Ambulant")&&!l.includes("NICHT kodieren")&&!l.includes("WEGE AUS")&&!l.includes("DMMO-REGEL")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Max. 2×")&&!l.includes("KEINE H-DRG möglich");});return s.join("\n");}()}</div>
-              <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Hebel-Code-Eingriff MUSS beschrieben werden (Sehnentransfer, Spongiosaentnahme dokumentieren).</div>
-              {erloesData.hdrg!=="—"&&erloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div style={{marginTop:6,padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)"}}>
-                <div style={{fontWeight:600,color:"#004D40",marginBottom:2}}>Kontextprozedur → volle DRG ab 2 Nächten (empfohlen):</div>
-                <div>Bei Nutzung: volle DRG ab 2 ÜN. Bei MDK-Kürzung: gekürzte DRG (besser als H-DRG). Alternative: VWD ≥ 3 Tage ohne Kontextprozedur, bei Kürzung Rückfall in H-DRG.</div>
-              </div>}
+              {function(){var kpNames={"5-854.2c":"Sehnentransfer/FDL","5-784.0v":"Spongiosa MTP I","5-784.0r":"Spongiosa Fibula","5-784.0n":"Spongiosa Talus","5-783.0d":"Spongiosa Beckenkamm","5-854.0c":"Strecksehnenverlängerung"};var found=erloesData.ops.filter(function(c){return kpNames[c];});if(found.length>0)return <div><div style={{marginBottom:4}}>{found.map(function(c){return <div key={c} style={{color:"#E65100",fontWeight:600}}>✅ {c} ({kpNames[c]}) = Kontextprozedur → IMMER kodieren</div>;})}</div><div style={{fontStyle:"italic",color:"#004D40",marginBottom:4}}>Im OP-Bericht: {found.map(function(c){return kpNames[c];}).join(", ")} MUSS beschrieben und dokumentiert werden.</div>{erloesData.hdrg!=="—"&&<div style={{padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)",marginBottom:4}}><div style={{fontWeight:600,color:"#004D40"}}>Mit Kontextprozedur:</div><div>1 Nacht → gekürzte DRG (besser als Hybrid-DRG)</div><div>2 Nächte → volle DRG {erloesData.drg||""}</div><div style={{marginTop:2}}>Ohne Kontextprozedur: VWD ≥ 3 Tage nötig für volle DRG. Bei Kürzung: Rückfall in Hybrid-DRG.</div></div>}</div>;
+              var warnLines=erloesData.kodier.split("\n").filter(function(l){return(l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("Nur stationär")||l.includes("Mind."))&&!l.includes("DMMO")&&!l.includes("WEGE");});if(warnLines.length>0)return <div style={{whiteSpace:"pre-line"}}>{warnLines.join("\n")}</div>;return null;}()}
               <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>
             </div>
 
-            {/* DMMO-REGEL */}
-            {erloesData.kodier.includes("DMMO-REGEL")&&<div>
+            {/* DMMO-REGEL — einmal am Ende */}
+            {erloesData.kodier.includes("DMMO-REGEL")&&<div style={{marginTop:10}}>
               <div style={{fontWeight:700,color:"#E65100",marginBottom:4,borderBottom:"1px solid rgba(230,81,0,.2)",paddingBottom:2}}>DMMO-Regel:</div>
               <div>Max. 2× DMMO (5-788.52/53) für Hybrid-DRG. Ab ≥3 DMMO (5-788.54/55): KEINE Hybrid-DRG → nur stationär.</div>
             </div>}
@@ -15079,8 +15073,14 @@ const UC_TEXT_MAP={
           </div>
           {/* Ökonomisches Codierziel */}
           <div style={{marginTop:8,marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
-            <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:2}}>Ökonomisches Codierziel:</div>
-            <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.hdrg!=="—"?"Ambulant: Hybrid-DRG "+ucErloesData.hdrg+" ("+ucErloesData.hdrgE+" €) | Stationär: Volle DRG "+ucErloesData.basis+" ("+ucErloesData.basisE+" €), Liegezeit ≥ 2 Tage":"Stationär: Volle DRG "+ucErloesData.basis+" ("+ucErloesData.basisE+" €), Liegezeit ≥ 2 Tage"}</div>
+            <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Ökonomisches Codierziel:</div>
+            {ucErloesData.hdrg!=="—"
+              ?<div style={{fontSize:11,color:"#2D3748"}}>
+                <div>Bei ambulanter Führung: Hybrid-DRG {ucErloesData.hdrg} ({ucErloesData.hdrgE} €)</div>
+                <div>Bei stationärer Führung: Volle DRG {ucErloesData.basis} ({ucErloesData.basisE} €), Liegezeit ≥ 2 Tage</div>
+              </div>
+              :<div style={{fontSize:11,color:"#2D3748"}}>Bei stationärer Führung: Volle DRG {ucErloesData.basis} ({ucErloesData.basisE} €), Liegezeit ≥ 2 Tage</div>
+            }
           </div>
           {/* Erlösrelevante Kodierhinweise */}
           {ucErloesData.kodier&&<div style={{marginTop:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
