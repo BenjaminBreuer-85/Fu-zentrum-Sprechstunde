@@ -13284,7 +13284,7 @@ var _s = useState, _m = useMemo;
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
-            {showPv && <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
+            {showPv && <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
           </div>
         </div>
       </div>}
@@ -13299,7 +13299,7 @@ var _s = useState, _m = useMemo;
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
             </div>
           </div>
-          <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,.08)", borderRadius: 8, padding: 14, fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
+          <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
         </div>
       </div>
       </div>
@@ -13755,29 +13755,58 @@ function OPBerichtApp(){
     fxOp.forEach(op=>{if(op==="fibula_einf")o.push("5-793.3r","5-793.kr");if(op==="fibula_mehr")o.push("5-794.2r","5-794.kr");});if(fxSyndes&&fxOp.length>0)o.push("5-795.kr");
     
 
-    // Erlös-Priorisierung
+    // Erlös-Priorisierung: höchstwertiger Eingriff bestimmt DRG
     const _isVF=hasVF;
-    const _prio=gz||"";
-    const _cm=gz==="lapidus"?1.033:gz==="chevron"||gz==="scarf"?0.818:gz==="mtp1art"?0.818:gz==="cheilek"||gz==="exostose"?0.667:0;
+    // CM-Werte aller potentiell ausgewählten Eingriffe sammeln
+    var _candidates=[];
+    if(gz==="lapidus")_candidates.push({p:"lapidus",cm:1.033});
+    if(gz==="mtp1art")_candidates.push({p:"mtp1art",cm:0.818});
+    if(gz==="chevron"||gz==="scarf")_candidates.push({p:gz,cm:0.818});
+    if(gz==="cheilek"||gz==="exostose")_candidates.push({p:gz,cm:0.667});
+    if(Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)_candidates.push({p:"dmmo",cm:hasDMMOover2?0.667:0.667});
+    if(tepType&&tepType.startsWith("primaer"))_candidates.push({p:"tep_prim",cm:1.923});
+    if(tepType&&tepType.startsWith("wechsel"))_candidates.push({p:"tep_wechsel",cm:2.372});
+    if(osgOp.includes("t2_nagel"))_candidates.push({p:"t2",cm:1.963});
+    if(osgOp.includes("arthrodese_osg"))_candidates.push({p:"arthrodese_osg",cm:osgArtSpongiosa?1.552:1.278});
+    if(osgOp.includes("amic"))_candidates.push({p:"amic",cm:amicIKO?1.278:0.995});
+    if(osgOp.includes("brostrom"))_candidates.push({p:"brostrom",cm:0.707});
+    if(osgOp.includes("arthrorise"))_candidates.push({p:"arthrorise",cm:0.5});
+    if(hasASnaht)_candidates.push({p:"as_naht",cm:0.743});
+    if(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi")_candidates.push({p:"lambrinudi",cm:1.494});
+    if(rfOp.includes("hohlfuss")&&hohlfussTyp==="dwyer")_candidates.push({p:"dwyer",cm:1.111});
+    if(rfOp.includes("subtalar"))_candidates.push({p:"subtalar",cm:1.278});
+    if(rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen"))_candidates.push({p:"mdo",cm:1.111});
+    if(rfOp.includes("os_tib_ext"))_candidates.push({p:"os_tib",cm:0.707});
+    if(rfOp.includes("peroneal"))_candidates.push({p:"peroneal",cm:peronealTyp==="luxation"?0.707:0.743});
+    if(mfCotton)_candidates.push({p:"cotton",cm:1.111});
+    if(mfTmt.length>0){var _tmtCm=mfTmt.includes("tmt1_3")?1.111:1.033;_candidates.push({p:"tmt",cm:_tmtCm});}
+    if(rfOp.includes("supramal_ot"))_candidates.push({p:"supramal",cm:1.278});
+    if(coalTyp)_candidates.push({p:"coalitio",cm:0.743});
+    if(hasFX)_candidates.push({p:"fx",cm:fxSyndes?1.278:0.995});
+    if(hasME)_candidates.push({p:"me",cm:0});
+    // Höchsten CM finden
+    _candidates.sort(function(a,b){return b.cm-a.cm;});
+    const _prio=_candidates.length>0?_candidates[0].p:"";
+    const _cm=_candidates.length>0?_candidates[0].cm:0;
 
     // ============================================================
     // ERLÖSMATRIX – VERIFIZIERT 05.04.2026
     // ============================================================
 
     // Lapidus
-    if(gz==="lapidus"&&(_prio==="lapidus"||_cm<=1.033)) return [o,{label:"Lapidus",ops:o,
+    if(gz==="lapidus"&&_prio==="lapidus") return [o,{label:"Lapidus",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20D ~3.700 €",drg:"I20D 4.710 €",hdrg_n1:"—",empf:"n2",
       ziel:"Keine H-DRG (5-808.a4 nicht auf Positivliste) → stationär, mind. 2 Nächte → volle DRG I20D (CM 1,033 = 4.710 €).",
       kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-784.0u (Spongiosa aus Exostose).\n5-854.2c (Sehnentransfer) IMMER mitkodieren.\n⚠ 5-808.a4 NICHT auf H-DRG-Positivliste UND NICHT im AOP-Katalog!\n→ Nur stationär möglich. Mind. 2 Nächte für volle DRG.\n⚠ Häufiger Fehler: Lapidus als ambulant geplant → nicht abrechenbar!"}];
 
     // MTP-I-Arthrodese
-    if(gz==="mtp1art"&&_isVF) {
+    if(gz==="mtp1art"&&_prio==="mtp1art") {
       const dmmoCnt=dmmo.length;
-      if(dmmoCnt>=3&&_isVF) return [o,{label:"MTP-I-Arthrodese + ≥3 DMMO",ops:o,
+      if(dmmoCnt>=3) return [o,{label:"MTP-I-Arthrodese + ≥3 DMMO",ops:o,
         hdrg:"—",ebm:"—",kurz:"I20D ~3.700 €",drg:"I20D 4.710 €",hdrg_n1:"—",empf:"n2",
         ziel:"≥3 DMMO → keine H-DRG. Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €).\n5-784.0v (Spongiosa) IMMER mitkodieren.",
         kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.54/55.\n5-784.0v (Spongiosa) IMMER mitkodieren → I20D. ⚠ Im OP-Bericht erwähnen!"}];
-      if(dmmoCnt>=1&&_isVF) return [o,{label:"MTP-I-Arthrodese + DMMO",ops:o,
+      if(dmmoCnt>=1) return [o,{label:"MTP-I-Arthrodese + DMMO",ops:o,
         hdrg:"I20N 2.085 €",ebm:"—",kurz:"I20E ~2.800 €",drg:"I20E 3.728 €",hdrg_n1:"I20N 2.085 €",empf:"amb",
         ziel:"Ambulant → H-DRG I20N (2.085 €). ❌ 5-784.0v NICHT kodieren!\n1 Nacht: gekürzte DRG I20E (~2.800 €).\nAb 2 Nächte: 5-784.0v mitkodieren → volle DRG I20E (3.728 €).",
         kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.52/53.\n⚠ Ambulant: 5-784.0v NICHT kodieren → H-DRG I20N!\n⚠ Stationär: 5-784.0v IMMER → Kontextprozedur → I20E.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0v (Spongiosa MTP I) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."}];
@@ -13788,23 +13817,23 @@ function OPBerichtApp(){
     }
 
     // Chevron/Scarf/Cheilektomie/Exostose
-    if((gz==="chevron"||gz==="cheilek"||gz==="scarf"||gz==="exostose")&&_isVF){
+    if((gz==="chevron"||gz==="cheilek"||gz==="scarf"||gz==="exostose")&&_prio===gz){
       const lbl=gz==="chevron"?"Chevron":gz==="cheilek"?"Cheilektomie":gz==="scarf"?"Scarf":"Exostose";
       const isOT=gz==="chevron"||gz==="scarf";
-      if(_isVF) return [o,{label:lbl+(mitAkin?" + Akin":"")+(dmmo.length>0?" + DMMO":""),ops:o,
+      if(true) return [o,{label:lbl+(mitAkin?" + Akin":"")+(dmmo.length>0?" + DMMO":""),ops:o,
         hdrg:"I20O 1.007 €",ebm:"EBM ~300 €",kurz:isOT?"I20E ~2.800 €":"I20F ~2.000 €",drg:isOT?"I20E 3.728 €":"I20F 3.040 €",hdrg_n1:"I20O 1.007 €",empf:"amb",
         ziel:"Ambulant → H-DRG I20O (1.007 €). ❌ 5-854.2c NICHT kodieren!"+(isOT?"\nStationär ≥2N: 5-854.2c IMMER mitkodieren → I20E (3.728 €).":""),
         kodier:isOT?"⚠ HEBEL-CODE: 5-854.2c (Sehnentransfer/Rebalancing).\nAmbulant: NICHT kodieren → H-DRG I20O.\nStationär: IMMER mitkodieren → Kontextprozedur → I20E.\n⚠ Sehnentransfer muss im OP-Bericht dokumentiert sein!\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein. Bei MDK-Kürzung: Rückfall in H-DRG!\n② Kontextprozedur 5-854.2c mitkodieren → volle DRG bereits ab 2 Nächten. ✅ EMPFOHLEN: 1 Tag weniger zu rechtfertigen. Bei Kürzung: gekürzte DRG (besser als H-DRG).":"OPS: 5-788.00 (Cheilektomie/Exostose) → I20O ambulant.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur kodieren (z.B. Sehnenverlängerung 5-854.0c) → volle DRG ab 2 Nächten. ✅ EMPFOHLEN."}];
     }
 
     // Kleinzehen/DMMO ≤2
-    if((Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)&&!hasDMMOover2&&_isVF) return [o,{label:"Kleinzehen/DMMO",ops:o,
+    if((Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)&&!hasDMMOover2&&_prio==="dmmo") return [o,{label:"Kleinzehen/DMMO",ops:o,
       hdrg:"I20O 1.007 €",ebm:"EBM ~300 €",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"I20O 1.007 €",empf:"amb",
       ziel:"Ambulant → H-DRG I20O (1.007 €).",
       kodier:"DMMO max. 2× (5-788.52/53) für H-DRG! >2× = keine H-DRG.\n5-854.0c (Strecksehnenverlängerung): Ambulant NICHT mitkodieren.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-854.0c (Strecksehnenverlängerung Mittelfuß) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: 1 Tag weniger, bei Kürzung nur gekürzte DRG (besser als H-DRG)."}];
 
     // DMMO >2
-    if(hasDMMOover2&&_isVF) return [o,{label:"DMMO ≥3 MT",ops:o,
+    if(hasDMMOover2&&_prio==="dmmo") return [o,{label:"DMMO ≥3 MT",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"—",empf:"n2",
       ziel:"5-788.54/55 nicht auf Positivliste → keine H-DRG. Stationär ≥2 Nächte → I20F (3.040 €).",
       kodier:"5-788.54/55 = DMMO 3–4 MT. Ambulant: H-DRG-Code dazukodieren erwägen."}];
@@ -14914,7 +14943,7 @@ const UC_TEXT_MAP={
           </div>
         </div>
         <div style={{cursor:"pointer",fontSize:11,color:"#00838F",marginBottom:6}} onClick={()=>setShowPv(!showPv)}>{showPv?"▼ Ausblenden":"▶ Anzeigen"}</div>
-        {showPv&&<div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",maxHeight:500,overflowY:"auto"}}>{fullText}</div>}
+        {showPv&&<div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",maxHeight:500,overflowY:"auto"}}>{fullText}</div>}
       </div>}
       </>}
 
@@ -14960,7 +14989,7 @@ const UC_TEXT_MAP={
       </div>}
       {ucMe&&<div style={card}>
         <div style={h3s}>🔩 Metallentfernung – OP-Bericht</div>
-        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{T.me_standard}</div>
+        <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{T.me_standard}</div>
         <div style={{marginTop:8,padding:"8px 12px",border:"1px dashed #E65100",borderRadius:6,background:"rgba(230,81,0,.04)",fontSize:10,color:"#BF360C"}}>
           ⚠ <b>§REGION§</b> und <b>§MATERIAL§</b> nach Kopieren manuell ersetzen (z.B. „distalen Fibula" / „Platte mit 6 Schrauben").
         </div>
@@ -15065,7 +15094,7 @@ const UC_TEXT_MAP={
         </div>}
         {ucOp&&UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12}}>
           <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:6}}>📝 OP-Bericht</div>
-          <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]])}</div>
+          <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]])}</div>
           <div style={{display:"flex",gap:6,marginTop:8}}>
             <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{obFallbackCopy(ucFullText+ucErloesText)}}>📋 Text kopieren</div>
             <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#00838F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{try{var icdT="";if(icdCodes.length>0){icdT="\n\nICD-10 DIAGNOSEN:\n";icdCodes.forEach(function(c){icdT+=(c.hd?"HD: ":"ND: ")+c.code+" "+c.desc+"\n";});}var f=buildDocx(ucFullText+icdT,ucErloesText);var z=createZip(f);var bytes=new Uint8Array(z);var b="";for(var i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]);var d="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,"+btoa(b);var a=document.createElement("a");a.href=d;a.download="UC_OP_Bericht.docx";document.body.appendChild(a);a.click();document.body.removeChild(a);showToast("📄 Word heruntergeladen!");}catch(e){console.error(e);showToast("⚠ Fehler beim Download");}}}>📄 Word</div>
@@ -15092,7 +15121,7 @@ const UC_TEXT_MAP={
             <div style={{padding:"5px 10px",border:"none",borderRadius:5,background:"#005F63",color:"#fff",fontWeight:600,fontSize:10,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
           </div>
         </div>
-        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:14,fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",overflowY:"auto",maxHeight:"calc(100vh - 180px)"}}>{fullText}</div>
+        <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",overflowY:"auto",maxHeight:"calc(100vh - 180px)"}}>{fullText}</div>
         {erloesData&&<div style={{marginTop:10,fontSize:9,padding:10,background:"rgba(0,107,111,.04)",border:"1px solid rgba(0,107,111,.12)",borderRadius:6,color:"#006B6F",whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>💰 {erloesData.label}</span>{"\n"}H-DRG: {erloesData.hdrg} | EBM: {erloesData.ebm}{"\n"}Gekürzt: {erloesData.kurz} | Volle DRG: {erloesData.drg}{"\n"}🎯 {erloesData.ziel}{erloesData.kodier?"\n📋 "+erloesData.kodier:""}</div>}
       </div>}
 
