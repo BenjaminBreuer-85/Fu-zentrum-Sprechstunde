@@ -14893,11 +14893,14 @@ const UC_TEXT_MAP={
         <div style={{marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
           <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:2}}>Ökonomisches Codierziel:</div>
           <div style={{fontSize:11,color:"#2D3748"}}>{
-            erloesData.empf==="amb"&&erloesData.hdrg!=="—"?"Ambulant Hybrid-DRG ("+erloesData.hdrg+")":
-            erloesData.empf==="amb"?"Ambulant EBM":
-            erloesData.empf==="n2"?"Stationär reguläre DRG, Liegezeit ≥ 2 Tage ("+(erloesData.drg||"—")+")":
-            erloesData.empf==="n3"?"Stationär reguläre DRG, Liegezeit ≥ 3 Tage ("+(erloesData.drg||"—")+")":
-            "Stationär reguläre DRG ("+(erloesData.drg||"—")+")"
+            /* ME, Cheilektomie, DMMO ≤2: nur H-DRG */
+            (erloesData.label.includes("Metallentfernung")||erloesData.label==="Cheilektomie"||erloesData.label==="Kleinzehen/DMMO"||erloesData.label==="Exostose")
+              ?"Ambulant: Hybrid-DRG "+erloesData.hdrg
+            /* Nur stationär (kein H-DRG) */
+            :erloesData.hdrg==="—"
+              ?"Stationär: Volle DRG "+(erloesData.drg||"—")+", Liegezeit ≥ 2 Tage"
+            /* Beides möglich */
+            :"Ambulant: Hybrid-DRG "+erloesData.hdrg+" | Stationär: Volle DRG "+(erloesData.drg||"—")+", Liegezeit ≥ 2 Tage"
           }</div>
         </div>
 
@@ -14914,26 +14917,48 @@ const UC_TEXT_MAP={
           <div style={{background:"#E65100",padding:"6px 12px"}}>
             <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
           </div>
-          <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7}}>
-            {erloesData.empf==="amb"&&erloesData.hdrg!=="—"&&<div style={{marginBottom:10}}>
-              <div style={{fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG):</div>
-              <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{
-                erloesData.kodier.split("\n").filter(function(l){return l.includes("Ambulant")||l.includes("NICHT kodieren")||l.includes("H-DRG");}).join("\n")||"H-DRG-Code kodieren. Kontextprozeduren NICHT mitkodieren (→ würden H-DRG verhindern)."
-              }</div>
+          <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:10,color:"#2D3748",lineHeight:1.7}}>
+
+            {/* AMBULANTE FÜHRUNG — nur bei H-DRG-fähigen Eingriffen */}
+            {erloesData.hdrg!=="—"&&<div style={{marginBottom:12}}>
+              <div style={{fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {erloesData.hdrg}):</div>
+              <div style={{lineHeight:1.7}}>{function(){
+                var lines=erloesData.kodier.split("\n");
+                var ambLines=lines.filter(function(l){return l.includes("Ambulant")||l.includes("NICHT kodieren")||(l.includes("H-DRG")&&!l.includes("WEGE")&&!l.includes("Rückfall"));});
+                if(ambLines.length>0)return <div style={{whiteSpace:"pre-line"}}>{ambLines.join("\n")}</div>;
+                return <div>H-DRG-Code kodieren. Kontextprozeduren NICHT mitkodieren.</div>;
+              }()}</div>
             </div>}
-            <div style={{marginBottom:10}}>
-              <div style={{fontWeight:700,color:"#004D40",marginBottom:4,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>{erloesData.empf==="amb"&&erloesData.hdrg!=="—"?"Stationäre Führung (volle DRG):":"Stationäre Führung:"}</div>
-              <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{
-                erloesData.kodier.split("\n").filter(function(l){return l.includes("Stationär")||l.includes("IMMER")||l.includes("mitkodieren")||l.includes("Kontextprozedur")||l.includes("HEBEL")||l.includes("Häufiger Fehler")||l.includes("OP-Bericht");}).join("\n")||erloesData.kodier
-              }</div>
+
+            {/* STATIONÄRE FÜHRUNG */}
+            <div style={{marginBottom:erloesData.kodier.includes("DMMO")?12:0}}>
+              <div style={{fontWeight:700,color:"#004D40",marginBottom:4,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {erloesData.drg||""}):</div>
+              <div style={{lineHeight:1.7}}>{function(){
+                var lines=erloesData.kodier.split("\n");
+                /* Relevante Zeilen für stationäre Führung: HEBEL, IMMER, Stationär, OP-Bericht, Häufiger Fehler */
+                var statLines=lines.filter(function(l){
+                  return (l.includes("HEBEL")||l.includes("IMMER")||l.includes("Stationär")||l.includes("OP-Bericht")||l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("5-808")||l.includes("5-826"))
+                    &&!l.includes("WEGE AUS")&&!l.includes("DMMO-REGEL")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H");
+                });
+                /* Fallback: alle Zeilen die nicht amb/WEGE/DMMO sind */
+                if(statLines.length===0)statLines=lines.filter(function(l){return l.trim()&&!l.includes("Ambulant")&&!l.includes("NICHT kodieren")&&!l.includes("WEGE AUS")&&!l.includes("DMMO-REGEL")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Max. 2×")&&!l.includes("KEINE H-DRG möglich");});
+                return <div style={{whiteSpace:"pre-line"}}>{statLines.join("\n")}</div>;
+              }()}</div>
+              {/* Kontextprozedur-Hinweis bei H-DRG-fähigen Eingriffen */}
+              {erloesData.hdrg!=="—"&&erloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div style={{marginTop:6,padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)"}}>
+                <div style={{fontWeight:600,color:"#004D40",marginBottom:2}}>Kontextprozedur → volle DRG ab 2 Nächten (empfohlen):</div>
+                <div style={{color:"#2D3748"}}>Kontextprozedur im OP-Bericht beschreiben und kodieren. Volle DRG bereits ab 2 Übernachtungen. Bei MDK-Kürzung: nur gekürzte DRG (besser als Hybrid-DRG).</div>
+                <div style={{color:"#2D3748",marginTop:2}}>Alternative ohne Kontextprozedur: VWD ≥ 3 Tage → volle DRG, aber jeder Tag dokumentarisch rechtfertigen. Bei Kürzung: Rückfall in Hybrid-DRG.</div>
+                <div style={{color:"#E65100",fontWeight:600,marginTop:2}}>Jeder Belegungstag muss im Verlauf dokumentiert und begründet werden.</div>
+              </div>}
+              {/* Belegungstag-Hinweis bei reinen stationären Eingriffen */}
+              {erloesData.hdrg==="—"&&<div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag muss im Verlauf dokumentiert und begründet werden.</div>}
             </div>
-            {erloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div style={{marginBottom:10}}>
-              <div style={{fontWeight:700,color:"#1565C0",marginBottom:4,borderBottom:"1px solid rgba(21,101,192,.2)",paddingBottom:2}}>Wege aus der Hybrid-DRG in die volle DRG:</div>
-              <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{"① VWD ≥ 3 Tage (3 Nächte post-OP) → volle DRG.\n   ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein.\n   ⚠ Bei MDK-Kürzung: Rückfall in Hybrid-DRG.\n\n② Kontextprozedur mitkodieren → volle DRG bereits ab 2 Nächten. ✅ EMPFOHLEN\n   → 1 Tag weniger zu rechtfertigen.\n   → Bei Kürzung: nur gekürzte DRG (i.d.R. besser als Hybrid-DRG).\n   ⚠ Kontextprozedur MUSS im OP-Bericht beschrieben sein.\n   ⚠ Kontextprozedur MUSS dokumentiert werden um Liegezeit zu rechtfertigen."}</div>
-            </div>}
+
+            {/* DMMO-REGEL — nur einmal, nur wenn relevant */}
             {erloesData.kodier.includes("DMMO-REGEL")&&<div>
               <div style={{fontWeight:700,color:"#E65100",marginBottom:4,borderBottom:"1px solid rgba(230,81,0,.2)",paddingBottom:2}}>DMMO-Regel:</div>
-              <div style={{fontSize:10,lineHeight:1.6}}>Max. 2× DMMO (5-788.52/53) für H-DRG möglich. Ab ≥3 DMMO (5-788.54/55): KEINE Hybrid-DRG → nur stationär.</div>
+              <div>Max. 2× DMMO (5-788.52/53) für Hybrid-DRG möglich. Ab ≥3 DMMO (5-788.54/55): KEINE Hybrid-DRG → nur stationär.</div>
             </div>}
           </div>
         </div>}
@@ -15083,26 +15108,29 @@ const UC_TEXT_MAP={
           {/* Ökonomisches Codierziel */}
           <div style={{marginTop:8,marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
             <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:2}}>Ökonomisches Codierziel:</div>
-            <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.hdrg!=="—"?"Ambulant Hybrid-DRG ("+ucErloesData.hdrg+" "+ucErloesData.hdrgE+" €). Stationär ≥2 Nächte: volle DRG "+ucErloesData.basis+" ("+ucErloesData.basisE+" €).":"Stationär reguläre DRG, Liegezeit ≥ 2 Tage ("+ucErloesData.basis+" "+ucErloesData.basisE+" €)."}</div>
+            <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.hdrg!=="—"?"Ambulant: Hybrid-DRG "+ucErloesData.hdrg+" ("+ucErloesData.hdrgE+" €) | Stationär: Volle DRG "+ucErloesData.basis+" ("+ucErloesData.basisE+" €), Liegezeit ≥ 2 Tage":"Stationär: Volle DRG "+ucErloesData.basis+" ("+ucErloesData.basisE+" €), Liegezeit ≥ 2 Tage"}</div>
           </div>
           {/* Erlösrelevante Kodierhinweise */}
           {ucErloesData.kodier&&<div style={{marginTop:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
             <div style={{background:"#E65100",padding:"6px 12px"}}>
               <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
             </div>
-            <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7}}>
-              {ucErloesData.hdrg!=="—"&&<div style={{marginBottom:10}}>
-                <div style={{fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG):</div>
-                <div style={{fontSize:10,lineHeight:1.6}}>H-DRG-Code kodieren. Kontextprozeduren (z.B. Spongiosa) NICHT mitkodieren.</div>
+            <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:10,color:"#2D3748",lineHeight:1.7}}>
+              {ucErloesData.hdrg!=="—"&&<div style={{marginBottom:12}}>
+                <div style={{fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {ucErloesData.hdrg}):</div>
+                <div>H-DRG-Code kodieren. Kontextprozeduren (z.B. Spongiosa) NICHT mitkodieren.</div>
               </div>}
-              <div style={{marginBottom:10}}>
-                <div style={{fontWeight:700,color:"#004D40",marginBottom:4,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG):</div>
-                <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{ucErloesData.kodier}</div>
+              <div>
+                <div style={{fontWeight:700,color:"#004D40",marginBottom:4,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {ucErloesData.basis}):</div>
+                <div style={{whiteSpace:"pre-line"}}>{ucErloesData.kodier.split("\n").filter(function(l){return l.trim()&&!l.includes("WEGE AUS")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Bei Kürzung nur")&&!l.includes("EMPFOHLEN:");}).join("\n")}</div>
+                {ucErloesData.hdrg!=="—"&&ucErloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div style={{marginTop:6,padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)"}}>
+                  <div style={{fontWeight:600,color:"#004D40",marginBottom:2}}>Kontextprozedur → volle DRG ab 2 Nächten (empfohlen):</div>
+                  <div>Kontextprozedur im OP-Bericht beschreiben und kodieren. Volle DRG bereits ab 2 Übernachtungen. Bei MDK-Kürzung: nur gekürzte DRG (besser als Hybrid-DRG).</div>
+                  <div style={{marginTop:2}}>Alternative ohne Kontextprozedur: VWD ≥ 3 Tage, jeder Tag dokumentarisch rechtfertigen. Bei Kürzung: Rückfall in Hybrid-DRG.</div>
+                  <div style={{color:"#E65100",fontWeight:600,marginTop:2}}>Jeder Belegungstag muss im Verlauf dokumentiert und begründet werden.</div>
+                </div>}
+                {ucErloesData.hdrg==="—"&&<div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag muss im Verlauf dokumentiert und begründet werden.</div>}
               </div>
-              {ucErloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div>
-                <div style={{fontWeight:700,color:"#1565C0",marginBottom:4,borderBottom:"1px solid rgba(21,101,192,.2)",paddingBottom:2}}>Wege aus der Hybrid-DRG in die volle DRG:</div>
-                <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{"① VWD ≥ 3 Tage (3 Nächte post-OP) → volle DRG.\n   ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein.\n   ⚠ Bei MDK-Kürzung: Rückfall in Hybrid-DRG.\n\n② Kontextprozedur mitkodieren → volle DRG bereits ab 2 Nächten. ✅ EMPFOHLEN\n   → 1 Tag weniger zu rechtfertigen.\n   → Bei Kürzung: nur gekürzte DRG (i.d.R. besser als Hybrid-DRG).\n   ⚠ Kontextprozedur MUSS im OP-Bericht beschrieben sein.\n   ⚠ Kontextprozedur MUSS dokumentiert werden um Liegezeit zu rechtfertigen."}</div>
-              </div>}
             </div>
           </div>}
           <div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
