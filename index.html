@@ -13579,10 +13579,10 @@ function OPBerichtApp(){
     if(mitSubcap)P("Fixos HKS 2,5mm (Subcap)","Stryker",123.70);
     if(Object.values(zc).some(a=>a.includes("pip"))){var pipCount=Object.values(zc).flat().filter(x=>x==="pip").length;P(pipCount+"× K-Draht (PIP)","–",pipCount*16);}
     if(Object.values(zc).some(a=>a.includes("weil"))){var weilCount=Object.values(zc).flat().filter(x=>x==="weil").length;P(weilCount+"× Fixos Twist off 2,0 (Weil)","Stryker",weilCount*124.95);}
-    if(dmmo.length>0)P("Axomed Fräse single-use (DMMO)","Axomed",35);
+    if(dmmo.length>0)P("Axomed Fräse single-use (DMMO)","Marquardt Axomed",35);
     // OSG
     osgOp.forEach(op=>{
-      if(op==="brostrom"){P("2× GII Quickanchor Ethibond","DePuy Mitek",391.84);if(brostromIB){P("2× Fibre Tak","Arthrex",280);P("Internal Brace","Arthrex",507);}}
+      if(op==="brostrom"){if(brostromIB){P("2× Fibre Tak","Arthrex",280);P("Internal Brace","Arthrex",507);}else{P("2× GII Quickanchor Ethibond","DePuy Mitek",391.84);}}
       if(op==="amic")P("Chondro-Gide Membran","Geistlich",950);
       if(op==="arthrodese_osg"){P("2× Fixos HKS 7,0","Stryker",297.50);if(osgArtPlatte){P("Mini Platte","Arthrex",290);P("2× Arthrex 4,5 Locking","Arthrex",100);}}
       if(op==="t2_nagel")P("T2 Nagel (TTC)","Stryker",1050);
@@ -14166,8 +14166,8 @@ const UC_TEXT_MAP={
     if(ucOp==="fibula_mehr_pl")PEND("Platte Fibula distal (MFF)","DePuy Synthes");
     if(ucOp==="fibula_mehr_wsp")PEND("LCP winkelstabil Fibula distal (MFF)","DePuy Synthes");
     // Klavikula
-    if(ucOp==="klav_einf_pl"||ucOp==="klav_mehr_pl")P("Klavikulaplatte","Axomed",459);
-    if(ucOp==="klav_einf_wsp"||ucOp==="klav_mehr_wsp")P("Klavikulaplatte winkelstabil","Axomed",459);
+    if(ucOp==="klav_einf_pl"||ucOp==="klav_mehr_pl"){P("WSP Platte Klavikula 8-Loch","Marquardt Axomed",308);P("8× Kortikalisschraube 3,5","Marquardt Axomed",8*10.75);}
+    if(ucOp==="klav_einf_wsp"||ucOp==="klav_mehr_wsp"){P("WSP Platte Klavikula 8-Loch","Marquardt Axomed",308);P("8× WSP Schraube 3,5","Marquardt Axomed",8*23.44);}
     // Duokopf / TFNA
     if(ucOp==="duokopf")PEND("Duokopfprothese (Schale + Schaft + Kopf)","Stryker/DePuy");
     if(ucOp==="tfna")PEND("TFNA Nagel (Stryker)","Stryker");
@@ -14842,10 +14842,7 @@ const UC_TEXT_MAP={
         {needsRuhig&&ruhig==="keine"&&<div style={{fontSize:9,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung empfohlen → Omnimed auto</div>}
       </div>
 
-      {/* OPS CODES */}
-      {allOPS.length>0&&<div style={card}><div style={h3s}>⑤ OPS-Codes</div>
-        <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{allOPS.map(c=><span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>)}</div>
-      </div>}
+      {/* OPS CODES → nur in Kodierhinweise-Box */}
 
       {/* ERLÖSMATRIX */}
       {icdCodes.length>0&&<div style={{...card,marginBottom:6}}><div style={h3s}>ICD-10 Diagnosen</div>
@@ -14861,12 +14858,6 @@ const UC_TEXT_MAP={
         <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
       </div>}
       {erloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {erloesData.label}</div>
-
-        {/* OPS CODES */}
-        <div style={{marginBottom:10}}>
-          <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>OPS-Codes:</div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{erloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
-        </div>
 
         {/* 4 ERLÖS-SPALTEN */}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:4,marginBottom:10}}>
@@ -14912,53 +14903,38 @@ const UC_TEXT_MAP={
           <span>OGVD <b style={{color:"#1565C0"}}>{GVD[erloesData.drg.split(" ")[0]].ogvd} T</b></span>
         </div>}
 
-        {/* ERLÖSRELEVANTE KODIERHINWEISE */}
+        {/* ERLÖSRELEVANTE KODIERHINWEISE — EINZIGE Stelle für OPS-Codes */}
         {erloesData.kodier&&<div style={{marginBottom:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
           <div style={{background:"#E65100",padding:"6px 12px"}}>
             <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
           </div>
           <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:10,color:"#2D3748",lineHeight:1.7}}>
 
-            {/* AMBULANTE FÜHRUNG — nur bei H-DRG-fähigen Eingriffen */}
+            {/* AMBULANTE FÜHRUNG */}
             {erloesData.hdrg!=="—"&&<div style={{marginBottom:12}}>
-              <div style={{fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {erloesData.hdrg}):</div>
-              <div style={{lineHeight:1.7}}>{function(){
-                var lines=erloesData.kodier.split("\n");
-                var ambLines=lines.filter(function(l){return l.includes("Ambulant")||l.includes("NICHT kodieren")||(l.includes("H-DRG")&&!l.includes("WEGE")&&!l.includes("Rückfall"));});
-                if(ambLines.length>0)return <div style={{whiteSpace:"pre-line"}}>{ambLines.join("\n")}</div>;
-                return <div>H-DRG-Code kodieren. Kontextprozeduren NICHT mitkodieren.</div>;
-              }()}</div>
+              <div style={{fontWeight:700,color:"#00695C",marginBottom:6,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {erloesData.hdrg}):</div>
+              <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c){var isKP=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-854.0c","5-855.39"].indexOf(c)>=0;return <span key={c+"a"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:isKP?"rgba(230,81,0,.12)":"rgba(0,131,143,.08)",color:isKP?"#C62828":"#00838F",textDecoration:isKP?"line-through":"none"}}>{c}</span>;})}</span></div>
+              <div style={{whiteSpace:"pre-line"}}>{function(){var L=erloesData.kodier.split("\n"),a=L.filter(function(l){return l.includes("Ambulant")||l.includes("NICHT kodieren")||(l.includes("H-DRG")&&!l.includes("WEGE")&&!l.includes("Rückfall"));});return a.length>0?a.join("\n"):"H-DRG-Code kodieren. Kontextprozeduren NICHT mitkodieren.";}()}</div>
+              <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Kontextprozedur-Eingriff (Sehnentransfer, Spongiosa etc.) NICHT beschreiben.</div>
             </div>}
 
             {/* STATIONÄRE FÜHRUNG */}
             <div style={{marginBottom:erloesData.kodier.includes("DMMO")?12:0}}>
-              <div style={{fontWeight:700,color:"#004D40",marginBottom:4,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {erloesData.drg||""}):</div>
-              <div style={{lineHeight:1.7}}>{function(){
-                var lines=erloesData.kodier.split("\n");
-                /* Relevante Zeilen für stationäre Führung: HEBEL, IMMER, Stationär, OP-Bericht, Häufiger Fehler */
-                var statLines=lines.filter(function(l){
-                  return (l.includes("HEBEL")||l.includes("IMMER")||l.includes("Stationär")||l.includes("OP-Bericht")||l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("5-808")||l.includes("5-826"))
-                    &&!l.includes("WEGE AUS")&&!l.includes("DMMO-REGEL")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H");
-                });
-                /* Fallback: alle Zeilen die nicht amb/WEGE/DMMO sind */
-                if(statLines.length===0)statLines=lines.filter(function(l){return l.trim()&&!l.includes("Ambulant")&&!l.includes("NICHT kodieren")&&!l.includes("WEGE AUS")&&!l.includes("DMMO-REGEL")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Max. 2×")&&!l.includes("KEINE H-DRG möglich");});
-                return <div style={{whiteSpace:"pre-line"}}>{statLines.join("\n")}</div>;
-              }()}</div>
-              {/* Kontextprozedur-Hinweis bei H-DRG-fähigen Eingriffen */}
+              <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {erloesData.drg||""}):</div>
+              <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c){var isH=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-854.0c"].indexOf(c)>=0;return <span key={c+"s"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:isH?"rgba(230,81,0,.15)":"rgba(0,131,143,.08)",color:isH?"#E65100":"#00838F",fontWeight:isH?700:400,border:isH?"1px solid #E65100":"none"}}>{c}{isH?" ⚠ HEBEL":""}</span>;})}</span></div>
+              <div style={{whiteSpace:"pre-line"}}>{function(){var L=erloesData.kodier.split("\n"),s=L.filter(function(l){return(l.includes("HEBEL")||l.includes("IMMER")||l.includes("Stationär")||l.includes("OP-Bericht")||l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("Nur stationär"))&&!l.includes("WEGE AUS")&&!l.includes("DMMO-REGEL")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H");});if(s.length===0)s=L.filter(function(l){return l.trim()&&!l.includes("Ambulant")&&!l.includes("NICHT kodieren")&&!l.includes("WEGE AUS")&&!l.includes("DMMO-REGEL")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Max. 2×")&&!l.includes("KEINE H-DRG möglich");});return s.join("\n");}()}</div>
+              <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Hebel-Code-Eingriff MUSS beschrieben werden (Sehnentransfer, Spongiosaentnahme dokumentieren).</div>
               {erloesData.hdrg!=="—"&&erloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div style={{marginTop:6,padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)"}}>
                 <div style={{fontWeight:600,color:"#004D40",marginBottom:2}}>Kontextprozedur → volle DRG ab 2 Nächten (empfohlen):</div>
-                <div style={{color:"#2D3748"}}>Kontextprozedur im OP-Bericht beschreiben und kodieren. Volle DRG bereits ab 2 Übernachtungen. Bei MDK-Kürzung: nur gekürzte DRG (besser als Hybrid-DRG).</div>
-                <div style={{color:"#2D3748",marginTop:2}}>Alternative ohne Kontextprozedur: VWD ≥ 3 Tage → volle DRG, aber jeder Tag dokumentarisch rechtfertigen. Bei Kürzung: Rückfall in Hybrid-DRG.</div>
-                <div style={{color:"#E65100",fontWeight:600,marginTop:2}}>Jeder Belegungstag muss im Verlauf dokumentiert und begründet werden.</div>
+                <div>Bei Nutzung: volle DRG ab 2 ÜN. Bei MDK-Kürzung: gekürzte DRG (besser als H-DRG). Alternative: VWD ≥ 3 Tage ohne Kontextprozedur, bei Kürzung Rückfall in H-DRG.</div>
               </div>}
-              {/* Belegungstag-Hinweis bei reinen stationären Eingriffen */}
-              {erloesData.hdrg==="—"&&<div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag muss im Verlauf dokumentiert und begründet werden.</div>}
+              <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>
             </div>
 
-            {/* DMMO-REGEL — nur einmal, nur wenn relevant */}
+            {/* DMMO-REGEL */}
             {erloesData.kodier.includes("DMMO-REGEL")&&<div>
               <div style={{fontWeight:700,color:"#E65100",marginBottom:4,borderBottom:"1px solid rgba(230,81,0,.2)",paddingBottom:2}}>DMMO-Regel:</div>
-              <div>Max. 2× DMMO (5-788.52/53) für Hybrid-DRG möglich. Ab ≥3 DMMO (5-788.54/55): KEINE Hybrid-DRG → nur stationär.</div>
+              <div>Max. 2× DMMO (5-788.52/53) für Hybrid-DRG. Ab ≥3 DMMO (5-788.54/55): KEINE Hybrid-DRG → nur stationär.</div>
             </div>}
           </div>
         </div>}
@@ -15080,10 +15056,6 @@ const UC_TEXT_MAP={
         <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
       </div>}
       {ucErloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {ucErloesData.label}</div>
-          <div style={{marginBottom:10}}>
-            <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>OPS-Codes:</div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{ucErloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
-          </div>
           <div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>H-DRG {ucErloesData.hdrg}: <span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.hdrgE} €</span> = <span style={{color:"#EF6C00"}}>{ucErloesData.pct}</span> der vollen DRG {ucErloesData.basis} ({ucErloesData.basisE} €)</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}}>
             <div style={{background:ucErloesData.hdrg!=="—"?"rgba(0,137,123,.08)":"transparent",border:ucErloesData.hdrg!=="—"?"2px solid #00897B":"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:10,textAlign:"center"}}>
@@ -15117,19 +15089,21 @@ const UC_TEXT_MAP={
             </div>
             <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:10,color:"#2D3748",lineHeight:1.7}}>
               {ucErloesData.hdrg!=="—"&&<div style={{marginBottom:12}}>
-                <div style={{fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {ucErloesData.hdrg}):</div>
+                <div style={{fontWeight:700,color:"#00695C",marginBottom:6,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {ucErloesData.hdrg}):</div>
+                <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{ucErloesData.ops.map(function(c){return <span key={c+"a"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,131,143,.08)",color:"#00838F"}}>{c}</span>;})}</span></div>
                 <div>H-DRG-Code kodieren. Kontextprozeduren (z.B. Spongiosa) NICHT mitkodieren.</div>
+                <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Kontextprozedur-Eingriff NICHT beschreiben.</div>
               </div>}
               <div>
-                <div style={{fontWeight:700,color:"#004D40",marginBottom:4,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {ucErloesData.basis}):</div>
+                <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {ucErloesData.basis}):</div>
+                <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{ucErloesData.ops.map(function(c){return <span key={c+"s"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,131,143,.08)",color:"#00838F"}}>{c}</span>;})}</span></div>
                 <div style={{whiteSpace:"pre-line"}}>{ucErloesData.kodier.split("\n").filter(function(l){return l.trim()&&!l.includes("WEGE AUS")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Bei Kürzung nur")&&!l.includes("EMPFOHLEN:");}).join("\n")}</div>
+                <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Alle kodierten Eingriffe MÜSSEN beschrieben werden.</div>
                 {ucErloesData.hdrg!=="—"&&ucErloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div style={{marginTop:6,padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)"}}>
                   <div style={{fontWeight:600,color:"#004D40",marginBottom:2}}>Kontextprozedur → volle DRG ab 2 Nächten (empfohlen):</div>
-                  <div>Kontextprozedur im OP-Bericht beschreiben und kodieren. Volle DRG bereits ab 2 Übernachtungen. Bei MDK-Kürzung: nur gekürzte DRG (besser als Hybrid-DRG).</div>
-                  <div style={{marginTop:2}}>Alternative ohne Kontextprozedur: VWD ≥ 3 Tage, jeder Tag dokumentarisch rechtfertigen. Bei Kürzung: Rückfall in Hybrid-DRG.</div>
-                  <div style={{color:"#E65100",fontWeight:600,marginTop:2}}>Jeder Belegungstag muss im Verlauf dokumentiert und begründet werden.</div>
+                  <div>Bei Nutzung: volle DRG ab 2 ÜN. Bei MDK-Kürzung: gekürzte DRG (besser als H-DRG). Alternative: VWD ≥ 3 Tage ohne Kontextprozedur, bei Kürzung Rückfall in H-DRG.</div>
                 </div>}
-                {ucErloesData.hdrg==="—"&&<div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag muss im Verlauf dokumentiert und begründet werden.</div>}
+                <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>
               </div>
             </div>
           </div>}
@@ -15418,6 +15392,7 @@ function OPManuale(){
     {cat:"🦵 OSG / Rückfuß",items:[
       {title:"Arthrex Brostrom-Gould",desc:"Laterale Bandstabilisierung OSG, Operative Technik",url:"https://drive.google.com/file/d/1bMjQclTvZE1pWz8zdu-4NiHQgn_sBMwo/preview"},
       {title:"Arthrex OSG-Arthrodese",desc:"Ankle Fusion Plate, Operative Technik",url:"https://drive.google.com/file/d/1FEAlf9852uEsAD72GBCw9IQqfzlYgBtG/preview"},
+      {title:"Stryker T2 Nagel OSG",desc:"T2 Ankle Arthrodesis Nail, Operative Technik",url:"https://drive.google.com/file/d/1ttaKCoH2A7_nyrenTIPs9KdNcd0C686B/preview"},
     ]},
     {cat:"🔩 Implantatsysteme",items:[
       {title:"Stryker Fixos Schrauben",desc:"Fixos II Headless Compression Screw System",url:"https://drive.google.com/file/d/1mtMaEGM4Fm06rB8g16My39TxaMDODKoM/preview"},
