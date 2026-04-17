@@ -14014,7 +14014,7 @@ function OPBerichtApp(){
     t+="H-DRG: "+d.hdrg+" | EBM: "+d.ebm+"\n";
     t+="Gekürzte DRG (1N): "+d.kurz+" | Volle DRG (2N+): "+d.drg+"\n\n";
     t+="ÖKONOMISCHES CODIERZIEL:\n"+d.ziel+"\n";
-    if(d.kodier)t+="\nKODIERHINWEISE:\n"+d.kodier;
+    if(d.kodier)t+="\nERLÖSRELEVANTE KODIERHINWEISE:\n"+d.kodier;
     return t;
   },[erloesData]);
 
@@ -14848,7 +14848,7 @@ const UC_TEXT_MAP={
       </div>}
 
       {/* ERLÖSMATRIX */}
-      {icdCodes.length>0&&<div style={{...card,marginBottom:6}}><div style={h3s}>🏥 ICD-10 Diagnosen</div>
+      {icdCodes.length>0&&<div style={{...card,marginBottom:6}}><div style={h3s}>ICD-10 Diagnosen</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{icdCodes.map(function(c,i){return <div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 8px",borderRadius:6,border:c.hd?"2px solid #00838F":"1px solid rgba(0,0,0,.1)",background:c.hd?"rgba(0,131,143,.06)":"rgba(255,255,255,.95)"}}>
           <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:11,fontWeight:700,color:"#00838F"}}>{c.code}</span>
           <span style={{fontSize:10,color:"#2D3748"}}>{c.desc}</span>
@@ -14860,8 +14860,15 @@ const UC_TEXT_MAP={
         <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
         <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
       </div>}
-      {erloesData&&<div style={card}><div style={h3s}>💰 Erlösübersicht – {erloesData.label}</div>
-        <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:10}}>{erloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
+      {erloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {erloesData.label}</div>
+
+        {/* OPS CODES */}
+        <div style={{marginBottom:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>OPS-Codes:</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{erloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
+        </div>
+
+        {/* 4 ERLÖS-SPALTEN */}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:4,marginBottom:10}}>
           {[["amb","AMBULANT",erloesData.hdrg,erloesData.ebm,"H-DRG","EBM"],
             ["n1","1 NACHT",erloesData.hdrg_n1||erloesData.hdrg||"—",erloesData.kurz||"—","H-DRG","Gekürzte DRG"],
@@ -14872,7 +14879,7 @@ const UC_TEXT_MAP={
             if(key==="n2")bot=erloesData.drg||"—";
             if(key==="n3")bot=erloesData.drg||"—";
             var isEmpf=erloesData.empf===key;
-            return <div key={key} style={{borderRadius:8,padding:8,textAlign:"center",background:isEmpf?"rgba(0,137,123,.08)":"rgba(0,0,0,.02)",border:isEmpf?"2px solid #00897B":"1px solid rgba(0,0,0,.08)"}}>
+            return <div key={key} style={{borderRadius:8,padding:8,textAlign:"center",background:isEmpf?"rgba(0,137,123,.08)":"transparent",border:isEmpf?"2px solid #00897B":"1px solid rgba(0,0,0,.08)"}}>
               <div style={{fontSize:9,fontWeight:700,color:isEmpf?"#00897B":"#718096",marginBottom:6}}>{title}{isEmpf?" ✓":""}</div>
               <div style={{fontSize:8,color:"#718096",marginBottom:2}}>{topLbl}</div>
               <div style={{fontSize:11,fontWeight:600,color:top!=="—"?(isEmpf?"#00897B":"#006B6F"):"#A0AEC0",marginBottom:6}}>{top}</div>
@@ -14881,20 +14888,57 @@ const UC_TEXT_MAP={
             </div>;
           })}
         </div>
-        <div style={{marginTop:6,fontSize:10,color:"#006B6F",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>🎯 Ökonomisches Codierziel:</span> {erloesData.ziel}</div>
-        {erloesData.drg&&GVD[erloesData.drg.split(" ")[0]]&&<div style={{marginTop:6,padding:"6px 10px",background:"rgba(0,0,0,.03)",borderRadius:6,fontSize:10,display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
-          <span style={{color:"#718096",fontWeight:600}}>📊 VWD {erloesData.drg.split(" ")[0]}:</span>
-          <span>UGVD <b style={{color:"#E65100"}}>{GVD[erloesData.drg.split(" ")[0]].ugvd} T</b> → volle DRG ab <b>{GVD[erloesData.drg.split(" ")[0]].ugvd+1} Belegungstage ({GVD[erloesData.drg.split(" ")[0]].ugvd+1} ÜN)</b></span>
+
+        {/* ÖKONOMISCHES CODIERZIEL */}
+        <div style={{marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:2}}>Ökonomisches Codierziel:</div>
+          <div style={{fontSize:11,color:"#2D3748"}}>{
+            erloesData.empf==="amb"&&erloesData.hdrg!=="—"?"Ambulant Hybrid-DRG ("+erloesData.hdrg+")":
+            erloesData.empf==="amb"?"Ambulant EBM":
+            erloesData.empf==="n2"?"Stationär reguläre DRG, Liegezeit ≥ 2 Tage ("+(erloesData.drg||"—")+")":
+            erloesData.empf==="n3"?"Stationär reguläre DRG, Liegezeit ≥ 3 Tage ("+(erloesData.drg||"—")+")":
+            "Stationär reguläre DRG ("+(erloesData.drg||"—")+")"
+          }</div>
+        </div>
+
+        {/* BELEGUNGSTAGE / VWD */}
+        {erloesData.drg&&GVD[erloesData.drg.split(" ")[0]]&&<div style={{marginBottom:8,padding:"6px 10px",background:"rgba(0,0,0,.02)",borderRadius:6,fontSize:10,display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
+          <span style={{color:"#718096",fontWeight:600}}>Belegungstage {erloesData.drg.split(" ")[0]}:</span>
+          <span>UGVD <b style={{color:"#E65100"}}>{GVD[erloesData.drg.split(" ")[0]].ugvd} T</b> → volle DRG ab <b>{GVD[erloesData.drg.split(" ")[0]].ugvd+1} Belegungstage</b></span>
           <span>MVWD <b style={{color:"#00838F"}}>{GVD[erloesData.drg.split(" ")[0]].mvwd} T</b></span>
           <span>OGVD <b style={{color:"#1565C0"}}>{GVD[erloesData.drg.split(" ")[0]].ogvd} T</b></span>
         </div>}
-                {erloesData.kodier&&<div style={{marginTop:10,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
-        <div style={{background:"#E65100",padding:"6px 12px",display:"flex",alignItems:"center",gap:6}}>
-          <span style={{fontSize:14}}>⚠</span>
-          <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>KODIERHINWEISE – Erlösrelevant!</span>
-        </div>
-        <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-line"}}>{erloesData.kodier}</div>
-      </div>}
+
+        {/* ERLÖSRELEVANTE KODIERHINWEISE */}
+        {erloesData.kodier&&<div style={{marginBottom:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
+          <div style={{background:"#E65100",padding:"6px 12px"}}>
+            <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
+          </div>
+          <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7}}>
+            {erloesData.empf==="amb"&&erloesData.hdrg!=="—"&&<div style={{marginBottom:10}}>
+              <div style={{fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG):</div>
+              <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{
+                erloesData.kodier.split("\n").filter(function(l){return l.includes("Ambulant")||l.includes("NICHT kodieren")||l.includes("H-DRG");}).join("\n")||"H-DRG-Code kodieren. Kontextprozeduren NICHT mitkodieren (→ würden H-DRG verhindern)."
+              }</div>
+            </div>}
+            <div style={{marginBottom:10}}>
+              <div style={{fontWeight:700,color:"#004D40",marginBottom:4,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>{erloesData.empf==="amb"&&erloesData.hdrg!=="—"?"Stationäre Führung (volle DRG):":"Stationäre Führung:"}</div>
+              <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{
+                erloesData.kodier.split("\n").filter(function(l){return l.includes("Stationär")||l.includes("IMMER")||l.includes("mitkodieren")||l.includes("Kontextprozedur")||l.includes("HEBEL")||l.includes("Häufiger Fehler")||l.includes("OP-Bericht");}).join("\n")||erloesData.kodier
+              }</div>
+            </div>
+            {erloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div style={{marginBottom:10}}>
+              <div style={{fontWeight:700,color:"#1565C0",marginBottom:4,borderBottom:"1px solid rgba(21,101,192,.2)",paddingBottom:2}}>Wege aus der Hybrid-DRG in die volle DRG:</div>
+              <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{"① VWD ≥ 3 Tage (3 Nächte post-OP) → volle DRG.\n   ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein.\n   ⚠ Bei MDK-Kürzung: Rückfall in Hybrid-DRG.\n\n② Kontextprozedur mitkodieren → volle DRG bereits ab 2 Nächten. ✅ EMPFOHLEN\n   → 1 Tag weniger zu rechtfertigen.\n   → Bei Kürzung: nur gekürzte DRG (i.d.R. besser als Hybrid-DRG).\n   ⚠ Kontextprozedur MUSS im OP-Bericht beschrieben sein.\n   ⚠ Kontextprozedur MUSS dokumentiert werden um Liegezeit zu rechtfertigen."}</div>
+            </div>}
+            {erloesData.kodier.includes("DMMO-REGEL")&&<div>
+              <div style={{fontWeight:700,color:"#E65100",marginBottom:4,borderBottom:"1px solid rgba(230,81,0,.2)",paddingBottom:2}}>DMMO-Regel:</div>
+              <div style={{fontSize:10,lineHeight:1.6}}>Max. 2× DMMO (5-788.52/53) für H-DRG möglich. Ab ≥3 DMMO (5-788.54/55): KEINE Hybrid-DRG → nur stationär.</div>
+            </div>}
+          </div>
+        </div>}
+
+        {/* MATERIALKOSTEN */}
       {materialKosten.length>0&&<div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
         <div style={{background:"#1565C0",padding:"6px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:14}}>💶</span><span style={{fontSize:11,fontWeight:700,color:"#fff"}}>MATERIALKOSTEN</span></div>
@@ -14980,7 +15024,7 @@ const UC_TEXT_MAP={
           </OBSec>
         </div>
 
-        {icdCodes.length>0&&<div style={{...card,marginBottom:6}}><div style={h3s}>🏥 ICD-10 Diagnosen</div>
+        {icdCodes.length>0&&<div style={{...card,marginBottom:6}}><div style={h3s}>ICD-10 Diagnosen</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{icdCodes.map(function(c,i){return <div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 8px",borderRadius:6,border:c.hd?"2px solid #00838F":"1px solid rgba(0,0,0,.1)",background:c.hd?"rgba(0,131,143,.06)":"rgba(255,255,255,.95)"}}>
           <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:11,fontWeight:700,color:"#00838F"}}>{c.code}</span>
           <span style={{fontSize:10,color:"#2D3748"}}>{c.desc}</span>
@@ -14996,7 +15040,7 @@ const UC_TEXT_MAP={
         <div style={{marginTop:10,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
           <div style={{background:"#E65100",padding:"6px 12px",display:"flex",alignItems:"center",gap:6}}>
             <span style={{fontSize:14}}>⚠</span>
-            <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>KODIERHINWEISE – Manuell setzen!</span>
+            <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
           </div>
           <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-line"}}>{"⚠ Keine automatische Codierung – manuell setzen:\n\n• OPS: 5-787.x nach Lokalisation + Materialart (Schraube/Draht/Platte/winkelstab. Platte/Nagel/Fixateur)\n• ICD-HD: Z47.0 (Entfernung einer Metallplatte/Fixationsvorrichtung)\n• ND bei Komplikation: T84.6 (Infektion), M84.1 (Pseudarthrose)\n\n💡 H-DRG-TRIGGER I20O (Zusatzeingriff, nur wenn klinisch gerechtfertigt und im OP-Bericht dokumentiert):\n\n▸ Exostosenabtragung:\n  5-788.00 (MT I) · 5-788.06–09 (MT II–V, 1–4 Knochen)\n  5-788.0a (Dig I) · 5-788.0b–0f (Dig II–V, 1–5 Phalangen)\n\n▸ Bursektomie Fuß:\n  5-859.1a (totale Resektion Schleimbeutel Fuß)\n  5-859.0a (Inzision Schleimbeutel Fuß)\n\n▸ Tenolyse/Tenotomie Fuß:\n  5-851.1a (Tenotomie offen chir.) · 5-851.2a (perkutan)\n  5-852.2a (Exzision Sehnenscheide, partiell)\n\n▸ Revision/Wechsel OSE:\n  Wird als 5-78a.* kodiert (höher bewertet, NICHT als reine ME einstufen)"}</div>
         </div>
@@ -15010,41 +15054,57 @@ const UC_TEXT_MAP={
         <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
         <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
       </div>}
-      {ucErloesData&&<div style={card}><div style={h3s}>💰 Erlösübersicht – {ucErloesData.label}</div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>{ucErloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
+      {ucErloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {ucErloesData.label}</div>
+          <div style={{marginBottom:10}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>OPS-Codes:</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{ucErloesData.ops.map(function(c){return <span key={c} style={{fontFamily:"'IBM Plex Mono'",fontSize:10,color:"#00838F",background:"rgba(0,131,143,.1)",padding:"2px 6px",borderRadius:4}}>{c}</span>;})}</div>
+          </div>
           <div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>H-DRG {ucErloesData.hdrg}: <span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.hdrgE} €</span> = <span style={{color:"#EF6C00"}}>{ucErloesData.pct}</span> der vollen DRG {ucErloesData.basis} ({ucErloesData.basisE} €)</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}}>
-            <div style={{background:"rgba(0,137,123,.08)",border:"1px solid rgba(0,137,123,.3)",borderRadius:8,padding:10,textAlign:"center"}}>
+            <div style={{background:ucErloesData.hdrg!=="—"?"rgba(0,137,123,.08)":"transparent",border:ucErloesData.hdrg!=="—"?"2px solid #00897B":"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:10,textAlign:"center"}}>
               <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>AMBULANT</div>
               <div style={{fontSize:12,fontWeight:600,color:"#00897B"}}>{ucErloesData.amb}</div>
-              <div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Empfehlung</div>
+              {ucErloesData.hdrg!=="—"&&<div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Empfehlung</div>}
             </div>
-            <div style={{background:"rgba(245,127,23,.06)",border:"1px solid rgba(245,127,23,.15)",borderRadius:8,padding:10,textAlign:"center"}}>
+            <div style={{border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:10,textAlign:"center"}}>
               <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>1 NACHT</div>
               <div style={{fontSize:12,fontWeight:600,color:"#F57F17"}}>Kurzlieger</div>
-              <div style={{fontSize:9,color:"#F57F17",marginTop:4}}>≈ H-DRG (geringe Diff.)</div>
             </div>
             <div style={{background:"rgba(0,137,123,.08)",border:"1px solid rgba(0,137,123,.3)",borderRadius:8,padding:10,textAlign:"center"}}>
               <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>2 NÄCHTE</div>
               <div style={{fontSize:12,fontWeight:600,color:"#00897B"}}>{ucErloesData.basis} {ucErloesData.basisE} €</div>
-              <div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Volle DRG anstreben!</div>
+              <div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Volle DRG</div>
             </div>
-            <div style={{background:"rgba(0,107,111,.03)",border:"1px solid rgba(0,0,0,.1)",borderRadius:8,padding:10,textAlign:"center"}}>
+            <div style={{border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:10,textAlign:"center"}}>
               <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>3+ NÄCHTE</div>
               <div style={{fontSize:12,fontWeight:600,color:"#2D3748"}}>{ucErloesData.basisE} €</div>
             </div>
           </div>
-          <div style={{marginTop:8,fontSize:10,color:"#00897B",background:"rgba(0,137,123,.04)",border:"1px solid rgba(0,137,123,.15)",borderRadius:6,padding:8,whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>💡 Erlössteuerung:</span> {ucErloesData.hint}</div>
-          {ucErloesData.kodier&&<div style={{marginTop:10,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
-          <div style={{background:"#E65100",padding:"6px 12px",display:"flex",alignItems:"center",gap:6}}>
-            <span style={{fontSize:14}}>⚠</span>
-            <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>KODIERHINWEISE – Erlösrelevant!</span>
+          {/* Ökonomisches Codierziel */}
+          <div style={{marginTop:8,marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:2}}>Ökonomisches Codierziel:</div>
+            <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.hdrg!=="—"?"Ambulant Hybrid-DRG ("+ucErloesData.hdrg+" "+ucErloesData.hdrgE+" €). Stationär ≥2 Nächte: volle DRG "+ucErloesData.basis+" ("+ucErloesData.basisE+" €).":"Stationär reguläre DRG, Liegezeit ≥ 2 Tage ("+ucErloesData.basis+" "+ucErloesData.basisE+" €)."}</div>
           </div>
-          <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-line"}}>{ucErloesData.kodier}</div>
-        </div>}
-          <div style={{marginTop:8,fontSize:10,color:"#E65100",background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.15)",borderRadius:6,padding:8}}>
-            <span style={{fontWeight:700}}>⚠ Trauma-Steuerung:</span> Bei Trauma-H-DRGs ist die Differenz H-DRG vs. Kurzlieger-DRG (1 Nacht) gering. Der Fokus liegt auf <span style={{fontWeight:700}}>2 Nächte halten</span> für die volle DRG. Differenz zur H-DRG: <span style={{fontWeight:700}}>+{(parseFloat(ucErloesData.basisE.replace(".",""))-parseFloat(ucErloesData.hdrgE.replace(".",""))).toLocaleString("de-DE")} €</span>
-          </div>
+          {/* Erlösrelevante Kodierhinweise */}
+          {ucErloesData.kodier&&<div style={{marginTop:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
+            <div style={{background:"#E65100",padding:"6px 12px"}}>
+              <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
+            </div>
+            <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7}}>
+              {ucErloesData.hdrg!=="—"&&<div style={{marginBottom:10}}>
+                <div style={{fontWeight:700,color:"#00695C",marginBottom:4,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG):</div>
+                <div style={{fontSize:10,lineHeight:1.6}}>H-DRG-Code kodieren. Kontextprozeduren (z.B. Spongiosa) NICHT mitkodieren.</div>
+              </div>}
+              <div style={{marginBottom:10}}>
+                <div style={{fontWeight:700,color:"#004D40",marginBottom:4,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG):</div>
+                <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{ucErloesData.kodier}</div>
+              </div>
+              {ucErloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div>
+                <div style={{fontWeight:700,color:"#1565C0",marginBottom:4,borderBottom:"1px solid rgba(21,101,192,.2)",paddingBottom:2}}>Wege aus der Hybrid-DRG in die volle DRG:</div>
+                <div style={{whiteSpace:"pre-line",fontSize:10,lineHeight:1.6}}>{"① VWD ≥ 3 Tage (3 Nächte post-OP) → volle DRG.\n   ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein.\n   ⚠ Bei MDK-Kürzung: Rückfall in Hybrid-DRG.\n\n② Kontextprozedur mitkodieren → volle DRG bereits ab 2 Nächten. ✅ EMPFOHLEN\n   → 1 Tag weniger zu rechtfertigen.\n   → Bei Kürzung: nur gekürzte DRG (i.d.R. besser als Hybrid-DRG).\n   ⚠ Kontextprozedur MUSS im OP-Bericht beschrieben sein.\n   ⚠ Kontextprozedur MUSS dokumentiert werden um Liegezeit zu rechtfertigen."}</div>
+              </div>}
+            </div>
+          </div>}
           <div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
         </div>}
 
@@ -15122,7 +15182,7 @@ const UC_TEXT_MAP={
           </div>
         </div>
         <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",overflowY:"auto",maxHeight:"calc(100vh - 180px)"}}>{fullText}</div>
-        {erloesData&&<div style={{marginTop:10,fontSize:9,padding:10,background:"rgba(0,107,111,.04)",border:"1px solid rgba(0,107,111,.12)",borderRadius:6,color:"#006B6F",whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>💰 {erloesData.label}</span>{"\n"}H-DRG: {erloesData.hdrg} | EBM: {erloesData.ebm}{"\n"}Gekürzt: {erloesData.kurz} | Volle DRG: {erloesData.drg}{"\n"}🎯 {erloesData.ziel}{erloesData.kodier?"\n📋 "+erloesData.kodier:""}</div>}
+        {erloesData&&<div style={{marginTop:10,fontSize:9,padding:10,background:"rgba(0,107,111,.04)",border:"1px solid rgba(0,107,111,.12)",borderRadius:6,color:"#006B6F",whiteSpace:"pre-line"}}><span style={{fontWeight:700}}>Fallsteuerung – {erloesData.label}</span>{"\n"}H-DRG: {erloesData.hdrg} | EBM: {erloesData.ebm}{"\n"}Gekürzt: {erloesData.kurz} | Volle DRG: {erloesData.drg}{"\n"}Codierziel: {erloesData.empf==="amb"&&erloesData.hdrg!=="—"?"Ambulant Hybrid-DRG":erloesData.empf==="amb"?"Ambulant EBM":"Stationär ≥2N volle DRG"}{erloesData.kodier?"\n"+erloesData.kodier:""}</div>}
       </div>}
 
       </div>{/* END ob-split */}
@@ -15189,7 +15249,7 @@ function buildDocx(fullText,erloesText){
   ps.push(`<w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="32"/><w:szCs w:val="32"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr><w:t>OP-Bericht</w:t></w:r></w:p>`);
   addP(fullText);
   if(erloesText){
-    ps.push(`<w:p><w:pPr><w:spacing w:before="300" w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="2E5090"/></w:rPr><w:t>Erlösübersicht</w:t></w:r></w:p>`);
+    ps.push(`<w:p><w:pPr><w:spacing w:before="300" w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="2E5090"/></w:rPr><w:t>Fallsteuerung</w:t></w:r></w:p>`);
     addP(erloesText,false,20);
   }
   ps.push('<w:p><w:pPr><w:spacing w:before="300"/></w:pPr></w:p>');
@@ -15269,12 +15329,79 @@ function HDRGSearch(){
   // OPS-Code Zuordnung: H-DRG + AOP + Kontextprozeduren 2026
   const HDRG_LIST=window._HD.map(function(e){return{code:e[0],desc:e[1],bereich:window._HB[e[2]]};});
 
+  function doSearch(){
+    if(!q.trim()){setResults([]);setSearched(false);return;}
+    var term=q.trim().toLowerCase();
+    setSearched(true);
+    var exact=HDRG_LIST.filter(x=>x.code.toLowerCase()===term);
+    if(exact.length>0){setResults(exact);return;}
+    var prefix=HDRG_LIST.filter(x=>x.code.toLowerCase().startsWith(term));
+    if(prefix.length>0){setResults(prefix.slice(0,50));return;}
+    var text=HDRG_LIST.filter(x=>x.code.toLowerCase().includes(term)||x.desc.toLowerCase().includes(term)||x.bereich.toLowerCase().includes(term));
+    setResults(text.slice(0,50));
+  }
+
+  return <div style={{padding:16}}>
+    <div style={{display:"flex",gap:8,marginBottom:16}}>
+      <input value={q} onChange={e=>{setQ(e.target.value);setSearched(false);}} onKeyDown={e=>{if(e.key==="Enter")doSearch();}} placeholder="OPS-Code oder Suchbegriff..." style={{flex:1,padding:"8px 12px",borderRadius:6,border:"1px solid rgba(0,107,111,.3)",fontSize:12,background:"rgba(255,255,255,.95)"}}/>
+      <div onClick={doSearch} style={{padding:"8px 16px",borderRadius:6,background:"#00838F",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>Suchen</div>
+    </div>
+    <div style={{fontSize:10,color:"#718096",marginBottom:12}}>
+      Beispiele: <span style={{fontFamily:"monospace",color:"#00838F"}}>5-788.5c</span> (Chevron) · <span style={{fontFamily:"monospace",color:"#00838F"}}>5-793.kr</span> (Weber B WSP) · <span style={{fontFamily:"monospace",color:"#00838F"}}>5-808.a4</span> (Lapidus – nicht auf Liste!)<br/>
+      Freitextsuche: z.B. „Arthrodese", „Metatarsale", „Sehne"
+    </div>
+    {searched&&results.length===0&&<div style={{padding:20,textAlign:"center",color:"#718096"}}>
+      <div style={{fontSize:13}}>Kein Treffer für „{q}"</div>
+      <div style={{fontSize:10,marginTop:4}}>→ Code steht NICHT auf der H-DRG-Positivliste, NICHT im AOP-Katalog und ist KEINE Kontextprozedur.</div>
+    </div>}
+    {results.length>0&&<div>
+      <div style={{fontSize:10,color:"#718096",marginBottom:6}}>{results.length} Treffer{results.length>=50?" (max. 50 angezeigt)":""}</div>
+      {results.map(function(r,i){
+        var bg=r.bereich==="⚠ KONTEXTPROZEDUR"?"rgba(230,81,0,.06)":r.bereich==="📋 AOP-Katalog"?"rgba(25,118,210,.04)":"rgba(0,131,143,.04)";
+        var bc=r.bereich==="⚠ KONTEXTPROZEDUR"?"#E65100":r.bereich==="📋 AOP-Katalog"?"#1565C0":"#00838F";
+        return <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:6,border:"1px solid rgba(0,0,0,.08)",background:bg}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+            <div>
+              <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:12,fontWeight:700,color:bc}}>{r.code}</span>
+              <span style={{fontSize:10,color:"#2D3748",marginLeft:8}}>{r.desc}</span>
+            </div>
+            <span style={{fontSize:9,padding:"2px 6px",borderRadius:4,background:bg,border:"1px solid "+bc,color:bc,fontWeight:600,whiteSpace:"nowrap"}}>{r.bereich}</span>
+          </div>
+        </div>;
+      })}
+    </div>}
+    <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>Quellen: H-DRG Positivliste (ergBA 28.04.2025, 904 OPS) · AOP-Katalog §115b (KBV Anhang 2, 3.223 OPS) · Kontextprozeduren (70 OPS)</div>
+  </div>;
+}
+
+function OPManuale(){
+  const [q,setQ]=useState("");
+  const [openCat,setOpenCat]=useState({});
+  const togCat=k=>setOpenCat(p=>({...p,[k]:!p[k]}));
+
+  const MANUALE=[
+    {cat:"🦿 OSG-Totalendoprothese",items:[
+      {title:"Infinity Prophecy Resect-Through",desc:"Prophecy Navigationssystem, Resect-Through Technique",url:"https://drive.google.com/file/d/1hvCBbPDcbxDumRczXybeo4ldyq_PXFzW/preview"},
+      {title:"Infinity Prophecy Pin Through",desc:"Prophecy Navigationssystem, Pin-Through Technique",url:"https://drive.google.com/file/d/1rGRfJGcgk-WyAShNXwVRfbgHysRTsxw9/preview"},
+      {title:"Infinity konventionell",desc:"Infinity Total Ankle, konventionelle Implantationstechnik",url:"https://drive.google.com/file/d/1lpKmt5smvoHLK9HjyPybUFZs7rTYWyC_/preview"},
+      {title:"Inbone II Prophecy",desc:"Inbone II mit Prophecy Navigationssystem",url:"https://drive.google.com/file/d/18Ugkhj8gzrn10ME47-cZSrGB5ucj7OGX/preview"},
+      {title:"Inbone II konventionell",desc:"Inbone II Total Ankle, konventionelle Implantationstechnik",url:"https://drive.google.com/file/d/1RSxZcqS23PV1Cu5nCMEccjL9_he3kRNg/preview"},
+    ]},
+    {cat:"🦵 OSG / Rückfuß",items:[
+      {title:"Arthrex Brostrom-Gould",desc:"Laterale Bandstabilisierung OSG, Operative Technik",url:"https://drive.google.com/file/d/1bMjQclTvZE1pWz8zdu-4NiHQgn_sBMwo/preview"},
+      {title:"Arthrex OSG-Arthrodese",desc:"Ankle Fusion Plate, Operative Technik",url:"https://drive.google.com/file/d/1FEAlf9852uEsAD72GBCw9IQqfzlYgBtG/preview"},
+    ]},
+    {cat:"🔩 Implantatsysteme",items:[
+      {title:"Stryker Fixos Schrauben",desc:"Fixos II Headless Compression Screw System",url:"https://drive.google.com/file/d/1mtMaEGM4Fm06rB8g16My39TxaMDODKoM/preview"},
+    ]},
+  ];
+
   const BASE_URL="https://benjaminbreuer-85.github.io/Fu-zentrum-Sprechstunde/manuale/";
 
   const filtered=q.trim()?MANUALE.map(function(cat){
     var items=cat.items.filter(function(it){
       var term=q.trim().toLowerCase();
-      return it.title.toLowerCase().includes(term)||it.desc.toLowerCase().includes(term)||it.file.toLowerCase().includes(term)||cat.cat.toLowerCase().includes(term);
+      return it.title.toLowerCase().includes(term)||it.desc.toLowerCase().includes(term)||cat.cat.toLowerCase().includes(term);
     });
     return items.length>0?{cat:cat.cat,items:items}:null;
   }).filter(Boolean):MANUALE;
@@ -15309,7 +15436,7 @@ function HDRGSearch(){
         </div>}
       </div>;
     })}
-    <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>PDFs werden direkt von GitHub geladen · Klick öffnet in neuem Tab</div>
+    <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center"}}>PDFs werden direkt von GitHub/Google Drive geladen · Klick öffnet in neuem Tab</div>
   </div>;
 }
 
