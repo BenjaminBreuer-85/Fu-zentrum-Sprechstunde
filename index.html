@@ -13718,7 +13718,8 @@ function OPBerichtApp(){
     });
     if(askVorher&&(osgOp.includes("amic")||osgOp.includes("brostrom")))o.push("5-812.ek");  // Diagnostische ASK vorgeschaltet
     // TEP
-    if(tepType)o.push("5-826.00");
+    if(tepType&&tepType.startsWith("primaer"))o.push("5-826.00");
+    if(tepType&&tepType.startsWith("wechsel")){o.push("5-827.10");if(tepType.includes("inbone"))o.push("5-829.k2");}
     rfOp.forEach(op=>{
       if(op==="mdo_mini"||op==="mdo_offen")o.push("5-781.1t","5-93b.0");
       if(op==="t2_nagel"){o.push("5-808.71","5-93b.6");if(t2Becken)o.push("5-784.0n","5-783.0d");}  // OSG+USG-Arthrodese + Marknagel + ggf. Beckenkamm
@@ -13847,7 +13848,7 @@ function OPBerichtApp(){
     if(tepType&&tepType.startsWith("wechsel")) return [o,{label:"OSG-TEP Wechsel ("+(tepType.includes("inbone")?"Inbone II":"Infinity")+")",ops:o,
       hdrg:"—",ebm:"—",kurz:"I43B gekürzt (VWD 1–2: Abschlag!)",drg:"I43B 10.819 €",hdrg_n1:"—",empf:"n3",
       ziel:"⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen.",
-      kodier:"5-826.00 (Wechsel Endoprothese OSG).\n⚠ Patient muss mindestens 3 Tage bleiben! Am 1. und 2. Tag nach OP gibt es bei Entlassung Erlöskürzungen."}];
+      kodier:"5-827.10 (Wechsel Endoprothese OSG).\n⚠ Patient muss mindestens 3 Tage bleiben! Am 1. und 2. Tag nach OP gibt es bei Entlassung Erlöskürzungen."}];
 
     // T2 Nagel TTC → I20A
     if(osgOp.includes("t2_nagel")) return [o,{label:"T2 Nagel (TTC-Arthrodese)",ops:o,
@@ -14693,7 +14694,7 @@ const UC_TEXT_MAP={
             </div>
           </div>}
 
-          <div style={{fontSize:9,color:"#718096",marginTop:8}}>OPS: 5-826.00 · Stationär{tepType.startsWith("wechsel")?" · Wechseloperation":""}</div>
+          <div style={{fontSize:9,color:"#718096",marginTop:8}}>OPS: {tepType.startsWith("wechsel")?"5-827.10":"5-826.00"} · Stationär{tepType.startsWith("wechsel")?" · Wechseloperation":""}</div>
         </div>}
       </OBSec>
 
@@ -14860,14 +14861,14 @@ const UC_TEXT_MAP={
       {erloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {erloesData.label}</div>
 
         {/* 4 ERLÖS-SPALTEN */}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:4,marginBottom:10}}>
+        {function(){var drgCode=erloesData.drg?erloesData.drg.split(" ")[0]:"";var ugvd=GVD[drgCode]?GVD[drgCode].ugvd:1;var vollAbN=ugvd+1;return <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:4,marginBottom:10}}>
           {[["amb","AMBULANT",erloesData.hdrg,erloesData.ebm,"H-DRG","EBM"],
             ["n1","1 NACHT",erloesData.hdrg_n1||erloesData.hdrg||"—",erloesData.kurz||"—","H-DRG","Gekürzte DRG"],
-            ["n2","2 NÄCHTE",erloesData.hdrg||"—","—","H-DRG","Volle DRG"],
+            ["n2","2 NÄCHTE",erloesData.hdrg||"—","—","H-DRG",ugvd>=2?"Gekürzte DRG":"Volle DRG"],
             ["n3","3+ NÄCHTE","—","—","—","Volle DRG"]
           ].map(function(col){
             var key=col[0],title=col[1],top=col[2],bot=col[3],topLbl=col[4],botLbl=col[5];
-            if(key==="n2")bot=erloesData.drg||"—";
+            if(key==="n2")bot=ugvd>=2?(erloesData.kurz||"Gekürzt"):(erloesData.drg||"—");
             if(key==="n3")bot=erloesData.drg||"—";
             var isEmpf=erloesData.empf===key;
             return <div key={key} style={{borderRadius:8,padding:8,textAlign:"center",background:isEmpf?"rgba(0,137,123,.08)":"transparent",border:isEmpf?"2px solid #00897B":"1px solid rgba(0,0,0,.08)"}}>
@@ -14878,21 +14879,21 @@ const UC_TEXT_MAP={
               <div style={{fontSize:11,fontWeight:600,color:bot!=="—"?(isEmpf?"#00897B":"#4A5568"):"#A0AEC0"}}>{bot}</div>
             </div>;
           })}
-        </div>
+        </div>;}()}
 
         {/* ÖKONOMISCHES CODIERZIEL */}
-        <div style={{marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
+        {function(){var _dc=erloesData.drg?erloesData.drg.split(" ")[0]:"";var _ugvd=GVD[_dc]?GVD[_dc].ugvd:1;var _minT=_ugvd+1;return <div style={{marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
           <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Ökonomisches Codierziel:</div>
           {(erloesData.label.includes("Metallentfernung")||erloesData.label==="Cheilektomie"||erloesData.label==="Kleinzehen/DMMO"||erloesData.label==="Exostose")
             ?<div style={{fontSize:11,color:"#2D3748"}}>Bei ambulanter Führung: Hybrid-DRG {erloesData.hdrg}</div>
             :erloesData.hdrg==="—"
-            ?<div style={{fontSize:11,color:"#2D3748"}}>Bei stationärer Führung: Volle DRG {erloesData.drg||"—"}, Liegezeit ≥ 2 Tage</div>
+            ?<div style={{fontSize:11,color:"#2D3748"}}>Bei stationärer Führung: Volle DRG {erloesData.drg||"—"}, Liegezeit ≥ {_minT} Tage</div>
             :<div style={{fontSize:11,color:"#2D3748"}}>
               <div>Bei ambulanter Führung: Hybrid-DRG {erloesData.hdrg}</div>
-              <div>Bei stationärer Führung: Volle DRG {erloesData.drg||"—"}, Liegezeit ≥ 2 Tage</div>
+              <div>Bei stationärer Führung: Volle DRG {erloesData.drg||"—"}, Liegezeit ≥ {_minT} Tage</div>
             </div>
           }
-        </div>
+        </div>;}()}
 
         {/* BELEGUNGSTAGE / VWD */}
         {erloesData.drg&&GVD[erloesData.drg.split(" ")[0]]&&<div style={{marginBottom:8,padding:"6px 10px",background:"rgba(0,0,0,.02)",borderRadius:6,fontSize:10,display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
@@ -15396,6 +15397,8 @@ function OPManuale(){
     ]},
     {cat:"🔩 Implantatsysteme",items:[
       {title:"Stryker Fixos Schrauben",desc:"Fixos II Headless Compression Screw System",url:"https://drive.google.com/file/d/1mtMaEGM4Fm06rB8g16My39TxaMDODKoM/preview"},
+      {title:"Arthrex Dyna-Mite Staples",desc:"Dyna-Mite Nitinol Compression Staples, Operative Technik",url:"https://drive.google.com/file/d/1x11a6pynub8bWWHcAdNsmBS9qHi8OGuA/preview"},
+      {title:"Stryker Easy Clip Staples",desc:"Easy Clip Fixation System, Operative Technik",url:"https://drive.google.com/file/d/11hLPSZ0DOKUGZTolUr7PgvjRjFy4nF2u/preview"},
     ]},
   ];
 
