@@ -12555,7 +12555,7 @@ const DIAG = {
       { id: "metatarsalgie", pos: "Transfermetatarsalgie", neg: "Keine Transfermetatarsalgie" },
       { id: "beschwielung", pos: "Plantare Mehrbeschwielung unter den MT-Köpfchen", neg: "Keine plantare Mehrbeschwielung" },
     ],
-    opMethoden: ["chevron", "chevron_akin", "lapidus"],
+    opMethoden: ["chevron","chevron_akin","scarf","lapidus","dmmo","kleinzehen_pip"],
     bildBefunde: "Hallux-valgus-Deformität mit einem IM-Winkel von __ Grad und einem HV-Winkel von __ Grad",
     literatur: "AWMF S2e-Leitlinie Hallux valgus (Nr. 187-051, Stand 2024): https://register.awmf.org/de/leitlinien/detail/187-051",
   },
@@ -12572,7 +12572,7 @@ const DIAG = {
       { id: "schmerz_endgrad", pos: "Schmerz bei endgradiger Dorsalextension", neg: "Kein Schmerz bei Dorsalextension" },
       { id: "krepitation", pos: "Krepitation im MTP-I-Gelenk", neg: "Keine Krepitation" },
     ],
-    opMethoden: ["cheilektomie", "mtp1_arthrodese"],
+    opMethoden: ["cheilektomie","mtp1_arthrodese","dmmo","kleinzehen_pip"],
     bildBefunde: "Arthrose des MTP-I-Gelenkes Grad __ nach Coughlin mit dorsalen Osteophyten",
     literatur: "Anderson MR et al. (2023) Current Concepts Review: Hallux Rigidus. Foot & Ankle Orthopaedics. https://doi.org/10.1177/24730114231188123",
   },
@@ -12591,7 +12591,7 @@ const DIAG = {
       { id: "peroneal", pos: "Peronealsehnen druckschmerzhaft", neg: "Peronealsehnen unauffällig" },
       { id: "bew_osg_i", input: true, label: "Beweglichkeit OSG (Ext/Flex)", placeholder: "15/0/40" },
     ],
-    opMethoden: ["brostrom_gould", "brostrom_int_brace", "bandplastik_autolog"],
+    opMethoden: ["brostrom_gould","brostrom_int_brace","bandplastik_autolog","ask_osg"],
     bildBefunde: "gehaltene Aufnahmen mit lateralem Aufklappen von __ Grad und Talusvorschub von __ mm",
     literatur: "AWMF S2k-Leitlinie Frische Außenbandruptur des oberen Sprunggelenkes (Nr. 187-025): https://register.awmf.org/de/leitlinien/detail/187-025",
   },
@@ -12609,7 +12609,7 @@ const DIAG = {
       { id: "rf_achse_a", input: true, label: "Rückfußachse", placeholder: "5° valgus" },
       { id: "impingement", pos: "Ventrales knöchernes Impingement", neg: "Kein ventrales Impingement" },
     ],
-    opMethoden: ["ask_osg", "arthrodese_osg", "tep_infinity", "tep_inbone"],
+    opMethoden: ["ask_osg","arthrodese_osg","tep_infinity","tep_inbone","t2_nagel","supramal_ot"],
     bildBefunde: "Arthrose des OSG Grad __ nach Kellgren-Lawrence",
     literatur: "Anderson DD et al. (2024) Ankle osteoarthritis: Toward new understanding and opportunities for prevention and intervention. J Orthop Res. https://doi.org/10.1002/jor.25973",
     literaturTEP: "Colò G et al. (2025) Five decades of total ankle replacement: from early failures to fourth-generation innovations. Eur J Orthop Surg Traumatol. https://doi.org/10.1007/s00590-025-04634-5",
@@ -12626,7 +12626,7 @@ const DIAG = {
       { id: "bew_osg_o", input: true, label: "Beweglichkeit OSG (Ext/Flex)", placeholder: "15/0/40" },
       { id: "stabil_ocl", pos: "Bandapparat instabil", neg: "Bandapparat stabil" },
     ],
-    opMethoden: ["amic", "oats", "ask_osg"],
+    opMethoden: ["amic","oats","ask_osg"],
     bildBefunde: "osteochondrale Läsion der __ Talusschulter, Größe __ x __ mm",
     literatur: "Walther M et al. (2024) Operative management of osteochondral lesions of the talus: 2024 recommendations of the DGOU. EFORT Open Reviews. https://doi.org/10.1530/EOR-23-0075",
   },
@@ -12649,7 +12649,7 @@ const DIAG = {
       { id: "ds_innenknoe", pos: "Druckschmerz unterhalb des Innenknöchels", neg: "Kein Druckschmerz unterhalb des Innenknöchels" },
       { id: "waden", pos: "Geringe Wadenmuskelkontraktur", neg: "Keine Wadenmuskelkontraktur" },
     ],
-    opMethoden: ["mco", "lcot", "cotton", "calcaneus_ot", "coalition_exzision", "subtalar_arthrodese"],
+    opMethoden: ["mco","lcot","cotton","calcaneus_ot","coalition_exzision","subtalar_arthrodese","fhl_transfer","peroneal_naht"],
     bildBefunde: "Knick-Senk-Fuß-Deformität mit Talonavikular-Uncoverage von __ %, Meary-Winkel __ Grad",
     literatur: "Henry JK et al. (2019) Adult-Acquired Flatfoot Deformity. Foot & Ankle Orthopaedics. https://doi.org/10.1177/2473011418820847",
   },
@@ -12683,7 +12683,7 @@ const DIAG = {
       { id: "thompson", pos: "Thompson-Test positiv", neg: "Thompson-Test negativ" },
       { id: "schuhkonflikt_post", pos: "Schuhkonflikt posterior", neg: "Kein Schuhkonflikt" },
     ],
-    opMethoden: ["haglund_as_split"],
+    opMethoden: ["haglund_mini","haglund_as_split","fhl_transfer","as_naht"],
     bildBefunde: "Haglund-Exostose mit Verkalkung am Achillessehnenansatz",
     literatur: "Zhi X et al. (2021) Nonoperative treatment of insertional Achilles tendinopathy: a systematic review. J Orthop Surg Res. https://doi.org/10.1186/s13018-021-02370-0 (weitere Informationen zur konservativen Behandlung)",
   },
@@ -12748,6 +12748,15 @@ const OPS = {
   subtalar_arthrodese: { k: "USG-Arthrodese", b: "eine primäre Versteifung des unteren Sprunggelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) des unteren Sprunggelenkes, Augmentation durch autologe Beckenkammspongiosa" },
   arthrodese_tmt: { k: "TMT-Arthrodese", b: "eine Versteifung der Tarsometatarsalgelenke", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) der Tarsometatarsalgelenke, Augmentation durch autologe Beckenkammspongiosa" },
   arthrorise: { k: "Arthrorise", b: "eine Arthrorise (subtalare Schraubenarthrorise) zur Korrektur des kindlichen/juvenilen Knick-Senkfußes", r: "Infektion, Implantatlockerung, Überkorrektur mit Supinationsfehlstellung, Schmerzen im Sinus Tarsi, Implantatentfernung erforderlich, unzureichende Korrektur", t: "Subtalare Arthrorise" },
+  scarf: { k: "Scarf-Osteotomie", b: "eine Scarf-Osteotomie zur Korrektur der Hallux-valgus-Fehlstellung", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Pseudarthrose, Steifigkeit, Thrombose", t: "Scarf-Osteotomie, Weichteilkorrektur" },
+  dmmo: { k: "DMMO (Kleinzehen)", b: "eine minimalinvasive distale Metatarsale-Osteotomie (DMMO) zur Korrektur der Metatarsalgie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Transfermetatarsalgie, Steifigkeit", t: "DMMO (minimalinvasive distale Metatarsale-Osteotomie)" },
+  kleinzehen_pip: { k: "Kleinzehen/PIP", b: "eine Korrektur der Kleinzehenfehlstellung mit PIP-Arthrodese", r: "Infektion, Pseudarthrose, Rezidiv, Steifigkeit", t: "Kleinzehenkorrektur mit PIP-Arthrodese" },
+  haglund_mini: { k: "Haglund mini open", b: "eine Abtragung der Haglund-Exostose ohne Achillessehnenablösung", r: "Infektion, Kalzifikationsrezidiv, Nervenverletzung", t: "Haglund-Abtragung mini open" },
+  fhl_transfer: { k: "FHL-Transfer", b: "einen FHL-Sehnentransfer zur Augmentation der insuffizienten Achillessehne", r: "Infektion, Reruptur, Schwäche der Großzehe, Nervenverletzung, Thrombose", t: "FHL-Sehnentransfer mit Tenodeseschraube" },
+  as_naht: { k: "Achillessehnennaht", b: "eine Naht der Achillessehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose, Wundheilungsstörung", t: "Achillessehnennaht" },
+  peroneal_naht: { k: "Peronealsehnennaht", b: "eine Naht/Rekonstruktion der Peronealsehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose", t: "Peronealsehnennaht/-rekonstruktion" },
+  t2_nagel: { k: "T2 Nagel (TTC)", b: "eine tibio-talo-calcaneare Arthrodese mit retrogradem Marknagel", r: "Infektion, Pseudarthrose, Materialversagen, Beinlängendifferenz, Thrombose", t: "TTC-Arthrodese mit T2 retrogradem Marknagel" },
+  supramal_ot: { k: "Supramalleolare OT", b: "eine supramalleolare Korrekturosteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen, Thrombose", t: "Supramalleolare Umstellungsosteotomie" },
 };
 
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
@@ -12795,28 +12804,40 @@ function Sec({ title, children, open, onToggle }) {
    ============================================================ */
 function SprechstundenbriefApp() {
   
-// Fallsteuerung: opMethode → H-DRG / AOP / Stationär
+// Fallsteuerung: opMethode → Erlössimulation
 const OP_STEUERUNG={
-  chevron:{typ:"hdrg",drg:"I20O",erloes:"1.007 €",hinweis:"Ambulant H-DRG empfohlen"},
-  chevron_akin:{typ:"hdrg",drg:"I20O",erloes:"1.007 €",hinweis:"Ambulant H-DRG empfohlen"},
-  lapidus:{typ:"stat",drg:"I20D",erloes:"4.710 € (stat.)",hinweis:"Kein H-DRG, kein AOP → stationär ≥2 Nächte"},
-  cheilektomie:{typ:"hdrg",drg:"I20O",erloes:"1.007 €",hinweis:"Ambulant H-DRG empfohlen"},
-  mtp1_arthrodese:{typ:"hdrg",drg:"I20N",erloes:"2.085 €",hinweis:"Ambulant H-DRG empfohlen"},
-  brostrom_gould:{typ:"stat",drg:"I59Z",erloes:"3.225 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
-  brostrom_int_brace:{typ:"stat",drg:"I59Z",erloes:"3.225 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
-  bandplastik_autolog:{typ:"stat",drg:"I59Z",erloes:"3.225 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
-  ask_osg:{typ:"hdrg",drg:"I20O",erloes:"1.007 €",hinweis:"Ambulant H-DRG empfohlen"},
-  arthrodese_osg:{typ:"stat",drg:"I13E",erloes:"5.829 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
-  tep_infinity:{typ:"stat",drg:"I05B",erloes:"8.773 € (stat.)",hinweis:"Stationär, MVWD 6,2 T"},
-  tep_inbone:{typ:"stat",drg:"I05B",erloes:"8.773 € (stat.)",hinweis:"Stationär, MVWD 6,2 T"},
-  amic:{typ:"stat",drg:"I13G",erloes:"4.539 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
-  mco:{typ:"stat",drg:"I20C",erloes:"5.068 € (stat.)",hinweis:"Stationär ≥2 Nächte"},
-  lcot:{typ:"stat",drg:"I20C",erloes:"5.068 € (stat.)",hinweis:"In Kombination mit Calc-OT"},
-  cotton:{typ:"stat",drg:"I20C",erloes:"5.068 € (stat.)",hinweis:"Stationär ≥2 Nächte"},
-  calcaneus_ot:{typ:"stat",drg:"I20C",erloes:"5.068 € (stat.)",hinweis:"Stationär ≥2 Nächte"},
-  coalition_exzision:{typ:"stat",drg:"I27D",erloes:"4.333 € (stat.)",hinweis:"Stationär"},
-  subtalar_arthrodese:{typ:"stat",drg:"I13E",erloes:"5.829 € (stat.)",hinweis:"Stationär ≥2 Nächte"},
-  arthrodese_tmt:{typ:"stat",drg:"I20D",erloes:"4.710 € (stat.)",hinweis:"Kein H-DRG → stationär ≥2 Nächte"},
+  chevron:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,empf:"amb",hebel:"5-854.2c",hebelName:"Sehnentransfer/FDL",hinweis:"Ambulant H-DRG empfohlen. Stationär: 5-854.2c mitkodieren → I20E."},
+  chevron_akin:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,empf:"amb",hebel:"5-854.2c",hebelName:"Sehnentransfer/FDL",hinweis:"Ambulant H-DRG empfohlen."},
+  scarf:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,empf:"amb",hebel:"5-854.2c",hebelName:"Sehnentransfer/FDL",hinweis:"Ambulant H-DRG empfohlen."},
+  lapidus:{hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG, kein AOP → nur stationär ≥2 Nächte."},
+  cheilektomie:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,empf:"amb",hebel:null,hebelName:null,hinweis:"Ambulant H-DRG empfohlen."},
+  mtp1_arthrodese:{hdrg:"I20N",hdrgE:2085,drg:"I20E",drgE:3728,cm:0.818,empf:"amb",hebel:"5-784.0v",hebelName:"Spongiosa MTP I",hinweis:"Ambulant H-DRG I20N empfohlen. Stationär: 5-784.0v mitkodieren → I20E."},
+  brostrom_gould:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG (auch nicht mit ASK) → stationär ≥2 Nächte."},
+  brostrom_int_brace:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG → stationär ≥2 Nächte."},
+  bandplastik_autolog:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG → stationär ≥2 Nächte."},
+  ask_osg:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,empf:"amb",hebel:null,hebelName:null,hinweis:"Ambulant H-DRG empfohlen."},
+  arthrodese_osg:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,empf:"stat",hebel:"5-784.0n",hebelName:"Spongiosa Talus",hinweis:"Nur stationär. + Spongiosa (5-784.0n) → I13D (7.079 €)."},
+  tep_infinity:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär, MVWD 6,2 Tage."},
+  tep_inbone:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär, MVWD 6,2 Tage."},
+  amic:{hdrg:null,hdrgE:0,drg:"I13G",drgE:4539,cm:0.995,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär. + IKO → I13E (5.829 €)."},
+  oats:{hdrg:null,hdrgE:0,drg:"I13G",drgE:4539,cm:0.995,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär ≥2 Nächte."},
+  mco:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
+  lcot:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,empf:"stat",hebel:null,hebelName:null,hinweis:"In Kombination mit Calcaneus-OT."},
+  cotton:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
+  calcaneus_ot:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
+  coalition_exzision:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär."},
+  subtalar_arthrodese:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
+  arthrodese_tmt:{hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG → stationär ≥2 Nächte."},
+  haglund_as_split:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär (Kontextprozedur 5-854.29). ≥2 Nächte."},
+  haglund_mini:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,empf:"amb",hebel:null,hebelName:null,hinweis:"Ambulant H-DRG empfohlen."},
+  arthrorise:{hdrg:"I20O",hdrgE:1007,drg:null,drgE:0,cm:0,empf:"amb",hebel:null,hebelName:null,hinweis:"H-DRG I20O. ⚠ Klientel <18 → Hybrid-DRG ausgeschlossen!"},
+  dmmo:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,empf:"amb",hebel:null,hebelName:null,hinweis:"≤2 MT: H-DRG I20O. ≥3 MT: KEINE H-DRG → nur stationär."},
+  kleinzehen_pip:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,empf:"amb",hebel:"5-854.0c",hebelName:"Strecksehnenverlängerung",hinweis:"Ambulant H-DRG empfohlen."},
+  fhl_transfer:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär ≥2 Nächte."},
+  as_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG → stationär ≥2 Nächte. 5-855.39 IMMER mitkodieren!"},
+  peroneal_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
+  t2_nagel:{hdrg:null,hdrgE:0,drg:"I20A",drgE:8954,cm:1.963,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär. UGVD 2 → mind. 3 Nächte! Abschlag 1.209 €/Tag."},
+  supramal_ot:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär ≥2 Nächte."},
 };
 
 var _s = useState, _m = useMemo;
@@ -13189,6 +13210,47 @@ var _s = useState, _m = useMemo;
             <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#718096" }}>EFAS 2 (Sport)</div><input value={efas2} onChange={function(e) { setEfas2(e.target.value); }} placeholder="__/16" style={{textAlign:"center"}} /></div>
             <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 9, color: "#718096" }}>AOFAS</div><input value={aofas} onChange={function(e) { setAofas(e.target.value); }} placeholder="__/100" style={{textAlign:"center"}} /></div>
             <div style={{ flex: "0 0 100px" }}><div style={{ fontSize: 9, color: "#718096" }}>VAS (Belastung)</div><input value={vasScore} onChange={function(e) { setVasScore(e.target.value); }} placeholder="__/10" style={{textAlign:"center"}} /></div>
+          </div>
+        </div>}
+
+        {/* ERLÖSSIMULATION */}
+        {opMethode.length>0&&<div style={{marginTop:10,border:"2px solid #00838F",borderRadius:10,overflow:"hidden"}}>
+          <div style={{background:"#00838F",padding:"8px 12px"}}>
+            <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>Erlössimulation</span>
+          </div>
+          <div style={{padding:"10px 12px",background:"rgba(0,131,143,.04)",fontSize:11}}>
+            {function(){
+              var best=null;var bestKey="";
+              opMethode.forEach(function(m){var s=OP_STEUERUNG[m];if(s&&s.cm>(best?best.cm:0)){best=s;bestKey=m;}});
+              if(!best)return null;
+              var hasAmb=best.hdrg!==null;
+              var hasStat=best.drg!==null;
+              return <div>
+                <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:8}}>Fallsteuerung – {OPS[bestKey]?OPS[bestKey].k:bestKey}</div>
+                <div style={{display:"grid",gridTemplateColumns:hasAmb&&hasStat?"1fr 1fr":"1fr",gap:8,marginBottom:10}}>
+                  {hasAmb&&<div style={{padding:10,borderRadius:8,border:best.empf==="amb"?"2px solid #00897B":"1px solid rgba(0,0,0,.1)",background:best.empf==="amb"?"rgba(0,137,123,.08)":"transparent"}}>
+                    <div style={{fontSize:10,fontWeight:700,color:best.empf==="amb"?"#00897B":"#718096",marginBottom:4}}>AMBULANT{best.empf==="amb"?" ✓ EMPFOHLEN":""}</div>
+                    <div style={{fontSize:16,fontWeight:700,color:"#00897B"}}>{best.hdrg} {best.hdrgE.toLocaleString("de-DE")} €</div>
+                    <div style={{fontSize:9,color:"#718096",marginTop:2}}>Hybrid-DRG</div>
+                    {best.hebel&&<div style={{fontSize:9,color:"#C62828",marginTop:4}}>❌ {best.hebel} ({best.hebelName}) NICHT kodieren</div>}
+                  </div>}
+                  {hasStat&&<div style={{padding:10,borderRadius:8,border:best.empf==="stat"?"2px solid #00897B":"1px solid rgba(0,0,0,.1)",background:best.empf==="stat"?"rgba(0,137,123,.08)":"transparent"}}>
+                    <div style={{fontSize:10,fontWeight:700,color:best.empf==="stat"?"#00897B":"#718096",marginBottom:4}}>STATIONÄR{best.empf==="stat"?" ✓ EMPFOHLEN":""}</div>
+                    <div style={{fontSize:16,fontWeight:700,color:"#004D40"}}>{best.drg} {best.drgE.toLocaleString("de-DE")} €</div>
+                    <div style={{fontSize:9,color:"#718096",marginTop:2}}>Volle DRG (CM {best.cm.toFixed(3)})</div>
+                    {best.hebel&&<div style={{fontSize:9,color:"#2E7D32",marginTop:4}}>✅ {best.hebel} ({best.hebelName}) IMMER kodieren + im OP-Bericht dokumentieren</div>}
+                  </div>}
+                </div>
+                <div style={{padding:"6px 10px",background:"rgba(0,107,111,.06)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
+                  <span style={{fontWeight:600}}>Kodierhinweis: </span>{best.hinweis}
+                </div>
+                {opMethode.length>1&&<div style={{marginTop:6,padding:"6px 10px",background:"rgba(230,81,0,.06)",borderRadius:6,fontSize:10,color:"#E65100"}}>
+                  <span style={{fontWeight:600}}>Priorisierung: </span>
+                  {OPS[bestKey]?OPS[bestKey].k:bestKey} bestimmt die DRG (höchster CM: {best.cm.toFixed(3)}).
+                  {opMethode.filter(function(m){return m!==bestKey&&OP_STEUERUNG[m];}).map(function(m){var s=OP_STEUERUNG[m];return " "+(OPS[m]?OPS[m].k:m)+": CM "+s.cm.toFixed(3);}).join(",")}
+                </div>}
+              </div>;
+            }()}
           </div>
         </div>}
       </div>
@@ -15426,6 +15488,7 @@ function OPManuale(){
       {title:"Hybrid DRG Vergütung 2026",desc:"H-DRG Vergütungstabelle Anlage 2b, §115f SGB V",url:"https://drive.google.com/file/d/1-z5pJCrHuQdUHDX7sPlZYf8l3CeFNcFT/preview"},
       {title:"AOP Katalog 2026",desc:"AOP-Vertrag Anlage 1, §115b SGB V",url:"https://drive.google.com/file/d/1UOcK9bLXUlxGYQ637V77l50BaYuYD8n7/preview"},
       {title:"AOP Vertrag",desc:"Vertrag nach §115b SGB V – Ambulantes Operieren im Krankenhaus",url:"https://drive.google.com/file/d/1_d88_xzL8BFybgiSo415Z1llIav3SI5o/preview"},
+      {title:"Vereinbarung MD Prüfverfahren",desc:"Vereinbarung zum Medizinischen Dienst Prüfverfahren",url:"https://drive.google.com/file/d/1WUecl4PA7hw7ktxRsu1wBAWCeNOZ9PRT/preview"},
     ]},
   ];
 
