@@ -13547,7 +13547,7 @@ var _s = useState, _m = useMemo;
                     <div style={{fontSize:16,fontWeight:700,color:"#004D40"}}>{drg} {drgE.toLocaleString("de-DE")} €</div>
                     <div style={{fontSize:10,fontWeight:700,color:"#004D40",marginTop:4,padding:"2px 6px",background:"rgba(0,77,64,.1)",borderRadius:4,display:"inline-block"}}>Liegezeit: {ugvd+1} Tag{ugvd+1!==1?"e":""}</div>
                     <div style={{fontSize:9,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
-                      <div><span style={{fontWeight:600}}>UGVD:</span> {ugvd} Tag{ugvd!==1?"e":""}{ab&&<span style={{color:"#C62828"}}> · Abschlag bei Unterschreitung: {ab.toLocaleString("de-DE")} €/Tag</span>}</div>
+                      <div><span style={{fontWeight:600}}>UGVD:</span> {ugvd} Tag{ugvd!==1?"e":""}{ab&&<span style={{color:"#C62828"}}> · Abschlag: {ab.toLocaleString("de-DE")} €/Tag</span>}</div>
                       <div><span style={{fontWeight:600}}>MVWD:</span> {mvwd} Tage · CM {cm.toFixed(3)}</div>
                     </div>
                     {best.impl>0&&<div style={{fontSize:9,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
@@ -13583,7 +13583,7 @@ var _s = useState, _m = useMemo;
                   {hasStat&&<div style={{fontSize:9,color:"#2E7D32",marginTop:2}}>✅ Stationär: IMMER kodieren zum Ausschluss H-DRG → volle DRG {drg}.</div>}
                 </div>:null}
                 {best.aufwertung&&<div style={{padding:"8px 10px",background:"rgba(46,125,50,.08)",border:"2px solid rgba(46,125,50,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
-                  <div style={{fontWeight:700,color:"#2E7D32",marginBottom:4,fontSize:11}}>↑ Aufwertung möglich → {best.aufwertung.ziel} {best.aufwertung.delta&&<span style={{background:"#2E7D32",color:"#fff",padding:"1px 6px",borderRadius:3,marginLeft:4,fontSize:10}}>{best.aufwertung.delta}</span>}</div>
+                  <div style={{fontWeight:700,color:"#2E7D32",marginBottom:4,fontSize:11}}>↑ Aufwertung möglich bei Ansteuerung H-DRG → {best.aufwertung.ziel} {best.aufwertung.delta&&<span style={{background:"#2E7D32",color:"#fff",padding:"1px 6px",borderRadius:3,marginLeft:4,fontSize:10}}>{best.aufwertung.delta}</span>}</div>
                   <div style={{fontSize:9,color:"#555",marginBottom:3}}>Durch zusätzliche Kodierung von:</div>
                   {best.aufwertung.triggers.map(function(t,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#2E7D32"}}>{t.code}</span> <span style={{color:"#555"}}>— {OPS_LABELS[t.code]||t.name||t.code}</span></div>;})}
                 </div>}
