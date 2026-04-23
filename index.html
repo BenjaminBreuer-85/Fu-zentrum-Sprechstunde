@@ -12959,14 +12959,31 @@ const OPS_LABELS={
   "5-782.1s":"Partialresektion Knochen Talus",
   "5-782.ar":"Partialresektion Knochen Fibula, offen",
   "5-782.at":"Partialresektion Knochen Calcaneus (Haglund-Exostose)",
-  "5-787.1r":"Metallentfernung Fibula",
-  "5-788.00":"Cheilektomie/Exostosenabtragung Großzehe",
+  "5-787.1n":"ME Schraube Tibia distal",
+  "5-787.1r":"ME Schraube Fibula distal",
+  "5-787.1t":"ME Schraube Kalkaneus",
+  "5-787.1u":"ME Schraube Tarsale",
+  "5-787.1v":"ME Schraube Metatarsale",
+  "5-787.kn":"ME winkelstabile Platte Tibia distal",
+  "5-787.kr":"ME winkelstabile Platte Fibula distal",
+  "5-787.ks":"ME winkelstabile Platte Talus",
+  "5-787.kt":"ME winkelstabile Platte Kalkaneus",
+  "5-787.ku":"ME winkelstabile Platte Tarsale",
+  "5-787.kv":"ME winkelstabile Platte Metatarsale",
+  "5-788.00":"Resektion Exostose Os metatarsale I",
+  "5-788.06":"Resektion Exostose Os metatarsale II–V (1 Knochen)",
+  "5-788.07":"Resektion Exostose Os metatarsale II–V (2 Knochen)",
+  "5-788.08":"Resektion Exostose Os metatarsale II–V (3 Knochen)",
+  "5-788.09":"Resektion Exostose Os metatarsale II–V (4 Knochen)",
+  "5-800.9n":"Zystenexstirpation Tarsalgelenk",
+  "5-800.9p":"Zystenexstirpation Tarsometatarsalgelenk",
+  "5-859.2a":"Resektion eines Ganglions Fuß",
   "5-793.kr":"geschl. Reposition Fibula",
   "5-794.kr":"geschl. Reposition Fibula mit OS",
   "5-795.1v":"off. Reposition einf. Fraktur Metatarsale, Schraube",
   "5-850.b9":"Arthrolyse Unterschenkel",
   "5-856.4a":"offene Synovektomie Fußwurzel",
-  "5-859.1a":"Weichteileingriff Fußwurzel",
+  "5-859.1a":"Totale Resektion Schleimbeutel Fuß",
   // --- Zusatzcodes Osteosynthese ---
   "5-93b.0":"Einbringung Schraubenosteosynthese",
   "5-93b.e":"Einbringung winkelstabile Platte",
@@ -12993,6 +13010,60 @@ function implAmpel(ist,drg){
   if(!soll||!ist)return null;
   var pct=Math.round((ist/soll-1)*100);
   var state=ist<=soll*1.2?"gruen":ist<=soll*1.5?"gelb":"rot";
+  return {state:state,pct:pct,soll:soll,ist:ist,delta:ist-soll};
+}
+
+// ==========================================================================
+// METALLENTFERNUNGEN (untere Extremität)
+// ME-Codes selbst sind NICHT auf H-DRG-Positivliste → ME allein = nur EBM.
+// Mit zusätzlichem Positivlisten-Code (medizinisch indiziert, dokumentiert)
+// → H-DRG I20O (1.007 €).
+// ==========================================================================
+const ME_REGIONEN={
+  metatarsale:{
+    label:"Metatarsale",
+    codes:{schraube:"5-787.1v",platte:"5-787.kv"},
+    zusatz:[
+      {code:"5-788.00",name:"Resektion Exostose Os metatarsale I"},
+      {code:"5-788.06",name:"Resektion Exostose Os metatarsale II–V (1 Knochen)"},
+      {code:"5-859.2a",name:"Resektion eines Ganglions Fuß"}
+    ]
+  },
+  tarsale:{
+    label:"Tarsale",
+    codes:{schraube:"5-787.1u",platte:"5-787.ku"},
+    zusatz:[
+      {code:"5-800.9n",name:"Zystenexstirpation Tarsalgelenk"},
+      {code:"5-800.9p",name:"Zystenexstirpation Tarsometatarsalgelenk"},
+      {code:"5-782.1u",name:"Partielle Resektion Tarsale"},
+      {code:"5-859.2a",name:"Resektion eines Ganglions Fuß"}
+    ]
+  },
+  calcaneus:{
+    label:"Calcaneus",
+    codes:{schraube:"5-787.1t",platte:"5-787.kt"},
+    zusatz:[
+      {code:"5-782.at",name:"Partielle Resektion Calcaneus offen (Haglund-Exostose)"},
+      {code:"5-859.2a",name:"Resektion eines Ganglions Fuß"}
+    ]
+  },
+  tibia:{
+    label:"Tibia distal",
+    codes:{schraube:"5-787.1n",platte:"5-787.kn"},
+    zusatz:[
+      {code:"5-859.2a",name:"Resektion eines Ganglions Fuß"},
+      {code:"5-859.1a",name:"Totale Resektion Schleimbeutel Fuß"}
+    ]
+  },
+  fibula:{
+    label:"Fibula distal",
+    codes:{schraube:"5-787.1r",platte:"5-787.kr"},
+    zusatz:[
+      {code:"5-859.2a",name:"Resektion eines Ganglions Fuß"},
+      {code:"5-859.1a",name:"Totale Resektion Schleimbeutel Fuß"}
+    ]
+  }
+};
   return {state:state,pct:pct,soll:soll,ist:ist,delta:ist-soll};
 }
 
@@ -15956,6 +16027,122 @@ function CodeUebersicht(){
   </div>;
 }
 
+// ==========================================================================
+// METALLENTFERNUNGS-RECHNER
+// ME-Codes allein = nur EBM (keine H-DRG-Positivliste).
+// Mit zusätzlichem Positivlisten-Code → H-DRG I20O.
+// ==========================================================================
+function MERechner(){
+  const [region,setRegion]=useState("");
+  const [implantat,setImplantat]=useState(""); // "schraube" | "platte"
+  const [zusatz,setZusatz]=useState(""); // Code oder "" oder "none"
+
+  const reg=region?ME_REGIONEN[region]:null;
+  const meCode=(reg&&implantat)?reg.codes[implantat]:null;
+  const zusatzAktiv=zusatz&&zusatz!=="none";
+  const zusatzEintrag=(reg&&zusatzAktiv)?reg.zusatz.find(z=>z.code===zusatz):null;
+
+  const btn=(active)=>({
+    cursor:"pointer",padding:"8px 14px",borderRadius:6,border:active?"2px solid #00897B":"1px solid rgba(0,0,0,.12)",
+    background:active?"rgba(0,137,123,.08)":"#fff",color:active?"#00897B":"#4A5568",
+    fontSize:11,fontWeight:active?700:500,transition:"all .15s"
+  });
+
+  return <div style={{padding:"16px 20px"}}>
+    <div style={{marginBottom:14,fontSize:11,color:"#555",lineHeight:1.5}}>
+      Metallentfernungen sind <b>nicht</b> auf der H-DRG-Positivliste. Sie können nur über einen zusätzlichen, medizinisch indizierten Positivlisten-Code ambulant als Hybrid-DRG abgerechnet werden. Ohne Zusatzcode bleibt es bei EBM-Abrechnung (deutlich niedriger).
+    </div>
+
+    {/* REGION */}
+    <div style={{marginBottom:14}}>
+      <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginBottom:6}}>Region</div>
+      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+        {Object.keys(ME_REGIONEN).map(r=>
+          <div key={r} style={btn(region===r)} onClick={()=>{setRegion(r);setImplantat("");setZusatz("");}}>{ME_REGIONEN[r].label}</div>
+        )}
+      </div>
+    </div>
+
+    {/* IMPLANTAT */}
+    {region&&<div style={{marginBottom:14}}>
+      <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginBottom:6}}>Implantat-Typ</div>
+      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+        <div style={btn(implantat==="schraube")} onClick={()=>setImplantat("schraube")}>Schraube</div>
+        <div style={btn(implantat==="platte")} onClick={()=>setImplantat("platte")}>winkelstabile Platte</div>
+      </div>
+      {meCode&&<div style={{marginTop:6,fontSize:10,color:"#718096"}}>ME-Code: <span style={{fontFamily:"monospace",fontWeight:600,color:"#2D3748"}}>{meCode}</span> — {OPS_LABELS[meCode]}</div>}
+    </div>}
+
+    {/* ZUSATZ */}
+    {region&&implantat&&<div style={{marginBottom:14}}>
+      <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginBottom:6}}>Zusatzeingriff (optional — triggert H-DRG)</div>
+      <div style={{display:"flex",flexDirection:"column",gap:4}}>
+        <div style={{...btn(zusatz==="none"),padding:"6px 12px"}} onClick={()=>setZusatz("none")}>
+          <span style={{fontWeight:600}}>— kein Zusatzeingriff —</span>
+          <div style={{fontSize:9,color:"#718096",marginTop:2,fontWeight:400}}>Ambulant nur EBM · stationär gekürzte DRG</div>
+        </div>
+        {reg.zusatz.map(z=>
+          <div key={z.code} style={{...btn(zusatz===z.code),padding:"6px 12px",textAlign:"left"}} onClick={()=>setZusatz(z.code)}>
+            <span style={{fontFamily:"monospace",fontWeight:600}}>{z.code}</span> <span style={{fontWeight:500}}>— {z.name}</span>
+          </div>
+        )}
+      </div>
+    </div>}
+
+    {/* FALLSTEUERUNG */}
+    {region&&implantat&&zusatz&&<div style={{marginTop:16,border:"2px solid #00838F",borderRadius:10,overflow:"hidden"}}>
+      <div style={{background:"#00838F",padding:"8px 12px"}}>
+        <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>Fallsteuerung</span>
+      </div>
+      <div style={{padding:"12px 14px",background:"rgba(0,131,143,.04)"}}>
+        <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:10}}>
+          Metallentfernung {reg.label} ({implantat==="schraube"?"Schraube":"winkelstabile Platte"})
+          {zusatzEintrag&&<span> + {zusatzEintrag.name}</span>}
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
+          {/* AMBULANT */}
+          {zusatzAktiv?<div style={{padding:10,borderRadius:8,border:"2px solid #00897B",background:"rgba(0,137,123,.08)"}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#00897B",marginBottom:4}}>AMBULANT ✓ EMPFOHLEN</div>
+            <div style={{fontSize:16,fontWeight:700,color:"#00897B"}}>I20O 1.007 €</div>
+            <div style={{fontSize:9,color:"#718096",marginTop:2}}>Hybrid-DRG · pauschal</div>
+            <div style={{fontSize:9,color:"#2E7D32",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
+              <b>Zusatzeingriff muss medizinisch indiziert sein, wirklich durchgeführt und im OP-Bericht dokumentiert werden.</b>
+            </div>
+          </div>:<div style={{padding:10,borderRadius:8,border:"1px solid rgba(0,0,0,.1)",background:"rgba(160,160,160,.05)"}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>AMBULANT · nur EBM</div>
+            <div style={{fontSize:14,fontWeight:700,color:"#718096"}}>keine H-DRG</div>
+            <div style={{fontSize:9,color:"#718096",marginTop:2}}>ME-Code nicht auf Positivliste</div>
+            <div style={{fontSize:9,color:"#C62828",marginTop:6,padding:"4px 6px",background:"rgba(198,40,40,.06)",border:"1px solid rgba(198,40,40,.2)",borderRadius:4}}>
+              ⚠ Ökonomisch unattraktiv — bei indiziertem Positivlisten-Zusatzeingriff (oben auswählen) wäre H-DRG I20O (1.007 €) möglich.
+            </div>
+          </div>}
+
+          {/* STATIONÄR */}
+          <div style={{padding:10,borderRadius:8,border:"1px solid rgba(0,0,0,.1)"}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>STATIONÄR</div>
+            <div style={{fontSize:13,fontWeight:700,color:"#4A5568"}}>selten sinnvoll</div>
+            <div style={{fontSize:9,color:"#555",marginTop:6,lineHeight:1.5}}>
+              Eine isolierte ME rechtfertigt in der Regel keine stationäre Führung. Gekürzte DRG bei Kurzliegern mit negativem Deckungsbeitrag.
+            </div>
+          </div>
+        </div>
+
+        {/* KODIERHINWEIS */}
+        {zusatzAktiv&&<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+          <div style={{fontWeight:700,color:"#1565C0",marginBottom:6}}>Zu kodierende OPS-Codes</div>
+          <div style={{marginBottom:4}}>
+            <span style={{fontFamily:"monospace",fontWeight:600}}>{meCode}</span> — {OPS_LABELS[meCode]}
+          </div>
+          <div style={{marginBottom:4}}>
+            <span style={{fontFamily:"monospace",fontWeight:600,color:"#2E7D32"}}>{zusatzEintrag.code}</span> — {zusatzEintrag.name} <span style={{color:"#2E7D32",fontWeight:600}}>(Hebel-Code, H-DRG-Positivliste)</span>
+          </div>
+        </div>}
+      </div>
+    </div>}
+  </div>;
+}
+
 function LandingPage({onSelect}) {
   return (
     <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"40px 20px 20px"}}>
@@ -16004,13 +16191,13 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Sortierte Sammlung von OP-Technik-Manualen und Implantatsystemen als PDF.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Infinity · Inbone II · Prophecy · konventionell</div>
         </div>
-        <div onClick={()=>onSelect("codes")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+        <div onClick={()=>onSelect("me")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
-          <div style={{fontSize:36,marginBottom:12}}>🧾</div>
-          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Code-Übersicht</div>
-          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Alle im Tool verwendeten OPS-Codes mit Bezeichnung, Eingriff und Rolle — zentrale Bibliothek, eine Wahrheit.</div>
-          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>OPS_LABELS · Hebel · Trigger · Kontextprozedur</div>
+          <div style={{fontSize:36,marginBottom:12}}>🔩</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Metallentfernung</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Fallsteuerung für Metallentfernungen an der unteren Extremität — mit Positivlisten-Zusatzcode zur H-DRG-Ansteuerung.</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Metatarsale · Tarsale · Calcaneus · Tibia · Fibula</div>
         </div>
       </div>
       <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.3 · April 2026</div>
@@ -16098,6 +16285,25 @@ function App() {
         </div>
         <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
           <CodeUebersicht/>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (tool === "me") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:11,fontWeight:600}}>
+          ← Toolbox
+        </div>
+      </div>
+      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:900,margin:"0 auto",padding:"60px 16px 40px"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🔩 Metallentfernung</div>
+          <div style={{fontSize:11,color:"#718096"}}>Untere Extremität · Fallsteuerung mit Positivlisten-Zusatzcode</div>
+        </div>
+        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
+          <MERechner/>
         </div>
       </div>
     </div>
