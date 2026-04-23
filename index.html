@@ -13505,7 +13505,6 @@ var _s = useState, _m = useMemo;
               // Ambulant-Status: hdrg / ebm / nichtmoeglich
               // Priorität: override.ambStatus > best.ambStatus > abgeleitet aus hdrg
               var ambStatus=(override&&override.ambStatus)||best.ambStatus||(hdrg!==null?"hdrg":"nichtmoeglich");
-              var hasAmbBox=true; // immer anzeigen, Inhalt variiert
               var hasStat=drg!==null;
               // Implantat-Ampel vs. InEK-Sachkostenreferenz
               var ampel=implAmpel(best.impl,drg);
@@ -13580,7 +13579,7 @@ var _s = useState, _m = useMemo;
                       {best.kontextExcluded.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2,fontSize:9}}><span style={{fontFamily:"monospace",textDecoration:"line-through",color:"#C62828"}}>{k.code}</span> <span style={{color:"#999"}}>({OPS_LABELS[k.code]||k.name||k.code})</span></span>;})}
                     </div>
                   </div>}
-                  {hasAmb&&<div style={{fontSize:9,color:"#C62828",marginTop:4}}>❌ Ambulant: NICHT kodieren — sonst Verlust der H-DRG. Bei klinischer Notwendigkeit besser stationäre Führung.</div>}
+                  {ambStatus==="hdrg"&&<div style={{fontSize:9,color:"#C62828",marginTop:4}}>❌ Ambulant: NICHT kodieren — sonst Verlust der H-DRG. Bei klinischer Notwendigkeit besser stationäre Führung.</div>}
                   {hasStat&&<div style={{fontSize:9,color:"#2E7D32",marginTop:2}}>✅ Stationär: IMMER kodieren zum Ausschluss H-DRG → volle DRG {drg}.</div>}
                 </div>:null}
                 {best.aufwertung&&<div style={{padding:"8px 10px",background:"rgba(46,125,50,.08)",border:"2px solid rgba(46,125,50,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
