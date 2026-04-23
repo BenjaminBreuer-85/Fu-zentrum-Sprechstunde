@@ -12835,39 +12835,227 @@ const UGVD_ABSCHLAG={
   "I43B":1430,
   "I59Z":564,
 };
+// ==========================================================================
+// ZENTRALE CODE-BIBLIOTHEK
+// Einzige verbindliche Quelle für OPS-Code-Bezeichnungen und DRG-Labels.
+// Bei Änderungen NUR hier anpassen — alle Verwendungen im Tool greifen hierauf zu.
+// Funktion codeLabel(c) gibt den Namen zurück (oder den Code selbst, falls nicht gelistet).
+// ==========================================================================
+const OPS_LABELS={
+  // --- Osteotomien Metatarsale I (Hallux) ---
+  "5-788.5c":"distale Osteotomie MT I (Chevron/MICA)",
+  "5-788.5e":"distale mehrdimensionale OT MT I (Reverdin)",
+  "5-788.51":"distale Doppelosteotomie MT I (Youngswick)",
+  "5-788.5d":"proximale Osteotomie MT I",
+  "5-788.5f":"distale OT MT I, Rezidiv",
+  "5-788.5j":"distale mehrdim. OT MT I, Rezidiv",
+  "5-788.5h":"distale Doppel-OT MT I, Rezidiv",
+  "5-788.5g":"proximale OT MT I, Rezidiv",
+  "5-788.56":"Akin-Osteotomie",
+  "5-788.40":"Arthroplastik MT-Basis",
+  "5-788.60":"Arthroplastik MTP I",
+  "5-788.61":"Arthroplastik MTP 2–5, 1 Gelenk",
+  "5-788.62":"Arthroplastik MTP 2–5, 2 Gelenke",
+  "5-788.63":"Arthroplastik MTP 2–5, 3 Gelenke",
+  "5-788.64":"Arthroplastik MTP 2–5, 4 Gelenke",
+  "5-788.65":"Arthroplastik IP DI",
+  "5-788.67":"Arthroplastik IP Dig II–V, 2 Gelenke",
+  "5-788.68":"Arthroplastik IP Dig II–V, 3 Gelenke",
+  "5-788.69":"Arthroplastik IP Dig II–V, 4 Gelenke",
+  "5-788.6a":"Arthroplastik IP Dig II–V, ≥5 Gelenke",
+  // --- Osteotomien DMMO/Metatarsale II–V ---
+  "5-788.52":"1× DMMO MT II–V",
+  "5-788.53":"2× DMMO MT II–V",
+  "5-788.54":"3× DMMO MT II–V",
+  "5-788.55":"4× DMMO MT II–V",
+  "5-788.57":"1× Osteotomie Dig II–V",
+  "5-788.58":"2× Osteotomie Dig II–V",
+  "5-788.59":"3× Osteotomie Dig II–V",
+  "5-788.5a":"4× Osteotomie Dig II–V",
+  "5-788.5b":"≥5× Osteotomien Dig II–V",
+  "5-788.70":"1× Naht/Plastik plantare Platte",
+  "5-788.71":"2× Naht/Plastik plantare Platte",
+  // --- Arthrodesen ---
+  "5-808.a4":"Lapidus-Arthrodese (TMT I)",
+  "5-808.a6":"TMT-Arthrodese 3 Gelenke",
+  "5-808.a7":"TMT-Arthrodese 4 Gelenke",
+  "5-808.a8":"TMT-Arthrodese 5 Gelenke",
+  "5-808.b0":"Arthrodese MTP I",
+  "5-808.bd":"1× Arthrodese IP Dig II–V",
+  "5-808.be":"2× Arthrodese IP Dig II–V",
+  "5-808.bf":"3× Arthrodese IP Dig II–V",
+  "5-808.bg":"4× Arthrodese IP Dig II–V",
+  "5-808.bh":"≥5× Arthrodesen IP Dig II–V",
+  "5-808.70":"OSG-Arthrodese",
+  "5-808.71":"TTC-Arthrodese (Tibio-Talo-Calcaneal, z.B. T2 Nagel)",
+  "5-808.80":"Arthrodese Subtalargelenk/Talonaviculargelenk (1 Gelenk)",
+  "5-808.81":"Double-Arthrodese (2 Gelenke)",
+  "5-808.82":"Triple-Arthrodese (3 Gelenke)",
+  // --- Korrekturosteotomien Rückfuß/OSG ---
+  "5-781.0n":"valgisierende Osteotomie Tibia (supramalleolär)",
+  "5-781.1n":"varisierende Osteotomie Tibia (supramalleolär)",
+  "5-781.0r":"valgisierende Osteotomie Fibula",
+  "5-781.1r":"varisierende Osteotomie Fibula",
+  "5-781.4t":"Verlängerungsosteotomie Calcaneus (LCOT)",
+  "5-781.at":"Osteotomie ohne Achsenkorrektur Fußwurzel (Coalitio-Resektion)",
+  "5-781.1t":"varisierende Osteotomie Calcaneus (MDO)",
+  // --- Knorpel/OSG ---
+  "5-801.nk":"offene Refixation/AMIC OSG",
+  "5-781.an":"Innenknöchelosteotomie (IKO)",
+  "5-826.00":"Implantation Endoprothese OSG (primär)",
+  "5-827.10":"Wechsel Endoprothese OSG",
+  "5-829.k2":"Zement-/Augmentat bei TEP-Wechsel",
+  // --- Arthroskopie OSG ---
+  "5-810.2k":"arthroskopische Arthrolyse OSG",
+  "5-810.9k":"arthroskopische Resektion eines Bandes",
+  "5-811.2k":"arthroskopische partielle Synovektomie OSG",
+  "5-811.3k":"arthroskopische totale Synovektomie OSG",
+  "5-811.4k":"arthroskopische Denervierung OSG",
+  "5-812.0k":"arthroskopische Exzision Gelenkknorpel",
+  "5-812.ek":"arthroskopische Knorpelglättung OSG",
+  "5-812.fk":"arthroskopische Microfracturing/Pridie OSG",
+  "5-812.kk":"arthroskopische Osteophytenabtragung OSG",
+  "5-819.0k":"arthroskopische Durchtrennung eines Bandes",
+  "5-819.1k":"arthroskopisches Sehnendebridement",
+  // --- Knochentransplantation/-entnahme ---
+  "5-783.0d":"Spongiosaentnahme Beckenkamm",
+  "5-783.0n":"Spongiosaentnahme Tibia",
+  "5-783.0t":"Spongiosaentnahme Kalkaneus",
+  "5-783.0v":"Spongiosaentnahme Metatarsale",
+  "5-784.0n":"Spongiosatransplantation Tibia",
+  "5-784.0r":"Spongiosatransplantation Fibula",
+  "5-784.0s":"Spongiosatransplantation Talus",
+  "5-784.0u":"Spongiosatransplantation Tarsale",
+  "5-784.0v":"Spongiosatransplantation Metatarsale",
+  "5-784.7n":"allogener Knochenersatz Tibia",
+  "5-784.7t":"allogener Knochenersatz Kalkaneus",
+  "5-784.7u":"allogener Knochenersatz Tarsale",
+  "5-784.1n":"autologer kortikospongiöser Span Tibia",
+  // --- Sehneneingriffe ---
+  "5-854.0b":"Sehnenverlängerung Rückfuß/Fußwurzel",
+  "5-854.0c":"Sehnenverlängerung Mittelfuß/Zehen",
+  "5-854.1b":"Sehnenverkürzung Rückfuß/Fußwurzel",
+  "5-854.1c":"Sehnenverkürzung Mittelfuß/Zehen",
+  "5-854.2b":"Sehnentransposition Rückfuß/Fußwurzel",
+  "5-854.2c":"Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer)",
+  "5-854.29":"Sehnentransposition Unterschenkel",
+  "5-854.39":"Sehnenaugmentation Unterschenkel",
+  "5-854.49":"Ersatzplastik Sehne Unterschenkel (FHL-Transfer)",
+  "5-854.89":"Sehnentransplantatwechsel Unterschenkel (Peroneal-Tenodese)",
+  "5-855.19":"Sehnennaht primär, Unterschenkel",
+  "5-855.29":"Sehnennaht primär, Unterschenkel (Peronealsehne)",
+  "5-855.39":"Achillessehnennaht primär",
+  "5-855.89":"Sehnennaht sekundär, Unterschenkel",
+  "5-806.4h":"Bandplastik OSG (Brostrom-Gould)",
+  "5-806.5":"Bandrekonstruktion OSG autolog",
+  "5-806.6":"Internal Brace Augmentation",
+  "5-806.7":"offene Reposition/Naht bei Sehnenluxation",
+  "5-851.1a":"Sehnenscheidenspaltung/Tenolyse",
+  "5-852.29":"Tenolyse Unterschenkel",
+  "5-852.g9":"Excision Gewebe Unterschenkel",
+  // --- Anker/Fixateur/ME ---
+  "5-869.2":"Einbringen/Wechsel Sehnenanker",
+  "5-782.1r":"Partialresektion Knochen Fibula",
+  "5-782.1t":"Partialresektion Knochen Calcaneus",
+  "5-782.1u":"Partialresektion Knochen Tarsale (Os tibiale externum)",
+  "5-782.1s":"Partialresektion Knochen Talus",
+  "5-782.ar":"Partialresektion Knochen Fibula, offen",
+  "5-782.at":"Partialresektion Knochen Calcaneus (Haglund-Exostose)",
+  "5-787.1r":"Metallentfernung Fibula",
+  "5-788.00":"Cheilektomie/Exostosenabtragung Großzehe",
+  "5-793.kr":"geschl. Reposition Fibula",
+  "5-794.kr":"geschl. Reposition Fibula mit OS",
+  "5-795.1v":"off. Reposition einf. Fraktur Metatarsale, Schraube",
+  "5-850.b9":"Arthrolyse Unterschenkel",
+  "5-856.4a":"offene Synovektomie Fußwurzel",
+  "5-859.1a":"Weichteileingriff Fußwurzel",
+  // --- Zusatzcodes Osteosynthese ---
+  "5-93b.0":"Einbringung Schraubenosteosynthese",
+  "5-93b.e":"Einbringung winkelstabile Platte",
+  "5-93b.6":"Einbringung Marknagel",
+  "5-93b.0d":"Einbringung Anker (Suture Anchor)",
+};
+function codeLabel(c){return OPS_LABELS[c]||c;}
+
+// ==========================================================================
+// InEK-Sachkostenreferenzwerte pro DRG (Kostenstelle 5, InEK 2026)
+// Benchmark-Wert für Implantat-/Materialkosten-Ampel.
+// ==========================================================================
+const INEK_IMPL={
+  // Fuß/OSG
+  "I20F":71.63,"I20E":248.00,"I20D":404.23,"I20C":302.41,"I20B":508.42,"I20A":780.56,
+  "I13E":579.63,"I13D":627.87,"I13G":302.41,"I27D":42.78,"I27E":42.78,"I59Z":74.43,
+  "I05B":2643.61,"I43B":2710.12,
+  // UC/Trauma
+  "I21Z":283.87,"I47B":931.71,"I31C":464.58,"I29B":343.39,"I08F":573.69
+};
+// Ampel-Stufen: ≤100% InEK = grün · 100–120% = gelb · >120% = rot
+function implAmpel(ist,drg){
+  var soll=INEK_IMPL[drg];
+  if(!soll||!ist)return null;
+  var pct=Math.round((ist/soll-1)*100);
+  var state=ist<=soll?"gruen":ist<=soll*1.2?"gelb":"rot";
+  return {state:state,pct:pct,soll:soll,ist:ist,delta:ist-soll};
+}
+
 const OP_STEUERUNG={
-  chevron:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,ugvd:1,mvwd:3.2,impl:123.70,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]},hinweis:"Ambulant H-DRG I20O (1.007 €) — Kontextprozedur 5-854.2c NICHT kodieren. Stationär I20E (3.728 €) durch Mitkodierung von 5-854.2c, Liegezeit 2 Tage."},
-  chevron_akin:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,ugvd:1,mvwd:3.2,impl:123.70,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]},hinweis:"Ambulant H-DRG I20O (1.007 €) — Kontextprozedur 5-854.2c NICHT kodieren. Stationär I20E (3.728 €) durch Mitkodierung von 5-854.2c, Liegezeit 2 Tage."},
-  scarf:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,ugvd:1,mvwd:3.2,impl:247.40,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]},hinweis:"Ambulant H-DRG I20O (1.007 €) — Kontextprozedur 5-854.2c NICHT kodieren. Stationär I20E (3.728 €) durch Mitkodierung von 5-854.2c, Liegezeit 2 Tage."},
-  lapidus:{hdrg:"I20M",hdrgE:3280,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,impl:530.81,empf:"both",hebel:"5-783.0v + 5-784.0u",hebelName:"Spongiosa MT → Tarsale",hdrgTrigger:[{code:"5-788.5c",name:"distale OT MT I"},{code:"5-788.56",name:"Akin-Osteotomie"},{code:"5-788.40",name:"Arthroplastik MT-Basis"}],kontext:[{code:"5-783.0v",name:"Spongiosaentnahme Metatarsale"},{code:"5-784.0u",name:"Spongiosatransplantation Tarsale"}],hinweis:"Ambulant → H-DRG I20M (3.280 €). Stationär → I20D (4.710 €) durch Mitkodierung der Spongiosaplastik (5-783.0v + 5-784.0u) als Kontextprozedur, Liegezeit 2 Tage. Die bei diesem Eingriff praktisch obligaten Codes 5-854.1c, 5-788.60 und 5-854.2c sind bei I20M KEINE Kontextprozedur — sie verhindern den Sprung in die volle DRG nicht."},
-  cheilektomie:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:0,empf:"amb",hebel:null,hebelName:null,hinweis:"Ambulant H-DRG empfohlen."},
-  mtp1_arthrodese:{hdrg:"I20N",hdrgE:2085,drg:"I20E",drgE:3728,cm:0.818,ugvd:1,mvwd:3.2,impl:384.26,empf:"both",hebel:"5-784.0v",hebelName:"Spongiosa MTP I",kontext:[{code:"5-784.0v",name:"Spongiosa MTP I"}],hinweis:"Ambulant → H-DRG I20N (2.085 €) ohne Spongiosa-Code. Stationär: 5-784.0v (Spongiosa MTP I) als Kontextprozedur mitkodieren → volle DRG I20E (3.728 €), Liegezeit 2 Tage. Aufwertung stationär möglich: + 3× DMMO MT II–V (5-788.54) → I20D (4.710 €), + 4× DMMO MT II–V (5-788.55) → I20C (5.068 €)."},
-  brostrom_gould:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:391.84,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG (auch nicht mit ASK) → stationär ≥2 Nächte."},
-  brostrom_int_brace:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:787,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG möglich → stationär ≥2 Nächte für volle DRG I59Z (3.225 €). ⚠ Hohe Implantatkosten (787 €): die Liegezeit von 2 Tagen muss zwingend erreicht werden — bei Unterschreitung gekürzte DRG bei vollen Materialkosten → Deckungsbeitrag negativ."},
-  bandplastik_autolog:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:0,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG → stationär ≥2 Nächte."},
-  ask_osg:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:0,empf:"amb",hebel:null,hebelName:null,hinweis:"Ambulant H-DRG empfohlen."},
-  arthrodese_osg:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,ugvd:1,mvwd:5.2,impl:297.50,empf:"stat",hebel:"5-784.0n",hebelName:"Spongiosa Talus",hinweis:"Nur stationär. + Spongiosa (5-784.0n) → I13D (7.079 €)."},
-  tep_infinity:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,ugvd:1,mvwd:6.2,impl:4358.97,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär, MVWD 6,2 Tage."},
-  tep_inbone:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,ugvd:1,mvwd:6.2,impl:4909.35,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär, MVWD 6,2 Tage."},
-  amic:{hdrg:null,hdrgE:0,drg:"I13G",drgE:4539,cm:0.995,ugvd:1,mvwd:4.1,impl:950,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär. + IKO → I13E (5.829 €). ⚠ Hohe Implantatkosten (950 €): die Liegezeit von 2 Tagen muss zwingend erreicht werden — bei Unterschreitung gekürzte DRG bei vollen Materialkosten → Deckungsbeitrag negativ."},
-  oats:{hdrg:null,hdrgE:0,drg:"I13G",drgE:4539,cm:0.995,ugvd:1,mvwd:4.1,impl:0,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär ≥2 Nächte."},
-  mco:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:297.50,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
-  lcot:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:333,empf:"stat",hebel:null,hebelName:null,hinweis:"In Kombination mit Calcaneus-OT."},
-  cotton:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:333,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
-  calcaneus_ot:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:297.50,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
-  coalition_exzision:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:0,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär."},
-  subtalar_arthrodese:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,ugvd:1,mvwd:5.2,impl:297.50,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
-  arthrodese_tmt:{hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,impl:271.21,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG → stationär ≥2 Nächte."},
-  haglund_as_split:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:391.84,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär (Kontextprozedur 5-854.29). ≥2 Nächte."},
-  haglund_mini:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:391.84,empf:"amb",hebel:null,hebelName:null,hinweis:"Ambulant H-DRG empfohlen."},
-  arthrorise:{hdrg:"I20O",hdrgE:1007,drg:null,drgE:0,cm:0,ugvd:0,mvwd:0,impl:56,empf:"amb",hebel:null,hebelName:null,hinweis:"H-DRG I20O. ⚠ Klientel <18 → Hybrid-DRG ausgeschlossen!"},
-  dmmo:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:35,empf:"amb",hebel:null,hebelName:null,hinweis:"≤2 MT (5-788.52/53): H-DRG I20O möglich. 3–4 MT (5-788.54/55): KEINE H-DRG → nur stationär."},
-  kleinzehen_pip:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:16,empf:"both",hebel:null,hebelName:null,hinweis:"Ambulant H-DRG I20O (1.007 €). Stationär I20F (3.040 €) ab Liegezeit 2 Tage."},
-  fhl_transfer:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:296.80,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär ≥2 Nächte."},
-  as_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,ugvd:1,mvwd:3.4,impl:0,empf:"stat",hebel:null,hebelName:null,hinweis:"Kein H-DRG → stationär ≥2 Nächte. 5-855.39 IMMER mitkodieren!"},
-  peroneal_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,ugvd:1,mvwd:3.4,impl:0,empf:"stat",hebel:null,hebelName:null,hinweis:"Stationär ≥2 Nächte."},
-  t2_nagel:{hdrg:null,hdrgE:0,drg:"I20A",drgE:8954,cm:1.963,ugvd:2,mvwd:9.1,impl:1050,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär. UGVD 2 → mind. 3 Nächte! Abschlag 1.209 €/Tag."},
-  supramal_ot:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,ugvd:1,mvwd:5.2,impl:333,empf:"stat",hebel:null,hebelName:null,hinweis:"Nur stationär ≥2 Nächte."},
+  chevron:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,ugvd:1,mvwd:3.2,impl:123.70,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
+  chevron_akin:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,ugvd:1,mvwd:3.2,impl:123.70,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
+  scarf:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3728,cm:0.818,ugvd:1,mvwd:3.2,impl:247.40,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
+  lapidus:{hdrg:"I20M",hdrgE:3280,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,impl:530.81,empf:"both",hebel:"5-783.0v + 5-784.0u",hebelName:"Spongiosa MT → Tarsale",hdrgTrigger:[{code:"5-788.5c",name:"distale OT MT I"},{code:"5-788.56",name:"Akin-Osteotomie"},{code:"5-788.40",name:"Arthroplastik MT-Basis"}],kontext:[{code:"5-783.0v",name:"Spongiosaentnahme Metatarsale"},{code:"5-784.0u",name:"Spongiosatransplantation Tarsale"}],hinweise:[
+    {typ:"warn",txt:"Bei diesem Eingriff praktisch obligate Codes 5-854.1c, 5-788.60, 5-854.2c sind bei I20M KEINE Kontextprozedur — sie verhindern den Sprung in die volle DRG nicht."}
+  ]},
+  cheilektomie:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:0,empf:"both",hebel:null,hebelName:null},
+  mtp1_arthrodese:{hdrg:"I20N",hdrgE:2085,drg:"I20E",drgE:3728,cm:0.818,ugvd:1,mvwd:3.2,impl:384.26,empf:"both",hebel:"5-784.0v",hebelName:"Spongiosa MTP I",kontext:[{code:"5-784.0v",name:"Spongiosa MTP I"}],hinweise:[
+    {typ:"erloes",txt:"Stationär mit Kontextprozedur + 3× DMMO MT II–V (5-788.54) → I20D (4.710 €), +982 € gegenüber I20E."},
+    {typ:"erloes",txt:"Stationär mit Kontextprozedur + 4× DMMO MT II–V (5-788.55) → I20C (5.068 €), +1.340 € gegenüber I20E."}
+  ]},
+  brostrom_gould:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:391.84,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null},
+  brostrom_int_brace:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:787,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null},
+  bandplastik_autolog:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:0,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null},
+  ask_osg:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:0,empf:"both",hebel:null,hebelName:null},
+  arthrodese_osg:{hdrg:null,hdrgE:0,drg:"I13D",drgE:7079,cm:1.552,ugvd:1,mvwd:6.6,impl:297.50,empf:"stat",hebel:"5-783.0d + 5-784.0n",hebelName:"Spongiosa Beckenkamm → Tibia",kontext:[{code:"5-783.0d",name:"Spongiosaentnahme Beckenkamm"},{code:"5-784.0n",name:"Spongiosatransplantation Tibia"}],hinweise:[
+    {typ:"warn",txt:"Spongiosaplastik ist bei diesem Eingriff zur Erreichung der DRG I13D erforderlich — Beckenkammentnahme (5-783.0d) und Tibia-Transplantation (5-784.0n) müssen zwingend kodiert UND im OP-Bericht dokumentiert sein."},
+    {typ:"alert",txt:"Ohne Spongiosa-Kodierung fällt der Erlös auf I13E (5.829 €) — Verlust von 1.250 € gegenüber I13D."}
+  ]},
+  tep_infinity:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,ugvd:1,mvwd:6.2,impl:4358.97,empf:"stat",hebel:null,hebelName:null},
+  tep_inbone:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,ugvd:1,mvwd:6.2,impl:4909.35,empf:"stat",hebel:null,hebelName:null},
+  amic:{hdrg:null,hdrgE:0,drg:"I13G",drgE:4539,cm:0.995,ugvd:1,mvwd:4.1,impl:950,empf:"stat",hebel:null,hebelName:null,hinweise:[
+    {typ:"erloes",txt:"Bei zusätzlicher Innenknöchelosteotomie (5-781.an) Aufwertung zur I13E (5.829 €) — +1.290 €."}
+  ]},
+  oats:{hdrg:null,hdrgE:0,drg:"I13G",drgE:4539,cm:0.995,ugvd:1,mvwd:4.1,impl:0,empf:"stat",hebel:null,hebelName:null},
+  mco:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:297.50,empf:"stat",hebel:null,hebelName:null},
+  lcot:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:333,empf:"stat",hebel:null,hebelName:null,hinweise:[
+    {typ:"info",txt:"In Kombination mit Calcaneus-OT sinnvoll."}
+  ]},
+  cotton:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:333,empf:"stat",hebel:null,hebelName:null},
+  calcaneus_ot:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:297.50,empf:"stat",hebel:null,hebelName:null},
+  coalition_exzision:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:0,empf:"stat",hebel:null,hebelName:null,hinweise:[
+    {typ:"erloes",txt:"In Kombination mit LCOT (5-781.4t) Aufwertung zur I20C (5.068 €) — bei Patienten <12 Jahre sogar I20B (6.815 €)."}
+  ]},
+  subtalar_arthrodese:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,ugvd:1,mvwd:5.2,impl:297.50,empf:"stat",hebel:null,hebelName:null},
+  arthrodese_tmt:{hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,impl:271.21,empf:"stat",hebel:null,hebelName:null,hinweise:[
+    {typ:"erloes",txt:"TMT-Arthrodese 3 Gelenke (5-808.a6) → I20C (5.068 €). 4–5 Gelenke (5-808.a7/a8) → I20B (6.815 €)."}
+  ]},
+  haglund_as_split:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:391.84,empf:"stat",hebel:"5-854.29",hebelName:"Sehnentransposition Unterschenkel",kontext:[{code:"5-854.29",name:"Sehnentransposition Unterschenkel"}]},
+  supramal_ot:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,ugvd:1,mvwd:5.2,impl:333,empf:"stat",hebel:null,hebelName:null,hinweise:[
+    {typ:"info",txt:"Gleiche DRG für Dome, Open Wedge und Closed Wedge. Valgisierend 5-781.0n, varisierend 5-781.1n."}
+  ]},
+  haglund_mini:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:391.84,empf:"both",hebel:null,hebelName:null},
+  arthrorise:{hdrg:"I20O",hdrgE:1007,drg:null,drgE:0,cm:0,ugvd:0,mvwd:0,impl:56,empf:"amb",hebel:null,hebelName:null,hinweise:[
+    {typ:"alert",txt:"Patientenalter <18 Jahre → Altersausschluss für Hybrid-DRG. Code 5-796.pv ist zwar auf Positivliste, aber die H-DRG ist für diese Patientengruppe grundsätzlich nicht abrechenbar."}
+  ]},
+  dmmo:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:35,empf:"both",hebel:null,hebelName:null,ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54",name:"3× DMMO MT II–V"},{code:"5-788.55",name:"4× DMMO MT II–V"}]}},
+  kleinzehen_pip:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3040,cm:0.667,ugvd:1,mvwd:2.9,impl:16,empf:"both",hebel:null,hebelName:null},
+  fhl_transfer:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:296.80,empf:"stat",hebel:null,hebelName:null},
+  as_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,ugvd:1,mvwd:3.4,impl:0,empf:"stat",hebel:"5-855.39",hebelName:"Achillessehnennaht",kontext:[{code:"5-855.39",name:"Achillessehnennaht"}],hinweise:[
+    {typ:"warn",txt:"5-855.39 (Achillessehnennaht) muss zwingend kodiert sein — steuert die DRG-Zuordnung nach I27E."}
+  ]},
+  peroneal_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,ugvd:1,mvwd:3.4,impl:0,empf:"stat",hebel:null,hebelName:null},
+  t2_nagel:{hdrg:null,hdrgE:0,drg:"I20A",drgE:8954,cm:1.963,ugvd:2,mvwd:9.1,impl:1050,empf:"stat",hebel:null,hebelName:null,hinweise:[
+    {typ:"alert",txt:"UGVD = 2 Tage, volle DRG erst ab 3 Belegungstagen. Bei Entlassung am 1. oder 2. Tag nach OP: Abschlag ~1.209 € pro Tag."},
+    {typ:"warn",txt:"Mindestens 3 Übernachtungen einplanen."}
+  ]},
 };
 
 var _s = useState, _m = useMemo;
@@ -13291,8 +13479,16 @@ var _s = useState, _m = useMemo;
               else if(isChevGroup&&opMethode.indexOf("dmmo")>=0&&dmmoBig)override={hdrg:null,hdrgE:0,empf:"stat",note:" + "+(dmmo4?"4":"3")+"× DMMO → KEINE H-DRG möglich → nur stationär"};
               else if(bestKey==="lapidus"&&lapidusRezidiv)override={hdrg:null,hdrgE:0,empf:"stat",note:" (Rezidiv-OP → nicht als Hybrid-OP abrechenbar → nur stationär)"};
               // MTP-I + 3× DMMO → I20D; + 4× DMMO → I20C (beide nur stationär, keine Kontextprozedur nötig)
-              else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo3)override={hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,empf:"stat",hideKontext:true,note:" + 3× DMMO (5-788.54) → KEINE H-DRG mehr → I20D (4.710 €) stationär",altHinweis:"Ab 3× DMMO MT II–V (5-788.54) entfällt die H-DRG-Fähigkeit komplett. Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20D (4.710 €) statt I20E (3.728 €) → +982 €. Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."};
-              else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo4)override={hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,empf:"stat",hideKontext:true,note:" + 4× DMMO (5-788.55) → KEINE H-DRG mehr → I20C (5.068 €) stationär",altHinweis:"Ab 4× DMMO MT II–V (5-788.55) entfällt die H-DRG-Fähigkeit komplett. Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20C (5.068 €) statt I20E (3.728 €) → +1.340 €. Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."};
+              else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo3)override={hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,empf:"stat",hideKontext:true,note:" + 3× DMMO (5-788.54) → KEINE H-DRG mehr → I20D (4.710 €) stationär",altHinweise:[
+                {typ:"warn",txt:"Ab 3× DMMO MT II–V (5-788.54) entfällt die H-DRG-Fähigkeit komplett."},
+                {typ:"erloes",txt:"Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20D (4.710 €) statt I20E (3.728 €) → +982 €."},
+                {typ:"info",txt:"Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."}
+              ]};
+              else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo4)override={hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,empf:"stat",hideKontext:true,note:" + 4× DMMO (5-788.55) → KEINE H-DRG mehr → I20C (5.068 €) stationär",altHinweise:[
+                {typ:"warn",txt:"Ab 4× DMMO MT II–V (5-788.55) entfällt die H-DRG-Fähigkeit komplett."},
+                {typ:"erloes",txt:"Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20C (5.068 €) statt I20E (3.728 €) → +1.340 €."},
+                {typ:"info",txt:"Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."}
+              ]};
               // Konstruktiv: Chevron/Scarf + ≤2 DMMO oder + ≥3 PIP → I20N
               else if(isChevGroup&&((opMethode.indexOf("dmmo")>=0&&dmmoSmall)||(opMethode.indexOf("kleinzehen_pip")>=0&&pipCount==="3")))override={hdrg:"I20N",hdrgE:2085,empf:best.empf,note:" → Aufwertung zur H-DRG I20N durch Kombination"};
               var hdrg=override&&override.hdrg!==undefined?override.hdrg:best.hdrg;
@@ -13306,38 +13502,69 @@ var _s = useState, _m = useMemo;
               var extraNote=override?override.note:"";
               var hideKontext=override&&override.hideKontext;
               var displayHinweis=(override&&override.altHinweis)||best.hinweis;
-              var hasAmb=hdrg!==null;
+              // Ambulant-Status: hdrg / ebm / nichtmoeglich
+              // Priorität: override.ambStatus > best.ambStatus > abgeleitet aus hdrg
+              var ambStatus=(override&&override.ambStatus)||best.ambStatus||(hdrg!==null?"hdrg":"nichtmoeglich");
+              var hasAmbBox=true; // immer anzeigen, Inhalt variiert
               var hasStat=drg!==null;
+              // Implantat-Ampel vs. InEK-Sachkostenreferenz
+              var ampel=implAmpel(best.impl,drg);
+              var ampelColor=ampel?(ampel.state==="gruen"?"#2E7D32":ampel.state==="gelb"?"#E65100":"#C62828"):null;
+              var ampelIcon=ampel?(ampel.state==="gruen"?"🟢":ampel.state==="gelb"?"🟡":"🔴"):null;
+              var ampelText=ampel?(ampel.state==="gruen"?"im InEK-Rahmen":ampel.state==="gelb"?Math.abs(ampel.pct)+"% über InEK":Math.abs(ampel.pct)+"% über InEK — kritisch"):null;
               return <div>
                 <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:8}}>Fallsteuerung – {OPS[bestKey]?OPS[bestKey].k:bestKey}{extraNote}</div>
-                <div style={{display:"grid",gridTemplateColumns:hasAmb&&hasStat?"1fr 1fr":"1fr",gap:8,marginBottom:10}}>
-                  {hasAmb&&function(){var ambEmpf=empf==="amb"||empf==="both";return <div style={{padding:10,borderRadius:8,border:ambEmpf?"2px solid #00897B":"1px solid rgba(0,0,0,.1)",background:ambEmpf?"rgba(0,137,123,.08)":"transparent"}}>
-                    <div style={{fontSize:10,fontWeight:700,color:ambEmpf?"#00897B":"#718096",marginBottom:4}}>AMBULANT{ambEmpf?" ✓ EMPFOHLEN":""}</div>
-                    <div style={{fontSize:16,fontWeight:700,color:"#00897B"}}>{hdrg} {hdrgE.toLocaleString("de-DE")} €</div>
-                    <div style={{fontSize:9,color:"#718096",marginTop:2}}>Hybrid-DRG</div>
-                    {best.impl>0&&<div style={{fontSize:9,color:"#718096",marginTop:2}}>Materialkosten: {best.impl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>}
-                    {best.hebel&&<div style={{fontSize:9,color:"#C62828",marginTop:4}}>❌ {best.hebel} ({best.hebelName}) NICHT kodieren</div>}
-                  </div>;}()}
-                  {hasStat&&function(){var statEmpf=empf==="stat"||empf==="both";var ab=UGVD_ABSCHLAG[drg]||null;var implRatio=drgE>0?best.impl/drgE:0;var highImpl=best.impl>=500||implRatio>=0.25;return <div style={{padding:10,borderRadius:8,border:statEmpf?"2px solid #00897B":"1px solid rgba(0,0,0,.1)",background:statEmpf?"rgba(0,137,123,.08)":"transparent"}}>
+                <div style={{display:"grid",gridTemplateColumns:hasStat?"1fr 1fr":"1fr",gap:8,marginBottom:10}}>
+                  {/* AMBULANT-BOX — drei Zustände */}
+                  {function(){
+                    if(ambStatus==="hdrg"){
+                      var ambEmpf=empf==="amb"||empf==="both";
+                      return <div style={{padding:10,borderRadius:8,border:ambEmpf?"2px solid #00897B":"1px solid rgba(0,0,0,.1)",background:ambEmpf?"rgba(0,137,123,.08)":"transparent"}}>
+                        <div style={{fontSize:10,fontWeight:700,color:ambEmpf?"#00897B":"#718096",marginBottom:4}}>AMBULANT{ambEmpf?" ✓ EMPFOHLEN":""}</div>
+                        <div style={{fontSize:16,fontWeight:700,color:"#00897B"}}>{hdrg} {hdrgE.toLocaleString("de-DE")} €</div>
+                        <div style={{fontSize:9,color:"#718096",marginTop:2}}>Hybrid-DRG · pauschal</div>
+                        {best.impl>0&&<div style={{fontSize:9,color:"#555",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> {best.impl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>}
+                        {best.hebel&&<div style={{fontSize:9,color:"#C62828",marginTop:4}}>❌ Kontextprozedur(en) NICHT kodieren — sonst Verlust der H-DRG</div>}
+                      </div>;
+                    }
+                    if(ambStatus==="ebm"){
+                      return <div style={{padding:10,borderRadius:8,border:"1px solid rgba(0,0,0,.1)",background:"rgba(160,160,160,.05)"}}>
+                        <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>AMBULANT · theoretisch möglich</div>
+                        <div style={{fontSize:14,fontWeight:700,color:"#718096"}}>nur EBM</div>
+                        <div style={{fontSize:9,color:"#718096",marginTop:2}}>keine H-DRG für diesen Code</div>
+                        <div style={{fontSize:9,color:"#C62828",marginTop:6,padding:"4px 6px",background:"rgba(198,40,40,.06)",border:"1px solid rgba(198,40,40,.2)",borderRadius:4}}>⚠ Ökonomisch unattraktiv — EBM-Erlös deckt klinischen Aufwand meist nicht. Stationäre Führung bevorzugen.</div>
+                      </div>;
+                    }
+                    // nichtmoeglich
+                    return <div style={{padding:10,borderRadius:8,border:"1px dashed rgba(198,40,40,.35)",background:"rgba(198,40,40,.04)"}}>
+                      <div style={{fontSize:10,fontWeight:700,color:"#C62828",marginBottom:4}}>AMBULANT · nicht zulässig</div>
+                      <div style={{fontSize:13,fontWeight:700,color:"#C62828"}}>❌ nicht möglich</div>
+                      <div style={{fontSize:9,color:"#555",marginTop:4}}>Code nicht auf H-DRG-Positivliste und nicht im AOP-Katalog.</div>
+                    </div>;
+                  }()}
+                  {/* STATIONÄR-BOX */}
+                  {hasStat&&function(){var statEmpf=empf==="stat"||empf==="both";var ab=UGVD_ABSCHLAG[drg]||null;return <div style={{padding:10,borderRadius:8,border:statEmpf?"2px solid #00897B":"1px solid rgba(0,0,0,.1)",background:statEmpf?"rgba(0,137,123,.08)":"transparent"}}>
                     <div style={{fontSize:10,fontWeight:700,color:statEmpf?"#00897B":"#718096",marginBottom:4}}>STATIONÄR{statEmpf?" ✓ EMPFOHLEN":""}</div>
                     <div style={{fontSize:16,fontWeight:700,color:"#004D40"}}>{drg} {drgE.toLocaleString("de-DE")} €</div>
-                    <div style={{fontSize:10,fontWeight:700,color:"#004D40",marginTop:4,padding:"2px 6px",background:"rgba(0,77,64,.1)",borderRadius:4,display:"inline-block"}}>Liegezeit: {ugvd+1} Tage</div>
+                    <div style={{fontSize:10,fontWeight:700,color:"#004D40",marginTop:4,padding:"2px 6px",background:"rgba(0,77,64,.1)",borderRadius:4,display:"inline-block"}}>Liegezeit: {ugvd+1} Tag{ugvd+1!==1?"e":""}</div>
                     <div style={{fontSize:9,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
                       <div><span style={{fontWeight:600}}>UGVD:</span> {ugvd} Tag{ugvd!==1?"e":""}{ab&&<span style={{color:"#C62828"}}> · Abschlag bei Unterschreitung: {ab.toLocaleString("de-DE")} €/Tag</span>}</div>
-                      <div><span style={{fontWeight:600}}>MVWD:</span> {mvwd} Tage</div>
+                      <div><span style={{fontWeight:600}}>MVWD:</span> {mvwd} Tage · CM {cm.toFixed(3)}</div>
                     </div>
-                    <div style={{fontSize:9,color:"#718096",marginTop:4}}>CM {cm.toFixed(3)}</div>
-                    {best.impl>0&&<div style={{fontSize:9,color:highImpl?"#C62828":"#718096",marginTop:2,fontWeight:highImpl?700:400}}>Materialkosten: {best.impl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €{highImpl?" ("+Math.round(implRatio*100)+"% des Erlöses)":""}</div>}
-                    {best.hebel&&<div style={{fontSize:9,color:"#2E7D32",marginTop:4}}>✅ {best.hebel} ({best.hebelName}) IMMER kodieren + im OP-Bericht dokumentieren</div>}
-                    <div style={{fontSize:9,color:"#E65100",marginTop:4,fontStyle:"italic"}}>⚠ Dokumentation über Notwendigkeit der stationären Führung für jeden Tag in der Patientenakte</div>
-                    {highImpl&&<div style={{fontSize:9,color:"#C62828",marginTop:4,padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Volle DRG zwingend ansteuern — hohe Implantatkosten. Liegezeit {ugvd+1} Tage muss erreicht sein, sonst gekürzte DRG bei vollen Materialkosten.</div>}
+                    {best.impl>0&&<div style={{fontSize:9,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
+                      <div><span style={{fontWeight:600}}>Materialkosten:</span> {best.impl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>
+                      {ampel?<div style={{marginTop:2,color:ampelColor,fontWeight:600}}>{ampelIcon} {ampelText} <span style={{color:"#718096",fontWeight:400}}>(InEK-Ref. {ampel.soll.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €)</span></div>:null}
+                    </div>}
+                    {ampel&&ampel.state==="rot"&&<div style={{fontSize:9,color:"#C62828",marginTop:4,padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden. Volle DRG zwingend ansteuern (Liegezeit {ugvd+1} Tage halten), Materialalternativen prüfen.</div>}
+                    {ampel&&ampel.state==="gelb"&&<div style={{fontSize:9,color:"#E65100",marginTop:4,padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
+                    <div style={{fontSize:9,color:"#E65100",marginTop:4,fontStyle:"italic"}}>⚠ Notwendigkeit der stationären Führung für jeden Tag in der Akte dokumentieren</div>
                   </div>;}()}
                 </div>
                 {!hideKontext&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   {best.hdrgTrigger&&best.hdrgTrigger.length>0&&<div style={{marginBottom:6,padding:"4px 6px",background:"rgba(46,125,50,.06)",border:"1px solid rgba(46,125,50,.25)",borderRadius:4}}>
                     <div style={{fontSize:9,fontWeight:700,color:"#2E7D32",marginBottom:2}}>H-DRG-Trigger</div>
                     <div>
-                      {best.hdrgTrigger.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2}}><span style={{fontWeight:600,fontFamily:"monospace"}}>{k.code}</span> <span style={{color:"#718096"}}>({k.name})</span></span>;})}
+                      {best.hdrgTrigger.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2}}><span style={{fontWeight:600,fontFamily:"monospace"}}>{k.code}</span> <span style={{color:"#718096"}}>({OPS_LABELS[k.code]||k.name||k.code})</span></span>;})}
                     </div>
                     <div style={{fontSize:9,color:"#555",marginTop:3,fontStyle:"italic"}}>
                       Ambulant: triggern die H-DRG erst — daher bei ambulanter Durchführung obligat mitkodieren. Stationär nicht zwingend nötig, klinisch aber meist mit durchgeführt — dann muss zusätzlich eine Kontextprozedur (s.u.) kodiert werden, um nicht in die niedriger bewertete H-DRG zu fallen.
@@ -13345,15 +13572,12 @@ var _s = useState, _m = useMemo;
                   </div>}
                   <div style={{fontWeight:700,color:"#1565C0",marginBottom:4}}>Kontextprozeduren</div>
                   {best.kontext&&best.kontext.length>0&&<div style={{marginBottom:4}}>
-                    {best.kontext.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2}}><span style={{fontWeight:600,fontFamily:"monospace"}}>{k.code}</span> <span style={{color:"#718096"}}>({k.name})</span></span>;})}
+                    {best.kontext.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2}}><span style={{fontWeight:600,fontFamily:"monospace"}}>{k.code}</span> <span style={{color:"#718096"}}>({OPS_LABELS[k.code]||k.name||k.code})</span></span>;})}
                   </div>}
-                  <div style={{fontSize:9,color:"#555",marginBottom:4}}>
-                    Weitere Kategorien: Knochentransplantation · definierte Arthroplastiken · Osteotomien/Arthrodesen · offene Frakturreposition · definierte Sehneneingriffe
-                  </div>
                   {best.kontextExcluded&&best.kontextExcluded.length>0&&<div style={{marginTop:4,padding:"4px 6px",background:"rgba(198,40,40,.06)",border:"1px dashed rgba(198,40,40,.3)",borderRadius:4}}>
                     <div style={{fontSize:9,fontWeight:700,color:"#C62828",marginBottom:2}}>NICHT als Kontextprozedur für {hdrg||"I20M"} wirksam:</div>
                     <div>
-                      {best.kontextExcluded.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2,fontSize:9}}><span style={{fontFamily:"monospace",textDecoration:"line-through",color:"#C62828"}}>{k.code}</span> <span style={{color:"#999"}}>({k.name})</span></span>;})}
+                      {best.kontextExcluded.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2,fontSize:9}}><span style={{fontFamily:"monospace",textDecoration:"line-through",color:"#C62828"}}>{k.code}</span> <span style={{color:"#999"}}>({OPS_LABELS[k.code]||k.name||k.code})</span></span>;})}
                     </div>
                   </div>}
                   {hasAmb&&<div style={{fontSize:9,color:"#C62828",marginTop:4}}>❌ Ambulant: NICHT kodieren — sonst Verlust der H-DRG. Bei klinischer Notwendigkeit besser stationäre Führung.</div>}
@@ -13362,16 +13586,34 @@ var _s = useState, _m = useMemo;
                 {best.aufwertung&&<div style={{padding:"8px 10px",background:"rgba(46,125,50,.08)",border:"2px solid rgba(46,125,50,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   <div style={{fontWeight:700,color:"#2E7D32",marginBottom:4,fontSize:11}}>↑ Aufwertung möglich → {best.aufwertung.ziel} {best.aufwertung.delta&&<span style={{background:"#2E7D32",color:"#fff",padding:"1px 6px",borderRadius:3,marginLeft:4,fontSize:10}}>{best.aufwertung.delta}</span>}</div>
                   <div style={{fontSize:9,color:"#555",marginBottom:3}}>Durch zusätzliche Kodierung von:</div>
-                  {best.aufwertung.triggers.map(function(t,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#2E7D32"}}>{t.code}</span> <span style={{color:"#555"}}>— {t.name}</span></div>;})}
+                  {best.aufwertung.triggers.map(function(t,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#2E7D32"}}>{t.code}</span> <span style={{color:"#555"}}>— {OPS_LABELS[t.code]||t.name||t.code}</span></div>;})}
                 </div>}
                 {best.ausschluss&&<div style={{padding:"8px 10px",background:"rgba(198,40,40,.08)",border:"2px solid rgba(198,40,40,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   <div style={{fontWeight:700,color:"#C62828",marginBottom:4,fontSize:11}}>⚠ Ausschluss aus H-DRG → {best.ausschluss.ziel}</div>
                   <div style={{fontSize:9,color:"#555",marginBottom:3}}>Bei Kombination mit einem dieser Codes entfällt die H-DRG-Fähigkeit:</div>
-                  {best.ausschluss.triggers.map(function(t,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#C62828"}}>{t.code}</span> <span style={{color:"#555"}}>— {t.name}</span></div>;})}
+                  {best.ausschluss.triggers.map(function(t,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#C62828"}}>{t.code}</span> <span style={{color:"#555"}}>— {OPS_LABELS[t.code]||t.name||t.code}</span></div>;})}
                 </div>}
-                {displayHinweis&&<div style={{padding:"6px 10px",background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.2)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
-                  <span style={{fontWeight:700,color:"#E65100"}}>Wichtig für Fallsteuerung: </span>{displayHinweis}
-                </div>}
+                {function(){
+                  // Neues strukturiertes Format: best.hinweise = [{typ, txt}, ...]
+                  // Override kann best.hinweise überschreiben via override.altHinweise
+                  // Legacy-Fallback: displayHinweis als Fließtext → als einzige info-Zeile anzeigen
+                  var items=(override&&override.altHinweise)||best.hinweise||null;
+                  if(!items&&displayHinweis)items=[{typ:"info",txt:displayHinweis}];
+                  if(!items||items.length===0)return null;
+                  var style=function(typ){
+                    if(typ==="warn")return {icon:"⚠",color:"#E65100",bg:"rgba(230,81,0,.06)",bd:"rgba(230,81,0,.25)"};
+                    if(typ==="alert")return {icon:"⚠",color:"#C62828",bg:"rgba(198,40,40,.06)",bd:"rgba(198,40,40,.3)"};
+                    if(typ==="erloes")return {icon:"€",color:"#2E7D32",bg:"rgba(46,125,50,.06)",bd:"rgba(46,125,50,.25)"};
+                    return {icon:"•",color:"#4A5568",bg:"rgba(74,85,104,.04)",bd:"rgba(74,85,104,.15)"};
+                  };
+                  return <div style={{padding:"8px 10px",background:"#FAFBFC",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+                    <div style={{fontWeight:700,color:"#2D3748",marginBottom:6,fontSize:11}}>Hinweise</div>
+                    {items.map(function(it,i){var s=style(it.typ);return <div key={i} style={{display:"flex",gap:6,alignItems:"flex-start",padding:"4px 6px",marginBottom:i<items.length-1?4:0,background:s.bg,border:"1px solid "+s.bd,borderRadius:4}}>
+                      <span style={{color:s.color,fontWeight:700,flexShrink:0}}>{s.icon}</span>
+                      <span>{it.txt}</span>
+                    </div>;})}
+                  </div>;
+                }()}
               </div>;
             }()}
           </div>
@@ -13743,19 +13985,6 @@ function OPBerichtApp(){
 
   
   // InEK Implantatkosten-Referenz (Datenbrowser 2026, Datenjahr 2024, Spalte 5 OP-Bereich)
-  const INEK_IMPL={
-    // Fuß/OSG
-    "I20F":71.63,"I20E":248.00,"I20D":404.23,"I20C":302.41,"I20B":508.42,"I20A":780.56,
-    "I13E":579.63,"I13D":627.87,"I13G":302.41,"I27D":42.78,"I27E":42.78,"I59Z":74.43,
-    "I05B":2643.61,"I43B":2710.12,
-    // UC/Trauma (Kostenstelle 5, Datenbasis 2024/2026)
-    "I21Z":283.87,  // Radius distal / Olekranon / ME
-    "I47B":931.71,  // Duokopf Hüfte
-    "I31C":464.58,  // Ellenbogen komplex / Unterarm
-    "I29B":343.39,  // Klavikula / Schulter
-    "I08F":573.69   // TFNA proximales Femur
-  };
-
     // ============================================================
   // MATERIALKOSTEN – automatisch pro Eingriff
   // ============================================================
@@ -15120,14 +15349,14 @@ const UC_TEXT_MAP={
             {erloesData.hdrg!=="—"&&<div style={{marginBottom:12}}>
               <div style={{fontWeight:700,color:"#00695C",marginBottom:6,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {erloesData.hdrg}):</div>
               <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c){var isKP=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-855.39"].indexOf(c)>=0;return <span key={c+"a"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:isKP?"rgba(230,81,0,.12)":"rgba(0,131,143,.08)",color:isKP?"#C62828":"#00838F",textDecoration:isKP?"line-through":"none"}}>{c}</span>;})}</span></div>
-              {function(){var kpNames={"5-854.2c":"Sehnentransfer/FDL","5-784.0v":"Spongiosa MTP I","5-784.0r":"Spongiosa Fibula","5-784.0n":"Spongiosa Talus","5-783.0d":"Spongiosa Beckenkamm","5-855.39":"Achillessehnennaht"};var found=erloesData.ops.filter(function(c){return kpNames[c];});if(found.length>0)return <div>{found.map(function(c){return <div key={c} style={{color:"#C62828"}}>❌ {c} ({kpNames[c]}) NICHT kodieren</div>;})}<div style={{marginTop:2,fontStyle:"italic",color:"#004D40"}}>Im OP-Bericht: {found.map(function(c){return kpNames[c];}).join(", ")} NICHT beschreiben.</div></div>;return <div style={{fontStyle:"italic",color:"#004D40"}}>Keine Kontextprozeduren in diesem Eingriff.</div>;}()}
+              {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-855.39"];var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div>{found.map(function(c){return <div key={c} style={{color:"#C62828"}}>❌ {c} ({codeLabel(c)}) NICHT kodieren</div>;})}<div style={{marginTop:2,fontStyle:"italic",color:"#004D40"}}>Im OP-Bericht: {found.map(function(c){return codeLabel(c);}).join(", ")} NICHT beschreiben.</div></div>;return <div style={{fontStyle:"italic",color:"#004D40"}}>Keine Kontextprozeduren in diesem Eingriff.</div>;}()}
             </div>}
 
             {/* STATIONÄRE FÜHRUNG */}
             <div>
               <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {erloesData.drg||""}):</div>
               <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c){var isH=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"].indexOf(c)>=0;return <span key={c+"s"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:isH?"rgba(230,81,0,.15)":"rgba(0,131,143,.08)",color:isH?"#E65100":"#00838F",fontWeight:isH?700:400,border:isH?"1px solid #E65100":"none"}}>{c}{isH?" ⚠ HEBEL":""}</span>;})}</span></div>
-              {function(){var kpNames={"5-854.2c":"Sehnentransfer/FDL","5-784.0v":"Spongiosa MTP I","5-784.0r":"Spongiosa Fibula","5-784.0n":"Spongiosa Talus","5-783.0d":"Spongiosa Beckenkamm"};var found=erloesData.ops.filter(function(c){return kpNames[c];});if(found.length>0)return <div><div style={{marginBottom:4}}>{found.map(function(c){return <div key={c} style={{color:"#E65100",fontWeight:600}}>✅ {c} ({kpNames[c]}) = Kontextprozedur → IMMER kodieren</div>;})}</div><div style={{fontStyle:"italic",color:"#004D40",marginBottom:4}}>Im OP-Bericht: {found.map(function(c){return kpNames[c];}).join(", ")} MUSS beschrieben und dokumentiert werden.</div>{erloesData.hdrg!=="—"&&<div style={{padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)",marginBottom:4}}><div style={{fontWeight:600,color:"#004D40"}}>Mit Kontextprozedur:</div><div>1 Nacht → gekürzte DRG (besser als Hybrid-DRG)</div><div>2 Nächte → volle DRG {erloesData.drg||""}</div><div style={{marginTop:2}}>Ohne Kontextprozedur: VWD ≥ 3 Tage nötig für volle DRG. Bei Kürzung: Rückfall in Hybrid-DRG.</div></div>}</div>;
+              {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"];var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div><div style={{marginBottom:4}}>{found.map(function(c){return <div key={c} style={{color:"#E65100",fontWeight:600}}>✅ {c} ({codeLabel(c)}) = Kontextprozedur → IMMER kodieren</div>;})}</div><div style={{fontStyle:"italic",color:"#004D40",marginBottom:4}}>Im OP-Bericht: {found.map(function(c){return codeLabel(c);}).join(", ")} MUSS beschrieben und dokumentiert werden.</div>{erloesData.hdrg!=="—"&&<div style={{padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)",marginBottom:4}}><div style={{fontWeight:600,color:"#004D40"}}>Mit Kontextprozedur:</div><div>1 Nacht → gekürzte DRG (besser als Hybrid-DRG)</div><div>2 Nächte → volle DRG {erloesData.drg||""}</div><div style={{marginTop:2}}>Ohne Kontextprozedur: VWD ≥ 3 Tage nötig für volle DRG. Bei Kürzung: Rückfall in Hybrid-DRG.</div></div>}</div>;
               var warnLines=erloesData.kodier.split("\n").filter(function(l){return(l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("Nur stationär")||l.includes("Mind."))&&!l.includes("DMMO")&&!l.includes("WEGE");});if(warnLines.length>0)return <div style={{whiteSpace:"pre-line"}}>{warnLines.join("\n")}</div>;return null;}()}
               <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>
             </div>
@@ -15659,6 +15888,75 @@ function OPManuale(){
   </div>;
 }
 
+// ==========================================================================
+// CODE-ÜBERSICHT
+// Zeigt alle in OP_STEUERUNG verwendeten Codes mit Bezeichnung, Eingriff und Rolle.
+// Nutzt zentrale OPS_LABELS als Quelle. Eine einzige Stelle, um Inkonsistenzen zu finden.
+// ==========================================================================
+function CodeUebersicht(){
+  const [filter,setFilter]=useState("");
+
+  // Sammel: pro Code alle Verwendungen
+  const usage={};
+  const add=(code,eingriffKey,rolle)=>{
+    if(!code)return;
+    if(!usage[code])usage[code]={code:code,label:OPS_LABELS[code]||"",nichtInBib:!OPS_LABELS[code],uses:[]};
+    usage[code].uses.push({eingriff:eingriffKey,rolle:rolle});
+  };
+
+  Object.keys(OP_STEUERUNG).forEach(k=>{
+    const e=OP_STEUERUNG[k];
+    if(e.hebel){
+      // hebel kann "A" oder "A + B" sein
+      e.hebel.split(/\s*\+\s*/).forEach(c=>add(c,k,"Hebel"));
+    }
+    if(e.kontext)e.kontext.forEach(o=>add(o.code,k,"Kontextprozedur"));
+    if(e.kontextExcluded)e.kontextExcluded.forEach(o=>add(o.code,k,"nicht als Kontext wirksam"));
+    if(e.hdrgTrigger)e.hdrgTrigger.forEach(o=>add(o.code,k,"H-DRG-Trigger"));
+    if(e.aufwertung&&e.aufwertung.triggers)e.aufwertung.triggers.forEach(o=>add(o.code,k,"Aufwertung"));
+    if(e.ausschluss&&e.ausschluss.triggers)e.ausschluss.triggers.forEach(o=>add(o.code,k,"Ausschluss H-DRG"));
+  });
+
+  const rows=Object.values(usage).sort((a,b)=>a.code.localeCompare(b.code));
+  const q=filter.toLowerCase();
+  const filtered=q?rows.filter(r=>r.code.toLowerCase().includes(q)||(r.label||"").toLowerCase().includes(q)||r.uses.some(u=>u.eingriff.toLowerCase().includes(q)||u.rolle.toLowerCase().includes(q))):rows;
+
+  const labelOnly=Object.keys(OPS_LABELS).filter(c=>!usage[c]).sort();
+
+  const roleColor=r=>r==="Hebel"?"#2E7D32":r==="Kontextprozedur"?"#1565C0":r==="H-DRG-Trigger"?"#00695C":r==="Aufwertung"?"#2E7D32":r==="Ausschluss H-DRG"?"#C62828":r==="nicht als Kontext wirksam"?"#C62828":"#718096";
+
+  return <div style={{padding:"16px 20px"}}>
+    <div style={{marginBottom:14,fontSize:11,color:"#555",lineHeight:1.5}}>
+      Einzige Quelle der OPS-Code-Bezeichnungen: die zentrale Bibliothek <b>OPS_LABELS</b>. Wird hier eine Bezeichnung geändert, ändert sie sich überall im Tool.
+    </div>
+    <input value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filter: Code, Bezeichnung, Eingriff, Rolle …" style={{width:"100%",padding:"8px 10px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,fontSize:11,marginBottom:12,boxSizing:"border-box",fontFamily:"inherit"}}/>
+    <div style={{fontSize:10,color:"#718096",marginBottom:6}}>
+      {filtered.length} Einträge mit Verwendung · {labelOnly.length} Codes nur in Bibliothek
+    </div>
+    <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,overflow:"hidden"}}>
+      <div style={{display:"grid",gridTemplateColumns:"120px 1fr 1fr 100px",background:"#F5F7FA",padding:"8px 10px",fontSize:10,fontWeight:700,color:"#2D3748",borderBottom:"1px solid rgba(0,0,0,.08)"}}>
+        <div>Code</div><div>Bezeichnung</div><div>Verwendung (Eingriff · Rolle)</div><div>Status</div>
+      </div>
+      {filtered.map(r=><div key={r.code} style={{display:"grid",gridTemplateColumns:"120px 1fr 1fr 100px",padding:"8px 10px",fontSize:10,borderBottom:"1px solid rgba(0,0,0,.05)",alignItems:"start"}}>
+        <div style={{fontFamily:"monospace",fontWeight:600,color:"#2D3748"}}>{r.code}</div>
+        <div style={{color:r.nichtInBib?"#C62828":"#2D3748",fontStyle:r.nichtInBib?"italic":"normal"}}>{r.label||"— nicht in Bibliothek —"}</div>
+        <div>
+          {r.uses.map((u,i)=><div key={i} style={{marginBottom:2}}>
+            <span style={{color:"#4A5568"}}>{u.eingriff}</span> · <span style={{color:roleColor(u.rolle),fontWeight:600}}>{u.rolle}</span>
+          </div>)}
+        </div>
+        <div style={{fontSize:9,color:r.nichtInBib?"#C62828":"#2E7D32",fontWeight:600}}>{r.nichtInBib?"⚠ nicht in OPS_LABELS":"✓ zentral"}</div>
+      </div>)}
+    </div>
+    {labelOnly.length>0&&<details style={{marginTop:16}}>
+      <summary style={{cursor:"pointer",fontSize:11,fontWeight:600,color:"#006B6F",padding:"6px 0"}}>{labelOnly.length} weitere Codes in der Bibliothek ohne Verwendung in OP_STEUERUNG</summary>
+      <div style={{background:"#F5F7FA",borderRadius:6,padding:10,marginTop:4,fontSize:10,color:"#718096"}}>
+        {labelOnly.map(c=><div key={c} style={{marginBottom:2}}><span style={{fontFamily:"monospace",fontWeight:600,color:"#2D3748"}}>{c}</span> — {OPS_LABELS[c]}</div>)}
+      </div>
+    </details>}
+  </div>;
+}
+
 function LandingPage({onSelect}) {
   return (
     <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"40px 20px 20px"}}>
@@ -15706,6 +16004,14 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>OP-Manuale</div>
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Sortierte Sammlung von OP-Technik-Manualen und Implantatsystemen als PDF.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Infinity · Inbone II · Prophecy · konventionell</div>
+        </div>
+        <div onClick={()=>onSelect("codes")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:12}}>🧾</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Code-Übersicht</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Alle im Tool verwendeten OPS-Codes mit Bezeichnung, Eingriff und Rolle — zentrale Bibliothek, eine Wahrheit.</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>OPS_LABELS · Hebel · Trigger · Kontextprozedur</div>
         </div>
       </div>
       <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.3 · April 2026</div>
@@ -15774,6 +16080,25 @@ function App() {
         </div>
         <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
           <OPManuale/>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (tool === "codes") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:11,fontWeight:600}}>
+          ← Toolbox
+        </div>
+      </div>
+      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:1100,margin:"0 auto",padding:"60px 16px 40px"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🧾 Code-Übersicht</div>
+          <div style={{fontSize:11,color:"#718096"}}>Alle OPS-Codes im Tool · zentrale Bibliothek · Verwendung pro Eingriff</div>
+        </div>
+        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
+          <CodeUebersicht/>
         </div>
       </div>
     </div>
