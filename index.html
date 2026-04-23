@@ -13172,6 +13172,16 @@ var _s = useState, _m = useMemo;
   var secs = _s({ anam: true, risiko: false, unters: false, bild: false, abschluss: false }), sec = secs[0], setSec = secs[1];
   var pvs = _s(false), showPv = pvs[0], setShowPv = pvs[1];
   var ts = _s(""), toast = ts[0], setToast = ts[1];
+  // ME-Modus (Sprechstundenbrief Sonder-Flow)
+  var mms = _s(false), meMode = mms[0], setMeMode = mms[1];
+  var mrs = _s(""), meBriefRegion = mrs[0], setMeBriefRegion = mrs[1];
+  var mis = _s(""), meBriefImpl = mis[0], setMeBriefImpl = mis[1];
+  var mzs = _s(""), meBriefZusatz = mzs[0], setMeBriefZusatz = mzs[1];
+  var mdas = _s(""), meBriefDauer = mdas[0], setMeBriefDauer = mdas[1];
+  var mdes = _s("Monaten"), meBriefDauerEinheit = mdes[0], setMeBriefDauerEinheit = mdes[1];
+  var mos = _s(""), meBriefOS = mos[0], setMeBriefOS = mos[1]; // initiale Osteosynthese Freitext
+  var mbs = _s(""), meBriefBeschwerden = mbs[0], setMeBriefBeschwerden = mbs[1];
+  var mcs = _s(""), meBriefBefund = mcs[0], setMeBriefBefund = mcs[1];
 
   function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
   function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
@@ -13204,7 +13214,46 @@ var _s = useState, _m = useMemo;
   }, [diagnosen, coalitio]);
 
   var fullText = _m(function() {
-    if (!gender || diagnosen.length === 0) return "";
+    if (!gender) return "";
+    // ME-MODUS: eigener Brief-Flow
+    if (meMode) {
+      if (!meBriefRegion || !meBriefImpl) return "";
+      const REGION_LBL={metatarsale:"Metatarsale",tarsale:"Tarsale",calcaneus:"Kalkaneus",tibia:"distalen Tibia",fibula:"distalen Fibula"};
+      const IMPL_LBL={schraube:"Schraube(n)",platte:"winkelstabiler Platte"};
+      const dd = gender === "m" ? "Der Patient" : "Die Patientin";
+      const dem = gender === "m" ? "dem Patienten" : "der Patientin";
+      const sich = gender === "m" ? "sich" : "sich";
+      const seitenAdj = seite === "rechts" ? "rechts" : seite === "links" ? "links" : seite === "bds" ? "beidseitig" : "___";
+      const region = REGION_LBL[meBriefRegion];
+      const impl = IMPL_LBL[meBriefImpl];
+      const zusatzEintrag = meBriefZusatz && meBriefZusatz !== "none" && ME_REGIONEN[meBriefRegion] ? ME_REGIONEN[meBriefRegion].zusatz.find(function(z){return z.code===meBriefZusatz;}) : null;
+
+      var lines = [];
+      lines.push("Diagnosen: Störendes Implantat, Zustand nach Osteosynthese " + region + (seite ? " " + seite : ""));
+      lines.push("");
+      lines.push("Elektive operative Option: Metallentfernung " + region + (seite ? " " + seite : "") + (zusatzEintrag ? ", " + zusatzEintrag.name : ""));
+      lines.push("");
+      lines.push(dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor.");
+      lines.push((seitenAdj !== "___" ? seitenAdj.charAt(0).toUpperCase() + seitenAdj.slice(1) : "___") + "seitig besteht ein Zustand nach " + (meBriefOS || "osteosynthetischer Versorgung der " + region) + " vor " + (meBriefDauer || "___") + " " + meBriefDauerEinheit + ".");
+      lines.push("");
+      lines.push("Aktuell berichtet " + dd.toLowerCase() + " über " + (meBriefBeschwerden || "lokale Beschwerden über dem Implantat, Weichteilirritation und implantatassoziierte Symptome") + ".");
+      lines.push("");
+      lines.push("Klinische Untersuchung:");
+      lines.push(meBriefBefund || "Reizlose Narbe über der " + region + ". Druckschmerz über dem Implantat. Keine Zeichen einer Infektion. Periphere Durchblutung, Motorik und Sensibilität intakt.");
+      lines.push("");
+      lines.push("Bildgebung: Komplette knöcherne Konsolidierung, keine Hinweise auf Infekt oder Implantatlockerung.");
+      lines.push("");
+      lines.push(dd + " wurde über die konservativen Optionen (Belassen des Materials) und den möglichen Eingriff aufgeklärt. Operativ kann die Metallentfernung (" + impl + ") an der " + region + (zusatzEintrag ? " sowie " + zusatzEintrag.name.toLowerCase() : "") + " vorgenommen werden.");
+      lines.push("");
+      lines.push("Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: Infektion, Nervenverletzung, Gefäßverletzung, Weichteilirritation über der Narbe, Implantatunvollständigkeit bei gebrochenen Schrauben, Rezidiv der Beschwerden).");
+      lines.push("");
+      lines.push("Nach gründlicher Abwägung bieten wir " + dem + " den oben genannten Eingriff an. Der Eingriff ist elektiv.");
+      lines.push("");
+      lines.push("Mit freundlichen Grüßen,");
+      return lines.join("\n");
+    }
+    // STANDARD-FLOW
+    if (diagnosen.length === 0) return "";
     var p = [];
     // Diagnose
     var diagParts = diagnosen.map(function(d) {
@@ -13368,7 +13417,7 @@ var _s = useState, _m = useMemo;
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     return p.join("");
-  }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich]);
+  }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() {
@@ -13430,6 +13479,9 @@ var _s = useState, _m = useMemo;
     setBilder([{ typ: "", region: "", datum: "", befund: "" }]); setFreitextAbschluss("");
     setSec({ anam: true, risiko: false, unters: false, bild: false, abschluss: false });
     setShowPv(false);
+    setMeMode(false); setMeBriefRegion(""); setMeBriefImpl(""); setMeBriefZusatz("");
+    setMeBriefDauer(""); setMeBriefDauerEinheit("Monaten"); setMeBriefOS("");
+    setMeBriefBeschwerden(""); setMeBriefBefund("");
     showToast("🔄 Alle Felder zurückgesetzt!");
   }
 
@@ -13463,7 +13515,53 @@ var _s = useState, _m = useMemo;
         </div>
         <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>BEGLEITUNG (optional)</div><input value={begleitung} onChange={function(e) { setBegleitung(e.target.value); }} placeholder="z.B. des Vaters, der Mutter..." /></div>
         <div style={cat}>Diagnose(n) – max. 2</div>
-        <div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>
+        {/* ME-MODUS Chip */}
+        <div style={{marginBottom:6}}>
+          <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:meMode?"2px solid #E65100":"1px dashed rgba(230,81,0,.4)",background:meMode?"rgba(230,81,0,.12)":"rgba(230,81,0,.02)",color:meMode?"#E65100":"#BF360C",fontWeight:600,userSelect:"none"}} onClick={function(){setMeMode(!meMode);if(!meMode){setDiagnosen([]);setOpMethode([]);}}}>🔩 Metallentfernung {meMode?"(aktiv)":"(Sonder-Flow)"}</div>
+          {meMode&&<span style={{fontSize:9,color:"#BF360C",marginLeft:8,fontStyle:"italic"}}>Diagnose „Störendes Implantat" wird automatisch gesetzt. Eingaben unten nutzen.</span>}
+        </div>
+        {!meMode&&<div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>}
+        {/* ME-FORMULAR */}
+        {meMode&&<div style={{marginTop:8,padding:12,border:"2px solid rgba(230,81,0,.3)",borderRadius:8,background:"rgba(230,81,0,.03)"}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#BF360C",marginBottom:8}}>Metallentfernung – Brief-Parameter</div>
+          <div style={{marginBottom:8}}>
+            <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>REGION</div>
+            <div style={row}>{Object.keys(ME_REGIONEN).map(function(r){return <div key={r} style={C(meBriefRegion===r)} onClick={function(){setMeBriefRegion(r);setMeBriefImpl("");setMeBriefZusatz("");}}>{ME_REGIONEN[r].label}</div>;})}</div>
+          </div>
+          {meBriefRegion&&<div style={{marginBottom:8}}>
+            <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>IMPLANTAT-TYP</div>
+            <div style={row}>
+              <div style={C(meBriefImpl==="schraube")} onClick={function(){setMeBriefImpl("schraube");}}>Schraube</div>
+              <div style={C(meBriefImpl==="platte")} onClick={function(){setMeBriefImpl("platte");}}>winkelstabile Platte</div>
+            </div>
+          </div>}
+          {meBriefRegion&&meBriefImpl&&<div style={{marginBottom:8}}>
+            <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>ZUSATZEINGRIFF (optional, triggert H-DRG I20O)</div>
+            <div style={{display:"flex",flexDirection:"column",gap:3}}>
+              <div style={C(meBriefZusatz==="none")} onClick={function(){setMeBriefZusatz("none");}}>— kein Zusatzeingriff —</div>
+              {ME_REGIONEN[meBriefRegion].zusatz.map(function(z){return <div key={z.code} style={{...C(meBriefZusatz===z.code),textAlign:"left"}} onClick={function(){setMeBriefZusatz(z.code);}}><span style={{fontFamily:"monospace",fontWeight:600}}>{z.code}</span> — {z.name}</div>;})}
+            </div>
+          </div>}
+          {meBriefRegion&&meBriefImpl&&<div style={{marginBottom:8}}>
+            <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>ZEITRAUM SEIT INITIALER VERSORGUNG</div>
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              <input value={meBriefDauer} onChange={function(e){setMeBriefDauer(e.target.value);}} placeholder="z.B. 12" style={{width:80,padding:"6px 8px",fontSize:11,border:"1px solid rgba(0,0,0,.15)",borderRadius:4}}/>
+              <div style={row}>{["Wochen","Monaten","Jahren"].map(function(e){return <div key={e} style={CB(meBriefDauerEinheit===e)} onClick={function(){setMeBriefDauerEinheit(e);}}>{e}</div>;})}</div>
+            </div>
+          </div>}
+          {meBriefRegion&&meBriefImpl&&<div style={{marginBottom:8}}>
+            <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>ART DER INITIALEN OSTEOSYNTHESE (Freitext, optional)</div>
+            <input value={meBriefOS} onChange={function(e){setMeBriefOS(e.target.value);}} placeholder='z.B. "Plattenosteosynthese der Fibula nach Weber-B-Fraktur"' style={{width:"100%",padding:"6px 8px",fontSize:11,border:"1px solid rgba(0,0,0,.15)",borderRadius:4,boxSizing:"border-box"}}/>
+          </div>}
+          {meBriefRegion&&meBriefImpl&&<div style={{marginBottom:8}}>
+            <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>BESCHWERDEN (Freitext, optional)</div>
+            <input value={meBriefBeschwerden} onChange={function(e){setMeBriefBeschwerden(e.target.value);}} placeholder="wenn leer: Standard-Formulierung" style={{width:"100%",padding:"6px 8px",fontSize:11,border:"1px solid rgba(0,0,0,.15)",borderRadius:4,boxSizing:"border-box"}}/>
+          </div>}
+          {meBriefRegion&&meBriefImpl&&<div>
+            <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>KLINISCHER BEFUND (Freitext, optional)</div>
+            <textarea value={meBriefBefund} onChange={function(e){setMeBriefBefund(e.target.value);}} placeholder="wenn leer: Standard-Formulierung" style={{width:"100%",padding:"6px 8px",fontSize:11,border:"1px solid rgba(0,0,0,.15)",borderRadius:4,boxSizing:"border-box",minHeight:50,fontFamily:"inherit",resize:"vertical"}}/>
+          </div>}
+        </div>}
         {diagnosen.indexOf("knick_senk") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(46,204,113,.2)", paddingLeft: 10 }}>
           <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: coalitio ? "1px solid #E65100" : "1px solid rgba(0,0,0,.1)", background: coalitio ? "rgba(230,126,34,.12)" : "rgba(255,255,255,1)", color: coalitio ? "#EF6C00" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setCoalitio(!coalitio); setCoalitioVar(""); }}>+ Coalitio</div>
           {coalitio && <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginTop: 4 }}>
@@ -13688,7 +13786,7 @@ var _s = useState, _m = useMemo;
         </div>}
       </div>
 
-      {gender && diagnosen.length > 0 && <div>
+      {gender && diagnosen.length > 0 && !meMode && <div>
         <Sec title="① Anamnese" open={sec.anam} onToggle={function() { togSec("anam"); }}>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
             <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Dauer</div><div style={row}>{["1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(dauer === n)} onClick={function() { setDauer(dauer === n ? "" : n); }}>{n}</div>; })}</div></div>
@@ -13824,6 +13922,14 @@ akin_lapidus:`Bei Hallux interphalangeus und zur Zentrierung des Sehnenzuges Aki
 hoffmann_tillmann:`Hautinzision circa 5 cm dorsolateral über dem MTP I Gelenk. Stumpfes Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen, vorsichtige Präparation des Subcutangewebes unter subtiler Blutstillung. Längsinzision der Kapsel und Darstellung des destruierten MTP I Gelenkes. Es zeigt sich entzündlich veränderte Synovia und es entleert sich klare Gelenkflüssigkeit. Nun Abtragung der Exostose mit der oszillierenden Säge, Abtragen von Osteophyten mit dem Luer und subtile Entknorpelung mit dem Meißel. Ebenfalls Anbohrung proximal und distal mit 1,6 mm K-Draht.\nNun Ausrichtung des MTP I Gelenkes, hier zeigt sich eine gute Stellung. Vorlegen eines 1,4 mm Drahtes über das MTP I Gelenk und radiologische Kontrolle der Position. In 2 Ebenen zeigt sich eine korrekte Lage, nun Längenmessung, Überbohren und Einbringen einer kanülierten Königseeschraube mit kurzem Gewinde entsprechend der vorherigen Messung. Spülung des Situs, Kontrolle in 2 E. Nun Anlage einer Variax Platte, Anmodelieren der Platte und sukzessives Besetzen der winkelstabilen Schrauben. Kontrolle unter BV, es zeigt sich eine korrekte Lage der Schrauben und klinisch eine stabile Arthrodese mit guter Ausrichtung der Zehe in 10-15° Dorsalextension.\nQuere Inzision über dem perkutan prominent zu tastenden Metatarsale-Köpfchen fußsohlenseitig unter Exzision der trockenen perforationsgefährdeten Ulzeration. Präparation durch das Weichteilgewebe und anschließend weitere Präparation längs. Zunächst wird das Metatarsale-II-Köpfchen dargestellt, die Kapsel längs reseziert und retrocapital das Metatarsale-Köpfchen osteotomiert. Das Köpfchen wird aus der Gelenkkapsel herauspräpariert. Danach Zuwendung zum 3. Strahl. Auch hier Sondierung des Köpfchens. Längsinzision der Gelenkkapsel, Resektion retrocapital und Herauspräparieren. Analoges Vorgehen im Bereich des 4. und 5. Strahles. Nun Kontrolle unter Bildwandler. Es zeigt sich ein guter Vorfußbogen. Die Resektion ist ausreichend vorgenommen worden.\nInzision dorsal über den PIP II-V Gelenken, jeweils Einsetzen von 2 Haken zum Schutz der Nerven-Gefäßbündel, Darstellung der Strecksehnen, Quertenotomie der Sehnen. Nun Release der Seitenbänder und korrigierende Resektion der Gelenkflächen. Einstellen in Korrekturposition und Transfixation mittels K-Draht. Diese laufen achsgerecht und sind stabil.\nTransfixation in die Metatarsale, insgesamt gute Korrektur der Kleinzehen bei radiologisch und palpatorisch korrektem Alignement, korrigierende plantare Hautnaht nach Spülung.`,
 mtp1_arthrodese:`Hautinzision circa 5 cm medial des MTP I Gelenk. Stumpfes Spalten des Subcutangewebes unter Schonung der Gefäß-Nervenstrukturen, vorsichtige Präparation des Subcutangewebes unter subtiler Blutstillung. Längsinzision der Kapsel und Darstellung des destruierten MTP I Gelenkes. Es zeigt sich entzündlich veränderte Synovia und es entleert sich klare Gelenkflüssigkeit. Nun Abtragung der Exostose mit der oszillierenden Säge, Abtragen von Osteophyten mit dem Luer und subtile Entknorpelung mit dem Meißel. Ebenfalls Anbohrung proximal und distal mit 1,6 mm K-Draht.\nNun Ausrichtung des MTP I Gelenkes, hier zeigt sich eine gute Stellung. Vorlegen eines 1,4 mm Drahtes über das MTP I Gelenk und radiologische Kontrolle der Position. In 2 Ebenen zeigt sich eine korrekte Lage, nun Längenmessung, Überbohren und Einbringen einer kanülierten Zugschraube mit kurzem Gewinde entsprechend der vorherigen Messung. Spülung des Situs, Kontrolle in 2 E. Nun Anlage einer winkelstabilen Variax Platte und sukzessives Besetzen der winkelstabilen Schrauben. Kontrolle unter BV, es zeigt sich eine korrekte Lage der Schrauben und klinisch eine stabile Osteosynthese mit guter Ausrichtung der Zehe in 10-15° Dorsalextension.`,
 me_standard:`Die Indikation zur Metallentfernung an der §REGION§ wurde gestellt. Über die operativen Alternativen, die Möglichkeit des Belassens des Materials sowie die Risiken des Eingriffs wurde aufgeklärt.\n\nHautschnitt im Verlauf der bestehenden Narbe über der §REGION§. Stumpfes Spreizen des Subcutangewebes unter Schonung der relevanten Weichteilstrukturen und Nervenäste. Darstellung des Osteosynthesematerials. Entfernung des Materials (§MATERIAL§) unter BV-Kontrolle. Kontrolle auf regelrechte knöcherne Verhältnisse, keine Pseudarthrose, keine Infektzeichen. Spülung des Situs, sorgfältige Blutstillung. Schichtweiser Wundverschluss.`,
+me_zusatz_788_00:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nIm Rahmen des Eingriffs zeigte sich eine klinisch relevante Exostose am Os metatarsale I von ca. §GRÖSSE§ mm Ausdehnung. Nach Erweiterung des Hautschnitts und Darstellung der Prominenz erfolgte die Resektion der Exostose mit der oszillierenden Säge und dem Luer. Glättung der Resektionsfläche mit der Feile. Abschließende Kontrolle — regelrechte Kontur, keine scharfen Kanten. Spülung des Situs.`,
+me_zusatz_788_06:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nIm Rahmen des Eingriffs zeigte sich eine klinisch relevante Exostose am §MT_NUMMER§. Metatarsale. Nach Darstellung der Prominenz erfolgte die Resektion der Exostose mit der oszillierenden Säge und dem Luer. Glättung der Resektionsfläche. Abschließende Kontrolle — regelrechte Kontur. Spülung des Situs.`,
+me_zusatz_859_2a:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nZusätzlich zeigte sich §LOKALISATION§ ein Ganglion von ca. §GRÖSSE§ mm Durchmesser. Stumpfe Präparation unter Schonung der Nerven-/Gefäßstrukturen, Darstellung der Ganglionwand bis zum Ursprung. Scharfe Resektion des Ganglions en bloc. Sorgfältige Blutstillung, Spülung des Situs.`,
+me_zusatz_859_1a:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nZusätzlich zeigte sich ein entzündlich veränderter, druckdolenter Schleimbeutel §LOKALISATION§. Nach Darstellung der Bursa erfolgte die totale Resektion unter Schonung der umgebenden Strukturen. Sorgfältige Blutstillung, Spülung des Situs.`,
+me_zusatz_800_9n:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nZusätzlich zeigte sich am Tarsalgelenk eine synoviale/ganglionäre Zystenbildung von ca. §GRÖSSE§ mm. Kapseleröffnung, Darstellung und vollständige Exstirpation der Zyste. Kontrolle des Gelenkinnenraumes, keine weiteren Läsionen. Spülung des Situs, Kapselnaht.`,
+me_zusatz_800_9p:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nZusätzlich zeigte sich am Tarsometatarsalgelenk eine synoviale/ganglionäre Zystenbildung von ca. §GRÖSSE§ mm. Kapseleröffnung, Darstellung und vollständige Exstirpation der Zyste. Kontrolle des Gelenkinnenraumes. Spülung des Situs, Kapselnaht.`,
+me_zusatz_782_1u:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nZusätzlich zeigte sich §LOKALISATION§ eine knöcherne Prominenz / umschriebene Knochenveränderung. Nach Darstellung erfolgte die partielle Resektion des betroffenen Knochens (Tarsale) mit oszillierender Säge und Luer. Glättung der Resektionsfläche.`,
+me_zusatz_782_at:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nZusätzlich zeigte sich eine druckdolente Haglund-Exostose am dorsalen Kalkaneus. Nach Darstellung des Kalkaneus und Mobilisation der Achillessehne erfolgte die offene Resektion der Exostose mit oszillierender Säge und Luer unter Schonung der Achillessehnenansatzregion. Glättung der Resektionsfläche.`,
 me_stell:`Inzision im Verlauf der bestehenden Narbe über der distalen Fibula. Stumpfes Spreizen des Subcutangewebes unter Schonung der Weichteilstrukturen. Aufsuchen und Darstellen der Stellschraube. Entfernung der Stellschraube ohne Komplikationen. Kontrolle auf regelrechte knöcherne Verhältnisse. Spülung des Situs.`,
 cheilektomie:`Längsinzision medial des MTP I Gelenkes, Spalten des Subcutangewebes unter subtiler Blutstillung und Schonung des Nerven-Gefäßbündels. Längsinzision der Kapsel und Darstellung des MTP I Gelenkes. Es zeigt sich eine deutliche Osteophytenbildung dorsal und medial am Metatarsale-I-Köpfchen und an der Grundphalanxbasis. Synovialitis mit entzündlich veränderter Synovia, partielle Synovektomie. Abtragung der dorsalen und medialen Osteophyten mit der oszillierenden Säge und dem Luer. Die Gelenkfläche wird inspiziert, es zeigt sich ein umschriebener Knorpelschaden. Glättung der Resektionsflächen. Überprüfung der Dorsalextension, es besteht nun eine freie Beweglichkeit von ca. 60° Dorsalextension. Spülung des Gelenkes.`,
 exostose:`Längsinzision über der tastbaren Exostose, vorsichtiges Spalten des Subcutangewebes unter Schonung der umgebenden Strukturen, subtile Blutstillung. Darstellung der knöchernen Prominenz, Abschieben des Periostes. Abtragung der Exostose mittels oszillierender Säge und Luer. Glättung der Resektionsflächen. Spülung des Situs. Kontrolle auf regelrechte Kontur.`,
@@ -13911,6 +14017,74 @@ function OBSec({title,open,onToggle,active,onReset,children}){
 }
 
 // ============================================================
+// ME-PICKER: wiederverwendbare ME-Auswahl mit Region/Implantat/Zusatz
+// verwendet von Fuß-OP-Bericht UND UC-OP-Bericht
+// ============================================================
+function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz}){
+  const reg=region?ME_REGIONEN[region]:null;
+  const meCode=(reg&&impl)?reg.codes[impl]:null;
+  const zusatzAktiv=zusatz&&zusatz!=="none";
+  const zusatzEintrag=(reg&&zusatzAktiv)?reg.zusatz.find(function(z){return z.code===zusatz;}):null;
+  const btn=function(active){return{cursor:"pointer",padding:"6px 10px",borderRadius:6,border:active?"2px solid #00897B":"1px solid rgba(0,0,0,.12)",background:active?"rgba(0,137,123,.08)":"#fff",color:active?"#00897B":"#4A5568",fontSize:10,fontWeight:active?700:500,transition:"all .15s"};};
+  return <div>
+    {/* Region */}
+    <div style={{marginBottom:10}}>
+      <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginBottom:4}}>Region</div>
+      <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+        {Object.keys(ME_REGIONEN).map(function(r){return <div key={r} style={btn(region===r)} onClick={function(){setRegion(r);setImpl("");setZusatz("");}}>{ME_REGIONEN[r].label}</div>;})}
+      </div>
+    </div>
+    {/* Implantat */}
+    {region&&<div style={{marginBottom:10}}>
+      <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginBottom:4}}>Implantat-Typ</div>
+      <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+        <div style={btn(impl==="schraube")} onClick={function(){setImpl("schraube");}}>Schraube</div>
+        <div style={btn(impl==="platte")} onClick={function(){setImpl("platte");}}>winkelstabile Platte</div>
+      </div>
+      {meCode&&<div style={{marginTop:4,fontSize:9,color:"#718096"}}>ME-Code: <span style={{fontFamily:"monospace",fontWeight:600,color:"#2D3748"}}>{meCode}</span></div>}
+    </div>}
+    {/* Zusatz */}
+    {region&&impl&&<div style={{marginBottom:10}}>
+      <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginBottom:4}}>Zusatzeingriff (triggert H-DRG I20O ambulant)</div>
+      <div style={{display:"flex",flexDirection:"column",gap:3}}>
+        <div style={{...btn(zusatz==="none"),padding:"6px 10px",textAlign:"left"}} onClick={function(){setZusatz("none");}}>
+          <span style={{fontWeight:600}}>— kein Zusatzeingriff —</span>
+          <span style={{fontSize:9,color:"#718096",marginLeft:6}}>Ambulant nur EBM</span>
+        </div>
+        {reg.zusatz.map(function(z){return <div key={z.code} style={{...btn(zusatz===z.code),padding:"6px 10px",textAlign:"left"}} onClick={function(){setZusatz(z.code);}}>
+          <span style={{fontFamily:"monospace",fontWeight:600}}>{z.code}</span> <span style={{fontWeight:500}}>— {z.name}</span>
+        </div>;})}
+      </div>
+    </div>}
+    {/* Fallsteuerung */}
+    {region&&impl&&zusatz&&<div style={{marginTop:10,border:"2px solid #00838F",borderRadius:8,overflow:"hidden"}}>
+      <div style={{background:"#00838F",padding:"6px 10px"}}><span style={{fontSize:10,fontWeight:700,color:"#fff"}}>Fallsteuerung</span></div>
+      <div style={{padding:"8px 10px",background:"rgba(0,131,143,.04)"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:zusatzAktiv?8:0}}>
+          {zusatzAktiv?<div style={{padding:8,borderRadius:6,border:"2px solid #00897B",background:"rgba(0,137,123,.08)"}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#00897B",marginBottom:2}}>AMBULANT ✓ EMPFOHLEN</div>
+            <div style={{fontSize:13,fontWeight:700,color:"#00897B"}}>I20O 1.007 €</div>
+          </div>:<div style={{padding:8,borderRadius:6,border:"1px solid rgba(0,0,0,.1)",background:"rgba(160,160,160,.05)"}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:2}}>AMBULANT · nur EBM</div>
+            <div style={{fontSize:11,fontWeight:700,color:"#718096"}}>keine H-DRG</div>
+            <div style={{fontSize:8,color:"#C62828",marginTop:4}}>⚠ Mit Positivlisten-Zusatzcode wäre H-DRG I20O möglich.</div>
+          </div>}
+          <div style={{padding:8,borderRadius:6,border:"1px solid rgba(0,0,0,.1)"}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:2}}>STATIONÄR</div>
+            <div style={{fontSize:11,fontWeight:700,color:"#4A5568"}}>selten sinnvoll</div>
+          </div>
+        </div>
+        {zusatzAktiv&&<div style={{padding:"6px 8px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:5,fontSize:9,color:"#2D3748",lineHeight:1.5}}>
+          <div style={{fontWeight:700,color:"#1565C0",marginBottom:4}}>Zu kodierende OPS-Codes</div>
+          <div><span style={{fontFamily:"monospace",fontWeight:600}}>{meCode}</span> — {OPS_LABELS[meCode]}</div>
+          <div><span style={{fontFamily:"monospace",fontWeight:600,color:"#2E7D32"}}>{zusatzEintrag.code}</span> — {zusatzEintrag.name} <span style={{color:"#2E7D32",fontWeight:600}}>(Hebel-Code)</span></div>
+        </div>}
+      </div>
+    </div>}
+  </div>;
+}
+
+// ============================================================
 // COMPONENT
 // ============================================================
 function OPBerichtApp(){
@@ -13978,6 +14152,9 @@ function OPBerichtApp(){
   const [mfTmt,setMfTmt]=useState([]);// ["tmt1","tmt1_3","tmt2_3","tmt2"]
   // ME
   const [meOp,setMeOp]=useState([]);
+  const [meRegion,setMeRegion]=useState(""); // metatarsale/tarsale/calcaneus/tibia/fibula
+  const [meImpl,setMeImpl]=useState(""); // schraube | platte
+  const [meZusatz,setMeZusatz]=useState(""); // OPS-Code oder "none" oder ""
   // Weitere
   const [umOp,setUmOp]=useState([]);
   const [fxSyndes,setFxSyndes]=useState(false);
@@ -14005,6 +14182,9 @@ function OPBerichtApp(){
   // UC (Unfallchirurgie/Trauma)
   const [ucOp,setUcOp]=useState("");
   const [ucMe,setUcMe]=useState(false);
+  const [ucMeRegion,setUcMeRegion]=useState("");
+  const [ucMeImpl,setUcMeImpl]=useState("");
+  const [ucMeZusatz,setUcMeZusatz]=useState("");
   const [ucSec,setUcSec]=useState({rad:false,fib:false,fem:false,ell:false,kla:false,me:false});
   const [olekOSE,setOlekOSE]=useState("wsp");
   // Verband
@@ -14901,7 +15081,21 @@ const UC_TEXT_MAP={
         p.push("\n\nZuwendung zur TMT-Arthrodese ("+tmtLabel+").\n"+T.tmt_arthrodese);
       }
     }
-    if(meOp.includes("standard"))p.push("\n\nZuwendung zur Metallentfernung.\n"+T.me_standard);
+    // Metallentfernung — auf Basis Region/Implantat/Zusatz
+    if(meRegion&&meImpl){
+      const REGION_LABEL={metatarsale:"Metatarsale",tarsale:"Tarsale",calcaneus:"Kalkaneus",tibia:"distalen Tibia",fibula:"distalen Fibula"};
+      const MATERIAL_LABEL={schraube:"Schraube(n)",platte:"winkelstabile Platte mit Schrauben"};
+      let meText=T.me_standard.replace(/§REGION§/g,REGION_LABEL[meRegion]).replace(/§MATERIAL§/g,MATERIAL_LABEL[meImpl]);
+      // Zusatzeingriff anhängen
+      if(meZusatz&&meZusatz!=="none"){
+        // Code "5-788.00" → Key "me_zusatz_788_00"
+        const zKey="me_zusatz_"+meZusatz.replace(/^5-/,"").replace(/\./g,"_");
+        if(T[zKey])meText+=T[zKey];
+      }
+      p.push("\n\nZuwendung zur Metallentfernung.\n"+meText);
+    } else if(meOp.includes("standard")){
+      p.push("\n\nZuwendung zur Metallentfernung.\n"+T.me_standard);
+    }
 
     // umOp entfernt (supramal jetzt in rfOp)
     fxOp.forEach(op=>{
@@ -14921,7 +15115,7 @@ const UC_TEXT_MAP={
     p.push("\n\n"+buildVerband(hasVF,bs,r));
     if(entlassGespr)p.push("\n\nPostoperativ erfolgt ein ausführliches Entlassgespräch über den Eingriff und die Nachbehandlung. Aufklärung über Zeichen von Infekt, Thrombose oder andere postoperative Komplikationen mit Verhaltensmaßgaben. Kontrolltermine werden besprochen und abgestimmt. Häusliche Versorgung und Betreuung am OP-Tag ist anamnestisch gewährleistet. Recap der Zehen ist intakt, Belastungsvorgaben können umgesetzt werden, Verband ist trocken.");
     return p.join("");
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -15322,17 +15516,12 @@ const UC_TEXT_MAP={
       </OBSec>
 
       {/* ME */}
-      <OBSec title="🔩 Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={hasME} onReset={()=>{setMeOp([]);}}>
-        <div style={row}>
-          {[["standard","Metallentfernung (generisch)"]].map(([k,l])=>
-            <div key={k} style={chip(meOp.includes(k))} onClick={()=>togArr(meOp,setMeOp,k)}>{l}</div>
-          )}
-        </div>
-        {meOp.includes("standard")&&<div style={{marginTop:8,padding:"10px 12px",border:"2px solid #E65100",borderRadius:8,background:"rgba(230,81,0,.04)"}}>
-          <div style={{fontSize:11,fontWeight:700,color:"#E65100",marginBottom:6}}>⚠ Manuell anpassen!</div>
-          <div style={{fontSize:10,color:"#2D3748",lineHeight:1.6}}>
-            §REGION§ und §MATERIAL§ im OP-Text nach Kopieren durch konkrete Lokalisation (z.B. „distalen Fibula") und Material (z.B. „Platte mit 6 Schrauben") ersetzen.<br/>
-            <b>Keine automatische OPS/ICD/DRG-Zuordnung</b> – bitte Kodierempfehlungen beachten (siehe unten).
+      <OBSec title="🔩 Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={!!meRegion} onReset={()=>{setMeRegion("");setMeImpl("");setMeZusatz("");setMeOp([]);}}>
+        <MEPicker region={meRegion} setRegion={setMeRegion} impl={meImpl} setImpl={setMeImpl} zusatz={meZusatz} setZusatz={setMeZusatz}/>
+        {meRegion&&meImpl&&meZusatz&&meZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#E65100",marginBottom:3}}>⚠ Zusatzeingriff im OP-Bericht zwingend dokumentieren</div>
+          <div style={{fontSize:9,color:"#2D3748",lineHeight:1.5}}>
+            Der Zusatzcode <b>{meZusatz}</b> triggert die H-DRG nur, wenn er im OP-Bericht ausdrücklich beschrieben ist. Der Text dazu wird als Platzhalter-Abschnitt generiert — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
           </div>
         </div>}
       </OBSec>
@@ -15509,15 +15698,12 @@ const UC_TEXT_MAP={
           <OBSec title="🔑 Klavikula" open={ucSec.kla} onToggle={()=>setUcSec(p=>({...p,kla:!p.kla}))} active={ucOp&&ucOp.startsWith("klav")} onReset={()=>{setUcOp("");}}>
             <div style={row}>{["klav_einf_pl","klav_einf_wsp","klav_mehr_pl","klav_mehr_wsp"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
           </OBSec>
-          <OBSec title="🔩 Metallentfernung" open={ucSec.me} onToggle={()=>setUcSec(p=>({...p,me:!p.me}))} active={ucMe} onReset={()=>setUcMe(false)}>
-            <div style={row}>
-              <div style={chip(ucMe)} onClick={()=>{setUcMe(!ucMe);if(!ucMe)setUcOp("");}}>Metallentfernung (generisch)</div>
-            </div>
-            {ucMe&&<div style={{marginTop:8,padding:"10px 12px",border:"2px solid #E65100",borderRadius:8,background:"rgba(230,81,0,.04)"}}>
-              <div style={{fontSize:11,fontWeight:700,color:"#E65100",marginBottom:6}}>⚠ Manuell anpassen!</div>
-              <div style={{fontSize:10,color:"#2D3748",lineHeight:1.6}}>
-                §REGION§ und §MATERIAL§ im OP-Text nach Kopieren durch konkrete Lokalisation und Material ersetzen.<br/>
-                <b>Keine automatische OPS/ICD/DRG-Zuordnung</b> – bitte Kodierempfehlungen beachten (siehe unten).
+          <OBSec title="🔩 Metallentfernung" open={ucSec.me} onToggle={()=>setUcSec(p=>({...p,me:!p.me}))} active={!!ucMeRegion} onReset={()=>{setUcMeRegion("");setUcMeImpl("");setUcMeZusatz("");setUcMe(false);}}>
+            <MEPicker region={ucMeRegion} setRegion={(r)=>{setUcMeRegion(r);setUcMe(!!r);if(r)setUcOp("");}} impl={ucMeImpl} setImpl={setUcMeImpl} zusatz={ucMeZusatz} setZusatz={setUcMeZusatz}/>
+            {ucMeRegion&&ucMeImpl&&ucMeZusatz&&ucMeZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#E65100",marginBottom:3}}>⚠ Zusatzeingriff im OP-Bericht zwingend dokumentieren</div>
+              <div style={{fontSize:9,color:"#2D3748",lineHeight:1.5}}>
+                Der Zusatzcode <b>{ucMeZusatz}</b> triggert die H-DRG nur, wenn er im OP-Bericht ausdrücklich beschrieben ist. Der Text dazu wird als Platzhalter-Abschnitt generiert — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
               </div>
             </div>}
           </OBSec>
@@ -15530,22 +15716,21 @@ const UC_TEXT_MAP={
           {c.hd&&<span style={{fontSize:8,padding:"1px 4px",borderRadius:3,background:"#00838F",color:"#fff",fontWeight:700}}>HD</span>}
         </div>;})}</div>
       </div>}
-      {ucMe&&<div style={card}>
+      {ucMeRegion&&ucMeImpl&&<div style={card}>
         <div style={h3s}>🔩 Metallentfernung – OP-Bericht</div>
-        <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{T.me_standard}</div>
-        <div style={{marginTop:8,padding:"8px 12px",border:"1px dashed #E65100",borderRadius:6,background:"rgba(230,81,0,.04)",fontSize:10,color:"#BF360C"}}>
-          ⚠ <b>§REGION§</b> und <b>§MATERIAL§</b> nach Kopieren manuell ersetzen (z.B. „distalen Fibula" / „Platte mit 6 Schrauben").
-        </div>
-        <div style={{marginTop:10,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
-          <div style={{background:"#E65100",padding:"6px 12px",display:"flex",alignItems:"center",gap:6}}>
-            <span style={{fontSize:14}}>⚠</span>
-            <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
-          </div>
-          <div style={{padding:"10px 12px",background:"rgba(230,81,0,.04)",fontSize:11,color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-line"}}>{"⚠ Keine automatische Codierung – manuell setzen:\n\n• OPS: 5-787.x nach Lokalisation + Materialart (Schraube/Draht/Platte/winkelstab. Platte/Nagel/Fixateur)\n• ICD-HD: Z47.0 (Entfernung einer Metallplatte/Fixationsvorrichtung)\n• ND bei Komplikation: T84.6 (Infektion), M84.1 (Pseudarthrose)\n\n💡 H-DRG-TRIGGER I20O (Zusatzeingriff, nur wenn klinisch gerechtfertigt und im OP-Bericht dokumentiert):\n\n▸ Exostosenabtragung:\n  5-788.00 (MT I) · 5-788.06–09 (MT II–V, 1–4 Knochen)\n  5-788.0a (Dig I) · 5-788.0b–0f (Dig II–V, 1–5 Phalangen)\n\n▸ Bursektomie Fuß:\n  5-859.1a (totale Resektion Schleimbeutel Fuß)\n  5-859.0a (Inzision Schleimbeutel Fuß)\n\n▸ Tenolyse/Tenotomie Fuß:\n  5-851.1a (Tenotomie offen chir.) · 5-851.2a (perkutan)\n  5-852.2a (Exzision Sehnenscheide, partiell)\n\n▸ Revision/Wechsel OSE:\n  Wird als 5-78a.* kodiert (höher bewertet, NICHT als reine ME einstufen)"}</div>
-        </div>
-        <div style={{marginTop:8,fontSize:10,color:"#E65100",background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.15)",borderRadius:6,padding:8}}>
-          <b>ℹ Hinweis:</b> ME allein triggert keine H-DRG. Bei ambulanter ME → EBM-Abrechnung (niedrig vergütet). §115f-Ausschluss oft gegeben.
-        </div>
+        {function(){
+          const REGION_LABEL={metatarsale:"Metatarsale",tarsale:"Tarsale",calcaneus:"Kalkaneus",tibia:"distalen Tibia",fibula:"distalen Fibula"};
+          const MATERIAL_LABEL={schraube:"Schraube(n)",platte:"winkelstabile Platte mit Schrauben"};
+          let meText=T.me_standard.replace(/§REGION§/g,REGION_LABEL[ucMeRegion]).replace(/§MATERIAL§/g,MATERIAL_LABEL[ucMeImpl]);
+          if(ucMeZusatz&&ucMeZusatz!=="none"){
+            const zKey="me_zusatz_"+ucMeZusatz.replace(/^5-/,"").replace(/\./g,"_");
+            if(T[zKey])meText+=T[zKey];
+          }
+          return <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{meText}</div>;
+        }()}
+        {ucMeZusatz&&ucMeZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 12px",border:"1px dashed #E65100",borderRadius:6,background:"rgba(230,81,0,.04)",fontSize:10,color:"#BF360C"}}>
+          ⚠ Platzhalter-Abschnitt für den Zusatzeingriff manuell an tatsächlichen Befund anpassen (Lokalisation, Größe, Technik).
+        </div>}
       </div>}
 
       {alter==="kind"&&ucErloesData&&<div style={{margin:"0 0 6px",padding:"10px 14px",borderRadius:8,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
