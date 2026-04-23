@@ -12819,8 +12819,6 @@ function Sec({ title, children, open, onToggle }) {
 /* ============================================================
    MAIN
    ============================================================ */
-function SprechstundenbriefApp() {
-  
 // Fallsteuerung: opMethode → Erlössimulation
 // hinweis: individuell von Benjamin vorgegeben — nicht mischen/übertragen!
 // impl: Implantatkosten aus OP-Bericht (Summe pro Eingriff, ohne Varianten)
@@ -12989,12 +12987,12 @@ const INEK_IMPL={
   // UC/Trauma
   "I21Z":283.87,"I47B":931.71,"I31C":464.58,"I29B":343.39,"I08F":573.69
 };
-// Ampel-Stufen: ≤100% InEK = grün · 100–120% = gelb · >120% = rot
+// Ampel-Stufen: ≤120% InEK = grün · 120–150% = gelb · >150% = rot
 function implAmpel(ist,drg){
   var soll=INEK_IMPL[drg];
   if(!soll||!ist)return null;
   var pct=Math.round((ist/soll-1)*100);
-  var state=ist<=soll?"gruen":ist<=soll*1.2?"gelb":"rot";
+  var state=ist<=soll*1.2?"gruen":ist<=soll*1.5?"gelb":"rot";
   return {state:state,pct:pct,soll:soll,ist:ist,delta:ist-soll};
 }
 
@@ -13057,6 +13055,8 @@ const OP_STEUERUNG={
     {typ:"warn",txt:"Mindestens 3 Übernachtungen einplanen."}
   ]},
 };
+
+function SprechstundenbriefApp() {
 
 var _s = useState, _m = useMemo;
   var gs = _s(""), gender = gs[0], setGender = gs[1];
@@ -13510,7 +13510,7 @@ var _s = useState, _m = useMemo;
               var ampel=implAmpel(best.impl,drg);
               var ampelColor=ampel?(ampel.state==="gruen"?"#2E7D32":ampel.state==="gelb"?"#E65100":"#C62828"):null;
               var ampelIcon=ampel?(ampel.state==="gruen"?"🟢":ampel.state==="gelb"?"🟡":"🔴"):null;
-              var ampelText=ampel?(ampel.state==="gruen"?"im InEK-Rahmen":ampel.state==="gelb"?Math.abs(ampel.pct)+"% über InEK":Math.abs(ampel.pct)+"% über InEK — kritisch"):null;
+              var ampelText=ampel?(ampel.state==="gruen"?(ampel.ist<=ampel.soll?"im InEK-Rahmen":"bis 20% über InEK — akzeptabel"):ampel.state==="gelb"?ampel.pct+"% über InEK":ampel.pct+"% über InEK — kritisch"):null;
               return <div>
                 <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:8}}>Fallsteuerung – {OPS[bestKey]?OPS[bestKey].k:bestKey}{extraNote}</div>
                 <div style={{display:"grid",gridTemplateColumns:hasStat?"1fr 1fr":"1fr",gap:8,marginBottom:10}}>
@@ -13554,7 +13554,7 @@ var _s = useState, _m = useMemo;
                       <div><span style={{fontWeight:600}}>Materialkosten:</span> {best.impl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>
                       {ampel?<div style={{marginTop:2,color:ampelColor,fontWeight:600}}>{ampelIcon} {ampelText} <span style={{color:"#718096",fontWeight:400}}>(InEK-Ref. {ampel.soll.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €)</span></div>:null}
                     </div>}
-                    {ampel&&ampel.state==="rot"&&<div style={{fontSize:9,color:"#C62828",marginTop:4,padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden. Volle DRG zwingend ansteuern (Liegezeit {ugvd+1} Tage halten), Materialalternativen prüfen.</div>}
+                    {ampel&&ampel.state==="rot"&&<div style={{fontSize:9,color:"#C62828",marginTop:4,padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung oder Erlös unter regulärer DRG. Volle DRG zwingend ansteuern (Liegezeit {ugvd+1} Tage halten), Materialalternativen prüfen.</div>}
                     {ampel&&ampel.state==="gelb"&&<div style={{fontSize:9,color:"#E65100",marginTop:4,padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
                     <div style={{fontSize:9,color:"#E65100",marginTop:4,fontStyle:"italic"}}>⚠ Notwendigkeit der stationären Führung für jeden Tag in der Akte dokumentieren</div>
                   </div>;}()}
