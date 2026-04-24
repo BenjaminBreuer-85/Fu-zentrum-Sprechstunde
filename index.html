@@ -14185,6 +14185,8 @@ function OPBerichtApp(){
   const [ucMeRegion,setUcMeRegion]=useState("");
   const [ucMeImpl,setUcMeImpl]=useState("");
   const [ucMeZusatz,setUcMeZusatz]=useState("");
+  // H-DRG-Fähigkeits-Check: jeder Key kann null (nicht geprüft), true (erfüllt), false (nicht erfüllt) sein
+  const [ucHdrg,setUcHdrg]=useState({});
   const [ucSec,setUcSec]=useState({rad:false,fib:false,fem:false,ell:false,kla:false,me:false});
   const [olekOSE,setOlekOSE]=useState("wsp");
   // Verband
@@ -14790,18 +14792,27 @@ const UC_TEXT_MAP={
   fibula_mehr_schr:"fraktur_fibula_einf",fibula_mehr_pl:"fraktur_fibula_einf",fibula_mehr_wsp:"fraktur_fibula_einf",
 };
 
+  // Abgeleitet: H-DRG-Ausschluss durch Ausschlusskriterien oder Alter <18
+  const ucHdrgAusgeschlossen=useMemo(()=>{
+    if(alter==="kind")return {grund:"Alter <18 Jahre"};
+    const labels={pccl:"PCCL ≥ 3 (äußerst schwere Komorbidität)",vwd:"Geplante VWD ≥ 3 Tage",pflege:"Pflegegrad 4–5",fallzs:"Fallzusammenlegung",behind:"Mensch mit Behinderung",ze:"Unbewertetes Zusatzentgelt"};
+    for(const k in ucHdrg){if(ucHdrg[k]===true)return {grund:labels[k]||k};}
+    return null;
+  },[alter,ucHdrg]);
+
   const ucErloesData=useMemo(()=>{
     if(!ucOp||!UC_EINGRIFFE[ucOp])return null;
     var e=UC_EINGRIFFE[ucOp];
-    var hasHDRG=e.hdrg!=="—";
+    var hasHDRG=e.hdrg!=="—"&&!ucHdrgAusgeschlossen;
     return {label:e.l,ops:e.ops,
       amb:hasHDRG?"H-DRG "+e.hdrg+" "+e.hdrgE+" €":"KEINE H-DRG",
       n1:hasHDRG?"Kurzlieger ≈ H-DRG":"Kurzlieger "+e.basis+" ~"+e.basisE+" €",
       n2:e.basis+" "+e.basisE+" €",
       n3:e.basis+" "+e.basisE+" €",
       empf:hasHDRG?"amb":"n2",hint:e.hint,kodier:e.kodier,
-      pct:e.pct,hdrg:e.hdrg,hdrgE:e.hdrgE,basis:e.basis,basisE:e.basisE};
-  },[ucOp]);
+      pct:e.pct,hdrg:hasHDRG?e.hdrg:"—",hdrgE:hasHDRG?e.hdrgE:"—",basis:e.basis,basisE:e.basisE,
+      ausgeschlossen:ucHdrgAusgeschlossen};
+  },[ucOp,ucHdrgAusgeschlossen]);
 
   // UC full text for Word export
   const ucFullText=useMemo(()=>{
@@ -15627,10 +15638,17 @@ const UC_TEXT_MAP={
         </div>}
 
         {/* MATERIALKOSTEN */}
-      {materialKosten.length>0&&<div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
+      {materialKosten.length>0&&function(){
+        const ist=materialKosten.reduce(function(s,m){return s+(m.preis||0);},0);
+        const drgKey=erloesData&&erloesData.drg?erloesData.drg.split(" ")[0]:null;
+        const a=drgKey?implAmpel(ist,drgKey):null;
+        const ampelIcon=a?(a.state==="gruen"?"🟢":a.state==="gelb"?"🟡":"🔴"):"";
+        const ampelColor=a?(a.state==="gruen"?"#2E7D32":a.state==="gelb"?"#E65100":"#C62828"):"#1565C0";
+        const ampelText=a?(a.state==="gruen"?(a.ist<=a.soll?"im InEK-Rahmen":"bis 20% über InEK — akzeptabel"):a.state==="gelb"?a.pct+"% über InEK":a.pct+"% über InEK — kritisch"):null;
+        return <div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
         <div style={{background:"#1565C0",padding:"6px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:14}}>💶</span><span style={{fontSize:11,fontWeight:700,color:"#fff"}}>MATERIALKOSTEN</span></div>
-          <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{materialKosten.reduce(function(s,m){return s+(m.preis||0);},0).toFixed(2)} € {erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]?(materialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[erloesData.drg.split(" ")[0]]?"🟢":"🔴"):""}</span>
+          <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{ist.toFixed(2)} € {ampelIcon}</span>
         </div>
         <div style={{padding:"8px 12px",background:"rgba(25,118,210,.04)"}}>
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:10}}>
@@ -15645,22 +15663,24 @@ const UC_TEXT_MAP={
               <td style={{textAlign:"right",padding:"3px 4px",color:m.preis?"#1565C0":"#E65100",fontWeight:600}}>{m.preis?m.preis.toFixed(2)+" €":"⚠️ fehlt"}</td>
             </tr>;})}</tbody>
             <tfoot><tr style={{borderTop:"2px solid rgba(0,0,0,.15)"}}>
-              <td style={{padding:"4px",fontWeight:700,color:erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]?(materialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[erloesData.drg.split(" ")[0]]?"#2E7D32":"#C62828"):"#1565C0"}} colSpan={2}>{erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]?(materialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[erloesData.drg.split(" ")[0]]?"🟢":"🔴"):"💶"} GESAMT</td>
-              <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{materialKosten.reduce(function(s,m){return s+(m.preis||0);},0).toFixed(2)} €</td>
+              <td style={{padding:"4px",fontWeight:700,color:a?ampelColor:"#1565C0"}} colSpan={2}>{a?ampelIcon:"💶"} GESAMT</td>
+              <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{ist.toFixed(2)} €</td>
             </tr>
-            {erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]&&<tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
-              <td style={{padding:"4px",fontSize:9,color:"#718096"}} colSpan={2}>InEK-Referenz {erloesData.drg.split(" ")[0]} (Ø Impl.)</td>
-              <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{INEK_IMPL[erloesData.drg.split(" ")[0]].toFixed(2)} €</td>
+            {a&&<tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
+              <td style={{padding:"4px",fontSize:9,color:"#718096"}} colSpan={2}>InEK-Referenz {drgKey} (Ø Impl.)</td>
+              <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{a.soll.toFixed(2)} €</td>
             </tr>}
-            {erloesData&&erloesData.drg&&INEK_IMPL[erloesData.drg.split(" ")[0]]&&function(){var ist=materialKosten.reduce(function(s,m){return s+(m.preis||0);},0);var soll=INEK_IMPL[erloesData.drg.split(" ")[0]];var diff=soll-ist;return <tr>
-              <td style={{padding:"4px",fontSize:9,color:diff>=0?"#2E7D32":"#C62828"}} colSpan={2}>{diff>=0?"✅ Deckungsbeitrag Implantate":"❌ Implantatkostenüberschreitung"}</td>
-              <td style={{textAlign:"right",padding:"4px",fontSize:10,color:diff>=0?"#2E7D32":"#C62828",fontWeight:700}}>{diff>=0?"+":""}{diff.toFixed(2)} €</td>
-            </tr>;}()}
+            {a&&<tr>
+              <td style={{padding:"4px",fontSize:9,color:ampelColor,fontWeight:600}} colSpan={2}>{ampelText}</td>
+              <td style={{textAlign:"right",padding:"4px",fontSize:10,color:ampelColor,fontWeight:700}}>{a.delta>=0?"+":""}{a.delta.toFixed(2)} €</td>
+            </tr>}
             </tfoot>
           </table>
+          {a&&a.state==="rot"&&<div style={{marginTop:6,fontSize:9,color:"#C62828",padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung oder Erlös unter regulärer DRG. Volle DRG zwingend ansteuern, Materialalternativen prüfen.</div>}
+          {a&&a.state==="gelb"&&<div style={{marginTop:6,fontSize:9,color:"#E65100",padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
           {materialKosten.some(function(m){return !m.preis;})&&<div style={{marginTop:4,fontSize:9,color:"#E65100"}}>⚠️ Einige Preise fehlen – Gesamtsumme ist unvollständig</div>}
         </div>
-      </div>}
+      </div>;}()}
         {erloesData.hdrg!=="—"&&<div style={{marginTop:4,fontSize:9,color:"#718096"}}>H-DRG: Anlage 2a, §115f SGB V, 2026 · +30 € bei Nachbehandlung im KH</div>}
       </div>}
 
@@ -15683,6 +15703,68 @@ const UC_TEXT_MAP={
         <div style={card}>
           <div style={h3s}>UC – Unfallchirurgie / Trauma</div>
           <div style={{fontSize:10,color:"#718096",marginBottom:8}}>Traumatologische H-DRGs 2026 – Erlössteuerung</div>
+          {/* H-DRG-FÄHIGKEITS-CHECK (Ausschlusskriterien) */}
+          {function(){
+            const KRIT=[
+              {k:"pccl",label:"PCCL ≥ 3",desc:"Äußerst schwere Komorbidität — Pat. mit komplizierenden Begleit-/Nebenerkrankungen"},
+              {k:"vwd",label:"Geplante VWD ≥ 3 Tage",desc:"Die geplante stationäre Verweildauer beträgt 3 oder mehr Tage"},
+              {k:"pflege",label:"Pflegegrad 4–5",desc:"Hoher Pflegegrad (PG 4 oder 5) dokumentiert — nicht PG 1–3"},
+              {k:"fallzs",label:"Fallzusammenlegung",desc:"Zusammenlegung mit einem früheren stationären Aufenthalt"},
+              {k:"behind",label:"Mensch mit Behinderung",desc:"Pat. fällt unter die §115f-Ausschlüsse für Menschen mit Behinderungen"},
+              {k:"ze",label:"Unbewertetes Zusatzentgelt",desc:"Bundeseinheitliches oder krankenhausindividuelles, unbewertetes ZE im Fall"}
+            ];
+            const togHdrg=function(k){setUcHdrg(function(p){var n={};for(var x in p)n[x]=p[x];var cur=p[k];if(cur===undefined||cur===null)n[k]=true;else if(cur===true)n[k]=false;else delete n[k];return n;});};
+            const alleVerneinen=function(){var n={};KRIT.forEach(function(c){n[c.k]=false;});setUcHdrg(n);};
+            const reset=function(){setUcHdrg({});};
+            // Ausschluss-Semantik: ✓ (true) = Kriterium trifft zu = rot; ✗ (false) = geprüft, trifft nicht zu = grün; null/undefined = nicht geprüft = grau
+            const stateIcon=function(v){if(v===true)return {icon:"✓",color:"#C62828",bg:"rgba(198,40,40,.08)",border:"#C62828"};if(v===false)return {icon:"✗",color:"#2E7D32",bg:"rgba(46,125,50,.06)",border:"#2E7D32"};return {icon:"○",color:"#A0AEC0",bg:"rgba(160,160,160,.04)",border:"rgba(0,0,0,.12)"};};
+            const anyTrue=Object.values(ucHdrg).some(function(v){return v===true;});
+            const alterKind=alter==="kind";
+            const ausgeschlossen=alterKind||anyTrue;
+            const summaryText=ausgeschlossen?"("+(alterKind?"Alter <18":"Ausschlusskriterium trifft zu")+")":(Object.keys(ucHdrg).length===0?"keine Ausschlüsse angegeben → Annahme: H-DRG möglich":"geprüft: keine Ausschlüsse → H-DRG möglich");
+            return <details style={{marginTop:6,marginBottom:6,border:ausgeschlossen?"2px solid #C62828":"1px solid rgba(0,0,0,.12)",borderRadius:8,background:ausgeschlossen?"rgba(198,40,40,.03)":"rgba(0,131,143,.02)"}}>
+              <summary style={{padding:"8px 12px",cursor:"pointer",fontSize:11,fontWeight:700,color:ausgeschlossen?"#C62828":"#00838F",userSelect:"none"}}>
+                🔍 H-DRG-Fähigkeit {ausgeschlossen?"⛔ AUSGESCHLOSSEN":"prüfen"} 
+                <span style={{fontSize:9,fontWeight:500,color:"#718096",marginLeft:6}}>{summaryText}</span>
+              </summary>
+              <div style={{padding:"8px 12px 12px"}}>
+                <div style={{fontSize:9,color:"#4A5568",marginBottom:8,lineHeight:1.5}}>
+                  Ausschlusskriterien nach § 115f SGB V (Anlage 4 Kontextfaktoren) — Klick zykelt: ○ nicht geprüft → <b style={{color:"#C62828"}}>✓ trifft zu (= Ausschluss!)</b> → <b style={{color:"#2E7D32"}}>✗ trifft nicht zu</b>. Nicht geprüfte Kriterien werden als „trifft nicht zu" angenommen.
+                </div>
+                <div style={{display:"flex",gap:6,marginBottom:8}}>
+                  <div onClick={alleVerneinen} style={{padding:"5px 10px",borderRadius:5,background:"rgba(46,125,50,.1)",border:"1px solid #2E7D32",color:"#2E7D32",fontSize:10,fontWeight:600,cursor:"pointer"}}>✗ Alle geprüft – keine Ausschlüsse</div>
+                  <div onClick={reset} style={{padding:"5px 10px",borderRadius:5,background:"rgba(160,160,160,.1)",border:"1px solid rgba(0,0,0,.15)",color:"#718096",fontSize:10,fontWeight:500,cursor:"pointer"}}>Reset</div>
+                </div>
+                {/* Alter-Zeile: Anzeige, nicht klickbar hier */}
+                <div style={{display:"flex",alignItems:"center",gap:8,padding:"6px 8px",marginBottom:3,borderRadius:5,border:alterKind?"2px solid #C62828":(alter==="erw"?"1px solid #2E7D32":"1px dashed rgba(0,0,0,.15)"),background:alterKind?"rgba(198,40,40,.08)":(alter==="erw"?"rgba(46,125,50,.04)":"rgba(160,160,160,.03)")}}>
+                  <div style={{fontSize:13,fontWeight:700,color:alterKind?"#C62828":(alter==="erw"?"#2E7D32":"#A0AEC0"),minWidth:18,textAlign:"center"}}>{alterKind?"✓":(alter==="erw"?"✗":"○")}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:11,fontWeight:600,color:"#2D3748"}}>Alter &lt; 18 Jahre</div>
+                    <div style={{fontSize:9,color:"#718096"}}>Bestimmt durch das Alters-Feld oben · {alterKind?"<18 → Ausschluss":(alter==="erw"?"≥18 → kein Ausschluss":"nicht angegeben")}</div>
+                  </div>
+                </div>
+                {/* Die 6 weiteren Ausschlusskriterien */}
+                {KRIT.map(function(c){
+                  const s=stateIcon(ucHdrg[c.k]);
+                  return <div key={c.k} onClick={function(){togHdrg(c.k);}} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 8px",marginBottom:3,borderRadius:5,border:"1px solid "+s.border,background:s.bg,cursor:"pointer",userSelect:"none"}}>
+                    <div style={{fontSize:13,fontWeight:700,color:s.color,minWidth:18,textAlign:"center"}}>{s.icon}</div>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:11,fontWeight:600,color:"#2D3748"}}>{c.label}</div>
+                      <div style={{fontSize:9,color:"#718096"}}>{c.desc}</div>
+                    </div>
+                  </div>;
+                })}
+                {ausgeschlossen&&<div style={{marginTop:10,padding:"8px 12px",borderRadius:6,background:"rgba(198,40,40,.08)",border:"2px solid #C62828"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:"#C62828",marginBottom:3}}>⛔ Hybrid-DRG ausgeschlossen</div>
+                  <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+                    Ausschlusskriterium zutreffend: <b>{alterKind?"Alter <18 Jahre":"mindestens ein Kriterium mit ✓ markiert"}</b>. Ambulant nur EBM möglich · stationär ≥ 2 Nächte anvisieren (volle DRG).
+                  </div>
+                </div>}
+              </div>
+            </details>;
+          }()}
+        </div>
+        <div style={card}>
           <OBSec title="🦴 Distaler Radius" open={ucSec.rad} onToggle={()=>setUcSec(p=>({...p,rad:!p.rad}))} active={ucOp&&(ucOp.startsWith("radius_einf")||ucOp==="radius_mehr_wsp")} onReset={()=>{setUcOp("");}}>
             <div style={row}>{["radius_einf_pl","radius_einf_wsp","radius_mehr_wsp"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
           </OBSec>
@@ -15799,10 +15881,16 @@ const UC_TEXT_MAP={
           <div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
         </div>}
 
-        {ucErloesData&&ucMaterialKosten.length>0&&<div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
+        {ucErloesData&&ucMaterialKosten.length>0&&function(){
+          const ist=ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0);
+          const a=implAmpel(ist,ucErloesData.basis);
+          const ampelIcon=a?(a.state==="gruen"?"🟢":a.state==="gelb"?"🟡":"🔴"):"";
+          const ampelColor=a?(a.state==="gruen"?"#2E7D32":a.state==="gelb"?"#E65100":"#C62828"):"#1565C0";
+          const ampelText=a?(a.state==="gruen"?(a.ist<=a.soll?"im InEK-Rahmen":"bis 20% über InEK — akzeptabel"):a.state==="gelb"?a.pct+"% über InEK":a.pct+"% über InEK — kritisch"):null;
+          return <div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
           <div style={{background:"#1565C0",padding:"6px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
             <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>💶 Materialkosten (Implantate)</span>
-            <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0).toFixed(2)} € {INEK_IMPL[ucErloesData.basis]?(ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[ucErloesData.basis]?"🟢":"🔴"):""}</span>
+            <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{ist.toFixed(2)} € {ampelIcon}</span>
           </div>
           <div style={{padding:"8px 12px",background:"rgba(21,101,192,.04)"}}>
             <table style={{width:"100%",fontSize:11,borderCollapse:"collapse"}}>
@@ -15812,21 +15900,23 @@ const UC_TEXT_MAP={
                 <td style={{textAlign:"right",padding:"4px",fontWeight:600,color:m.preis?"#2D3748":"#E65100"}}>{m.preis?m.preis.toFixed(2)+" €":m.hinweis||"—"}</td>
               </tr>;})}
               <tr style={{borderTop:"2px solid rgba(21,101,192,.3)",background:"rgba(21,101,192,.04)"}}>
-                <td style={{padding:"4px",fontWeight:700,color:INEK_IMPL[ucErloesData.basis]?(ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[ucErloesData.basis]?"#2E7D32":"#C62828"):"#1565C0"}} colSpan={2}>{INEK_IMPL[ucErloesData.basis]?(ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0)<=INEK_IMPL[ucErloesData.basis]?"🟢":"🔴"):"💶"} GESAMT</td>
-                <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0).toFixed(2)} €</td>
+                <td style={{padding:"4px",fontWeight:700,color:a?ampelColor:"#1565C0"}} colSpan={2}>{a?ampelIcon:"💶"} GESAMT</td>
+                <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{ist.toFixed(2)} €</td>
               </tr>
-              {INEK_IMPL[ucErloesData.basis]&&<tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
+              {a&&<tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
                 <td style={{padding:"4px",fontSize:9,color:"#718096"}} colSpan={2}>InEK-Referenz {ucErloesData.basis} (Kostenstelle 5, Ø Implantat)</td>
-                <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{INEK_IMPL[ucErloesData.basis].toFixed(2)} €</td>
+                <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{a.soll.toFixed(2)} €</td>
               </tr>}
-              {INEK_IMPL[ucErloesData.basis]&&function(){var ist=ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0);var soll=INEK_IMPL[ucErloesData.basis];var diff=soll-ist;return <tr>
-                <td style={{padding:"4px",fontSize:9,color:"#718096"}} colSpan={2}>Differenz (InEK - Ist)</td>
-                <td style={{textAlign:"right",padding:"4px",fontSize:10,fontWeight:700,color:diff>=0?"#2E7D32":"#C62828"}}>{diff>=0?"+":""}{diff.toFixed(2)} €</td>
-              </tr>;}()}
+              {a&&<tr>
+                <td style={{padding:"4px",fontSize:9,color:ampelColor,fontWeight:600}} colSpan={2}>{ampelText}</td>
+                <td style={{textAlign:"right",padding:"4px",fontSize:10,fontWeight:700,color:ampelColor}}>{a.delta>=0?"+":""}{a.delta.toFixed(2)} €</td>
+              </tr>}
             </tbody></table>
             {ucMaterialKosten.some(function(m){return !m.preis;})&&<div style={{marginTop:4,fontSize:9,color:"#E65100"}}>⚠️ UC-Implantatpreise noch nicht verifiziert – folgen später</div>}
+            {a&&a.state==="rot"&&<div style={{marginTop:6,fontSize:9,color:"#C62828",padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung oder Erlös unter regulärer DRG. Volle DRG zwingend ansteuern, Materialalternativen prüfen.</div>}
+            {a&&a.state==="gelb"&&<div style={{marginTop:6,fontSize:9,color:"#E65100",padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
           </div>
-        </div>}
+        </div>;}()}
 
         {ucOp==="duokopf"&&<div style={{marginTop:12,display:"flex",gap:12,flexWrap:"wrap"}}>
           <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Kopfschale</div><select value={dkShell} onChange={e=>setDkShell(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["38","40","42","44","46","48","50","52","54","56"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
@@ -16373,14 +16463,6 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>OP-Manuale</div>
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Sortierte Sammlung von OP-Technik-Manualen und Implantatsystemen als PDF.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Infinity · Inbone II · Prophecy · konventionell</div>
-        </div>
-        <div onClick={()=>onSelect("me")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
-          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
-          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
-          <div style={{fontSize:36,marginBottom:12}}>🔩</div>
-          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Metallentfernung</div>
-          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Fallsteuerung für Metallentfernungen an der unteren Extremität — mit Positivlisten-Zusatzcode zur H-DRG-Ansteuerung.</div>
-          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Metatarsale · Tarsale · Calcaneus · Tibia · Fibula</div>
         </div>
       </div>
       <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.3 · April 2026</div>
