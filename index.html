@@ -4351,12 +4351,15 @@ function Sec({ title, children, open, onToggle }) {
 // UGVD-Abschlag pro Tag in € (CM-Abschlag InEK 2026 × Bundesbasisfallwert ~4.300 €)
 const UGVD_ABSCHLAG={
   "I05B":1570,"I05C":1310,
+  "I08F":1222,
   "I13D":1180,"I13E":1075,"I13F":960,"I13G":860,
   "I20A":1209,"I20B":1170,"I20C":1170,"I20D":1079,"I20E":985,"I20F":821,
   "I21Z":820,
   "I27D":731,"I27E":611,
+  "I29B":889,
   "I31A":1140,"I31B":900,"I31C":820,
   "I43B":1430,
+  "I47B":1323,
   "I59Z":564,
 };
 // ==========================================================================
@@ -4657,6 +4660,7 @@ var _s = useState, _m = useMemo;
   var gs = _s(""), gender = gs[0], setGender = gs[1];
   var bs2 = _s(""), begleitung = bs2[0], setBegleitung = bs2[1];
   var ss = _s(""), seite = ss[0], setSeite = ss[1];
+  var als = _s("erw"), alter = als[0], setAlter = als[1];
   var ds = _s([]), diagnosen = ds[0], setDiagnosen = ds[1];
   var cs = _s(false), coalitio = cs[0], setCoalitio = cs[1];
   var cvs = _s(""), coalitioVar = cvs[0], setCoalitioVar = cvs[1];
@@ -5038,6 +5042,7 @@ var _s = useState, _m = useMemo;
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
           <div><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>GESCHLECHT</div><div style={row}><div style={GB(gender === "m")} onClick={function() { setGender("m"); }}>♂ Herr</div><div style={GB(gender === "w")} onClick={function() { setGender("w"); }}>♀ Frau</div></div></div>
           <div><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>SEITE</div><div style={row}><div style={GB(seite === "links")} onClick={function() { setSeite(seite === "links" ? "" : "links"); }}>Links</div><div style={GB(seite === "rechts")} onClick={function() { setSeite(seite === "rechts" ? "" : "rechts"); }}>Rechts</div><div style={GB(seite === "bds")} onClick={function() { setSeite(seite === "bds" ? "" : "bds"); }}>Bds.</div></div></div>
+          <div><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>ALTER</div><div style={row}><div style={GB(alter === "erw")} onClick={function() { setAlter("erw"); }}>≥18 J.</div><div style={{...GB(alter === "kind"),borderColor:alter==="kind"?"#E65100":"",color:alter==="kind"?"#E65100":"",background:alter==="kind"?"rgba(230,81,0,.08)":""}} onClick={function() { setAlter("kind"); }}>{"<18 J. ⚠"}</div></div></div>
         </div>
         <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>BEGLEITUNG (optional)</div><input value={begleitung} onChange={function(e) { setBegleitung(e.target.value); }} placeholder="z.B. des Vaters, der Mutter..." /></div>
         <div style={cat}>Diagnose(n) – max. 2</div>
@@ -5086,6 +5091,37 @@ var _s = useState, _m = useMemo;
           {meBriefRegion&&meBriefImpl&&<div>
             <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3}}>KLINISCHER BEFUND (Freitext, optional)</div>
             <textarea value={meBriefBefund} onChange={function(e){setMeBriefBefund(e.target.value);}} placeholder="wenn leer: Standard-Formulierung" style={{width:"100%",padding:"6px 8px",fontSize:11,border:"1px solid rgba(0,0,0,.15)",borderRadius:4,boxSizing:"border-box",minHeight:50,fontFamily:"inherit",resize:"vertical"}}/>
+          </div>}
+          {meBriefRegion&&meBriefImpl&&meBriefZusatz&&<div style={{marginTop:10,padding:10,border:"1px solid rgba(0,107,111,.2)",borderRadius:6,background:"#fff"}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:6}}>Fallsteuerung – Metallentfernung {ME_REGIONEN[meBriefRegion]?ME_REGIONEN[meBriefRegion].label:""}</div>
+            {alter==="kind"
+              ?<div style={{padding:"8px 10px",borderRadius:6,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
+                <div style={{fontSize:11,fontWeight:700,color:"#E65100",marginBottom:3}}>⛔ KEIN H-DRG MÖGLICH – Patient {"<"}18 Jahre</div>
+                <div style={{fontSize:10,color:"#BF360C"}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
+                <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung (unattraktiv) · stationäre Führung erwägen</div>
+              </div>
+              :meBriefZusatz!=="none"
+              ?<div style={{display:"grid",gridTemplateColumns:"1fr",gap:4}}>
+                <div style={{padding:"7px 10px",borderRadius:5,border:"2px solid #00897B",background:"rgba(0,137,123,.08)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div><span style={{fontSize:10,fontWeight:700,color:"#00897B"}}>⭐ EMPFEHLUNG</span> <span style={{fontSize:10,color:"#2D3748"}}>· Ambulant mit H-DRG-Triggercode <span style={{fontFamily:"monospace",fontWeight:600}}>{meBriefZusatz}</span></span></div>
+                  <div style={{fontSize:13,fontWeight:700,color:"#00897B"}}>H-DRG I20O · 1.007 €</div>
+                </div>
+                <div style={{padding:"7px 10px",borderRadius:5,border:"1px solid rgba(160,160,160,.4)",background:"rgba(160,160,160,.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div><span style={{fontSize:10,fontWeight:700,color:"#718096"}}>Alternative</span> <span style={{fontSize:10,color:"#718096"}}>· isolierte ME ohne Triggercode</span></div>
+                  <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · ökonomisch unattraktiv</div>
+                </div>
+              </div>
+              :<div style={{display:"grid",gridTemplateColumns:"1fr",gap:4}}>
+                <div style={{padding:"7px 10px",borderRadius:5,border:"1px solid rgba(198,40,40,.35)",background:"rgba(198,40,40,.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div><span style={{fontSize:10,fontWeight:700,color:"#C62828"}}>aktuell:</span> <span style={{fontSize:10,color:"#2D3748"}}>· isolierte ME ohne Triggercode</span></div>
+                  <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · ökonomisch unattraktiv</div>
+                </div>
+                <div style={{padding:"7px 10px",borderRadius:5,border:"1px dashed #00897B",background:"rgba(0,137,123,.04)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div><span style={{fontSize:10,fontWeight:700,color:"#00897B"}}>möglich bei medizinischer Indikation:</span> <span style={{fontSize:10,color:"#2D3748"}}>· H-DRG-Triggercode aus Positivliste oben wählen</span></div>
+                  <div style={{fontSize:13,fontWeight:700,color:"#00897B"}}>H-DRG I20O · 1.007 €</div>
+                </div>
+              </div>
+            }
           </div>}
         </div>}
         {diagnosen.indexOf("knick_senk") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(46,204,113,.2)", paddingLeft: 10 }}>
@@ -5615,7 +5651,7 @@ function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz}){
 // ============================================================
 function OPBerichtApp(){
   const [gender,setGender]=useState("");
-  const [alter,setAlter]=useState("");
+  const [alter,setAlter]=useState("erw");
   const [side,setSide]=useState("");
   const [sektion,setSektion]=useState("fuss");
   const [praeType,setPraeType]=useState("standard");
@@ -6333,7 +6369,9 @@ const UC_TEXT_MAP={
     var parseEU=function(s){if(!s||s==="—")return 0;return Number(String(s).replace(/\./g,"").replace(",","."))||0;};
     var fmt=function(n){return n.toLocaleString("de-DE");};
     var basisNum=parseEU(e.basisE);
-    var t1abschlag=Math.round(basisNum*0.7);
+    var abschlagPerDay=UGVD_ABSCHLAG[e.basis]||null;
+    var t1abschlag=abschlagPerDay!==null?fmt(basisNum-abschlagPerDay):null;
+    var t1abschlagPerDay=abschlagPerDay!==null?fmt(abschlagPerDay):null;
     return {label:e.l,ops:e.ops,kontextOps:e.kontextOps||[],
       amb:hasHDRG?"H-DRG "+e.hdrg+" "+e.hdrgE+" €":"KEINE H-DRG",
       n1:hasHDRG?"Kurzlieger ≈ H-DRG":"Kurzlieger "+e.basis+" ~"+e.basisE+" €",
@@ -6342,7 +6380,8 @@ const UC_TEXT_MAP={
       empf:hasHDRG?"amb":"n2",hint:e.hint,kodier:e.kodier,
       pct:e.pct,hdrg:hasHDRG?e.hdrg:"—",hdrgE:hasHDRG?e.hdrgE:"—",basis:e.basis,basisE:e.basisE,
       hasHDRG:hasHDRG,
-      t1abschlag:fmt(t1abschlag),
+      t1abschlag:t1abschlag,
+      t1abschlagPerDay:t1abschlagPerDay,
       ausgeschlossen:ucHdrgAusgeschlossen};
   },[ucOp,ucHdrgAusgeschlossen]);
 
@@ -7360,8 +7399,8 @@ const UC_TEXT_MAP={
           {/* Banner Logik-Erklärung */}
           <div style={{padding:"8px 12px",background:"rgba(0,107,111,.08)",borderRadius:6,marginBottom:10,fontSize:10,lineHeight:1.5,color:"#2D3748"}}>
             {ucErloesData.hasHDRG
-              ?<span><strong>ℹ Hybrid-fähig</strong> — H-DRG pauschal bis 2 ÜN. Ab 3 ÜN volle DRG (MDK-Risiko ohne Kontextprozedur). Mit Kontext: H-DRG ausgeschlossen → volle DRG ab 2 ÜN, 1. Tag − 30 %, ambulant nur EBM.</span>
-              :<span><strong>ℹ Nicht hybrid-fähig</strong> — keine H-DRG, immer volle DRG. Bei 1 ÜN: 30 % UGVD-Abschlag. Ab 2 ÜN: volle DRG.</span>
+              ?<span><strong>ℹ Hybrid-fähig</strong> — H-DRG pauschal bis 2 ÜN. Ab 3 ÜN volle DRG (MDK-Risiko ohne Kontextprozedur). Mit Kontext: H-DRG ausgeschlossen → volle DRG ab 2 ÜN, 1. Tag mit UGVD-Abschlag, ambulant nur EBM.</span>
+              :<span><strong>ℹ Nicht hybrid-fähig</strong> — keine H-DRG, immer volle DRG. Bei 1 ÜN: UGVD-Abschlag. Ab 2 ÜN: volle DRG.</span>
             }
           </div>
           {/* Spalten-Header */}
@@ -7403,8 +7442,12 @@ const UC_TEXT_MAP={
             </div>
             <div style={{border:"1px solid rgba(245,127,23,.3)",borderRadius:6,padding:8,textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:600,color:"#2D3748"}}>DRG {ucErloesData.basis}</div>
-              <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.t1abschlag} €</div>
-              <div style={{fontSize:9,color:"#F57F17",marginTop:2}}>(− 30 %)</div>
+              {ucErloesData.t1abschlag!==null
+                ?<><div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.t1abschlag} €</div>
+                   <div style={{fontSize:9,color:"#F57F17",marginTop:2}}>(− {ucErloesData.t1abschlagPerDay} €)</div></>
+                :<><div style={{fontSize:10,color:"#718096"}}>gekürzte DRG</div>
+                   <div style={{fontSize:9,color:"#F57F17",marginTop:2}}>UGVD-Abschlag fehlt</div></>
+              }
             </div>
             <div style={{background:"rgba(0,137,123,.12)",border:"2px solid #00897B",borderRadius:6,padding:8,textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:600,color:"#00897B"}}>DRG {ucErloesData.basis}</div>
