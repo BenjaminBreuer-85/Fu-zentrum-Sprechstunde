@@ -7394,13 +7394,13 @@ const UC_TEXT_MAP={
       {ucErloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {ucErloesData.label}</div>
           {ucErloesData.hasHDRG
             ?<div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>H-DRG {ucErloesData.hdrg}: <span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.hdrgE} €</span> = <span style={{color:"#EF6C00"}}>{ucErloesData.pct}</span> der vollen DRG {ucErloesData.basis} ({ucErloesData.basisE} €)</div>
-            :<div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>Keine H-DRG – ausschließlich volle DRG {ucErloesData.basis} (<span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.basisE} €</span>)</div>
+            :<div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>Keine H-DRG – ausschließlich reguläre DRG {ucErloesData.basis} (<span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.basisE} €</span>)</div>
           }
           {/* Banner Logik-Erklärung */}
           <div style={{padding:"8px 12px",background:"rgba(0,107,111,.08)",borderRadius:6,marginBottom:10,fontSize:10,lineHeight:1.5,color:"#2D3748"}}>
             {ucErloesData.hasHDRG
-              ?<span><strong>ℹ Hybrid-fähig</strong> — H-DRG pauschal bis 2 ÜN. Ab 3 ÜN volle DRG (MDK-Risiko ohne Kontextprozedur). Mit Kontext: H-DRG ausgeschlossen → volle DRG ab 2 ÜN, 1. Tag mit UGVD-Abschlag, ambulant nur EBM.</span>
-              :<span><strong>ℹ Nicht hybrid-fähig</strong> — keine H-DRG, immer volle DRG. Bei 1 ÜN: UGVD-Abschlag. Ab 2 ÜN: volle DRG.</span>
+              ?<span><strong>ℹ Hybrid-fähig</strong> — H-DRG pauschal bis 2 ÜN. Ab 3 ÜN reguläre DRG (MDK-Risiko ohne Kontextprozedur). Mit Kontext: H-DRG ausgeschlossen → reguläre DRG ab 2 ÜN volle Vergütung, 1. Tag mit UGVD-Abschlag, ambulant nur EBM.</span>
+              :<span><strong>ℹ Nicht hybrid-fähig</strong> — keine H-DRG, immer reguläre DRG. Bei 1 ÜN: UGVD-Abschlag. Ab 2 ÜN: volle Vergütung.</span>
             }
           </div>
           {/* Spalten-Header */}
@@ -7433,9 +7433,9 @@ const UC_TEXT_MAP={
               <div style={{fontSize:9,color:"#C62828",marginTop:2,fontWeight:700}}>⚠ MDK-Risiko</div>
             </div>
           </div>}
-          {/* Zeile 2: MIT Kontext (volle DRG) — bei Non-Hybrid: einzige Zeile */}
+          {/* Zeile 2: MIT Kontext (reguläre DRG) — bei Non-Hybrid: einzige Zeile */}
           <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr 1fr 1fr",gap:6}}>
-            <div style={{fontSize:10,fontWeight:700,color:"#00697B",alignSelf:"center",lineHeight:1.3}}>{ucErloesData.hasHDRG?"MIT Kontext":"Volle DRG"}<div style={{fontSize:8,fontWeight:400,color:"#718096"}}>{ucErloesData.hasHDRG?"volle DRG":"immer"}</div></div>
+            <div style={{fontSize:10,fontWeight:700,color:"#00697B",alignSelf:"center",lineHeight:1.3}}>{ucErloesData.hasHDRG?"MIT Kontext":"Reguläre DRG"}<div style={{fontSize:8,fontWeight:400,color:"#718096"}}>{ucErloesData.hasHDRG?"reguläre DRG":"immer"}</div></div>
             <div style={{border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:8,textAlign:"center",background:"rgba(0,0,0,.03)"}}>
               <div style={{fontSize:11,fontWeight:600,color:"#718096"}}>{ucErloesData.hasHDRG?"EBM":"keine"}</div>
               <div style={{fontSize:9,color:"#718096"}}>{ucErloesData.hasHDRG?"Wert prüfen":"—"}</div>
@@ -7483,7 +7483,7 @@ const UC_TEXT_MAP={
                 <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Kontextprozedur-Eingriff NICHT beschreiben.</div>
               </div>}
               <div>
-                <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {ucErloesData.basis}):</div>
+                <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (reguläre DRG {ucErloesData.basis}):</div>
                 <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{ucErloesData.ops.map(function(c){return <span key={c+"s"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,131,143,.08)",color:"#00838F"}}>{c}</span>;})}{ucErloesData.kontextOps&&ucErloesData.kontextOps.length>0&&ucErloesData.hdrg!=="—"&&<span style={{display:"inline",marginLeft:4}}><span style={{fontSize:9,fontWeight:600,color:"#004D40",marginRight:4}}>+ Kontextprozedur:</span>{ucErloesData.kontextOps.map(function(c){return <span key={c+"k"} style={{fontFamily:"'IBM Plex Mono'",fontSize:9,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,77,64,.1)",color:"#004D40",fontWeight:600}}>{c}</span>;})}</span>}</span></div>
                 <div style={{whiteSpace:"pre-line"}}>{ucErloesData.kodier.split("\n").filter(function(l){return l.trim()&&!l.includes("WEGE AUS")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Bei Kürzung nur")&&!l.includes("EMPFOHLEN:");}).join("\n")}</div>
                 <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Alle kodierten Eingriffe MÜSSEN beschrieben werden.</div>
