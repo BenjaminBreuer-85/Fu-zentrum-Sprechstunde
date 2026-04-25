@@ -6330,6 +6330,10 @@ const UC_TEXT_MAP={
     if(!ucOp||!UC_EINGRIFFE[ucOp])return null;
     var e=UC_EINGRIFFE[ucOp];
     var hasHDRG=e.hdrg!=="—"&&!ucHdrgAusgeschlossen;
+    var parseEU=function(s){if(!s||s==="—")return 0;return Number(String(s).replace(/\./g,"").replace(",","."))||0;};
+    var fmt=function(n){return n.toLocaleString("de-DE");};
+    var basisNum=parseEU(e.basisE);
+    var t1abschlag=Math.round(basisNum*0.7);
     return {label:e.l,ops:e.ops,kontextOps:e.kontextOps||[],
       amb:hasHDRG?"H-DRG "+e.hdrg+" "+e.hdrgE+" €":"KEINE H-DRG",
       n1:hasHDRG?"Kurzlieger ≈ H-DRG":"Kurzlieger "+e.basis+" ~"+e.basisE+" €",
@@ -6337,6 +6341,8 @@ const UC_TEXT_MAP={
       n3:e.basis+" "+e.basisE+" €",
       empf:hasHDRG?"amb":"n2",hint:e.hint,kodier:e.kodier,
       pct:e.pct,hdrg:hasHDRG?e.hdrg:"—",hdrgE:hasHDRG?e.hdrgE:"—",basis:e.basis,basisE:e.basisE,
+      hasHDRG:hasHDRG,
+      t1abschlag:fmt(t1abschlag),
       ausgeschlossen:ucHdrgAusgeschlossen};
   },[ucOp,ucHdrgAusgeschlossen]);
 
@@ -7347,25 +7353,67 @@ const UC_TEXT_MAP={
         <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
       </div>}
       {ucErloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {ucErloesData.label}</div>
-          <div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>H-DRG {ucErloesData.hdrg}: <span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.hdrgE} €</span> = <span style={{color:"#EF6C00"}}>{ucErloesData.pct}</span> der vollen DRG {ucErloesData.basis} ({ucErloesData.basisE} €)</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}}>
-            <div style={{background:ucErloesData.hdrg!=="—"?"rgba(0,137,123,.08)":"transparent",border:ucErloesData.hdrg!=="—"?"2px solid #00897B":"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:10,textAlign:"center"}}>
-              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>AMBULANT</div>
-              <div style={{fontSize:12,fontWeight:600,color:"#00897B"}}>{ucErloesData.amb}</div>
-              {ucErloesData.hdrg!=="—"&&<div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Empfehlung</div>}
+          {ucErloesData.hasHDRG
+            ?<div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>H-DRG {ucErloesData.hdrg}: <span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.hdrgE} €</span> = <span style={{color:"#EF6C00"}}>{ucErloesData.pct}</span> der vollen DRG {ucErloesData.basis} ({ucErloesData.basisE} €)</div>
+            :<div style={{marginBottom:8,fontSize:11,color:"#2D3748"}}>Keine H-DRG – ausschließlich volle DRG {ucErloesData.basis} (<span style={{color:"#00897B",fontWeight:600}}>{ucErloesData.basisE} €</span>)</div>
+          }
+          {/* Banner Logik-Erklärung */}
+          <div style={{padding:"8px 12px",background:"rgba(0,107,111,.08)",borderRadius:6,marginBottom:10,fontSize:10,lineHeight:1.5,color:"#2D3748"}}>
+            {ucErloesData.hasHDRG
+              ?<span><strong>ℹ Hybrid-fähig</strong> — H-DRG pauschal bis 2 ÜN. Ab 3 ÜN volle DRG (MDK-Risiko ohne Kontextprozedur). Mit Kontext: H-DRG ausgeschlossen → volle DRG ab 2 ÜN, 1. Tag − 30 %, ambulant nur EBM.</span>
+              :<span><strong>ℹ Nicht hybrid-fähig</strong> — keine H-DRG, immer volle DRG. Bei 1 ÜN: 30 % UGVD-Abschlag. Ab 2 ÜN: volle DRG.</span>
+            }
+          </div>
+          {/* Spalten-Header */}
+          <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr 1fr 1fr",gap:6,marginBottom:4}}>
+            <div></div>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",textAlign:"center"}}>AMBULANT</div>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",textAlign:"center"}}>1 NACHT</div>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",textAlign:"center"}}>2 NÄCHTE</div>
+            <div style={{fontSize:9,fontWeight:700,color:"#718096",textAlign:"center"}}>3+ NÄCHTE</div>
+          </div>
+          {/* Zeile 1: OHNE Kontext (Hybrid-Pfad) — nur wenn hasHDRG */}
+          {ucErloesData.hasHDRG&&<div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr 1fr 1fr",gap:6,marginBottom:6}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#00697B",alignSelf:"center",lineHeight:1.3}}>OHNE Kontext<div style={{fontSize:8,fontWeight:400,color:"#718096"}}>Hybrid-Pfad</div></div>
+            <div style={{background:"rgba(0,137,123,.12)",border:"2px solid #00897B",borderRadius:6,padding:8,textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#00897B"}}>H-DRG {ucErloesData.hdrg}</div>
+              <div style={{fontSize:11,fontWeight:600,color:"#00897B"}}>{ucErloesData.hdrgE} €</div>
+              <div style={{fontSize:9,color:"#00897B",marginTop:2,fontWeight:700}}>⭐ EMPF. amb.</div>
             </div>
-            <div style={{border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:10,textAlign:"center"}}>
-              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>1 NACHT</div>
-              <div style={{fontSize:12,fontWeight:600,color:"#F57F17"}}>Kurzlieger</div>
+            <div style={{border:"1px solid rgba(0,137,123,.3)",borderRadius:6,padding:8,textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#00897B"}}>H-DRG {ucErloesData.hdrg}</div>
+              <div style={{fontSize:11,color:"#00897B"}}>{ucErloesData.hdrgE} €</div>
             </div>
-            <div style={{background:"rgba(0,137,123,.08)",border:"1px solid rgba(0,137,123,.3)",borderRadius:8,padding:10,textAlign:"center"}}>
-              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>2 NÄCHTE</div>
-              <div style={{fontSize:12,fontWeight:600,color:"#00897B"}}>{ucErloesData.basis} {ucErloesData.basisE} €</div>
-              <div style={{fontSize:9,color:"#00897B",marginTop:4}}>✓ Volle DRG</div>
+            <div style={{border:"1px solid rgba(0,137,123,.3)",borderRadius:6,padding:8,textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#00897B"}}>H-DRG {ucErloesData.hdrg}</div>
+              <div style={{fontSize:11,color:"#00897B"}}>{ucErloesData.hdrgE} €</div>
             </div>
-            <div style={{border:"1px solid rgba(0,0,0,.08)",borderRadius:8,padding:10,textAlign:"center"}}>
-              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>3+ NÄCHTE</div>
-              <div style={{fontSize:12,fontWeight:600,color:"#2D3748"}}>{ucErloesData.basisE} €</div>
+            <div style={{background:"rgba(198,40,40,.06)",border:"1px solid rgba(198,40,40,.4)",borderRadius:6,padding:8,textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#2D3748"}}>DRG {ucErloesData.basis}</div>
+              <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.basisE} €</div>
+              <div style={{fontSize:9,color:"#C62828",marginTop:2,fontWeight:700}}>⚠ MDK-Risiko</div>
+            </div>
+          </div>}
+          {/* Zeile 2: MIT Kontext (volle DRG) — bei Non-Hybrid: einzige Zeile */}
+          <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr 1fr 1fr",gap:6}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#00697B",alignSelf:"center",lineHeight:1.3}}>{ucErloesData.hasHDRG?"MIT Kontext":"Volle DRG"}<div style={{fontSize:8,fontWeight:400,color:"#718096"}}>{ucErloesData.hasHDRG?"volle DRG":"immer"}</div></div>
+            <div style={{border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:8,textAlign:"center",background:"rgba(0,0,0,.03)"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#718096"}}>{ucErloesData.hasHDRG?"EBM":"keine"}</div>
+              <div style={{fontSize:9,color:"#718096"}}>{ucErloesData.hasHDRG?"Wert prüfen":"—"}</div>
+            </div>
+            <div style={{border:"1px solid rgba(245,127,23,.3)",borderRadius:6,padding:8,textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#2D3748"}}>DRG {ucErloesData.basis}</div>
+              <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.t1abschlag} €</div>
+              <div style={{fontSize:9,color:"#F57F17",marginTop:2}}>(− 30 %)</div>
+            </div>
+            <div style={{background:"rgba(0,137,123,.12)",border:"2px solid #00897B",borderRadius:6,padding:8,textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#00897B"}}>DRG {ucErloesData.basis}</div>
+              <div style={{fontSize:11,fontWeight:600,color:"#00897B"}}>{ucErloesData.basisE} €</div>
+              <div style={{fontSize:9,color:"#00897B",marginTop:2,fontWeight:700}}>⭐ EMPF. stat.</div>
+            </div>
+            <div style={{border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:8,textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:600,color:"#2D3748"}}>DRG {ucErloesData.basis}</div>
+              <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.basisE} €</div>
             </div>
           </div>
           {/* Ökonomisches Codierziel */}
