@@ -4699,7 +4699,7 @@ var _s = useState, _m = useMemo;
   var fus = _s(""), freitextUnters = fus[0], setFreitextUnters = fus[1];
   var bils = _s([{ typ: "", region: "", datum: "", befund: "" }]), bilder = bils[0], setBilder = bils[1];
   var fabs = _s(""), freitextAbschluss = fabs[0], setFreitextAbschluss = fabs[1];
-  var secs = _s({ anam: true, risiko: false, unters: false, bild: false, abschluss: false }), sec = secs[0], setSec = secs[1];
+  var secs = _s({ anam: true, risiko: false, unters: false, bild: false, abschluss: false, erloes: false }), sec = secs[0], setSec = secs[1];
   var pvs = _s(false), showPv = pvs[0], setShowPv = pvs[1];
   var ts = _s(""), toast = ts[0], setToast = ts[1];
   // ME-Modus (Sprechstundenbrief Sonder-Flow)
@@ -5007,7 +5007,7 @@ var _s = useState, _m = useMemo;
     setKonservBisher([]); setRisiken([]); setFreitextRisiko("");
     setBefState({}); setBefInputs({}); setFreitextUnters("");
     setBilder([{ typ: "", region: "", datum: "", befund: "" }]); setFreitextAbschluss("");
-    setSec({ anam: true, risiko: false, unters: false, bild: false, abschluss: false });
+    setSec({ anam: true, risiko: false, unters: false, bild: false, abschluss: false, erloes: false });
     setShowPv(false);
     setMeMode(false); setMeBriefRegion(""); setMeBriefImpl(""); setMeBriefZusatz("");
     setMeBriefDauer(""); setMeBriefDauerEinheit("Monaten"); setMeBriefOS("");
@@ -5187,10 +5187,11 @@ var _s = useState, _m = useMemo;
 
         {/* ERLÖSSIMULATION */}
         {opMethode.length>0&&<div style={{marginTop:10,border:"2px solid #00838F",borderRadius:10,overflow:"hidden"}}>
-          <div style={{background:"#00838F",padding:"8px 12px"}}>
+          <div onClick={function(){togSec("erloes");}} style={{background:"#00838F",padding:"8px 12px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",userSelect:"none"}}>
             <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>Erlössimulation</span>
+            <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{sec.erloes?"▼":"▶"}</span>
           </div>
-          <div style={{padding:"10px 12px",background:"rgba(0,131,143,.04)",fontSize:11}}>
+          {sec.erloes&&<div style={{padding:"10px 12px",background:"rgba(0,131,143,.04)",fontSize:11}}>
             {function(){
               var best=null;var bestKey="";
               opMethode.forEach(function(m){var s=OP_STEUERUNG[m];if(s&&s.cm>(best?best.cm:0)){best=s;bestKey=m;}});
@@ -5344,7 +5345,7 @@ var _s = useState, _m = useMemo;
                 }()}
               </div>;
             }()}
-          </div>
+          </div>}
         </div>}
       </div>
 
