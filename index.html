@@ -5839,7 +5839,9 @@ function OPBerichtApp(){
       if(op==="fhl_transfer")P("Arthrex Tenodeseschraube 5,5mm","Arthrex",296.80);
     });
     // FDL-Transfer Toggle unter MDO
-    if(mdoFDL)P("Arthrex Tenodeseschraube 5,5mm (FDL)","Arthrex",296.80);
+    if(mdoFDL)P("Arthrex Tenodeseschraube 4,75mm (FDL)","Arthrex",296.80);
+    // Cotton-OT als Toggle unter MDO (allogen)
+    if(mdoCotton==="allogen")P("Tutogene Block 20×10×10 (Cotton via MDO)","Tutogene",333);
     // Hohlfuß
     if(hohlfussTyp==="dwyer")P("2× Fixos HKS 7,0 (Dwyer)","Stryker",297.50);
     if(hohlfussTyp==="lambrinudi")P("3× Kanül. Schraube 7,0 (Triple)","Königsee",168);
@@ -5858,7 +5860,7 @@ function OPBerichtApp(){
     });
     if(fxSyndes)P("Stellschraube Kortikalis 3,5","DePuy Synthes",11.84);
     return items;
-  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,rfOp,peronealTyp,hohlfussTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom]);
+  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,rfOp,peronealTyp,hohlfussTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,mdoFDL,mdoCotton]);
 
     // ============================================================
   // ICD-10 CODES – automatisch pro Eingriff
@@ -6121,13 +6123,13 @@ function OPBerichtApp(){
       kodier:"5-809.1m (Arthrorise USG). Kontextfaktor Alter <18 → keine H-DRG."}];
 
     // Achillessehnennaht → I27E
-    if(hasASnaht) return [o,{label:"Achillessehnennaht",ops:o,
+    if(hasASnaht&&_prio==="as_naht") return [o,{label:"Achillessehnennaht",ops:o,
       hdrg:"—",ebm:"—",kurz:"I27E ~2.700 €",drg:"I27E 3.389 €",hdrg_n1:"—",empf:"n2",
       ziel:"Kein H-DRG (seit 2025 entfernt). Stationär ≥2 Nächte → I27E (CM 0,743 = 3.389 €).",
       kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ 5-855.39 IMMER mitkodieren → I20F wird zu I27E!\n⚠ Naht der Sehnenscheide/Paratenon MUSS im OP-Bericht stehen!"}];
 
     // FHL Transfer → I27D
-    if(rfOp.includes("fhl_transfer")) return [o,{label:"FHL Transfer",ops:o,
+    if(rfOp.includes("fhl_transfer")&&_prio==="fhl_transfer") return [o,{label:"FHL Transfer",ops:o,
       hdrg:"—",ebm:"—",kurz:"I27D ~3.400 €",drg:"I27D 4.333 €",hdrg_n1:"—",empf:"n2",
       ziel:"Nur stationär. Stationär ≥2 Nächte → I27D (CM 0,95 = 4.333 €).",
       kodier:"5-854.49 (Sehnentransfer FHL) + 5-869.2 (Ankerfixation) + 5-855.39 (Naht Sehnenscheide) + 5-855.19 (Sehnennaht).\n⚠ Nur stationär möglich. Alle 4 Codes kodieren.\n⚠ Im OP-Bericht: FHL-Ernte, Transfer, Tenodese und Sehnenscheidenverschluss dokumentieren."}];
@@ -6162,13 +6164,13 @@ function OPBerichtApp(){
       kodier:"5-782.at + 5-855.39 + 5-855.19 + 5-854.29 + 5-859.19."}];
 
     // Os Tib Ext → I59Z / mit MDO → I20C
-    if(rfOp.includes("os_tib_ext")) return [o,{label:"Os Tib Ext"+(osTibMDO?" + MDO":""),ops:o,
+    if(rfOp.includes("os_tib_ext")&&_prio==="os_tib") return [o,{label:"Os Tib Ext"+(osTibMDO?" + MDO":""),ops:o,
       hdrg:"—",ebm:"—",kurz:osTibMDO?"I20C ~4.000 €":"I59Z ~2.600 €",drg:osTibMDO?"I20C 5.067 €":"I59Z 3.225 €",hdrg_n1:"—",empf:"n2",
       ziel:osTibMDO?"Mit MDO → I20C (CM 1,111 = 5.067 €).":"Ohne MDO → I59Z (CM 0,707 = 3.225 €).\n💡 Mit MDO Kombination → I20C (5.067 €)!",
       kodier:"5-854.2b + 5-782.1u + 5-869.2."+(osTibMDO?" + 5-781.1t + 5-93b.0 (MDO).":"")}];
 
     // Peronealsehnen → I27E / Luxation → I59Z
-    if(rfOp.includes("peroneal")) {
+    if(rfOp.includes("peroneal")&&_prio==="peroneal") {
       if(peronealTyp==="luxation") return [o,{label:"Peronealsehnenluxation",ops:o,
         hdrg:"—",ebm:"—",kurz:"I59Z ~2.600 €",drg:"I59Z 3.225 €",hdrg_n1:"—",empf:"n2",
         ziel:"Kein H-DRG → stationär ≥2N → I59Z (CM 0,707 = 3.225 €).",
@@ -6189,7 +6191,7 @@ function OPBerichtApp(){
     }
 
     // Cotton-OT → I20C
-    if(mfCotton&&!mfTmt.length) return [o,{label:"Cotton-Osteotomie",ops:o,
+    if(mfCotton&&!mfTmt.length&&_prio==="cotton") return [o,{label:"Cotton-Osteotomie",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20C ~4.000 €",drg:"I20C 5.067 €",hdrg_n1:"—",empf:"n2",
       ziel:"Stationär ≥2 Nächte → I20C (CM 1,111 = 5.067 €).",
       kodier:"5-781.4u + 5-784.7u (Spongiosa immer dabei)."}];
