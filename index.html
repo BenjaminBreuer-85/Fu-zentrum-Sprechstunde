@@ -4304,6 +4304,37 @@ const OPS = {
 
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
 const RISIKEN = ["Nikotinabusus", "Diabetes mellitus", "Rheumatische Erkrankung", "Eingeschränkte Mobilität", "Eingeschränkte häusliche Versorgung", "Z.n. fehlgeschlagener Voroperation", "Adipositas", "Immunsuppression"];
+// Endo-spezifische Risikofaktoren (zusätzlich zu RISIKEN bei pfad="endo")
+const RISIKEN_ENDO = ["Zahnsanierung ausstehend", "Infekt der Haut", "Chronischer Harnwegsinfekt"];
+
+// Endo-Untersuchungs-Befunde
+const ENDO_BEF_HUEFTE = [
+  { id: "schmerz_lok_h", input: true, label: "Schmerzlokalisation", placeholder: "z.B. Leiste / Trochanter / glutaeal" },
+  { id: "rom_h", input: true, label: "Beweglichkeit (Flex/Ext)", placeholder: "z.B. 100/0/10" },
+  { id: "rom_h_rot", input: true, label: "Rotation (IRO/ARO)", placeholder: "z.B. 30/0/40" },
+  { id: "rom_h_abdadd", input: true, label: "Abd/Add", placeholder: "z.B. 30/0/20" },
+  { id: "trendelenburg", pos: "Trendelenburg-Zeichen positiv", neg: "Trendelenburg-Zeichen negativ" },
+  { id: "bld", input: true, label: "Beinlängendifferenz", placeholder: "z.B. 1 cm li-kürzer / o.B." },
+  { id: "fadir", pos: "FADIR-Test positiv (Hinweis auf femoroazetabuläres Impingement)", neg: "FADIR-Test negativ" },
+  { id: "gang_h", input: true, label: "Gangbild", placeholder: "z.B. unauffällig / Schonhinken / Trendelenburg-Hinken" },
+];
+
+const ENDO_BEF_KNIE = [
+  { id: "schmerz_lok_k", input: true, label: "Schmerzlokalisation", placeholder: "z.B. medial / lateral / retropatellar" },
+  { id: "rom_k", input: true, label: "Beweglichkeit (Flex/Ext)", placeholder: "z.B. 130/0/0" },
+  { id: "erguss", pos: "Kniegelenkserguss tastbar", neg: "Kein Kniegelenkserguss" },
+  { id: "bandstab", input: true, label: "Bandstabilität", placeholder: "z.B. fest / mediale Aufklappbarkeit / VKB-Pivot" },
+  { id: "meniskus", pos: "Meniskuszeichen positiv (McMurray/Steinmann)", neg: "Meniskuszeichen negativ" },
+  { id: "gang_k", input: true, label: "Gangbild", placeholder: "z.B. unauffällig / Schonhinken" },
+];
+
+// Zusatz-Befunde bei schmerzhafter Prothese (sowohl H-TEP als K-TEP)
+const ENDO_BEF_TEP_SCHMERZ = [
+  { id: "haut_tep", pos: "Haut über der Narbe gerötet, überwärmt", neg: "Haut über der Narbe reizlos" },
+  { id: "sekretion", pos: "Sekretion aus der Narbe", neg: "Keine Sekretion" },
+  { id: "schmerzcharakter", input: true, label: "Schmerzcharakter", placeholder: "z.B. Belastungsschmerz / Ruheschmerz / Anlaufschmerz" },
+  { id: "knirschen", pos: "Knirschen / Klicken in der Prothese auslösbar", neg: "Kein Knirschen / Klicken" },
+];
 
 /* ============================================================
    UI COMPONENTS
@@ -4732,13 +4763,21 @@ var _s = useState, _m = useMemo;
 
   var availBef = _m(function() {
     var all = [], seen = {};
+    if (pfad === "endo") {
+      // Endo-Pfad: Befunde nach Diagnose
+      var pushList = function(list) { list.forEach(function(b) { if (!seen[b.id]) { seen[b.id] = true; all.push(b); } }); };
+      if (endoDiag === "coxarthrose" || endoDiag === "htep_schmerz") pushList(ENDO_BEF_HUEFTE);
+      if (endoDiag === "gonarthrose" || endoDiag === "knie_uni" || endoDiag === "ktep_schmerz") pushList(ENDO_BEF_KNIE);
+      if (endoDiag === "htep_schmerz" || endoDiag === "ktep_schmerz") pushList(ENDO_BEF_TEP_SCHMERZ);
+      return all;
+    }
     diagnosen.forEach(function(d) {
       var diag = DIAG[d];
       if (diag && diag.befunde) diag.befunde.forEach(function(b) { if (!seen[b.id]) { seen[b.id] = true; all.push(b); } });
     });
     if (coalitio) COALITIO_BEFUNDE.forEach(function(b) { if (!seen[b.id]) { seen[b.id] = true; all.push(b); } });
     return all;
-  }, [diagnosen, coalitio]);
+  }, [pfad, endoDiag, diagnosen, coalitio]);
 
   var availOPs = _m(function() {
     var all = {};
@@ -4799,7 +4838,160 @@ var _s = useState, _m = useMemo;
       lines.push("Mit freundlichen Grüßen,");
       return lines.join("\n");
     }
-    // STANDARD-FLOW
+
+    // ENDO-FLOW
+    if (pfad === "endo") {
+      if (!endoDiag) return "";
+      // Bei schmerzhafter TEP: Septik-Auswahl ist Pflicht
+      if ((endoDiag === "htep_schmerz" || endoDiag === "ktep_schmerz") && !endoSep) return "";
+      // Bei unikomp. Knie: medial/lateral ist Pflicht
+      if (endoDiag === "knie_uni" && !endoUni) return "";
+
+      var dd = gender === "m" ? "Der Patient" : "Die Patientin";
+      var dem = gender === "m" ? "dem Patienten" : "der Patientin";
+      var seitenAdj = seite === "rechts" ? "rechts" : seite === "links" ? "links" : seite === "bds" ? "beidseits" : "___";
+      var seitenAttr = seite === "rechts" ? "rechte" : seite === "links" ? "linke" : "betroffene";
+      var seitenAttrN = seite === "rechts" ? "rechten" : seite === "links" ? "linken" : "betroffenen";
+
+      var elines = [];
+      // Diagnose-Text
+      var diagText = "";
+      var gelenkText = ""; // "Hüfte" oder "Knie" für Therapie
+      if (endoDiag === "coxarthrose") { diagText = "Coxarthrose " + seitenAdj; gelenkText = "Hüfte"; }
+      else if (endoDiag === "htep_schmerz") {
+        var sepText = endoSep === "septisch" ? " bei V.a. periprothetische Infektion" : "";
+        diagText = "Schmerzhafte H-TEP " + seitenAdj + sepText;
+        gelenkText = "Hüfte";
+      }
+      else if (endoDiag === "gonarthrose") { diagText = "Gonarthrose " + seitenAdj; gelenkText = "Knie"; }
+      else if (endoDiag === "knie_uni") { diagText = "Unikompartimentelle Arthrose " + seitenAdj + ", " + endoUni + " betont"; gelenkText = "Knie"; }
+      else if (endoDiag === "ktep_schmerz") {
+        var sepText2 = endoSep === "septisch" ? " bei V.a. periprothetische Infektion" : "";
+        diagText = "Schmerzhafte K-TEP " + seitenAdj + sepText2;
+        gelenkText = "Knie";
+      }
+      elines.push("Diagnose: " + diagText + ".");
+
+      // BMI-Zeile
+      if (endoBmi !== null) {
+        var bmiKlassif = endoBmi >= 40 ? "schwere Adipositas" : endoBmi >= 30 ? "Adipositas" : endoBmi >= 25 ? "Übergewicht" : "Normalgewicht";
+        elines.push("BMI " + endoBmi.toLocaleString("de-DE") + " – " + bmiKlassif + ".");
+      }
+
+      elines.push("");
+      // Anamnese
+      elines.push(dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor.");
+
+      // Beschwerden-Anker
+      var beschwerdeText = "";
+      if (endoDiag === "coxarthrose") beschwerdeText = dd.toLowerCase() + " berichtet über Schmerzen im Bereich der " + seitenAttr + "n Hüfte";
+      else if (endoDiag === "htep_schmerz") beschwerdeText = dd.toLowerCase() + " berichtet über Schmerzen im Bereich der einliegenden H-TEP " + seitenAdj;
+      else if (endoDiag === "gonarthrose" || endoDiag === "knie_uni") beschwerdeText = dd.toLowerCase() + " berichtet über Schmerzen im Bereich des " + seitenAttrN + " Knies";
+      else if (endoDiag === "ktep_schmerz") beschwerdeText = dd.toLowerCase() + " berichtet über Schmerzen im Bereich der einliegenden K-TEP " + seitenAdj;
+      var dauerText = (dauer || "___") + " " + dauerEinheit;
+      elines.push(beschwerdeText + " seit " + dauerText + ".");
+      if (belastung) elines.push("Die Beschwerden treten unter Belastung auf, " + (belastung === "anlauf" ? "insbesondere als Anlaufschmerz" : belastung === "ruhe" ? "auch in Ruhe vorhanden" : "belastungsabhängig") + ".");
+      if (leidensdruck) elines.push("Der Leidensdruck ist " + (leidensdruck === "hoch" ? "hoch" : leidensdruck === "mittel" ? "mittelgradig" : "niedrig") + ".");
+      if (konservBisher) elines.push("Konservativ wurden bisher folgende Maßnahmen durchgeführt: " + konservBisher + ".");
+
+      // Risikofaktoren
+      if (risiken.length > 0 || freitextRisiko) {
+        elines.push("");
+        elines.push("Es bestehen folgende Risikofaktoren: " + risiken.join(", ") + "." + (freitextRisiko ? " " + freitextRisiko : ""));
+      }
+
+      // Klinische Untersuchung
+      var unters = [];
+      availBef.forEach(function(b) {
+        if (b.input) {
+          var v = befInputs[b.id];
+          if (v && v.trim()) unters.push(b.label + ": " + v);
+        } else {
+          var st = befState[b.id];
+          if (st === "pos") unters.push(b.pos);
+          else if (st === "neg") unters.push(b.neg);
+        }
+      });
+      if (freitextUnters && freitextUnters.trim()) unters.push(freitextUnters.trim());
+      if (unters.length > 0) {
+        elines.push("");
+        elines.push("Klinische Untersuchung:");
+        unters.forEach(function(u) { elines.push(u + "."); });
+      }
+
+      // Bildgebung
+      var bvE = bilder.filter(function(b) { return b.typ || b.befund; });
+      if (bvE.length > 0) {
+        var sText = seite === "links" ? "linken" : seite === "rechts" ? "rechten" : seite === "bds" ? "beider" : "";
+        var sKurz = seite === "links" ? "links" : seite === "rechts" ? "rechts" : seite === "bds" ? "beidseits" : "";
+        elines.push("");
+        elines.push("Bildgebung:");
+        bvE.forEach(function(b) {
+          var rt = "";
+          if (b.typ === "Röntgen") {
+            if (b.region === "becken_ap") rt = "Röntgen Beckenübersicht ap";
+            else if (b.region === "huefte_ax") rt = "Röntgen " + sKurz + " Hüfte axial";
+            else if (b.region === "knie_2eb") rt = "Röntgen " + sKurz + " Knie in 2 Ebenen";
+            else if (b.region === "patella_tang") rt = "Röntgen " + sKurz + " Patella tangential";
+            else if (b.region === "vergleich") rt = "Röntgen " + sKurz + " im Verlaufsvergleich zu Voraufnahmen";
+            else rt = "Röntgen " + (b.region || "___");
+          } else if (b.typ === "CT") {
+            if (b.region === "ct_becken") rt = "CT " + sKurz + " Hüfte/Becken";
+            else if (b.region === "ct_knie") rt = "CT des " + sText + " Knies";
+            else rt = "CT " + (b.region || "___");
+          } else if (b.typ === "MRT") {
+            if (b.region === "mrt_huefte") rt = "MRT der " + sText + " Hüfte";
+            else if (b.region === "mrt_knie") rt = "MRT des " + sText + " Knies";
+            else rt = "MRT " + (b.region || "___");
+          } else if (b.typ === "Szinti") {
+            rt = "3-Phasen-Skelettszintigraphie / SPECT-CT";
+          } else if (b.typ === "Punktion") {
+            var gel = (endoDiag === "coxarthrose" || endoDiag === "htep_schmerz") ? "Hüft" : "Knie";
+            rt = gel + "gelenkspunktion " + sKurz + " mit mikrobiologischer Aufarbeitung und Zellzählung";
+          } else {
+            rt = (b.typ || "___") + " " + (b.region || "___");
+          }
+          var dt = b.datum === "heute" ? "vom heutigen Tag" : (b.datum || "___");
+          elines.push(rt + " " + dt + ": " + (b.befund || "___") + ".");
+        });
+      }
+
+      // Therapie-Empfehlung
+      elines.push("");
+      var therapie = "";
+      if (endoDiag === "coxarthrose") therapie = "Bei klinisch und radiologisch ausgeprägter Coxarthrose empfehlen wir die endoprothetische Versorgung mit primärer H-TEP.";
+      else if (endoDiag === "gonarthrose") therapie = "Bei klinisch und radiologisch ausgeprägter Gonarthrose empfehlen wir die endoprothetische Versorgung mit primärer K-TEP.";
+      else if (endoDiag === "knie_uni") therapie = "Aufgrund der isolierten " + endoUni + " betonten Arthrose des " + seitenAttrN + " Knies empfehlen wir die unikondyläre Schlittenprothese.";
+      else if ((endoDiag === "htep_schmerz" || endoDiag === "ktep_schmerz") && endoSep === "aseptisch") {
+        var prothName = endoDiag === "htep_schmerz" ? "H-TEP" : "K-TEP";
+        therapie = "Bei symptomatischer einliegender " + prothName + " ohne Hinweis auf Infektion empfehlen wir die aseptische Wechseloperation.";
+      }
+      else if ((endoDiag === "htep_schmerz" || endoDiag === "ktep_schmerz") && endoSep === "septisch") {
+        var prothName2 = endoDiag === "htep_schmerz" ? "H-TEP" : "K-TEP";
+        var gel2 = endoDiag === "htep_schmerz" ? "Hüft" : "Knie";
+        therapie = "Bei V.a. periprothetische Infektion der einliegenden " + prothName2 + " empfehlen wir vor einer operativen Sanierung folgende Diagnostik zur Klärung: " + gel2 + "gelenkspunktion mit mikrobiologischer Aufarbeitung und Zellzählung, Bestimmung von CRP/BSG sowie ggf. eine 3-Phasen-Skelettszintigraphie. Bei Bestätigung der Infektion ist die zweizeitige septische Wechseloperation indiziert.";
+      }
+      elines.push(therapie);
+
+      // BMI-Hinweistext
+      if (endoBmi !== null && endoBmi >= 40) {
+        elines.push("");
+        elines.push("Aufgrund der schweren Adipositas besteht ein besonders hohes Risiko einer Komplikation. Wir empfehlen eine Ernährungsberatung, Gewichtsreduktion und eine Beratung in der bariatrischen Chirurgie.");
+      } else if (endoBmi !== null && endoBmi >= 30) {
+        elines.push("");
+        elines.push("Aufgrund der Adipositas besteht ein erhöhtes Risiko für jegliche Komplikationen. Wir empfehlen vor dem Eingriff eine Ernährungsberatung und Gewichtsreduktion.");
+      }
+
+      // Aufklärung
+      elines.push("");
+      elines.push(dd + " wurde über Diagnose, Therapieoption, Risiken und Alternativen ausführlich aufgeklärt. Die Aufklärung erfolgte mündlich und schriftlich, " + (gender === "m" ? "der Patient" : "die Patientin") + " hat eine Bedenkzeit erhalten.");
+
+      elines.push("");
+      elines.push("Mit freundlichen Grüßen,");
+      return elines.join("\n");
+    }
+
+    // STANDARD-FLOW (Fuß)
     if (diagnosen.length === 0) return "";
     var p = [];
     // Diagnose
@@ -4896,17 +5088,31 @@ var _s = useState, _m = useMemo;
         if (b.typ === "MRT") {
           if (b.region === "fuss") regionText = "MRT des " + sText + " Fußes";
           else if (b.region === "osg") regionText = "MRT des " + sText + " Sprunggelenkes";
+          else if (b.region === "mrt_huefte") regionText = "MRT der " + sText + " Hüfte";
+          else if (b.region === "mrt_knie") regionText = "MRT des " + sText + " Knies";
           else regionText = "MRT " + (b.region || "___");
         } else if (b.typ === "CT") {
           if (b.region === "fuss") regionText = "CT des " + sText + " Fußes";
           else if (b.region === "osg") regionText = "CT des " + sText + " Sprunggelenkes";
+          else if (b.region === "ct_becken") regionText = "CT " + sKurz + " Hüfte/Becken";
+          else if (b.region === "ct_knie") regionText = "CT des " + sText + " Knies";
           else regionText = "CT " + (b.region || "___");
         } else if (b.typ === "Röntgen") {
           if (b.region === "fuss_2eb") regionText = "Röntgen " + sKurz + " Fuß in 2 Ebenen";
           else if (b.region === "fuss_2eb_stand") regionText = "Röntgen " + sKurz + " Fuß in 2 Ebenen im Stand";
           else if (b.region === "osg_2eb") regionText = "Röntgen " + sKurz + " OSG in 2 Ebenen";
           else if (b.region === "quartett") regionText = "Röntgen " + sKurz + " Fußquartett: Fuß im Stand in 2 Ebenen, OSG ap und Saltzmann-Rückfußachsenaufnahme";
+          else if (b.region === "becken_ap") regionText = "Röntgen Beckenübersicht ap";
+          else if (b.region === "huefte_ax") regionText = "Röntgen " + sKurz + " Hüfte axial";
+          else if (b.region === "knie_2eb") regionText = "Röntgen " + sKurz + " Knie in 2 Ebenen";
+          else if (b.region === "patella_tang") regionText = "Röntgen " + sKurz + " Patella tangential";
+          else if (b.region === "vergleich") regionText = "Röntgen " + sKurz + " im Verlaufsvergleich zu Voraufnahmen";
           else regionText = "Röntgen " + (b.region || "___");
+        } else if (b.typ === "Szinti") {
+          regionText = "3-Phasen-Skelettszintigraphie / SPECT-CT";
+        } else if (b.typ === "Punktion") {
+          var gel = (endoDiag === "coxarthrose" || endoDiag === "htep_schmerz") ? "Hüft" : "Knie";
+          regionText = gel + "gelenkspunktion " + sKurz + " mit mikrobiologischer Aufarbeitung und Zellzählung";
         } else {
           regionText = (b.typ || "___") + " " + (b.region || "___");
         }
@@ -4964,7 +5170,7 @@ var _s = useState, _m = useMemo;
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     return p.join("");
-  }, [gender, begleitung, seite, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund]);
+  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, pfad, endoDiag, endoSep, endoUni, endoBmi]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() {
@@ -5033,6 +5239,8 @@ var _s = useState, _m = useMemo;
     setMeMode(false); setMeBriefRegion(""); setMeBriefImpl(""); setMeBriefZusatz("");
     setMeBriefDauer(""); setMeBriefDauerEinheit("Monaten"); setMeBriefOS("");
     setMeBriefBeschwerden(""); setMeBriefBefund("");
+    setPfad("fuss"); setEndoDiag(""); setEndoSep(""); setEndoUni(""); setEndoHoehe(""); setEndoGewicht("");
+    setAlter("erw");
     showToast("🔄 Alle Felder zurückgesetzt!");
   }
 
@@ -5431,7 +5639,7 @@ var _s = useState, _m = useMemo;
         </div>}
       </div>
 
-      {gender && diagnosen.length > 0 && !meMode && <div>
+      {gender && (diagnosen.length > 0 || (pfad === "endo" && endoDiag)) && !meMode && <div>
         <Sec title="① Anamnese" open={sec.anam} onToggle={function() { togSec("anam"); }}>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
             <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Dauer</div><div style={row}>{["1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(dauer === n)} onClick={function() { setDauer(dauer === n ? "" : n); }}>{n}</div>; })}</div></div>
@@ -5454,7 +5662,7 @@ var _s = useState, _m = useMemo;
         </Sec>
 
         <Sec title="② Risikofaktoren" open={sec.risiko} onToggle={function() { togSec("risiko"); }}>
-          <div style={row}>{RISIKEN.map(function(r) { var sel = risiken.indexOf(r) >= 0; return <div key={r} style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: sel ? "1px solid #E65100" : "1px solid rgba(0,0,0,.1)", background: sel ? "rgba(230,126,34,.12)" : "rgba(255,255,255,1)", color: sel ? "#EF6C00" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { togArr(r, risiken, setRisiken); }}>{r}</div>; })}</div>
+          <div style={row}>{(pfad === "endo" ? RISIKEN.concat(RISIKEN_ENDO) : RISIKEN).map(function(r) { var sel = risiken.indexOf(r) >= 0; return <div key={r} style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: sel ? "1px solid #E65100" : "1px solid rgba(0,0,0,.1)", background: sel ? "rgba(230,126,34,.12)" : "rgba(255,255,255,1)", color: sel ? "#EF6C00" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { togArr(r, risiken, setRisiken); }}>{r}</div>; })}</div>
           <textarea placeholder="Freitext..." value={freitextRisiko} onChange={function(e) { setFreitextRisiko(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
         </Sec>
 
@@ -5469,15 +5677,49 @@ var _s = useState, _m = useMemo;
             var seitenText = seite === "links" ? "linken" : seite === "rechts" ? "rechten" : seite === "bds" ? "beider" : "";
             var seitenKurz = seite === "links" ? "links" : seite === "rechts" ? "rechts" : seite === "bds" ? "beidseits" : "";
             var regionOptionen = [];
-            if (b.typ === "MRT") regionOptionen = [{id:"fuss",l:"Fuß",t:"MRT des " + seitenText + " Fußes"},{id:"osg",l:"Sprunggelenk",t:"MRT des " + seitenText + " Sprunggelenkes"}];
-            else if (b.typ === "CT") regionOptionen = [{id:"fuss",l:"Fuß",t:"CT des " + seitenText + " Fußes"},{id:"osg",l:"Sprunggelenk",t:"CT des " + seitenText + " Sprunggelenkes"}];
-            else if (b.typ === "Röntgen") regionOptionen = [
-              {id:"fuss_2eb",l:"Fuß in 2 Ebenen",t:"Röntgen " + seitenKurz + " Fuß in 2 Ebenen"},
-              {id:"fuss_2eb_stand",l:"Fuß in 2 Ebenen im Stand",t:"Röntgen " + seitenKurz + " Fuß in 2 Ebenen im Stand"},
-              {id:"osg_2eb",l:"OSG in 2 Ebenen",t:"Röntgen " + seitenKurz + " OSG in 2 Ebenen"},
-              {id:"quartett",l:"Fußquartett",t:"Röntgen " + seitenKurz + " Fußquartett: Fuß im Stand in 2 Ebenen, OSG ap und Saltzmann-Rückfußachsenaufnahme"}
-            ];
+            if (pfad === "endo") {
+              // Endo-Bildgebungs-Regionen je nach Diagnose
+              var huefteDiag = endoDiag === "coxarthrose" || endoDiag === "htep_schmerz";
+              var knieDiag = endoDiag === "gonarthrose" || endoDiag === "knie_uni" || endoDiag === "ktep_schmerz";
+              var tepSchmerz = endoDiag === "htep_schmerz" || endoDiag === "ktep_schmerz";
+              if (b.typ === "Röntgen") {
+                if (huefteDiag) regionOptionen = regionOptionen.concat([
+                  {id:"becken_ap",l:"Beckenübersicht ap",t:"Röntgen Beckenübersicht ap"},
+                  {id:"huefte_ax",l:"Hüfte axial",t:"Röntgen " + seitenKurz + " Hüfte axial"},
+                ]);
+                if (knieDiag) regionOptionen = regionOptionen.concat([
+                  {id:"knie_2eb",l:"Knie ap+seitlich",t:"Röntgen " + seitenKurz + " Knie in 2 Ebenen"},
+                  {id:"patella_tang",l:"Patella tangential",t:"Röntgen " + seitenKurz + " Patella tangential"},
+                ]);
+                if (tepSchmerz) regionOptionen.push({id:"vergleich",l:"Vergleich Voraufnahmen",t:"Röntgen " + seitenKurz + " im Verlaufsvergleich zu Voraufnahmen"});
+              }
+              else if (b.typ === "CT") {
+                if (huefteDiag) regionOptionen.push({id:"ct_becken",l:"CT Becken/Hüfte",t:"CT " + seitenKurz + " Hüfte/Becken"});
+                if (knieDiag) regionOptionen.push({id:"ct_knie",l:"CT Knie",t:"CT des " + seitenText + " Knies"});
+              }
+              else if (b.typ === "MRT") {
+                if (huefteDiag) regionOptionen.push({id:"mrt_huefte",l:"MRT Hüfte",t:"MRT der " + seitenText + " Hüfte"});
+                if (knieDiag) regionOptionen.push({id:"mrt_knie",l:"MRT Knie",t:"MRT des " + seitenText + " Knies"});
+              }
+              else if (b.typ === "Szinti") {
+                regionOptionen.push({id:"szinti",l:"3-Phasen-Skelettszintigraphie",t:"3-Phasen-Skelettszintigraphie / SPECT-CT"});
+              }
+              else if (b.typ === "Punktion") {
+                regionOptionen.push({id:"punktion",l:"Gelenkpunktion",t:(huefteDiag ? "Hüft" : "Knie") + "gelenkspunktion " + seitenKurz + " mit mikrobiologischer Aufarbeitung und Zellzählung"});
+              }
+            } else {
+              // Fuß-Pfad (Standard)
+              if (b.typ === "MRT") regionOptionen = [{id:"fuss",l:"Fuß",t:"MRT des " + seitenText + " Fußes"},{id:"osg",l:"Sprunggelenk",t:"MRT des " + seitenText + " Sprunggelenkes"}];
+              else if (b.typ === "CT") regionOptionen = [{id:"fuss",l:"Fuß",t:"CT des " + seitenText + " Fußes"},{id:"osg",l:"Sprunggelenk",t:"CT des " + seitenText + " Sprunggelenkes"}];
+              else if (b.typ === "Röntgen") regionOptionen = [
+                {id:"fuss_2eb",l:"Fuß in 2 Ebenen",t:"Röntgen " + seitenKurz + " Fuß in 2 Ebenen"},
+                {id:"fuss_2eb_stand",l:"Fuß in 2 Ebenen im Stand",t:"Röntgen " + seitenKurz + " Fuß in 2 Ebenen im Stand"},
+                {id:"osg_2eb",l:"OSG in 2 Ebenen",t:"Röntgen " + seitenKurz + " OSG in 2 Ebenen"},
+                {id:"quartett",l:"Fußquartett",t:"Röntgen " + seitenKurz + " Fußquartett: Fuß im Stand in 2 Ebenen, OSG ap und Saltzmann-Rückfußachsenaufnahme"}
+              ];
+            }
             var selRegion = regionOptionen.find(function(r) { return r.id === b.region; });
+            var bildTypen = pfad === "endo" ? ["Röntgen", "MRT", "CT", "Szinti", "Punktion"] : ["MRT", "CT", "Röntgen"];
             return <div key={i} style={{ padding: 8, borderRadius: 6, background: "rgba(0,107,111,.03)", border: "1px solid rgba(255,255,255,1)", marginBottom: 6 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ fontSize: 10, fontWeight: 600, color: "#00897B", marginBottom: 4 }}>Bildgebung {i + 1}</div>
@@ -5485,7 +5727,7 @@ var _s = useState, _m = useMemo;
               </div>
               <div style={{ marginBottom: 4 }}>
                 <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Typ</div>
-                <div style={row}>{["MRT", "CT", "Röntgen"].map(function(t) { return <div key={t} style={CB(b.typ === t)} onClick={function() { var n = bilder.slice(); n[i] = { typ: t, region: "", datum: b.datum, befund: b.befund }; setBilder(n); }}>{t}</div>; })}</div>
+                <div style={row}>{bildTypen.map(function(t) { return <div key={t} style={CB(b.typ === t)} onClick={function() { var n = bilder.slice(); n[i] = { typ: t, region: "", datum: b.datum, befund: b.befund }; setBilder(n); }}>{t}</div>; })}</div>
               </div>
               {b.typ && regionOptionen.length > 0 && <div style={{ marginBottom: 4 }}>
                 <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Region {seitenKurz ? "(Seite: " + seitenKurz + ")" : ""}</div>
