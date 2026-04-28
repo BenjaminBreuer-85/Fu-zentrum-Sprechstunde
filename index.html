@@ -4954,22 +4954,26 @@ var _s = useState, _m = useMemo;
     fallbackCopy(fullText);
   }
   function fallbackCopy(text){
-    var div=document.createElement("div");
-    var lines=text.split("\n");
-    for(var i=0;i<lines.length;i++){
-      if(i>0)div.appendChild(document.createElement("br"));
-      div.appendChild(document.createTextNode(lines[i]));
+    // Modern API: liefert plain text ohne HTML/CSS-Styles → in Word saubere Standard-Formatierung
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        showToast("📋 Kopiert!");
+      }).catch(function(){
+        legacyCopy(text);
+      });
+      return;
     }
-    div.style.cssText="position:fixed;top:0;left:0;width:90%;max-height:1px;overflow:hidden;opacity:0.01;-webkit-user-select:all;user-select:all;";
-    document.body.appendChild(div);
-    var range=document.createRange();
-    range.selectNodeContents(div);
-    var sel=window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
+    legacyCopy(text);
+  }
+  function legacyCopy(text){
+    var ta=document.createElement("textarea");
+    ta.value=text;
+    ta.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
     try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
-    sel.removeAllRanges();
-    document.body.removeChild(div);
+    document.body.removeChild(ta);
   }
   function downloadWord() {
     try {
@@ -5752,6 +5756,9 @@ function OPBerichtApp(){
   const [ucHdrg,setUcHdrg]=useState({});
   const [ucSec,setUcSec]=useState({rad:false,fib:false,fem:false,ell:false,kla:false,me:false});
   const [olekOSE,setOlekOSE]=useState("wsp");
+  // ENDO (Endoprothetik – Knie/Hüfte)
+  const [endoOp,setEndoOp]=useState("");
+  const [endoHtepImpl,setEndoHtepImpl]=useState("");// brehm | excia | metha | trendhip
   // Verband
   const [ruhig,setRuhig]=useState("keine");
   const [entlassGespr,setEntlassGespr]=useState(false);
@@ -6347,6 +6354,40 @@ function OPBerichtApp(){
       hint:"H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!",
       kodier:"5-796.k0. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.00) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},};
 
+  // ============================================================
+  // ENDO_EINGRIFFE — Endoprothetik Knie/Hüfte
+  // Werte teils Platzhalter (TODO_VERIFY) — siehe Daten-TODO-Liste
+  // ============================================================
+  const ENDO_EINGRIFFE={
+    ktep_omnibot:{l:"K-TEP / Omnibot",region:"knie",ops:["5-822.91"],
+      hdrg:"—",hdrgE:"—",basis:"I44B",basisE:null,pct:"—",
+      hint:"Knie-TEP primär (Omnibot/robotergestützt). Immer stationär – nie H-DRG.",
+      kodier:"5-822.91 (Implantation Knie-TEP, bicondylär, gekoppelt).\n⚠ TODO_VERIFY: OPS-Code prüfen je nach Prothesentyp."},
+    ktep_columbus:{l:"K-TEP / Columbus",region:"knie",ops:["5-822.91"],
+      hdrg:"—",hdrgE:"—",basis:"I44B",basisE:null,pct:"—",
+      hint:"Knie-TEP primär (Columbus, Aesculap). Immer stationär – nie H-DRG.",
+      kodier:"5-822.91 (Implantation Knie-TEP, bicondylär, gekoppelt).\n⚠ TODO_VERIFY: OPS-Code prüfen je nach Prothesentyp."},
+    schlitten:{l:"Schlittenprothese (Uni-Knie)",region:"knie",ops:["5-822.01"],
+      hdrg:"—",hdrgE:"—",basis:null,basisE:null,pct:"—",
+      hint:"Unicompartmental Knie-TEP. Immer stationär – nie H-DRG.",
+      kodier:"5-822.01 (Implantation Knie-TEP, unicondylär).\n⚠ TODO_VERIFY: DRG (vermutl. I44C oder I43B), OPS-Code, Erlöswerte."},
+    duokopf_endo:{l:"Duokopf (elektiv)",region:"huefte",ops:["5-820.21"],
+      hdrg:"—",hdrgE:"—",basis:null,basisE:null,pct:"—",
+      hint:"Duokopfprothese, elektive Indikation (z.B. Coxarthrose).\nNICHT zu verwechseln mit UC-Duokopf bei Schenkelhalsfraktur (DRG I47B).",
+      kodier:"5-820.21 (Implantation Hüft-Endoprothese, Duokopf).\n⚠ TODO_VERIFY: elektive DRG, Erlöswerte."},
+    htep:{l:"H-TEP",region:"huefte",ops:["5-820.0"],
+      hdrg:"—",hdrgE:"—",basis:"I47B",basisE:null,pct:"—",
+      hint:"Hüft-TEP primär (Brehm, Excia, Metha oder Trend-Hip). Immer stationär – nie H-DRG.",
+      kodier:"5-820.0 (Implantation Hüft-TEP, Pfanne + Schaft).\n⚠ TODO_VERIFY: exakter OPS je nach Schaft-Typ, CM 2026, Erlös NRW."},
+  };
+
+  const ENDO_HTEP_IMPL={
+    brehm:{l:"Brehm",lieferant:"Brehm",preis:null},
+    excia:{l:"Excia",lieferant:"Aesculap",preis:null},
+    metha:{l:"Metha (Kurzschaft)",lieferant:"Aesculap",preis:null},
+    trendhip:{l:"Trend-Hip",lieferant:"Aesculap",preis:null},
+  };
+
 const UC_TEXT_MAP={
   radius_einf_pl:"radius_aptus",radius_einf_wsp:"radius_aptus",radius_mehr_wsp:"radius_aptus",
   klav_einf_wsp:"klav_wsp",klav_mehr_wsp:"klav_wsp",
@@ -6705,28 +6746,33 @@ const UC_TEXT_MAP={
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
   function obFallbackCopy(text){
-    var div=document.createElement("div");
-    var lines=text.split("\n");
-    for(var i=0;i<lines.length;i++){
-      if(i>0)div.appendChild(document.createElement("br"));
-      div.appendChild(document.createTextNode(lines[i]));
+    // Modern API: liefert plain text ohne HTML/CSS-Styles → in Word saubere Standard-Formatierung
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        showToast("📋 Kopiert!");
+      }).catch(function(){
+        // Legacy fallback: <textarea> kopiert ebenfalls plain text (im Gegensatz zu <div>)
+        obLegacyCopy(text);
+      });
+      return;
     }
-    div.style.cssText="position:fixed;top:0;left:0;width:90%;max-height:1px;overflow:hidden;opacity:0.01;-webkit-user-select:all;user-select:all;";
-    document.body.appendChild(div);
-    var range=document.createRange();
-    range.selectNodeContents(div);
-    var sel=window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-    try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
-    sel.removeAllRanges();
-    document.body.removeChild(div);
+    obLegacyCopy(text);
   }
-  const copy=()=>{if(!canExport)return;obFallbackCopy(fullText+icdText+erloesText);};
+  function obLegacyCopy(text){
+    var ta=document.createElement("textarea");
+    ta.value=text;
+    ta.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
+    document.body.removeChild(ta);
+  }
+  const copy=()=>{if(!canExport)return;obFallbackCopy(fullText+icdText);};
   const dlDocx=()=>{
     if(!canExport)return;
     try{
-      const f=buildDocx(fullText+icdText,erloesText);
+      const f=buildDocx(fullText+icdText,"");
       const z=createZip(f);
       // Convert to base64
       const bytes=new Uint8Array(z);
@@ -6763,11 +6809,11 @@ const UC_TEXT_MAP={
       }catch(e2){}
 
       showToast("⚠ Download blockiert – Text kopiert");
-      obFallbackCopy(fullText+icdText+erloesText)
+      obFallbackCopy(fullText+icdText)
     }catch(e){
       console.error(e);
       showToast("⚠ Fehler – Text wird kopiert");
-      obFallbackCopy(fullText+icdText+erloesText);
+      obFallbackCopy(fullText+icdText);
     }
   };
 
@@ -6815,6 +6861,7 @@ const UC_TEXT_MAP={
         <div style={row}>
           <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>🦶 Fuß / Sprunggelenk</div>
           <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>🦴 UC</div>
+          <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>🦿 Endo</div>
 
         </div>
       </div>
@@ -7570,6 +7617,48 @@ const UC_TEXT_MAP={
           </div>
         </div>}
       </div>}
+
+      {sektion==="endo"&&<div>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,padding:"6px 10px",background:"rgba(255,193,7,.08)",border:"1px solid rgba(255,193,7,.3)",borderRadius:6,fontSize:10,color:"#BF360C"}}>
+          ⚠ <span><strong>Endo-Modul im Aufbau</strong> — Daten teils Platzhalter (DRG-Werte, CM, Implantatpreise). Vor produktiver Nutzung bitte Daten-TODO-Liste durchgehen.</span>
+        </div>
+
+        <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>KNIE</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {Object.keys(ENDO_EINGRIFFE).filter(k=>ENDO_EINGRIFFE[k].region==="knie").map(k=><div key={k} style={gb(endoOp===k)} onClick={()=>{setEndoOp(endoOp===k?"":k);setEndoHtepImpl("");}}>{ENDO_EINGRIFFE[k].l}</div>)}
+        </div>
+
+        <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>HÜFTE</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {Object.keys(ENDO_EINGRIFFE).filter(k=>ENDO_EINGRIFFE[k].region==="huefte").map(k=><div key={k} style={gb(endoOp===k)} onClick={()=>{setEndoOp(endoOp===k?"":k);setEndoHtepImpl("");}}>{ENDO_EINGRIFFE[k].l}</div>)}
+        </div>
+
+        {endoOp==="htep"&&<div style={{marginBottom:12}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>SCHAFT-SYSTEM</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {Object.keys(ENDO_HTEP_IMPL).map(k=><div key={k} style={gb(endoHtepImpl===k)} onClick={()=>setEndoHtepImpl(endoHtepImpl===k?"":k)}>{ENDO_HTEP_IMPL[k].l}</div>)}
+          </div>
+        </div>}
+
+        {endoOp&&ENDO_EINGRIFFE[endoOp]&&<div style={card}>
+          <div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {ENDO_EINGRIFFE[endoOp].l}</div>
+          <div style={{padding:"8px 12px",background:"rgba(0,107,111,.08)",borderRadius:6,marginBottom:10,fontSize:10,lineHeight:1.5,color:"#2D3748"}}>
+            <strong>ℹ Nicht hybrid-fähig</strong> — keine H-DRG, immer reguläre DRG. Stationäre Behandlung obligat. Bei UGVD-Unterschreitung: Tagesabschlag.
+          </div>
+          <div style={{padding:"8px 12px",background:"rgba(255,193,7,.08)",borderRadius:6,marginBottom:8,fontSize:10,color:"#BF360C"}}>
+            <strong>⚠ Datensatz unvollständig:</strong> DRG-Erlöswerte, CM 2026, UGVD und Implantatpreise sind noch nicht hinterlegt. Bitte Daten-TODO-Liste durchgehen.
+          </div>
+          <div style={{fontSize:11,color:"#2D3748",lineHeight:1.5,whiteSpace:"pre-line"}}>{ENDO_EINGRIFFE[endoOp].hint}</div>
+          <div style={{marginTop:10,fontSize:10,color:"#718096",fontWeight:700,borderTop:"1px solid rgba(0,0,0,.08)",paddingTop:8}}>OPS-Codes</div>
+          <div style={{fontSize:10,color:"#2D3748",fontFamily:"'IBM Plex Mono',monospace"}}>{ENDO_EINGRIFFE[endoOp].ops.join(" · ")}</div>
+          <div style={{marginTop:8,fontSize:10,color:"#718096",fontWeight:700}}>Codierhinweis</div>
+          <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5,whiteSpace:"pre-line"}}>{ENDO_EINGRIFFE[endoOp].kodier}</div>
+          {endoOp==="htep"&&endoHtepImpl&&<div style={{marginTop:10,padding:"6px 10px",background:"rgba(0,137,123,.05)",border:"1px solid rgba(0,137,123,.2)",borderRadius:5,fontSize:10}}>
+            <strong>Schaft:</strong> {ENDO_HTEP_IMPL[endoHtepImpl].l} ({ENDO_HTEP_IMPL[endoHtepImpl].lieferant}) — Preis: <span style={{color:"#E65100"}}>Datensatz ausstehend</span>
+          </div>}
+        </div>}
+      </div>}
+
 
       </div>{/* END ob-form */}
 
