@@ -4661,6 +4661,13 @@ var _s = useState, _m = useMemo;
   var bs2 = _s(""), begleitung = bs2[0], setBegleitung = bs2[1];
   var ss = _s(""), seite = ss[0], setSeite = ss[1];
   var als = _s("erw"), alter = als[0], setAlter = als[1];
+  // ENDO-Pfad
+  var pas = _s("fuss"), pfad = pas[0], setPfad = pas[1];// "fuss" | "endo"
+  var eds = _s(""), endoDiag = eds[0], setEndoDiag = eds[1];// coxarthrose | htep_schmerz | gonarthrose | knie_uni | ktep_schmerz
+  var esps = _s(""), endoSep = esps[0], setEndoSep = esps[1];// aseptisch | septisch (nur bei TEP_schmerz)
+  var euns = _s(""), endoUni = euns[0], setEndoUni = euns[1];// medial | lateral (nur bei knie_uni)
+  var ehs = _s(""), endoHoehe = ehs[0], setEndoHoehe = ehs[1];// Größe in cm
+  var ews = _s(""), endoGewicht = ews[0], setEndoGewicht = ews[1];// Gewicht in kg
   var ds = _s([]), diagnosen = ds[0], setDiagnosen = ds[1];
   var cs = _s(false), coalitio = cs[0], setCoalitio = cs[1];
   var cvs = _s(""), coalitioVar = cvs[0], setCoalitioVar = cvs[1];
@@ -4742,6 +4749,16 @@ var _s = useState, _m = useMemo;
     if (coalitio) { all["coalition_exzision"] = true; all["subtalar_arthrodese"] = true; }
     return Object.keys(all);
   }, [diagnosen, coalitio]);
+
+  // BMI-Berechnung Endo-Pfad (Größe in cm, Gewicht in kg → BMI)
+  var endoBmi = _m(function() {
+    var h = parseFloat(String(endoHoehe).replace(",", "."));
+    var g = parseFloat(String(endoGewicht).replace(",", "."));
+    if (!h || !g || h < 100 || h > 230 || g < 30 || g > 250) return null;
+    var hm = h / 100;
+    var bmi = g / (hm * hm);
+    return Math.round(bmi * 10) / 10;
+  }, [endoHoehe, endoGewicht]);
 
   var fullText = _m(function() {
     if (!gender) return "";
@@ -5049,6 +5066,18 @@ var _s = useState, _m = useMemo;
           <div><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>ALTER</div><div style={row}><div style={GB(alter === "erw")} onClick={function() { setAlter("erw"); }}>≥18 J.</div><div style={{...GB(alter === "kind"),borderColor:alter==="kind"?"#E65100":"",color:alter==="kind"?"#E65100":"",background:alter==="kind"?"rgba(230,81,0,.08)":""}} onClick={function() { setAlter("kind"); }}>{"<18 J. ⚠"}</div></div></div>
         </div>
         <div style={{ marginBottom: 6 }}><div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>BEGLEITUNG (optional)</div><input value={begleitung} onChange={function(e) { setBegleitung(e.target.value); }} placeholder="z.B. des Vaters, der Mutter..." /></div>
+        {/* PFAD-AUSWAHL: Fuß vs. Endo */}
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>FACHRICHTUNG</div>
+          <div style={row}>
+            <div style={GB(pfad === "fuss")} onClick={function() { setPfad("fuss"); setEndoDiag(""); setEndoSep(""); setEndoUni(""); }}>🦶 Fuß / Sprunggelenk</div>
+            <div style={GB(pfad === "endo")} onClick={function() { setPfad("endo"); setDiagnosen([]); setMeMode(false); setOpMethode([]); }}>🦿 Endoprothetik</div>
+          </div>
+        </div>
+        {pfad === "endo" && <div style={{ marginTop: 6, padding: "6px 10px", background: "rgba(255,193,7,.08)", border: "1px solid rgba(255,193,7,.3)", borderRadius: 6, fontSize: 10, color: "#BF360C", marginBottom: 8 }}>
+          ⚠ <strong>Endo-Pfad im Aufbau (Iteration 1):</strong> Diagnose-Auswahl + BMI funktionsfähig. Klinische Untersuchung, Bildgebung, Therapie und Erlös-Simulation folgen in Iteration 2 + 3.
+        </div>}
+        {pfad === "fuss" && <>
         <div style={cat}>Diagnose(n) – max. 2</div>
         {/* ME-MODUS Chip */}
         <div style={{marginBottom:6}}>
@@ -5056,6 +5085,55 @@ var _s = useState, _m = useMemo;
           {meMode&&<span style={{fontSize:9,color:"#BF360C",marginLeft:8,fontStyle:"italic"}}>Diagnose „Störendes Implantat" wird automatisch gesetzt. Eingaben unten nutzen.</span>}
         </div>
         {!meMode&&<div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>}
+        </>}
+        {pfad === "endo" && <>
+          <div style={cat}>Diagnose</div>
+          <div style={row}>
+            <div style={C(endoDiag === "coxarthrose")} onClick={function() { setEndoDiag(endoDiag === "coxarthrose" ? "" : "coxarthrose"); setEndoSep(""); setEndoUni(""); }}>Coxarthrose</div>
+            <div style={C(endoDiag === "htep_schmerz")} onClick={function() { setEndoDiag(endoDiag === "htep_schmerz" ? "" : "htep_schmerz"); setEndoUni(""); }}>Schmerzhafte H-TEP</div>
+            <div style={C(endoDiag === "gonarthrose")} onClick={function() { setEndoDiag(endoDiag === "gonarthrose" ? "" : "gonarthrose"); setEndoSep(""); setEndoUni(""); }}>Gonarthrose</div>
+            <div style={C(endoDiag === "knie_uni")} onClick={function() { setEndoDiag(endoDiag === "knie_uni" ? "" : "knie_uni"); setEndoSep(""); }}>Unikompartim. Arthrose Knie</div>
+            <div style={C(endoDiag === "ktep_schmerz")} onClick={function() { setEndoDiag(endoDiag === "ktep_schmerz" ? "" : "ktep_schmerz"); setEndoUni(""); }}>Schmerzhafte K-TEP</div>
+          </div>
+          {(endoDiag === "htep_schmerz" || endoDiag === "ktep_schmerz") && <div style={{ marginTop: 8 }}>
+            <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>SEPTIK-VERDACHT</div>
+            <div style={row}>
+              <div style={GB(endoSep === "aseptisch")} onClick={function() { setEndoSep("aseptisch"); }}>aseptisch</div>
+              <div style={{...GB(endoSep === "septisch"), borderColor: endoSep === "septisch" ? "#C62828" : "", color: endoSep === "septisch" ? "#C62828" : "", background: endoSep === "septisch" ? "rgba(198,40,40,.08)" : ""}} onClick={function() { setEndoSep("septisch"); }}>V.a. septisch ⚠</div>
+            </div>
+          </div>}
+          {endoDiag === "knie_uni" && <div style={{ marginTop: 8 }}>
+            <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>BETROFFENES KOMPARTIMENT</div>
+            <div style={row}>
+              <div style={GB(endoUni === "medial")} onClick={function() { setEndoUni("medial"); }}>medial</div>
+              <div style={GB(endoUni === "lateral")} onClick={function() { setEndoUni("lateral"); }}>lateral</div>
+            </div>
+          </div>}
+          {/* BMI-Felder */}
+          <div style={{ marginTop: 10, padding: "8px 10px", background: "rgba(0,107,111,.04)", border: "1px solid rgba(0,107,111,.15)", borderRadius: 6 }}>
+            <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 4 }}>KÖRPERMAßE</div>
+            <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
+              <div>
+                <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Größe (cm)</div>
+                <input type="number" value={endoHoehe} onChange={function(e) { setEndoHoehe(e.target.value); }} placeholder="z.B. 172" style={{ width: 90, padding: "4px 8px", borderRadius: 4, border: "1px solid rgba(0,0,0,.15)", fontSize: 12 }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Gewicht (kg)</div>
+                <input type="number" value={endoGewicht} onChange={function(e) { setEndoGewicht(e.target.value); }} placeholder="z.B. 78" style={{ width: 90, padding: "4px 8px", borderRadius: 4, border: "1px solid rgba(0,0,0,.15)", fontSize: 12 }} />
+              </div>
+              {endoBmi !== null && <div style={{ fontSize: 13, fontWeight: 700, color: endoBmi >= 40 ? "#C62828" : endoBmi >= 30 ? "#E65100" : "#00897B", padding: "4px 10px", background: "rgba(255,255,255,.7)", borderRadius: 4 }}>
+                BMI {endoBmi.toLocaleString("de-DE")}
+                {endoBmi >= 40 ? " · schwere Adipositas" : endoBmi >= 30 ? " · Adipositas" : endoBmi >= 25 ? " · Übergewicht" : ""}
+              </div>}
+            </div>
+            {endoBmi !== null && endoBmi >= 30 && endoBmi < 40 && <div style={{ marginTop: 6, fontSize: 10, color: "#E65100", lineHeight: 1.4 }}>
+              ℹ Im Brief wird ergänzt: <em>„Aufgrund der Adipositas besteht ein erhöhtes Risiko für jegliche Komplikationen. Wir empfehlen vor dem Eingriff eine Ernährungsberatung und Gewichtsreduktion."</em>
+            </div>}
+            {endoBmi !== null && endoBmi >= 40 && <div style={{ marginTop: 6, fontSize: 10, color: "#C62828", lineHeight: 1.4 }}>
+              ℹ Im Brief wird ergänzt: <em>„Aufgrund der schweren Adipositas besteht ein besonders hohes Risiko einer Komplikation. Wir empfehlen eine Ernährungsberatung, Gewichtsreduktion und eine Beratung in der bariatrischen Chirurgie."</em>
+            </div>}
+          </div>
+        </>}}
         {/* ME-FORMULAR */}
         {meMode&&<div style={{marginTop:8,padding:12,border:"2px solid rgba(230,81,0,.3)",borderRadius:8,background:"rgba(230,81,0,.03)"}}>
           <div style={{fontSize:10,fontWeight:700,color:"#BF360C",marginBottom:8}}>Metallentfernung – Brief-Parameter</div>
