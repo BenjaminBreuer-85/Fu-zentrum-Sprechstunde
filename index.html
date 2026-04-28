@@ -5759,6 +5759,10 @@ function OPBerichtApp(){
   // ENDO (Endoprothetik – Knie/Hüfte)
   const [endoOp,setEndoOp]=useState("");
   const [endoHtepImpl,setEndoHtepImpl]=useState("");// brehm | excia | metha | trendhip
+  // WS (Wirbelsäule – Kypho/Deko)
+  const [wsOp,setWsOp]=useState("");// kypho | deko
+  const [wsHoehen,setWsHoehen]=useState([]);// Multi-Select: Wirbel oder Segmente
+  const [wsSeiten,setWsSeiten]=useState({});// {segmentKey: "links"|"rechts"} nur bei Deko
   // Verband
   const [ruhig,setRuhig]=useState("keine");
   const [entlassGespr,setEntlassGespr]=useState(false);
@@ -6388,6 +6392,26 @@ function OPBerichtApp(){
     trendhip:{l:"Trend-Hip",lieferant:"Aesculap",preis:null},
   };
 
+  // ============================================================
+  // WS_EINGRIFFE — Wirbelsäule Kyphoplastie/Dekompression
+  // Werte teils Platzhalter (TODO_VERIFY) — siehe Daten-TODO-Liste
+  // ============================================================
+  const WS_EINGRIFFE={
+    kypho:{l:"Kyphoplastie",ops:["5-839.a0"],
+      hdrg:"—",hdrgE:"—",basis:null,basisE:null,pct:"—",
+      hint:"Kyphoplastie (perkutan, mit Material). Pro Wirbel kodiert. Immer stationär – nie H-DRG.",
+      kodier:"5-839.a0 (Kyphoplastie perkutan, mit Material).\n⚠ TODO_VERIFY: OPS-Code, DRG, CM, Erlöswerte."},
+    deko:{l:"Dekompression",ops:["5-83b.21"],
+      hdrg:"—",hdrgE:"—",basis:null,basisE:null,pct:"—",
+      hint:"Dekompression lumbal (mikrochirurgisch). Pro Segment kodiert mit Seitenangabe. Immer stationär – nie H-DRG.",
+      kodier:"5-83b.21 (Dekompression mikrochirurgisch, einseitig).\n⚠ TODO_VERIFY: OPS-Code je nach Segmentanzahl, DRG, CM, Erlöswerte."},
+  };
+
+  // Wirbel-Auswahl Kypho (einzelne Wirbel)
+  const WS_WIRBEL=["Th10","Th11","Th12","L1","L2","L3","L4","L5"];
+  // Segment-Auswahl Deko (Bandscheibensegmente)
+  const WS_SEGMENTE=["Th10/11","Th11/12","Th12/L1","L1/2","L2/3","L3/4","L4/5","L5/S1"];
+
 const UC_TEXT_MAP={
   radius_einf_pl:"radius_aptus",radius_einf_wsp:"radius_aptus",radius_mehr_wsp:"radius_aptus",
   klav_einf_wsp:"klav_wsp",klav_mehr_wsp:"klav_wsp",
@@ -6862,6 +6886,7 @@ const UC_TEXT_MAP={
           <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>🦶 Fuß / Sprunggelenk</div>
           <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>🦴 UC</div>
           <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>🦿 Endo</div>
+          <div style={gb(sektion==="ws")} onClick={()=>setSektion(sektion==="ws"?"":"ws")}>🦴 WS</div>
 
         </div>
       </div>
@@ -7656,6 +7681,73 @@ const UC_TEXT_MAP={
           {endoOp==="htep"&&endoHtepImpl&&<div style={{marginTop:10,padding:"6px 10px",background:"rgba(0,137,123,.05)",border:"1px solid rgba(0,137,123,.2)",borderRadius:5,fontSize:10}}>
             <strong>Schaft:</strong> {ENDO_HTEP_IMPL[endoHtepImpl].l} ({ENDO_HTEP_IMPL[endoHtepImpl].lieferant}) — Preis: <span style={{color:"#E65100"}}>Datensatz ausstehend</span>
           </div>}
+        </div>}
+      </div>}
+
+      {sektion==="ws"&&<div>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,padding:"6px 10px",background:"rgba(255,193,7,.08)",border:"1px solid rgba(255,193,7,.3)",borderRadius:6,fontSize:10,color:"#BF360C"}}>
+          ⚠ <span><strong>WS-Modul im Aufbau</strong> — Daten teils Platzhalter (DRG-Werte, CM, Implantatpreise). Vor produktiver Nutzung bitte Daten-TODO-Liste durchgehen.</span>
+        </div>
+
+        <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>EINGRIFF</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {Object.keys(WS_EINGRIFFE).map(k=><div key={k} style={gb(wsOp===k)} onClick={()=>{setWsOp(wsOp===k?"":k);setWsHoehen([]);setWsSeiten({});}}>{WS_EINGRIFFE[k].l}</div>)}
+        </div>
+
+        {wsOp==="kypho"&&<div style={{marginBottom:12}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>WIRBEL (Mehrfachauswahl möglich)</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {WS_WIRBEL.map(w=><div key={w} style={gb(wsHoehen.indexOf(w)>=0)} onClick={()=>{
+              if(wsHoehen.indexOf(w)>=0) setWsHoehen(wsHoehen.filter(x=>x!==w));
+              else setWsHoehen([...wsHoehen,w].sort((a,b)=>WS_WIRBEL.indexOf(a)-WS_WIRBEL.indexOf(b)));
+            }}>{w}</div>)}
+          </div>
+        </div>}
+
+        {wsOp==="deko"&&<div style={{marginBottom:12}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>SEGMENT (Mehrfachauswahl möglich)</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {WS_SEGMENTE.map(s=><div key={s} style={gb(wsHoehen.indexOf(s)>=0)} onClick={()=>{
+              if(wsHoehen.indexOf(s)>=0){
+                setWsHoehen(wsHoehen.filter(x=>x!==s));
+                var ns={...wsSeiten}; delete ns[s]; setWsSeiten(ns);
+              } else {
+                setWsHoehen([...wsHoehen,s].sort((a,b)=>WS_SEGMENTE.indexOf(a)-WS_SEGMENTE.indexOf(b)));
+              }
+            }}>{s}</div>)}
+          </div>
+          {wsHoehen.length>0&&<div style={{marginTop:10,padding:"8px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
+            <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:6}}>SEITE PRO SEGMENT</div>
+            {wsHoehen.map(s=><div key={s} style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+              <div style={{minWidth:60,fontSize:11,fontWeight:600,color:"#2D3748"}}>{s}</div>
+              <div style={{display:"flex",gap:4}}>
+                <div style={gb(wsSeiten[s]==="rechts")} onClick={()=>setWsSeiten({...wsSeiten,[s]:"rechts"})}>von rechts</div>
+                <div style={gb(wsSeiten[s]==="links")} onClick={()=>setWsSeiten({...wsSeiten,[s]:"links"})}>von links</div>
+              </div>
+            </div>)}
+          </div>}
+        </div>}
+
+        {wsOp&&WS_EINGRIFFE[wsOp]&&wsHoehen.length>0&&<div style={card}>
+          <div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {WS_EINGRIFFE[wsOp].l}</div>
+          <div style={{padding:"8px 12px",background:"rgba(0,107,111,.08)",borderRadius:6,marginBottom:10,fontSize:10,lineHeight:1.5,color:"#2D3748"}}>
+            <strong>ℹ Nicht hybrid-fähig</strong> — keine H-DRG, immer reguläre DRG. Stationäre Behandlung obligat.
+          </div>
+          <div style={{padding:"8px 12px",background:"rgba(255,193,7,.08)",borderRadius:6,marginBottom:8,fontSize:10,color:"#BF360C"}}>
+            <strong>⚠ Datensatz unvollständig:</strong> DRG-Erlöswerte, CM 2026, UGVD und Implantatpreise sind noch nicht hinterlegt.
+          </div>
+          <div style={{fontSize:11,color:"#2D3748",lineHeight:1.5,whiteSpace:"pre-line"}}>{WS_EINGRIFFE[wsOp].hint}</div>
+          <div style={{marginTop:10,fontSize:10,color:"#718096",fontWeight:700,borderTop:"1px solid rgba(0,0,0,.08)",paddingTop:8}}>AUSGEWÄHLT</div>
+          <div style={{fontSize:11,color:"#2D3748",lineHeight:1.6}}>
+            {wsOp==="kypho"
+              ?<><strong>{wsHoehen.length}× Wirbel:</strong> {wsHoehen.join(" · ")}</>
+              :<><strong>{wsHoehen.length}× Segment:</strong> {wsHoehen.map(s=>s+(wsSeiten[s]?" ("+wsSeiten[s]+")":" (Seite fehlt)")).join(" · ")}</>
+            }
+          </div>
+          <div style={{marginTop:8,fontSize:10,color:"#718096",fontWeight:700}}>OPS-Codes</div>
+          <div style={{fontSize:10,color:"#2D3748",fontFamily:"'IBM Plex Mono',monospace"}}>{WS_EINGRIFFE[wsOp].ops.join(" · ")} <span style={{color:"#718096"}}>× {wsHoehen.length}</span></div>
+          <div style={{marginTop:8,fontSize:10,color:"#718096",fontWeight:700}}>Codierhinweis</div>
+          <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5,whiteSpace:"pre-line"}}>{WS_EINGRIFFE[wsOp].kodier}</div>
         </div>}
       </div>}
 
