@@ -4376,6 +4376,109 @@ const ENDO_BEF_TEP_SCHMERZ = [
   { id: "knirschen", pos: "Knirschen / Klicken in der Prothese auslösbar", neg: "Kein Knirschen / Klicken" },
 ];
 
+// =============================================================
+// ENDO-DRG / ERLÖS-DATENBASIS
+// Quelle: LINK Endoprothetik-Abrechnungsleitfaden 2023
+// Werte (BWR, mVD, mVD-Pflege) sind DATENJAHR 2023.
+// ⚠ FÜR PRODUKTIV-EINSATZ MIT INEK-WERTEN 2026 ÜBERSCHREIBEN.
+// =============================================================
+const ENDO_DRG = {
+  // Primäre Hüfte
+  "I47C": { bwr: 1.497, mvdPflege: 0.7097, mvd: 7.2, label: "Hüft-TEP, ohne kompl. Eingriff, ohne CC", inekImpl: null },
+  "I47B": { bwr: 1.802, mvdPflege: 0.8533, mvd: 9.9, label: "Hüft-TEP, mit kompl. Eingriff", inekImpl: null },
+  // Aseptischer Pfannenwechsel hat eigenes I47A
+  "I47A": { bwr: 2.196, mvdPflege: 0.7991, mvd: 11.3, label: "Pfannenwechsel / Revision Hüfte", inekImpl: null },
+  // Schaftwechsel
+  "I46C": { bwr: 2.356, mvdPflege: 0.801, mvd: 11.2, label: "Hüft-Schaftwechsel, ohne CC", inekImpl: null },
+  "I46A": { bwr: 4.322, mvdPflege: 1.1243, mvd: 22.6, label: "Hüft-Wechsel, mit aufw. Eingriff / PCCL 4", inekImpl: null },
+  // Komplexe primäre Hüfte (Pfannenboden/-dach + Spongiosa, oder PCCL 4)
+  "I05A": { bwr: 3.334, mvdPflege: 1.1546, mvd: 21.4, label: "Großer Eingriff Hüfte, PCCL 4 / mit aufw. Eingriff", inekImpl: null },
+  "I08D": { bwr: 2.523, mvdPflege: 0.9564, mvd: 14.0, label: "Hüfte mit zus. Knochentransplantation", inekImpl: null },
+  "I08E": { bwr: 2.153, mvdPflege: 0.8863, mvd: 10.6, label: "Hüfte mit zus. alloplast. Knochenersatz", inekImpl: null },
+  // Septische Hüft-Revision
+  "I04Z": { bwr: 3.076, mvdPflege: 0.8026, mvd: 15.5, label: "Reimplantation/Septisch Hüft- o. Kniegelenk", inekImpl: null },
+  "I03B": { bwr: 2.836, mvdPflege: 0.7608, mvd: 16.8, label: "Septische Hüft-Revision (Ausbau), ohne CC", inekImpl: null },
+  "I03A": { bwr: 5.781, mvdPflege: 1.0111, mvd: 31.9, label: "Septische Hüft-Revision, PCCL 4 / aufw.", inekImpl: null },
+  // Knie primär
+  "I44D": { bwr: 1.548, mvdPflege: 0.6789, mvd: 6.2, label: "Knie unikondyläre Schlittenprothese (kein PCCL-Split)", inekImpl: null },
+  "I44C": { bwr: 1.687, mvdPflege: 0.6874, mvd: 7.7, label: "Bikondylärer Knie-OF-Ersatz, ohne CC", inekImpl: null },
+  "I44A": { bwr: 2.234, mvdPflege: 0.7325, mvd: 10.1, label: "Bikondylärer Knie-OF-Ersatz, PCCL 4", inekImpl: null },
+  // Knie Sonderprothese
+  "I43B": { bwr: 2.553, mvdPflege: 0.7369, mvd: 9.6, label: "Knie-Sonderprothese (CAD/CAM, Rotation), ohne CC", inekImpl: null },
+  "I43A": { bwr: 5.292, mvdPflege: 0.9235, mvd: 29.5, label: "Knie-Sonderprothese, PCCL 4", inekImpl: null },
+  // Knie bilateral
+  "I36Z": { bwr: 2.617, mvdPflege: 0.7898, mvd: 10.3, label: "Beidseitige Hemischlitten-Versorgung", inekImpl: null },
+  // Knie septisch
+  "I12A": { bwr: 3.968, mvdPflege: 0.9953, mvd: 24.8, label: "Knöcherne/gelenkrekonstr. Eingriffe Knie, PCCL 4", inekImpl: null },
+};
+
+// Konstellationen pro Endo-Diagnose: Liste möglicher OPS+ICD+DRG-Pfade
+const ENDO_KONSTELLATIONEN = {
+  coxarthrose: [
+    { id: "zementfrei", label: "Zementfrei (Standard)", icd: "M16.1", ops: ["5-820.00"], drg03: "I47C", drg4: "I05A" },
+    { id: "hybrid", label: "Hybrid (zem. Schaft + zementfreie Pfanne)", icd: "M16.1", ops: ["5-820.02"], drg03: "I47C", drg4: "I05A" },
+    { id: "kurzschaft", label: "Kurzschaft", icd: "M16.1", ops: ["5-820.94"], drg03: "I47C", drg4: "I05A" },
+    { id: "pfannenboden", label: "+ Pfannenbodenplastik (M16.3)", icd: "M16.3", ops: ["5-820.00", "5-829.h"], drg03: "I47B", drg4: "I05A", hebel: "Pfannenbodenplastik hebt I47C → I47B" },
+    { id: "pfannendach", label: "+ Pfannendachplastik", icd: "M16.1", ops: ["5-820.00", "5-829.1"], drg03: "I47B", drg4: "I05A", hebel: "Pfannendachplastik hebt I47C → I47B" },
+    { id: "pfannenboden_spongiosa", label: "+ Pfannenbodenplastik + Spongiosa-Transplantation", icd: "M16.3", ops: ["5-820.00", "5-829.h", "5-784.7f"], drg03: "I08D", drg4: "I05A", hebel: "Spongiosaplastik (5-784.7f) verschiebt nach I08D" },
+    { id: "pfannenboden_zement", label: "+ Pfannenbodenplastik + alloplast. Knochenersatz", icd: "M16.3", ops: ["5-820.00", "5-829.h", "5-785.0e"], drg03: "I08E", drg4: "I05A", hebel: "Knochenzement (5-785.0e) verschiebt nach I08E" },
+  ],
+  htep_schmerz: [
+    { id: "asept_schaft", label: "Aseptisch: Schaftwechsel zementfrei", icd: "T84.04", ops: ["5-821.40"], drg03: "I46C", drg4: "I46A" },
+    { id: "asept_pfanne", label: "Aseptisch: Pfannenwechsel", icd: "T84.04", ops: ["5-821.20"], drg03: "I47A", drg4: "I46A", hebel: "Pfannenwechsel seit 2019 in I47A (statt I46C)" },
+    { id: "asept_total", label: "Aseptisch: TEP-Wechsel komplett", icd: "T84.04", ops: ["5-821.40"], drg03: "I46C", drg4: "I46A" },
+    { id: "asept_mp", label: "Aseptisch + MP-Rekonstruktionsprothese (ZE2023-25!)", icd: "T84.04", ops: ["5-821.40", "5-829.k1"], drg03: "I46C", drg4: "I46A", hebel: "5-829.k1 löst krankenhausindiv. Zusatzentgelt ZE2023-25 aus" },
+    { id: "sept_ausbau_arthritis", label: "Septisch: Ausbau + Spacer (M00.85 als HD)", icd: "M00.85 + T84.5", ops: ["5-821.7", "5-829.9"], drg03: "I03B", drg4: "I03A", hebel: "Arthritis-Codierung als HD hebt von I47B → I03B" },
+    { id: "sept_ausbau_osteo", label: "Septisch: Ausbau + Spacer (M86.15 als HD)", icd: "M86.15 + T84.5", ops: ["5-821.7", "5-829.9"], drg03: "I03B", drg4: "I03A", hebel: "Osteomyelitis-Codierung als HD hebt von I47B → I03B" },
+    { id: "sept_reimpl", label: "Septisch: Reimplantation (2. OP)", icd: "T84.5", ops: ["5-820.01", "5-829.n"], drg03: "I04Z", drg4: "I03A" },
+  ],
+  gonarthrose: [
+    { id: "bikondylar", label: "Bikondylärer Oberflächenersatz (zementiert)", icd: "M17.1", ops: ["5-822.g1"], drg03: "I44C", drg4: "I44A" },
+    { id: "sonder", label: "Sonderprothese (CAD/CAM)", icd: "M17.1", ops: ["5-822.91", "5-829.m"], drg03: "I43B", drg4: "I43A", hebel: "Sonderprothese in I43er-DRG (statt I44er) + 5-829.m löst ZE2023-25" },
+    { id: "rotation", label: "Modulare Rotationsknie-Endoprothese", icd: "M17.1", ops: ["5-822.91", "5-829.k1"], drg03: "I43B", drg4: "I43A", hebel: "Scharnier-/Rotationsknie als Sonderprothese kodiert + ZE2023-25" },
+  ],
+  knie_uni: [
+    { id: "schlitten", label: "Unikondyläre Schlittenprothese (zementiert)", icd: "M17.1", ops: ["5-822.01"], drg03: "I44D", drg4: "I44D", hebel: "I44D hat KEINEN PCCL-Split – Komorbiditäten steigern Erlös NICHT" },
+    { id: "schlitten_bds", label: "Hemischlitten beidseits (simultan)", icd: "M17.1", ops: ["5-822.01", "5-822.01"], drg03: "I36Z", drg4: "I36Z", hebel: "Bilaterale Versorgung steuert I36Z an" },
+  ],
+  ktep_schmerz: [
+    { id: "asept", label: "Aseptischer Wechsel", icd: "T84.04", ops: ["5-821.40"], drg03: "I46C", drg4: "I46A" },
+    { id: "sept_reimpl", label: "Septisch: Reimplantation/Spacer", icd: "T84.5", ops: ["5-822.01", "5-829.9"], drg03: "I04Z", drg4: "I12A", hebel: "Bei Knie führt PCCL 4 in I12A (nicht I03A wie bei Hüfte)" },
+  ],
+};
+
+// H-TEP Implantat-Optionen (global – wird sowohl im OB-Generator als auch in Sprechstundenbrief-Erlössim genutzt)
+const ENDO_HTEP_IMPL = {
+  brehm:    { l: "Brehm",              lieferant: "Brehm",     preis: null },
+  excia:    { l: "Excia",              lieferant: "Aesculap",  preis: null },
+  metha:    { l: "Metha (Kurzschaft)", lieferant: "Aesculap",  preis: null },
+  trendhip: { l: "Trend-Hip",          lieferant: "Aesculap",  preis: null },
+};
+
+// K-TEP / Knie-Implantat-Optionen — TODO_VERIFY: Modelle und Preise vom User nachreichen
+const ENDO_KTEP_IMPL = {
+  // Bsp.-Platzhalter — noch nicht verifiziert, User reicht nach
+};
+
+// Schlitten-Implantate — TODO_VERIFY
+const ENDO_SCHLITTEN_IMPL = {
+  // Bsp.-Platzhalter
+};
+
+// Sonderprothesen / Rotationsknie — TODO_VERIFY
+const ENDO_SONDER_IMPL = {
+  // Bsp.-Platzhalter
+};
+
+// Welche Implantatlisten gehören zu welcher Endo-Diagnose
+const ENDO_IMPL_PRO_DIAG = {
+  coxarthrose:   { listKey: "htep",      list: ENDO_HTEP_IMPL,      label: "H-TEP-Implantate" },
+  htep_schmerz:  { listKey: "htep",      list: ENDO_HTEP_IMPL,      label: "H-TEP-Implantate (für Re-Implantation)" },
+  gonarthrose:   { listKey: "ktep",      list: ENDO_KTEP_IMPL,      label: "Knie-Bikondylär-Implantate (Daten folgen)" },
+  ktep_schmerz:  { listKey: "ktep",      list: ENDO_KTEP_IMPL,      label: "K-TEP-Implantate (für Re-Implantation, Daten folgen)" },
+  knie_uni:      { listKey: "schlitten", list: ENDO_SCHLITTEN_IMPL, label: "Schlittenprothesen (Daten folgen)" },
+};
+
 /* ============================================================
    UI COMPONENTS
    ============================================================ */
@@ -4739,6 +4842,10 @@ var _s = useState, _m = useMemo;
   var euns = _s(""), endoUni = euns[0], setEndoUni = euns[1];// medial | lateral (nur bei knie_uni)
   var ehs = _s(""), endoHoehe = ehs[0], setEndoHoehe = ehs[1];// Größe in cm
   var ews = _s(""), endoGewicht = ews[0], setEndoGewicht = ews[1];// Gewicht in kg
+  // ENDO-Erlöss-Box (Iteration 3)
+  var eebs = _s(false), endoErlOpen = eebs[0], setEndoErlOpen = eebs[1];// Box ein-/ausgeklappt
+  var epcs = _s("03"), endoPccl = epcs[0], setEndoPccl = epcs[1];// "03" oder "4"
+  var ehis = _s(""), endoImpl = ehis[0], setEndoImpl = ehis[1];// Implantat-Auswahl bei H-TEP
   // Weitere Diagnostik (im Abschluss)
   var wds = _s({}), wd = wds[0], setWd = wds[1];// {neuro:bool, gefaess:bool, gerinnung:bool, mrt:bool, ct:bool, pedo:bool}
   var wnfs = _s(""), wdNeuroFrage = wnfs[0], setWdNeuroFrage = wnfs[1];// Fragestellung Neurologie
@@ -5318,6 +5425,7 @@ var _s = useState, _m = useMemo;
     setMeBriefDauer(""); setMeBriefDauerEinheit("Monaten"); setMeBriefOS("");
     setMeBriefBeschwerden(""); setMeBriefBefund("");
     setPfad("fuss"); setEndoDiag(""); setEndoSep(""); setEndoUni(""); setEndoHoehe(""); setEndoGewicht("");
+    setEndoErlOpen(false); setEndoPccl("03"); setEndoImpl("");
     setWd({}); setWdNeuroFrage(""); setWdMrtRegion(""); setWdCtRegion("");
     setAlter("erw");
     showToast("🔄 Alle Felder zurückgesetzt!");
@@ -5420,7 +5528,7 @@ var _s = useState, _m = useMemo;
               ℹ Im Brief wird ergänzt: <em>„Aufgrund der schweren Adipositas besteht ein besonders hohes Risiko einer Komplikation. Wir empfehlen eine Ernährungsberatung, Gewichtsreduktion und eine Beratung in der bariatrischen Chirurgie."</em>
             </div>}
           </div>
-        </>}}
+        </>}
         {/* ME-FORMULAR */}
         {meMode&&<div style={{marginTop:8,padding:12,border:"2px solid rgba(230,81,0,.3)",borderRadius:8,background:"rgba(230,81,0,.03)"}}>
           <div style={{fontSize:10,fontWeight:700,color:"#BF360C",marginBottom:8}}>Metallentfernung – Brief-Parameter</div>
@@ -5871,6 +5979,119 @@ var _s = useState, _m = useMemo;
             </div>}
           </div>
         </Sec>
+
+        {/* ENDO-ERLÖSS-BOX – nur bei pfad="endo" und gewählter Diagnose */}
+        {pfad === "endo" && endoDiag && ENDO_KONSTELLATIONEN[endoDiag] && <div style={{ margin: "10px 0", border: "2px solid #00838F", borderRadius: 10, overflow: "hidden" }}>
+          <div onClick={function() { setEndoErlOpen(!endoErlOpen); }} style={{ background: "#00838F", padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", userSelect: "none" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>💶 Erlössimulation Endo (Übersicht)</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{endoErlOpen ? "▼" : "▶"}</span>
+          </div>
+          {endoErlOpen && <div style={{ padding: "10px 12px", background: "rgba(0,131,143,.04)", fontSize: 11 }}>
+            <div style={{ padding: "6px 10px", background: "rgba(255,193,7,.12)", border: "1px solid rgba(255,193,7,.4)", borderRadius: 6, fontSize: 10, color: "#BF360C", marginBottom: 10, lineHeight: 1.5 }}>
+              ⚠ <strong>BWR-Werte aus Datenjahr 2023</strong> (LINK-Leitfaden). Für Produktiv-Einsatz mit InEK-Werten 2026 überschreiben. Erlös-Berechnung nutzt LBFW NRW 2026 = 4.562 € (DRG-Anteil ohne Pflege).
+            </div>
+            {/* PCCL-Toggle */}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>PCCL-ANNAHME (Komorbiditätsstufe)</div>
+              <div style={row}>
+                <div style={GB(endoPccl === "03")} onClick={function() { setEndoPccl("03"); }}>PCCL 0–3 (Standard)</div>
+                <div style={{ ...GB(endoPccl === "4"), borderColor: endoPccl === "4" ? "#C62828" : "", color: endoPccl === "4" ? "#C62828" : "", background: endoPccl === "4" ? "rgba(198,40,40,.08)" : "" }} onClick={function() { setEndoPccl("4"); }}>PCCL 4 (Hochrisiko)</div>
+              </div>
+            </div>
+            {/* Implantat-Übersicht: alle Implantate gleichzeitig mit Ampel pro Implantat */}
+            {ENDO_IMPL_PRO_DIAG[endoDiag] && <div style={{ marginBottom: 12, padding: "8px 10px", background: "rgba(0,0,0,.02)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 6 }}>
+              <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 6 }}>📦 IMPLANTAT-VERGLEICH – {ENDO_IMPL_PRO_DIAG[endoDiag].label}</div>
+              {(function() {
+                var implList = ENDO_IMPL_PRO_DIAG[endoDiag].list;
+                var implKeys = Object.keys(implList);
+                if (implKeys.length === 0) {
+                  return <div style={{ fontSize: 10, color: "#BF360C", fontStyle: "italic" }}>
+                    ⏳ Implantatdaten für diese Diagnose noch nicht hinterlegt. Bitte Modelle und Preise nachreichen.
+                  </div>;
+                }
+                // Bezugs-DRG für die Ampel: erste Konstellation aus der Liste, gewählter PCCL
+                var refKonst = ENDO_KONSTELLATIONEN[endoDiag][0];
+                var refDrgKey = endoPccl === "4" ? refKonst.drg4 : refKonst.drg03;
+                var refDrg = ENDO_DRG[refDrgKey];
+                var inekRef = refDrg ? refDrg.inekImpl : null;
+                return <div>
+                  <div style={{ fontSize: 9, color: "#718096", marginBottom: 4 }}>
+                    Ampel-Bezug: <strong>{refKonst.label}</strong> · DRG <strong>{refDrgKey}</strong> · InEK-Implantatref: <strong>{inekRef !== null ? inekRef.toLocaleString("de-DE") + " €" : "noch nicht hinterlegt"}</strong>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    {implKeys.map(function(k) {
+                      var imp = implList[k];
+                      var hasPrice = imp.preis !== null && imp.preis !== undefined;
+                      var hasRef = inekRef !== null && inekRef !== undefined;
+                      var canCompare = hasPrice && hasRef;
+                      var diff = canCompare ? imp.preis - inekRef : null;
+                      var ampel = "⚪";
+                      var ampelColor = "#718096";
+                      var ampelText = "Daten unvollständig";
+                      if (canCompare) {
+                        var pct = imp.preis / inekRef;
+                        if (pct < 0.85) { ampel = "🟢"; ampelColor = "#00897B"; ampelText = "deutlich unter InEK-Ref – DB-Vorteil"; }
+                        else if (pct <= 1.15) { ampel = "🟡"; ampelColor = "#E65100"; ampelText = "im InEK-Korridor – DB neutral"; }
+                        else { ampel = "🔴"; ampelColor = "#C62828"; ampelText = "über InEK-Ref – DB-Nachteil"; }
+                      }
+                      return <div key={k} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "rgba(255,255,255,.85)", borderRadius: 5, border: "1px solid rgba(0,0,0,.06)", fontSize: 10, flexWrap: "wrap" }}>
+                        <div style={{ fontSize: 14, lineHeight: 1 }}>{ampel}</div>
+                        <div style={{ flex: "0 0 auto", minWidth: 100 }}>
+                          <div style={{ fontWeight: 700, color: "#2D3748" }}>{imp.l}</div>
+                          <div style={{ fontSize: 9, color: "#718096" }}>{imp.lieferant}</div>
+                        </div>
+                        <div style={{ flex: "0 0 auto", minWidth: 80, textAlign: "right" }}>
+                          <div style={{ fontSize: 9, color: "#718096" }}>Preis</div>
+                          <div style={{ fontWeight: 700, color: hasPrice ? "#2D3748" : "#BF360C" }}>{hasPrice ? imp.preis.toLocaleString("de-DE") + " €" : "fehlt"}</div>
+                        </div>
+                        {canCompare && <div style={{ flex: "0 0 auto", minWidth: 90, textAlign: "right" }}>
+                          <div style={{ fontSize: 9, color: "#718096" }}>Δ vs. InEK-Ref</div>
+                          <div style={{ fontWeight: 700, color: ampelColor }}>{diff > 0 ? "+" : ""}{diff.toLocaleString("de-DE")} €</div>
+                        </div>}
+                        <div style={{ flex: "1 1 100%", fontSize: 9, color: ampelColor, fontStyle: "italic", marginTop: 2 }}>{ampelText}</div>
+                      </div>;
+                    })}
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 9, color: "#718096", fontStyle: "italic" }}>
+                    💡 Konkretes Implantat-Modell wird im OP-Bericht-Generator gewählt. Diese Übersicht dient der Planungsphase.
+                  </div>
+                </div>;
+              })()}
+            </div>}
+            {/* Konstellations-Tabelle */}
+            <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 4 }}>MÖGLICHE KONSTELLATIONEN</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {ENDO_KONSTELLATIONEN[endoDiag].map(function(k) {
+                var drgKey = endoPccl === "4" ? k.drg4 : k.drg03;
+                var drgData = ENDO_DRG[drgKey];
+                var erloes = drgData ? Math.round(drgData.bwr * 4562) : null;
+                var inekImpl = drgData ? drgData.inekImpl : null;
+                return <div key={k.id} style={{ padding: "8px 10px", background: "rgba(255,255,255,.7)", border: "1px solid rgba(0,131,143,.2)", borderRadius: 6 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#006B6F", marginBottom: 3 }}>{k.label}</div>
+                  <div style={{ fontSize: 10, color: "#2D3748", lineHeight: 1.5 }}>
+                    <div><strong>ICD:</strong> {k.icd} · <strong>OPS:</strong> {k.ops.join(" + ")}</div>
+                    <div><strong>DRG (PCCL {endoPccl === "4" ? "4" : "0–3"}):</strong> {drgKey} {drgData ? <span style={{ color: "#718096" }}>– {drgData.label}</span> : ""}</div>
+                    {drgData && <div style={{ marginTop: 3 }}>
+                      <strong>BWR:</strong> {drgData.bwr.toLocaleString("de-DE")} · <strong>mVD:</strong> {drgData.mvd} Tage · <strong>DRG-Erlös NRW:</strong> <span style={{ color: "#00897B", fontWeight: 700 }}>{erloes.toLocaleString("de-DE")} €</span>
+                    </div>}
+                    {drgData && <div style={{ marginTop: 2, fontSize: 9, color: "#718096" }}>
+                      <strong>InEK-Implantatref. (DRG {drgKey}):</strong> {inekImpl !== null ? inekImpl.toLocaleString("de-DE") + " €" : "noch nicht hinterlegt"}
+                    </div>}
+                  </div>
+                  {k.hebel && <div style={{ marginTop: 4, padding: "4px 8px", background: "rgba(230,81,0,.08)", borderRadius: 4, fontSize: 9, color: "#BF360C", lineHeight: 1.4 }}>
+                    💡 <strong>Hebel:</strong> {k.hebel}
+                  </div>}
+                </div>;
+              })}
+            </div>
+            <div style={{ marginTop: 10, padding: "6px 10px", background: "rgba(0,107,111,.06)", borderRadius: 6, fontSize: 9, color: "#2D3748", lineHeight: 1.5 }}>
+              <strong>Hinweise:</strong>
+              <div style={{ marginTop: 2 }}>• DRG-Erlös = BWR × LBFW NRW 2026 (4.562 €). Pflege-Erlös separat (BWR-Pflege × Tage × PEW).</div>
+              <div>• ZE2023-25 (krankenhausindiv.) bei modularen Sonderprothesen / MP-Rekonstruktion / patientenindiv. Implantaten zusätzlich erlöswirksam.</div>
+              <div>• Spongiosaplastik (5-784.0/7 ff.) und alloplast. Knochenersatz (5-785 ff.) sind eigene erlösrelevante OPS-Zusätze.</div>
+            </div>
+          </div>}
+        </div>}
 
         <div className="sb-mobile-preview">
           <div style={card}>
@@ -6818,12 +7039,7 @@ function OPBerichtApp(){
       kodier:"5-820.0 (Implantation Hüft-TEP, Pfanne + Schaft).\n⚠ TODO_VERIFY: exakter OPS je nach Schaft-Typ, CM 2026, Erlös NRW."},
   };
 
-  const ENDO_HTEP_IMPL={
-    brehm:{l:"Brehm",lieferant:"Brehm",preis:null},
-    excia:{l:"Excia",lieferant:"Aesculap",preis:null},
-    metha:{l:"Metha (Kurzschaft)",lieferant:"Aesculap",preis:null},
-    trendhip:{l:"Trend-Hip",lieferant:"Aesculap",preis:null},
-  };
+  // ENDO_HTEP_IMPL ist global (oben im Modul) – nutzt sowohl OB-Generator als auch Sprechstundenbrief
 
   // ============================================================
   // WS_EINGRIFFE — Wirbelsäule Kyphoplastie/Dekompression
