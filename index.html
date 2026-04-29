@@ -4379,7 +4379,7 @@ const ENDO_BEF_TEP_SCHMERZ = [
 // =============================================================
 // ENDO-DRG / ERLÖS-DATENBASIS
 // Quelle: LINK Endoprothetik-Abrechnungsleitfaden 2023
-// Werte (BWR, mVD, mVD-Pflege) sind DATENJAHR 2023.
+// Werte (CM-Wert, mVD, mVD-Pflege) sind DATENJAHR 2023.
 // ⚠ FÜR PRODUKTIV-EINSATZ MIT INEK-WERTEN 2026 ÜBERSCHREIBEN.
 // =============================================================
 const ENDO_DRG = {
@@ -4441,6 +4441,26 @@ const ENDO_KONSTELLATIONEN = {
 };
 
 // H-TEP Implantat-Optionen (global – wird sowohl im OB-Generator als auch in Sprechstundenbrief-Erlössim genutzt)
+// Kontrolltermin-Texte (Sonderflow Sprechstundenbrief Fuß)
+// Texte sind als Basis vorgegeben – können vom Anwender überschrieben/erweitert werden
+const KONTROLLE_TEXT = {
+  verlauf: [
+    "stellte sich heute zur Verlaufskontrolle vor.",
+    "Die Wundverhältnisse zeigen sich reizlos.",
+  ],
+  fadenzug: [
+    "stellte sich heute zur Verlaufskontrolle und zum Fadenzug vor.",
+    "Die Wundverhältnisse zeigen sich reizlos.",
+    "Der Fadenzug wurde komplikationslos durchgeführt.",
+  ],
+  roentgen: [
+    "stellte sich heute zur 6-Wochen-Kontrolle vor.",
+    "Im aktuellen Röntgen zeigt sich eine regelrechte Entwicklung mit beginnender knöcherner Konsolidierung.",
+    "Die Belastung kann nun schrittweise gesteigert werden.",
+  ],
+};
+const KONTROLLE_LABEL = { verlauf: "Verlauf", fadenzug: "Fadenzug", roentgen: "Röntgen" };
+
 const ENDO_HTEP_IMPL = {
   brehm:    { l: "Brehm",              lieferant: "Brehm",     preis: null },
   excia:    { l: "Excia",              lieferant: "Aesculap",  preis: null },
@@ -4891,6 +4911,9 @@ var _s = useState, _m = useMemo;
   var mos = _s(""), meBriefOS = mos[0], setMeBriefOS = mos[1]; // initiale Osteosynthese Freitext
   var mbs = _s(""), meBriefBeschwerden = mbs[0], setMeBriefBeschwerden = mbs[1];
   var mcs = _s(""), meBriefBefund = mcs[0], setMeBriefBefund = mcs[1];
+  // Kontrolle-Modus (Sprechstundenbrief Fuß Sonder-Flow)
+  var kms = _s(false), kontrolleMode = kms[0], setKontrolleMode = kms[1];
+  var kts = _s(""), kontrolleType = kts[0], setKontrolleType = kts[1];
 
   function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
   function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
@@ -4942,6 +4965,20 @@ var _s = useState, _m = useMemo;
 
   var fullText = _m(function() {
     if (!gender) return "";
+    // KONTROLLE-MODUS: schlanker Verlauf/Fadenzug/Röntgen-Brief
+    if (kontrolleMode) {
+      if (!kontrolleType) return "";
+      const dd = gender === "m" ? "Der Patient" : "Die Patientin";
+      const begl = begleitung ? " in Begleitung von " + begleitung : "";
+      var klines = [];
+      var saetze = KONTROLLE_TEXT[kontrolleType] || [];
+      // Erster Satz: Patient stellte sich heute (...) zur ... vor
+      if (saetze.length > 0) {
+        klines.push(dd + begl + " " + saetze[0]);
+        for (var i = 1; i < saetze.length; i++) klines.push(saetze[i]);
+      }
+      return klines.join("\n");
+    }
     // ME-MODUS: eigener Brief-Flow
     if (meMode) {
       if (!meBriefRegion || !meBriefImpl) return "";
@@ -5343,7 +5380,7 @@ var _s = useState, _m = useMemo;
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     return p.join("");
-  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion]);
+  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() {
@@ -5410,6 +5447,7 @@ var _s = useState, _m = useMemo;
     setSec({ anam: true, risiko: false, unters: false, bild: false, abschluss: false, erloes: false });
     setShowPv(false);
     setMeMode(false); setMeBriefRegion(""); setMeBriefImpl(""); setMeBriefZusatz("");
+    setKontrolleMode(false); setKontrolleType("");
     setMeBriefDauer(""); setMeBriefDauerEinheit("Monaten"); setMeBriefOS("");
     setMeBriefBeschwerden(""); setMeBriefBefund("");
     setPfad("fuss"); setEndoDiag(""); setEndoSep(""); setEndoUni(""); setEndoHoehe(""); setEndoGewicht("");
@@ -5454,7 +5492,7 @@ var _s = useState, _m = useMemo;
           <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>FACHRICHTUNG</div>
           <div style={row}>
             <div style={GB(pfad === "fuss")} onClick={function() { setPfad("fuss"); setEndoDiag(""); setEndoSep(""); setEndoUni(""); }}>🦶 Fuß / Sprunggelenk</div>
-            <div style={GB(pfad === "endo")} onClick={function() { setPfad("endo"); setDiagnosen([]); setMeMode(false); setOpMethode([]); }}>🦿 Endoprothetik</div>
+            <div style={GB(pfad === "endo")} onClick={function() { setPfad("endo"); setDiagnosen([]); setMeMode(false); setKontrolleMode(false); setKontrolleType(""); setOpMethode([]); }}>🦿 Endoprothetik</div>
           </div>
         </div>
         {pfad === "endo" && <div style={{ marginTop: 6, padding: "6px 10px", background: "rgba(255,193,7,.08)", border: "1px solid rgba(255,193,7,.3)", borderRadius: 6, fontSize: 10, color: "#BF360C", marginBottom: 8 }}>
@@ -5462,12 +5500,22 @@ var _s = useState, _m = useMemo;
         </div>}
         {pfad === "fuss" && <>
         <div style={cat}>Diagnose(n) – max. 2</div>
-        {/* ME-MODUS Chip */}
-        <div style={{marginBottom:6}}>
-          <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:meMode?"2px solid #E65100":"1px dashed rgba(230,81,0,.4)",background:meMode?"rgba(230,81,0,.12)":"rgba(230,81,0,.02)",color:meMode?"#E65100":"#BF360C",fontWeight:600,userSelect:"none"}} onClick={function(){setMeMode(!meMode);if(!meMode){setDiagnosen([]);setOpMethode([]);}}}>🔩 Metallentfernung {meMode?"(aktiv)":"(Sonder-Flow)"}</div>
-          {meMode&&<span style={{fontSize:9,color:"#BF360C",marginLeft:8,fontStyle:"italic"}}>Diagnose „Störendes Implantat" wird automatisch gesetzt. Eingaben unten nutzen.</span>}
+        {/* SONDER-FLOW Chips (ME-Modus + Kontrolle) */}
+        <div style={{marginBottom:6, display:"flex", gap:8, flexWrap:"wrap"}}>
+          <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:meMode?"2px solid #E65100":"1px dashed rgba(230,81,0,.4)",background:meMode?"rgba(230,81,0,.12)":"rgba(230,81,0,.02)",color:meMode?"#E65100":"#BF360C",fontWeight:600,userSelect:"none"}} onClick={function(){var nv=!meMode;setMeMode(nv);if(nv){setKontrolleMode(false);setKontrolleType("");setDiagnosen([]);setOpMethode([]);}}}>🔩 Metallentfernung {meMode?"(aktiv)":"(Sonder-Flow)"}</div>
+          <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:kontrolleMode?"2px solid #00897B":"1px dashed rgba(0,131,143,.4)",background:kontrolleMode?"rgba(0,131,143,.12)":"rgba(0,131,143,.02)",color:kontrolleMode?"#006B6F":"#006B6F",fontWeight:600,userSelect:"none"}} onClick={function(){var nv=!kontrolleMode;setKontrolleMode(nv);if(nv){setMeMode(false);setMeBriefRegion("");setMeBriefImpl("");setMeBriefZusatz("");setDiagnosen([]);setOpMethode([]);}else{setKontrolleType("");}}}>🩺 Kontrolle {kontrolleMode?"(aktiv)":"(Sonder-Flow)"}</div>
+          {meMode&&<span style={{fontSize:9,color:"#BF360C",alignSelf:"center",fontStyle:"italic"}}>Diagnose „Störendes Implantat" wird automatisch gesetzt.</span>}
+          {kontrolleMode&&<span style={{fontSize:9,color:"#006B6F",alignSelf:"center",fontStyle:"italic"}}>Schlanker Kontroll-Brief – Diagnose/Anamnese/Untersuchung entfallen.</span>}
         </div>
-        {!meMode&&<div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>}
+        {kontrolleMode&&<div style={{marginBottom:6, padding:"8px 10px", background:"rgba(0,131,143,.04)", border:"1px solid rgba(0,131,143,.2)", borderRadius:6}}>
+          <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:4}}>KONTROLL-TYP</div>
+          <div style={row}>
+            <div style={GB(kontrolleType === "verlauf")} onClick={function() { setKontrolleType("verlauf"); }}>Verlauf</div>
+            <div style={GB(kontrolleType === "fadenzug")} onClick={function() { setKontrolleType("fadenzug"); }}>Fadenzug</div>
+            <div style={GB(kontrolleType === "roentgen")} onClick={function() { setKontrolleType("roentgen"); }}>Röntgen (6 Wo)</div>
+          </div>
+        </div>}
+        {!meMode&&!kontrolleMode&&<div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>}
         </>}
         {pfad === "endo" && <>
           <div style={cat}>Diagnose</div>
@@ -5814,7 +5862,7 @@ var _s = useState, _m = useMemo;
         </div>}
       </div>
 
-      {gender && (diagnosen.length > 0 || (pfad === "endo" && endoDiag)) && !meMode && <div>
+      {gender && (diagnosen.length > 0 || (pfad === "endo" && endoDiag)) && !meMode && !kontrolleMode && <div>
         <Sec title="① Anamnese" open={sec.anam} onToggle={function() { togSec("anam"); }}>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
             <div><div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Dauer</div><div style={row}>{["1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(dauer === n)} onClick={function() { setDauer(dauer === n ? "" : n); }}>{n}</div>; })}</div></div>
@@ -5975,8 +6023,8 @@ var _s = useState, _m = useMemo;
             <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{endoErlOpen ? "▼" : "▶"}</span>
           </div>
           {endoErlOpen && <div style={{ padding: "10px 12px", background: "rgba(0,131,143,.04)", fontSize: 11 }}>
-            <div style={{ padding: "6px 10px", background: "rgba(255,193,7,.12)", border: "1px solid rgba(255,193,7,.4)", borderRadius: 6, fontSize: 10, color: "#BF360C", marginBottom: 10, lineHeight: 1.5 }}>
-              ⚠ <strong>BWR-Werte aus Datenjahr 2023</strong> (LINK-Leitfaden). Für Produktiv-Einsatz mit InEK-Werten 2026 überschreiben. Erlös-Berechnung nutzt LBFW NRW 2026 = 4.562 € (DRG-Anteil ohne Pflege).
+            <div style={{ padding: "6px 10px", background: "rgba(0,131,143,.06)", border: "1px solid rgba(0,131,143,.25)", borderRadius: 6, fontSize: 10, color: "#006B6F", marginBottom: 10, lineHeight: 1.5 }}>
+              ℹ <strong>InEK-Werte Datenjahr 2024</strong> (gruppiert nach 2026, abgerufen 04/2026). Erlös-Berechnung: CM-Wert × LBFW NRW 2026 (4.562 €) – DRG-Anteil ohne Pflege.
             </div>
             {/* PCCL-Toggle */}
             <div style={{ marginBottom: 10 }}>
@@ -6062,7 +6110,7 @@ var _s = useState, _m = useMemo;
                     <div><strong>ICD:</strong> {k.icd} · <strong>OPS:</strong> {k.ops.join(" + ")}</div>
                     <div><strong>DRG (PCCL {endoPccl === "4" ? "4" : "0–3"}):</strong> {drgKey} {drgData ? <span style={{ color: "#718096" }}>– {drgData.label}</span> : ""}</div>
                     {drgData && <div style={{ marginTop: 3 }}>
-                      <strong>BWR:</strong> {drgData.bwr.toLocaleString("de-DE")} · <strong>mVD:</strong> {drgData.mvd} Tage · <strong>DRG-Erlös NRW:</strong> <span style={{ color: "#00897B", fontWeight: 700 }}>{erloes.toLocaleString("de-DE")} €</span>
+                      <strong>CM-Wert:</strong> {drgData.bwr.toLocaleString("de-DE")} · <strong>mVD:</strong> {drgData.mvd} Tage · <strong>DRG-Erlös NRW:</strong> <span style={{ color: "#00897B", fontWeight: 700 }}>{erloes.toLocaleString("de-DE")} €</span>
                     </div>}
                   </div>
                   {hasFK && <div style={{ marginTop: 6, padding: "6px 8px", background: "rgba(0,0,0,.025)", border: "1px solid rgba(0,0,0,.06)", borderRadius: 4, fontSize: 9, fontFamily: "monospace", color: "#2D3748", lineHeight: 1.55 }}>
@@ -6081,7 +6129,7 @@ var _s = useState, _m = useMemo;
             </div>
             <div style={{ marginTop: 10, padding: "6px 10px", background: "rgba(0,107,111,.06)", borderRadius: 6, fontSize: 9, color: "#2D3748", lineHeight: 1.5 }}>
               <strong>Hinweise:</strong>
-              <div style={{ marginTop: 2 }}>• DRG-Erlös = BWR × LBFW NRW 2026 (4.562 €). Pflege-Erlös separat (BWR-Pflege × Tage × PEW).</div>
+              <div style={{ marginTop: 2 }}>• DRG-Erlös = CM-Wert × LBFW NRW 2026 (4.562 €). Pflege-Erlös separat (BWR-Pflege × Tage × PEW).</div>
               <div>• ZE2023-25 (krankenhausindiv.) bei modularen Sonderprothesen / MP-Rekonstruktion / patientenindiv. Implantaten zusätzlich erlöswirksam.</div>
               <div>• Spongiosaplastik (5-784.0/7 ff.) und alloplast. Knochenersatz (5-785 ff.) sind eigene erlösrelevante OPS-Zusätze.</div>
             </div>
