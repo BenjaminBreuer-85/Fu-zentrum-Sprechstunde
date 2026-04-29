@@ -4384,32 +4384,29 @@ const ENDO_BEF_TEP_SCHMERZ = [
 // =============================================================
 const ENDO_DRG = {
   // Primäre Hüfte
-  "I47C": { bwr: 1.497, mvdPflege: 0.7097, mvd: 7.2, label: "Hüft-TEP, ohne kompl. Eingriff, ohne CC", inekImpl: null },
-  "I47B": { bwr: 1.802, mvdPflege: 0.8533, mvd: 9.9, label: "Hüft-TEP, mit kompl. Eingriff", inekImpl: null },
+  "I47C": { bwr: 1.396, mvdPflege: 0, mvd: 6.1, label: "Hüft-TEP, ohne kompl. Eingriff, ohne CC", inekImpl: 1242, pflegeProTag: 180.37, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 6064, fallOp: 2947, fallNormal: 1830, fallAnaesth: 720, fallRest: 567 },
+  "I47B": { bwr: 1.749, mvdPflege: 0, mvd: 9.0, label: "Hüft-TEP, mit kompl. Eingriff", inekImpl: 932, pflegeProTag: 217.20, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 7465, fallOp: 2848, fallNormal: 2340, fallAnaesth: 899, fallRest: 1378 },
   // Aseptischer Pfannenwechsel hat eigenes I47A
-  "I47A": { bwr: 2.196, mvdPflege: 0.7991, mvd: 11.3, label: "Pfannenwechsel / Revision Hüfte", inekImpl: null },
+  "I47A": { bwr: 2.113, mvdPflege: 0, mvd: 10.0, label: "Pfannenwechsel / Revision Hüfte mit kompl. Eingriff", inekImpl: 1363, pflegeProTag: 207.06, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 9024, fallOp: 4041, fallNormal: 2605, fallAnaesth: 1098, fallRest: 1280 },
   // Schaftwechsel
-  "I46C": { bwr: 2.356, mvdPflege: 0.801, mvd: 11.2, label: "Hüft-Schaftwechsel, ohne CC", inekImpl: null },
-  "I46A": { bwr: 4.322, mvdPflege: 1.1243, mvd: 22.6, label: "Hüft-Wechsel, mit aufw. Eingriff / PCCL 4", inekImpl: null },
+  "I46C": { bwr: 2.237, mvdPflege: 0, mvd: 9.9, label: "Hüft-Schaftwechsel / Prothesenwechsel, ohne CC", inekImpl: 1369, pflegeProTag: 205.84, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 9555, fallOp: 4419, fallNormal: 2666, fallAnaesth: 1198, fallRest: 1271 },
+  "I46A": { bwr: 4.745, mvdPflege: 0, mvd: 25.4, label: "Hüft-Wechsel, mit aufw. Eingriff / PCCL 4", inekImpl: 2192, pflegeProTag: 252.29, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 20265, fallOp: 6607, fallNormal: 6019, fallAnaesth: 1920, fallRest: 5719 },
   // Komplexe primäre Hüfte (Pfannenboden/-dach + Spongiosa, oder PCCL 4)
-  "I05A": { bwr: 3.334, mvdPflege: 1.1546, mvd: 21.4, label: "Großer Eingriff Hüfte, PCCL 4 / mit aufw. Eingriff", inekImpl: null },
-  "I08D": { bwr: 2.523, mvdPflege: 0.9564, mvd: 14.0, label: "Hüfte mit zus. Knochentransplantation", inekImpl: null },
-  "I08E": { bwr: 2.153, mvdPflege: 0.8863, mvd: 10.6, label: "Hüfte mit zus. alloplast. Knochenersatz", inekImpl: null },
+  "I05A": { bwr: 3.843, mvdPflege: 0, mvd: 23.9, label: "Großer Eingriff Hüfte, PCCL 4 / mit aufw. Eingriff", inekImpl: 958, pflegeProTag: 265.67, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 16396, fallOp: 3561, fallNormal: 5562, fallAnaesth: 1234, fallRest: 6038 },
+  // I08D / I08E (mit Knochentransplantation/-ersatz): NICHT mehr hinterlegt – bewusste Fokussierung auf 99% gängige Fälle
   // Septische Hüft-Revision
-  "I04Z": { bwr: 3.076, mvdPflege: 0.8026, mvd: 15.5, label: "Reimplantation/Septisch Hüft- o. Kniegelenk", inekImpl: null },
-  "I03B": { bwr: 2.836, mvdPflege: 0.7608, mvd: 16.8, label: "Septische Hüft-Revision (Ausbau), ohne CC", inekImpl: null },
-  "I03A": { bwr: 5.781, mvdPflege: 1.0111, mvd: 31.9, label: "Septische Hüft-Revision, PCCL 4 / aufw.", inekImpl: null },
+  "I04Z": { bwr: 3.015, mvdPflege: 0, mvd: 15.1, label: "Reimplantation/Septisch Hüft- o. Kniegelenk + periprothet. Fraktur Schulter/Knie", inekImpl: 2264, pflegeProTag: 201.60, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 12891, fallOp: 5570, fallNormal: 3997, fallAnaesth: 1312, fallRest: 2012, fallStdAbw: 4231 },
+  "I03B": { bwr: 2.735, mvdPflege: 0, mvd: 16.1, label: "Septische Hüft-Revision (Ausbau), ohne CC", inekImpl: 1166, pflegeProTag: 196.64, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 11675, fallOp: 4227, fallNormal: 4163, fallAnaesth: 1307, fallRest: 1978, fallStdAbw: 4008 },
+  "I03A": { bwr: 5.820, mvdPflege: 0, mvd: 35.0, label: "Septische Hüft-Revision, PCCL 4 / aufw. / mehrzeitiger Wechsel", inekImpl: 2309, pflegeProTag: 242.78, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 24848, fallOp: 7881, fallNormal: 8389, fallAnaesth: 2448, fallRest: 6129, fallStdAbw: 9334 },
   // Knie primär
-  "I44D": { bwr: 1.548, mvdPflege: 0.6789, mvd: 6.2, label: "Knie unikondyläre Schlittenprothese (kein PCCL-Split)", inekImpl: null },
-  "I44C": { bwr: 1.687, mvdPflege: 0.6874, mvd: 7.7, label: "Bikondylärer Knie-OF-Ersatz, ohne CC", inekImpl: null },
-  "I44A": { bwr: 2.234, mvdPflege: 0.7325, mvd: 10.1, label: "Bikondylärer Knie-OF-Ersatz, PCCL 4", inekImpl: null },
-  // Knie Sonderprothese
-  "I43B": { bwr: 2.553, mvdPflege: 0.7369, mvd: 9.6, label: "Knie-Sonderprothese (CAD/CAM, Rotation), ohne CC", inekImpl: null },
-  "I43A": { bwr: 5.292, mvdPflege: 0.9235, mvd: 29.5, label: "Knie-Sonderprothese, PCCL 4", inekImpl: null },
+  "I44D": { bwr: 1.397, mvdPflege: 0, mvd: 5.4, label: "Knie unikondyläre Schlittenprothese (kein PCCL-Split)", inekImpl: 1225, pflegeProTag: 175.89, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 5972, fallOp: 2941, fallNormal: 1701, fallAnaesth: 737, fallRest: 592 },
+  "I44C": { bwr: 1.531, mvdPflege: 0, mvd: 6.4, label: "Bikondylärer Knie-OF-Ersatz, ohne CC", inekImpl: 1234, pflegeProTag: 181.22, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 6546, fallOp: 3171, fallNormal: 1921, fallAnaesth: 793, fallRest: 660 },
+  "I44A": { bwr: 2.165, mvdPflege: 0, mvd: 8.2, label: "Bikondylärer Knie-OF-Ersatz, PCCL 4 / schaftverankert / Brustkorbdef.", inekImpl: 2659, pflegeProTag: 187.96, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 9270, fallOp: 5163, fallNormal: 2204, fallAnaesth: 1007, fallRest: 895 },
+  // Knie Sonderprothese: NICHT mehr hinterlegt – bewusste Fokussierung auf Standardversorgung (99% der Fälle)
   // Knie bilateral
   "I36Z": { bwr: 2.617, mvdPflege: 0.7898, mvd: 10.3, label: "Beidseitige Hemischlitten-Versorgung", inekImpl: null },
   // Knie septisch
-  "I12A": { bwr: 3.968, mvdPflege: 0.9953, mvd: 24.8, label: "Knöcherne/gelenkrekonstr. Eingriffe Knie, PCCL 4", inekImpl: null },
+  "I12A": { bwr: 3.979, mvdPflege: 0, mvd: 24.6, label: "Knöcherne/gelenkrekonstr. Eingriffe Knie, PCCL 4 / Knochen- und Gelenkinfektion", inekImpl: 652, pflegeProTag: 247.10, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 16972, fallOp: 3981, fallNormal: 6230, fallAnaesth: 1626, fallRest: 5134, fallStdAbw: 6638 },
 };
 
 // Konstellationen pro Endo-Diagnose: Liste möglicher OPS+ICD+DRG-Pfade
@@ -4420,8 +4417,6 @@ const ENDO_KONSTELLATIONEN = {
     { id: "kurzschaft", label: "Kurzschaft", icd: "M16.1", ops: ["5-820.94"], drg03: "I47C", drg4: "I05A" },
     { id: "pfannenboden", label: "+ Pfannenbodenplastik (M16.3)", icd: "M16.3", ops: ["5-820.00", "5-829.h"], drg03: "I47B", drg4: "I05A", hebel: "Pfannenbodenplastik hebt I47C → I47B" },
     { id: "pfannendach", label: "+ Pfannendachplastik", icd: "M16.1", ops: ["5-820.00", "5-829.1"], drg03: "I47B", drg4: "I05A", hebel: "Pfannendachplastik hebt I47C → I47B" },
-    { id: "pfannenboden_spongiosa", label: "+ Pfannenbodenplastik + Spongiosa-Transplantation", icd: "M16.3", ops: ["5-820.00", "5-829.h", "5-784.7f"], drg03: "I08D", drg4: "I05A", hebel: "Spongiosaplastik (5-784.7f) verschiebt nach I08D" },
-    { id: "pfannenboden_zement", label: "+ Pfannenbodenplastik + alloplast. Knochenersatz", icd: "M16.3", ops: ["5-820.00", "5-829.h", "5-785.0e"], drg03: "I08E", drg4: "I05A", hebel: "Knochenzement (5-785.0e) verschiebt nach I08E" },
   ],
   htep_schmerz: [
     { id: "asept_schaft", label: "Aseptisch: Schaftwechsel zementfrei", icd: "T84.04", ops: ["5-821.40"], drg03: "I46C", drg4: "I46A" },
@@ -4434,8 +4429,6 @@ const ENDO_KONSTELLATIONEN = {
   ],
   gonarthrose: [
     { id: "bikondylar", label: "Bikondylärer Oberflächenersatz (zementiert)", icd: "M17.1", ops: ["5-822.g1"], drg03: "I44C", drg4: "I44A" },
-    { id: "sonder", label: "Sonderprothese (CAD/CAM)", icd: "M17.1", ops: ["5-822.91", "5-829.m"], drg03: "I43B", drg4: "I43A", hebel: "Sonderprothese in I43er-DRG (statt I44er) + 5-829.m löst ZE2023-25" },
-    { id: "rotation", label: "Modulare Rotationsknie-Endoprothese", icd: "M17.1", ops: ["5-822.91", "5-829.k1"], drg03: "I43B", drg4: "I43A", hebel: "Scharnier-/Rotationsknie als Sonderprothese kodiert + ZE2023-25" },
   ],
   knie_uni: [
     { id: "schlitten", label: "Unikondyläre Schlittenprothese (zementiert)", icd: "M17.1", ops: ["5-822.01"], drg03: "I44D", drg4: "I44D", hebel: "I44D hat KEINEN PCCL-Split – Komorbiditäten steigern Erlös NICHT" },
@@ -4462,11 +4455,6 @@ const ENDO_KTEP_IMPL = {
 
 // Schlitten-Implantate — TODO_VERIFY
 const ENDO_SCHLITTEN_IMPL = {
-  // Bsp.-Platzhalter
-};
-
-// Sonderprothesen / Rotationsknie — TODO_VERIFY
-const ENDO_SONDER_IMPL = {
   // Bsp.-Platzhalter
 };
 
@@ -6066,6 +6054,8 @@ var _s = useState, _m = useMemo;
                 var drgData = ENDO_DRG[drgKey];
                 var erloes = drgData ? Math.round(drgData.bwr * 4562) : null;
                 var inekImpl = drgData ? drgData.inekImpl : null;
+                var hasFK = drgData && drgData.fallTotal;
+                var pct = function(v) { return hasFK ? Math.round(v / drgData.fallTotal * 100) : 0; };
                 return <div key={k.id} style={{ padding: "8px 10px", background: "rgba(255,255,255,.7)", border: "1px solid rgba(0,131,143,.2)", borderRadius: 6 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#006B6F", marginBottom: 3 }}>{k.label}</div>
                   <div style={{ fontSize: 10, color: "#2D3748", lineHeight: 1.5 }}>
@@ -6074,10 +6064,15 @@ var _s = useState, _m = useMemo;
                     {drgData && <div style={{ marginTop: 3 }}>
                       <strong>BWR:</strong> {drgData.bwr.toLocaleString("de-DE")} · <strong>mVD:</strong> {drgData.mvd} Tage · <strong>DRG-Erlös NRW:</strong> <span style={{ color: "#00897B", fontWeight: 700 }}>{erloes.toLocaleString("de-DE")} €</span>
                     </div>}
-                    {drgData && <div style={{ marginTop: 2, fontSize: 9, color: "#718096" }}>
-                      <strong>InEK-Implantatref. (DRG {drgKey}):</strong> {inekImpl !== null ? inekImpl.toLocaleString("de-DE") + " €" : "noch nicht hinterlegt"}
-                    </div>}
                   </div>
+                  {hasFK && <div style={{ marginTop: 6, padding: "6px 8px", background: "rgba(0,0,0,.025)", border: "1px solid rgba(0,0,0,.06)", borderRadius: 4, fontSize: 9, fontFamily: "monospace", color: "#2D3748", lineHeight: 1.55 }}>
+                    <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3, fontFamily: "system-ui" }}>📊 INEK-FALLKOSTEN Ø: {drgData.fallTotal.toLocaleString("de-DE")} €{drgData.fallStdAbw ? <span style={{ color: "#BF360C" }}> ± {drgData.fallStdAbw.toLocaleString("de-DE")} € (StdAbw)</span> : null}</div>
+                    <div>├─ OP-Bereich:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{drgData.fallOp.toLocaleString("de-DE")} € ({pct(drgData.fallOp)}%)</div>
+                    {inekImpl !== null && <div style={{ color: "#718096" }}>│&nbsp;&nbsp;&nbsp;└─ davon Implantate: {inekImpl.toLocaleString("de-DE")} €</div>}
+                    <div>├─ Normalstation:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{drgData.fallNormal.toLocaleString("de-DE")} € ({pct(drgData.fallNormal)}%)</div>
+                    <div>├─ Anästhesie:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{drgData.fallAnaesth.toLocaleString("de-DE")} € ({pct(drgData.fallAnaesth)}%)</div>
+                    <div>└─ Diagnostik/Sonst.:&nbsp;{drgData.fallRest.toLocaleString("de-DE")} € ({pct(drgData.fallRest)}%)</div>
+                  </div>}
                   {k.hebel && <div style={{ marginTop: 4, padding: "4px 8px", background: "rgba(230,81,0,.08)", borderRadius: 4, fontSize: 9, color: "#BF360C", lineHeight: 1.4 }}>
                     💡 <strong>Hebel:</strong> {k.hebel}
                   </div>}
