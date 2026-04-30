@@ -4390,6 +4390,7 @@ const ENDO_DRG = {
   "I47A": { bwr: 2.113, mvdPflege: 0, mvd: 10.0, label: "Pfannenwechsel / Revision Hüfte mit kompl. Eingriff", inekImpl: 1363, pflegeProTag: 207.06, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 9024, fallOp: 4041, fallNormal: 2605, fallAnaesth: 1098, fallRest: 1280 },
   // Schaftwechsel
   "I46C": { bwr: 2.237, mvdPflege: 0, mvd: 9.9, label: "Hüft-Schaftwechsel / Prothesenwechsel, ohne CC", inekImpl: 1369, pflegeProTag: 205.84, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 9555, fallOp: 4419, fallNormal: 2666, fallAnaesth: 1198, fallRest: 1271 },
+  "I46B": { bwr: 3.179, mvdPflege: 0, mvd: 17.5, label: "Prothesenwechsel Hüfte mit periprothetischer Fraktur, ohne CC", inekImpl: 1532, pflegeProTag: 224.31, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026", fallTotal: 13574, fallOp: 4956, fallNormal: 4293, fallAnaesth: 1463, fallRest: 2862 },
   "I46A": { bwr: 4.745, mvdPflege: 0, mvd: 25.4, label: "Hüft-Wechsel, mit aufw. Eingriff / PCCL 4", inekImpl: 2192, pflegeProTag: 252.29, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 20265, fallOp: 6607, fallNormal: 6019, fallAnaesth: 1920, fallRest: 5719 },
   // Komplexe primäre Hüfte (Pfannenboden/-dach + Spongiosa, oder PCCL 4)
   "I05A": { bwr: 3.843, mvdPflege: 0, mvd: 23.9, label: "Großer Eingriff Hüfte, PCCL 4 / mit aufw. Eingriff", inekImpl: 958, pflegeProTag: 265.67, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 16396, fallOp: 3561, fallNormal: 5562, fallAnaesth: 1234, fallRest: 6038 },
@@ -4422,6 +4423,7 @@ const ENDO_KONSTELLATIONEN = {
     { id: "asept_schaft", label: "Aseptisch: Schaftwechsel zementfrei", icd: "T84.04", ops: ["5-821.40"], drg03: "I46C", drg4: "I46A", zeFaehig: ["ze2023_25"] },
     { id: "asept_pfanne", label: "Aseptisch: Pfannenwechsel", icd: "T84.04", ops: ["5-821.20"], drg03: "I47A", drg4: "I46A", hebel: "Pfannenwechsel seit 2019 in I47A (statt I46C)" },
     { id: "asept_total", label: "Aseptisch: TEP-Wechsel komplett", icd: "T84.04", ops: ["5-821.40"], drg03: "I46C", drg4: "I46A", zeFaehig: ["ze2023_25"] },
+    { id: "periprothet_fraktur", label: "Periprothetische Fraktur (S72.3) + TEP-Wechsel", icd: "S72.3 + T84.04", ops: ["5-821.53", "5-791.*g od. 5-792.*g"], drg03: "I46B", drg4: "I46A", hebel: "S72.3 als HD (statt T84.04) hebt I46C → I46B (CM +0,942 = +4.297 € pro Fall)", zeFaehig: ["ze2023_25"] },
     { id: "sept_ausbau_arthritis", label: "Septisch: Ausbau + Spacer (M00.85 als HD)", icd: "M00.85 + T84.5", ops: ["5-821.7", "5-829.9"], drg03: "I03B", drg4: "I03A", hebel: "Arthritis-Codierung als HD hebt von I47B → I03B" },
     { id: "sept_ausbau_osteo", label: "Septisch: Ausbau + Spacer (M86.15 als HD)", icd: "M86.15 + T84.5", ops: ["5-821.7", "5-829.9"], drg03: "I03B", drg4: "I03A", hebel: "Osteomyelitis-Codierung als HD hebt von I47B → I03B" },
     { id: "sept_reimpl", label: "Septisch: Reimplantation (2. OP)", icd: "T84.5", ops: ["5-820.01", "5-829.n"], drg03: "I04Z", drg4: "I03A", zeFaehig: ["ze2023_25"] },
@@ -4445,17 +4447,23 @@ const ENDO_KONSTELLATIONEN = {
 const KONTROLLE_TEXT = {
   verlauf: [
     "stellte sich heute zur Verlaufskontrolle vor.",
-    "Die Wundverhältnisse zeigen sich reizlos.",
+    "Die Wundverhältnisse zeigen sich reizlos und ohne Anzeichen einer Wundheilungsstörung.",
+    "Der Verband wurde erneuert.",
+    "Klinisch zeigt sich ein reizfreier postoperativer Verlauf ohne wesentliche Beschwerden.",
   ],
   fadenzug: [
     "stellte sich heute zur Verlaufskontrolle und zum Fadenzug vor.",
-    "Die Wundverhältnisse zeigen sich reizlos.",
+    "Die Wundverhältnisse zeigen sich reizlos und die Operationsnarbe ist primär verheilt.",
     "Der Fadenzug wurde komplikationslos durchgeführt.",
+    "Im Anschluss erfolgte ein steriler Pflasterverband.",
+    "Klinisch zeigt sich ein reizfreier Verlauf ohne wesentliche Beschwerden.",
   ],
   roentgen: [
     "stellte sich heute zur 6-Wochen-Kontrolle vor.",
-    "Im aktuellen Röntgen zeigt sich eine regelrechte Entwicklung mit beginnender knöcherner Konsolidierung.",
-    "Die Belastung kann nun schrittweise gesteigert werden.",
+    "Im aktuellen Röntgen zeigt sich eine regelrechte ossäre Konsolidierung im Operationsgebiet ohne Hinweis auf Materiallockerung oder Achsabweichung.",
+    "Klinisch zeigt sich ein reizfreier Verlauf.",
+    "Die Belastung kann nun schrittweise bis zur Vollbelastung gesteigert werden.",
+    "Eine sportliche Wiederbelastung ist nach individueller Beschwerdefreiheit ab der 12. postoperativen Woche zu erwägen.",
   ],
 };
 const KONTROLLE_LABEL = { verlauf: "Verlauf", fadenzug: "Fadenzug", roentgen: "Röntgen" };
@@ -5051,14 +5059,14 @@ var _s = useState, _m = useMemo;
       if (endoDiag === "coxarthrose") { diagText = "Coxarthrose " + seitenAdj; gelenkText = "Hüfte"; }
       else if (endoDiag === "htep_schmerz") {
         var sepText = endoSep === "septisch" ? " bei V.a. periprothetische Infektion" : "";
-        diagText = "Schmerzhafte H-TEP " + seitenAdj + sepText;
+        diagText = "Revision H-TEP " + seitenAdj + sepText;
         gelenkText = "Hüfte";
       }
       else if (endoDiag === "gonarthrose") { diagText = "Gonarthrose " + seitenAdj; gelenkText = "Knie"; }
       else if (endoDiag === "knie_uni") { diagText = "Unikompartimentelle Arthrose " + seitenAdj + ", " + endoUni + " betont"; gelenkText = "Knie"; }
       else if (endoDiag === "ktep_schmerz") {
         var sepText2 = endoSep === "septisch" ? " bei V.a. periprothetische Infektion" : "";
-        diagText = "Schmerzhafte K-TEP " + seitenAdj + sepText2;
+        diagText = "Revision K-TEP " + seitenAdj + sepText2;
         gelenkText = "Knie";
       }
       elines.push("Diagnose: " + diagText + ".");
@@ -5534,10 +5542,10 @@ var _s = useState, _m = useMemo;
           <div style={cat}>Diagnose</div>
           <div style={row}>
             <div style={C(endoDiag === "coxarthrose")} onClick={function() { setEndoDiag(endoDiag === "coxarthrose" ? "" : "coxarthrose"); setEndoSep(""); setEndoUni(""); setZeAktiv({}); }}>Coxarthrose</div>
-            <div style={C(endoDiag === "htep_schmerz")} onClick={function() { setEndoDiag(endoDiag === "htep_schmerz" ? "" : "htep_schmerz"); setEndoUni(""); setZeAktiv({}); }}>Schmerzhafte H-TEP</div>
+            <div style={C(endoDiag === "htep_schmerz")} onClick={function() { setEndoDiag(endoDiag === "htep_schmerz" ? "" : "htep_schmerz"); setEndoUni(""); setZeAktiv({}); }}>Revision H-TEP</div>
             <div style={C(endoDiag === "gonarthrose")} onClick={function() { setEndoDiag(endoDiag === "gonarthrose" ? "" : "gonarthrose"); setEndoSep(""); setEndoUni(""); setZeAktiv({}); }}>Gonarthrose</div>
             <div style={C(endoDiag === "knie_uni")} onClick={function() { setEndoDiag(endoDiag === "knie_uni" ? "" : "knie_uni"); setEndoSep(""); setZeAktiv({}); }}>Unikompartim. Arthrose Knie</div>
-            <div style={C(endoDiag === "ktep_schmerz")} onClick={function() { setEndoDiag(endoDiag === "ktep_schmerz" ? "" : "ktep_schmerz"); setEndoUni(""); setZeAktiv({}); }}>Schmerzhafte K-TEP</div>
+            <div style={C(endoDiag === "ktep_schmerz")} onClick={function() { setEndoDiag(endoDiag === "ktep_schmerz" ? "" : "ktep_schmerz"); setEndoUni(""); setZeAktiv({}); }}>Revision K-TEP</div>
           </div>
           {(endoDiag === "htep_schmerz" || endoDiag === "ktep_schmerz") && <div style={{ marginTop: 8 }}>
             <div style={{ fontSize: 9, color: "#718096", fontWeight: 700, marginBottom: 3 }}>SEPTIK-VERDACHT</div>
