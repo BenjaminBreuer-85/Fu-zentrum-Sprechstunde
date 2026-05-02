@@ -4282,6 +4282,44 @@ const DIAG = {
       { id: "bew_usg_diff", input: true, label: "Beweglichkeit USG", placeholder: "frei / eingeschränkt / aufgehoben" },
       { id: "bew_vorfuss", input: true, label: "Beweglichkeit Vorfuß/MTP", placeholder: "frei / eingeschränkt" },
       { id: "gangbild_diff", input: true, label: "Gangbild", placeholder: "z.B. unauffällig / Schonhinken" },
+      // Neurologisch / vegetativ / vaskulär
+      { id: "asr_diff", label: "Achillessehnenreflex", options: {
+          phys:   { l: "physiologisch",   t: "Achillessehnenreflex physiologisch auslösbar" },
+          abges:  { l: "abgeschwächt",    t: "Achillessehnenreflex abgeschwächt auslösbar" },
+          fehlt:  { l: "fehlend",         t: "Achillessehnenreflex nicht auslösbar" },
+      }},
+      { id: "fhfs_diff", label: "Fußheber/Fußsenker", options: {
+          voll:   { l: "volle Kraft",     t: "Fußheber und Fußsenker mit voller Kraft" },
+          vermind:{ l: "verminderte Kraft", t: "Fußheber und/oder Fußsenker mit verminderter Kraft" },
+          parese: { l: "Parese",           t: "Parese der Fußheber und/oder Fußsenker" },
+      }},
+      { id: "veg_diff",   pos: "Vegetative Störungen vorhanden",   neg: "Keine vegetativen Störungen" },
+      { id: "ueber_diff", pos: "Überwärmung der betroffenen Region", neg: "Keine Überwärmung" },
+      { id: "sens_diff",  pos: "Sensibles Defizit nachweisbar",    neg: "Sensibilität intakt" },
+      { id: "troph_diff", pos: "Trophische Störungen erkennbar",   neg: "Keine trophischen Störungen" },
+      { id: "atibpost_diff", label: "A. tibialis post.", options: {
+          kraft:  { l: "kräftig",         t: "A. tibialis posterior kräftig palpabel" },
+          abges:  { l: "abgeschwächt",    t: "A. tibialis posterior abgeschwächt palpabel" },
+          nicht:  { l: "nicht palpabel",  t: "A. tibialis posterior nicht palpabel" },
+      }},
+      { id: "adp_diff", label: "A. dorsalis pedis", options: {
+          kraft:  { l: "kräftig",         t: "A. dorsalis pedis kräftig palpabel" },
+          abges:  { l: "abgeschwächt",    t: "A. dorsalis pedis abgeschwächt palpabel" },
+          nicht:  { l: "nicht palpabel",  t: "A. dorsalis pedis nicht palpabel" },
+      }},
+      { id: "doppler_diff", label: "Doppler", options: {
+          nachw:  { l: "nachweisbar",     t: "Im Doppler Fluss über A. tibialis posterior und A. dorsalis pedis nachweisbar" },
+          abges:  { l: "abgeschwächt",    t: "Im Doppler Fluss über A. tibialis posterior und A. dorsalis pedis abgeschwächt" },
+          nicht:  { l: "nicht nachweisbar", t: "Im Doppler kein Fluss über A. tibialis posterior und A. dorsalis pedis nachweisbar" },
+      }},
+      { id: "recap_diff", label: "Rekapillarisierung Zehen", options: {
+          phys:   { l: "physiologisch",   t: "Rekapillarisierung der Zehen physiologisch" },
+          verlang:{ l: "verlangsamt",     t: "Rekapillarisierung der Zehen verlangsamt" },
+      }},
+      { id: "pole_diff", label: "Pole-Test", options: {
+          phys:   { l: "physiologisch",   t: "Pole-Test physiologisch" },
+          auff:   { l: "auffällig",       t: "Pole-Test auffällig" },
+      }},
     ],
     opMethoden: [],
     bildBefunde: "Kein eindeutig pathologischer Befund / weiter abzuklären",
@@ -4517,6 +4555,30 @@ function BefTog({ b, state, onTog, val, onVal }) {
         <span style={{ fontSize: 11, color: "#8ab", minWidth: 180 }}>{b.label}:</span>
         <input value={val || ""} onChange={function(e) { onVal(e.target.value); }} placeholder={b.placeholder}
           style={{ flex: 1, background: "rgba(0,0,0,.03)", border: "1px solid rgba(0,0,0,.1)", borderRadius: 6, padding: "5px 8px", color: "#2D3748", fontSize: 11, fontFamily: "inherit" }} />
+      </div>
+    );
+  }
+  if (b.options) {
+    // Optionsauswahl (Click cyclet durch Optionen, val ist Schlüssel der gewählten Option oder "")
+    var optKeys = Object.keys(b.options);
+    var aktivIdx = optKeys.indexOf(val || "");
+    return (
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, marginBottom: 4 }}>
+        <span style={{ fontSize: 11, color: "#8ab", minWidth: 180 }}>{b.label}:</span>
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+          {optKeys.map(function(k) {
+            var aktiv = val === k;
+            return (
+              <div key={k} onClick={function(){ onVal(aktiv ? "" : k); }}
+                style={{ padding: "3px 8px", borderRadius: 4, fontSize: 10, cursor: "pointer", userSelect: "none",
+                  border: aktiv ? "1.5px solid #00838F" : "1px solid rgba(0,0,0,.15)",
+                  background: aktiv ? "rgba(0,131,143,.15)" : "rgba(255,255,255,.95)",
+                  color: aktiv ? "#00838F" : "#666", fontWeight: aktiv ? 600 : 400 }}>
+                {b.options[k].l}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -4941,10 +5003,10 @@ var _s = useState, _m = useMemo;
   function togDiag(d) { setDiagnosen(function(p) { return p.indexOf(d) >= 0 ? p.filter(function(x) { return x !== d; }) : p.concat([d]).slice(0, 2); }); setOpMethode([]); }
   function togBef(id) { setBefState(function(p) { var n = {}; for (var x in p) n[x] = p[x]; if (!p[id]) { n[id] = "pos"; } else if (p[id] === "pos") { n[id] = "neg"; } else { delete n[id]; } return n; }); }
 
-  var dd = gender === "m" ? "Der Patient" : "Die Patientin";
-  var dd2 = gender === "m" ? "der Patient" : "die Patientin";
-  var dem = gender === "m" ? "dem Patienten" : "der Patientin";
-  var sich = gender === "m" ? "Er" : "Sie";
+  var dd = gender === "m" ? "Der Patient" : gender === "w" ? "Die Patientin" : "Der/Die Patient(in)";
+  var dd2 = gender === "m" ? "der Patient" : gender === "w" ? "die Patientin" : "der/die Patient(in)";
+  var dem = gender === "m" ? "dem Patienten" : gender === "w" ? "der Patientin" : "dem/der Patient(in)";
+  var sich = gender === "m" ? "Er" : gender === "w" ? "Sie" : "Er/Sie";
 
   var availBef = _m(function() {
     var all = [], seen = {};
@@ -5211,6 +5273,11 @@ var _s = useState, _m = useMemo;
 
     // STANDARD-FLOW (Fuß)
     if (diagnosen.length === 0) return "";
+    // Lokaler Fallback: falls äußere dd-Variable aus irgendeinem Grund undefined ist
+    var ddLocal = (gender === "m") ? "Der Patient" : (gender === "w") ? "Die Patientin" : "Der/Die Patient(in)";
+    var sichLocal = (gender === "m") ? "Er" : (gender === "w") ? "Sie" : "Er/Sie";
+    if (typeof dd === "undefined" || dd === null) dd = ddLocal;
+    if (typeof sich === "undefined" || sich === null) sich = sichLocal;
     var p = [];
     // Diagnose
     var diagParts = diagnosen.map(function(d) {
@@ -5287,6 +5354,7 @@ var _s = useState, _m = useMemo;
     var bef = [];
     availBef.forEach(function(b) {
       if (b.input && befInputs[b.id]) bef.push(b.label + ": " + befInputs[b.id] + " Grad");
+      else if (b.options && befInputs[b.id] && b.options[befInputs[b.id]]) bef.push(b.options[befInputs[b.id]].t);
       else if (befState[b.id] === "pos") bef.push(b.pos);
       else if (befState[b.id] === "neg") bef.push(b.neg);
     });
@@ -5400,7 +5468,9 @@ var _s = useState, _m = useMemo;
     }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
-    return p.join("");
+    var rawOut = p.join("");
+    // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
+    return rawOut.replace(/\bundefined\b/g, "___");
   }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
@@ -6071,9 +6141,11 @@ var _s = useState, _m = useMemo;
                 var refDrgKey = endoPccl === "4" ? refKonst.drg4 : refKonst.drg03;
                 var refDrg = ENDO_DRG[refDrgKey];
                 var inekRef = refDrg ? refDrg.inekImpl : null;
+                var refErloes = refDrg ? Math.round(refDrg.bwr * 4562) : null;
+                var dbIIInek = (refErloes !== null && refDrg && refDrg.fallTotal) ? (refErloes - refDrg.fallTotal) : null;
                 return <div>
                   <div style={{ fontSize: 9, color: "#718096", marginBottom: 4 }}>
-                    Ampel-Bezug: <strong>{refKonst.label}</strong> · DRG <strong>{refDrgKey}</strong> · InEK-Implantatref: <strong>{inekRef !== null ? inekRef.toLocaleString("de-DE") + " €" : "noch nicht hinterlegt"}</strong>
+                    Ampel-Bezug: <strong>{refKonst.label}</strong> · DRG <strong>{refDrgKey}</strong> · InEK-Implantatref: <strong>{inekRef !== null ? inekRef.toLocaleString("de-DE") + " €" : "noch nicht hinterlegt"}</strong>{dbIIInek !== null ? <span> · DB II (InEK-Median): <strong style={{ color: dbIIInek >= 0 ? "#00897B" : "#C62828" }}>{dbIIInek >= 0 ? "+" : ""}{dbIIInek.toLocaleString("de-DE")} €</strong></span> : null}
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     {implKeys.map(function(k) {
@@ -6091,6 +6163,15 @@ var _s = useState, _m = useMemo;
                         else if (pct <= 1.15) { ampel = "🟡"; ampelColor = "#E65100"; ampelText = "im InEK-Korridor – DB neutral"; }
                         else { ampel = "🔴"; ampelColor = "#C62828"; ampelText = "über InEK-Ref – DB-Nachteil"; }
                       }
+                      // DB II_real = DB II_InEK + (InEK-Implantatref − euer Preis)
+                      var canDbII = hasPrice && hasRef && dbIIInek !== null;
+                      var dbIIReal = canDbII ? dbIIInek + (inekRef - imp.preis) : null;
+                      var dbAmpel = "⚪", dbColor = "#718096", dbText = "DB II nicht berechenbar";
+                      if (canDbII) {
+                        if (dbIIReal < 0) { dbAmpel = "🔴"; dbColor = "#C62828"; dbText = "Defizit – Verlust gegenüber InEK-Vollkosten"; }
+                        else if (dbIIReal > dbIIInek) { dbAmpel = "🟢"; dbColor = "#00897B"; dbText = "Marge besser als InEK-Median"; }
+                        else { dbAmpel = "🟡"; dbColor = "#E65100"; dbText = "positiv, aber unter InEK-Median-Marge"; }
+                      }
                       return <div key={k} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "rgba(255,255,255,.85)", borderRadius: 5, border: "1px solid rgba(0,0,0,.06)", fontSize: 10, flexWrap: "wrap" }}>
                         <div style={{ fontSize: 14, lineHeight: 1 }}>{ampel}</div>
                         <div style={{ flex: "0 0 auto", minWidth: 100 }}>
@@ -6105,7 +6186,11 @@ var _s = useState, _m = useMemo;
                           <div style={{ fontSize: 9, color: "#718096" }}>Δ vs. InEK-Ref</div>
                           <div style={{ fontWeight: 700, color: ampelColor }}>{diff > 0 ? "+" : ""}{diff.toLocaleString("de-DE")} €</div>
                         </div>}
-                        <div style={{ flex: "1 1 100%", fontSize: 9, color: ampelColor, fontStyle: "italic", marginTop: 2 }}>{ampelText}</div>
+                        {canDbII && <div style={{ flex: "0 0 auto", minWidth: 90, textAlign: "right", borderLeft: "1px dashed rgba(0,0,0,.15)", paddingLeft: 8 }}>
+                          <div style={{ fontSize: 9, color: "#718096" }}>DB II real {dbAmpel}</div>
+                          <div style={{ fontWeight: 700, color: dbColor }}>{dbIIReal >= 0 ? "+" : ""}{dbIIReal.toLocaleString("de-DE")} €</div>
+                        </div>}
+                        <div style={{ flex: "1 1 100%", fontSize: 9, color: ampelColor, fontStyle: "italic", marginTop: 2 }}>InEK: {ampelText}{canDbII ? " · DB II: " + dbText : ""}</div>
                       </div>;
                     })}
                   </div>
@@ -6142,6 +6227,15 @@ var _s = useState, _m = useMemo;
                     <div>├─ Anästhesie:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{drgData.fallAnaesth.toLocaleString("de-DE")} € ({pct(drgData.fallAnaesth)}%)</div>
                     <div>└─ Diagnostik/Sonst.:&nbsp;{drgData.fallRest.toLocaleString("de-DE")} € ({pct(drgData.fallRest)}%)</div>
                   </div>}
+                  {/* DB II – Wirtschaftlichkeit */}
+                  {hasFK && (function(){
+                    var dbII = erloes - drgData.fallTotal;
+                    var dbColor = dbII >= 0 ? "#00897B" : "#C62828";
+                    return <div style={{ marginTop: 6, padding: "6px 8px", background: dbII >= 0 ? "rgba(0,137,123,.08)" : "rgba(198,40,40,.08)", border: "1px solid " + (dbII >= 0 ? "rgba(0,137,123,.3)" : "rgba(198,40,40,.3)"), borderRadius: 4, fontSize: 11, color: dbColor, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                      <span>💰</span>
+                      <span>DB II: {erloes.toLocaleString("de-DE")} € − {drgData.fallTotal.toLocaleString("de-DE")} € = <span style={{ fontSize: 12 }}>{dbII >= 0 ? "+" : ""}{dbII.toLocaleString("de-DE")} €</span></span>
+                    </div>;
+                  })()}
                   {/* Zusatzentgelte (nur bei Wechsel-Konstellationen) */}
                   {k.zeFaehig && k.zeFaehig.length > 0 && drgData && <div style={{ marginTop: 6, padding: "6px 8px", background: "rgba(101,76,162,.06)", border: "1px solid rgba(101,76,162,.25)", borderRadius: 4 }}>
                     <div style={{ fontSize: 9, color: "#5E35B1", fontWeight: 700, marginBottom: 4 }}>💉 ZUSATZENTGELTE</div>
@@ -6261,9 +6355,19 @@ coal_cn:`Oberflächliche Inzision nach Lokalisierung mittels BV und Anzeichnung 
 coal_fascie:`Zuwendung zum Unterschenkel, am mittleren Drittel wird über gesonderte Inzision stumpf eingegangen. Schutz N. saphenus und Venen mit stumpfen Haken. Hebung eines autologen Fascien-Fett-Flaps vom Muskel.\nInterposition von autologem Fascien-Fett-Flap in die Coalitio und Fixierung mittels Vicryl-Naht. Röntgenkontrolle, korrekte Resektion.`,coal_lcot:`Nun längsverlaufende Inzision über dem lateralen Fußrand in Höhe des vorderen Abschnitts des Fersenbeins.\nNach Spalten des Subcutangewebes, Eingehen in die Tiefe unter subtiler Blutstillung und Darstellen der Peronealsehnen sowie des Endastes N. suralis, diese werden jeweils nach dorsal bzw. mit Hohmann-Haken weggehalten. Der Sinus tarsi wird eröffnet und soweit exponiert dass ein kleiner Hohmann-Haken in die Tiefe zwischen der anterioren Begrenzung des posterioren Subtalargelenk und des Ligamentum interosseum eingesetzt werden kann. Beidseits der vorgesehenen Osteotomie wird knapp unterhalb der kranialen Begrenzung ein 2,0 mm Kirschnerdraht eingesetzt. Über diesen wird der Hintermannspreizer eingesetzt. Die Osteotomie wird mit der oszillierenden Säge bis zur Mitte des Kalkaneus etwa 2 cm tief durchgeführt und dann mit einem Meißel vervollständigt. Dabei wird darauf geachtet, dass die Osteotomie entlang der anterioren Begrenzung der posterioren Facette des USG erfolgt und diese nicht tangiert. Die Instrumente werden nicht zu tief eingeführt um die Weichteilstrukturen auf der medialen Seite nicht zu verletzen.\nNun sukzessive Aufdehnung des Osteotomiespaltes unter Schonung der medialen Corticalis bis eine gute klinische und radiologische Korrektur erreicht ist. Nun Einbringen eines passenden Tutogene-Keiles in den Spalt, der ca. 8 mm breit ist. Dieser wird eingebolzt, die K-Drähte werden mit dem Hintermann Spreizer entfernt. Der ist press fit stabil, auch in der Bewegungsprüfung. Erneute BV-Kontrolle, diese zeigt die korrekte Lage des Tutogene Keils mit guter Korrektur.`,haglund_mini:`Inzision am medialen Rand des Achillessehnenansatzes, stumpfes Spalten des Gewebes, subtile Präparation unter Schutz des Achillessehnenansatzes, Mobilisierung von Verwachsungen mit der Sehne, Entfernung einer Bursitis subachillea, Einsetzen eines Hakens und vorsichtige Abtragung der deutlichen Exostose, die klar in die Achillessehne am Ansatz drückt und hier Verschleissschäden erzeugt. Ein relevanter Sehnenschaden besteht nicht, aber Zeichen von übermäßiger Druckeinwirkung mit Reizung. Nach Abtragung palpatorische und visuelle Prüfung, ausgiebige Spülung, Glättung von Kanten bis ein komplett abgerundeter physiologischer Calcaneus imponiert. In der Region in der Impingement entstehen könnte, bestehen sicher keine kritischen Strukturen mehr. Ausgiebige Spülung, Naht Sehnenscheide.`,
 haglund:`Hautinzision geschwungen medial über der Achillessehne. Stumpfe Präparation des Subcutangewebes, deutlich palpable intratendinöse Ossifikationen und Nekroseareale. Ansatznahe Partialruptur. Erschwerte Präparation bei deutlichen Adhäsionen. Split der Achillessehne und Exzision der entzündlich veränderten Bursa Subachillea und Lösung von Adhäsionen. Abtragung der deutlichen Calcaneusexostose mit einem Osteotom von medial nach lateral. Die Kanten werden mit dem Luer geglättet. Nachtasten zum Ausschluss scharfer Knochenkanten, Spülung. Schrittweise und vorsichtig ebenfalls Entfernung der ausgeprägten prominenten und palpablen kalzifizierenden Nekrosen und Ossifikationen am Achillessehnenansatz, dabei muss die Achillessehne nicht komplett abgelöst werden. Einbringen von 2 Mitek-Ankern in das Tuber calcanei, Nutzung von resorbierbaren Fäden. Mit Hilfe der Anker Re-Fixierung und Transposition der Achillessehne an das neumodellierte Tuber Calcanei. BV Kontrolle zeigt regelrechte knöcherne Verhältnisse. Naht der Achillessehne und der Sehnenscheide.`,
 as_naht:`Mediale sagittale Hautinzision neben der Achillessehne. Scharfe Präparation des Subcutangewebes, direktes Eingehen auf das Peritendineum, dieses wird leicht medialseitig eröffnet, die Ruptur quer mit Retraktion der Sehnenstümpfe und verdicktem Peritendineum, die Sehnenstümpfe sind um ca. 3 cm distanziert. Zunächst Spülung, Anfrischen des proximalen und distalen Sehnenstumpfes. Adaptierende Kernnaht in der Nahttechnik nach Kirchmayr–Kessler mit PDS-Stärke 1 durchflochten. Zirkuläre Kettelung mittels Vicryl 3-0 Nahtmaterial. Ausgiebige Spülung. Naht des Peritendineums mittels Vicryl 3-0. Subcutanadaptation mittels Donati-Rückstichnähten. Hautdesinfektion. Hautnaht. Steriler Verband. Watteverband. Anlage einer Unterschenkel-Castschiene in Spitzfußstellung.`,
+as_naht_offen:`Markierung der anatomischen Landmarken. Mediale sagittale Hautinzision parallel zur Achillessehne, von etwa 4 cm proximal des Defekts bis 2 cm distal. Schichtweise scharfe Präparation des subkutanen Gewebes, sorgfältige Schonung der Vena saphena parva sowie des N. suralis. Direktes Eingehen auf das Peritendineum, dieses wird etwas medialseitig längs eröffnet.\nDarstellung der Rupturstelle, hier zeigt sich eine quere Komplettruptur mit ausgefranzten Sehnenstümpfen und proximaler Retraktion um ca. ___ cm. Spülung des Wundgebiets, Anfrischen des proximalen und distalen Sehnenstumpfes mit dem Skalpell. Die Sehnenstümpfe lassen sich in 20° Spitzfußstellung spannungsfrei adaptieren.\nAdaptierende Kernnaht der Achillessehne in Nahttechnik nach Kirchmayr-Kessler mit PDS Stärke 1, durchflochten. Anschließend zirkuläre Feinadaptation und Kettelung mit Vicryl 3-0. Funktionsprüfung durch passive Plantarflexion und Dorsalextension – die Naht hält der Belastung stand, gute Stabilität, regelrechte Spannung.\nAusgiebige Spülung. Naht des Peritendineums fortlaufend mit Vicryl 3-0. Subkutane Adaptation mit Donati-Rückstichnähten Vicryl 3-0. Hautdesinfektion. Hautnaht in Donati-Rückstichtechnik mit Ethilon 3-0. Steriler Wundverband, Watteverband und Anlage einer Unterschenkel-Castschiene in 20° Spitzfußstellung.`,
+olekranon_einf:`Markierung der anatomischen Landmarken am Ellenbogen. Längsverlaufende Hautinzision dorsal über dem Olekranon, leicht radial der Mittellinie verlaufend zur Schonung der Bursa olecrani. Schichtweise scharfe Präparation des subkutanen Gewebes. Darstellung der Frakturzone, hier zeigt sich eine quere Olekranonfraktur mit deutlicher Dehiszenz und intakter Trizepssehne. Spülung des Frakturbereichs, sorgfältige Entfernung des Hämatoms.\nReposition der Fraktur unter Sicht und BV-Kontrolle, hierbei Vorlegen einer großen spitzen Repositionszange. Anatomische Reposition mit guter Adaptation der Frakturflächen. BV-Kontrolle in zwei Ebenen, regelrechte Stellung.\n§OSE_DETAIL§\nBV-Abschlusskontrolle in zwei Ebenen, regelrechte Lage des Implantats und anatomische Reposition. Funktionsprüfung des Ellenbogens, freie Beweglichkeit, kein Materialkonflikt.`,
+olekranon_mehr:`Markierung der anatomischen Landmarken am Ellenbogen. Längsverlaufende Hautinzision dorsal über dem Olekranon, leicht radial der Mittellinie verlaufend zur Schonung der Bursa olecrani. Schichtweise scharfe Präparation des subkutanen Gewebes. Darstellung der Frakturzone, hier zeigt sich eine mehrfragmentäre Olekranonfraktur mit Trümmerzone und proximaler Dislokation, das Hauptfragment ist nach proximal verlagert. Spülung, sorgfältiges Anlegen der Fragmente unter Sicht.\nVorsichtige Reposition mit anatomischer Adaptation der Hauptfragmente, das Trümmerareal lässt sich rekonstruieren. BV-Kontrolle in zwei Ebenen, regelrechte Stellung.\n§OSE_DETAIL§\nBV-Abschlusskontrolle in zwei Ebenen, regelrechte Lage des Implantats und akzeptable Reposition der Trümmerzone. Funktionsprüfung des Ellenbogens, freie Beweglichkeit, kein Materialkonflikt.`,
+olek_ose_zg:`Einbringen von zwei parallelen K-Drähten 1,8 mm transossär durch das proximale Olekranonfragment in den Schaft, BV-Kontrolle. Anschließend Vorlegen einer 8er-Tour-Drahtcerclage in Achterschlinge nach proximal über die K-Drähte und distal durch eine Bohrung im Schaft. Symmetrisches Anziehen der Cerclage, gute Kompression im Frakturspalt. Kürzen und Umbiegen der K-Drähte zum Schutz vor Hautirritation.`,
+olek_ose_wsp:`Anlage einer winkelstabilen 3,5 mm Olekranonplatte dorsal, Anpassung an die Anatomie des proximalen Ulnaschafts. Besetzen der Platte mit Schrauben passender Länge, beginnend mit einer Kompressionsschraube schräg in den Frakturspalt zur Erzeugung interfragmentärer Kompression, anschließend winkelstabile Schrauben zur stabilen Verankerung. Längen jeweils nach BV-Messung.`,
+olek_ose_schr:`Vorbohren über die Frakturzone schräg von proximal-dorsal nach distal-volar mit dem 3,5 mm Bohrer, Längenmessung. Einbringen einer 4,5 mm Spongiosaschraube in passender Länge mit gutem interfragmentären Anzug. Sehr gute Kompression im Frakturspalt.`,
+radius_prox_einf:`Markierung der Landmarken am Ellenbogen. Hautinzision dorsoradial über dem Ellenbogen, von etwa 3 cm proximal des Radiushalses bis 2 cm distal. Schichtweise Präparation, Schonung des R. profundus n. radialis durch streng zwischen Extensor digitorum communis und Extensor carpi ulnaris arbeitende Präparation (Kocher-Zugang). Eröffnung der Gelenkkapsel.\nDarstellung der Frakturzone, hier zeigt sich eine einfache zweiteilige Radiuskopffraktur mit dislozierter Stufenbildung. Sorgfältige Hämatomentfernung und Spülung. Reposition unter Sicht mit gutem Adaptationsergebnis und anatomischer Wiederherstellung der Gelenkfläche. BV-Kontrolle in zwei Ebenen, regelrechte Stellung.\nVorbohren und Längenmessung. Einbringen einer Mini-Schraube in versenkter Lage, sodass die Gelenkfläche frei bleibt. Kontrolle der freien Pro-/Supination – keine Behinderung durch das Implantat. BV-Abschlusskontrolle, regelrechte Stellung und Schraubenlage.\nSpülung. Naht der Gelenkkapsel mit Vicryl 2-0. Schichtweiser Wundverschluss.`,
+radius_prox_mehr:`Markierung der Landmarken am Ellenbogen. Hautinzision dorsoradial über dem Ellenbogen, von etwa 3 cm proximal des Radiushalses bis 2 cm distal. Schichtweise Präparation, Schonung des R. profundus n. radialis durch streng zwischen Extensor digitorum communis und Extensor carpi ulnaris arbeitende Präparation (Kocher-Zugang). Eröffnung der Gelenkkapsel.\nDarstellung der Frakturzone, hier zeigt sich eine mehrfragmentäre Radiuskopffraktur (Mason III) mit imprimierten Gelenkfragmenten und teilweiser Trümmerzone. Sorgfältige Hämatomentfernung. Reposition der Fragmente in mehreren Schritten unter Sicht, Aufrichtung der imprimierten Areale, Wiederherstellung der Gelenkkongruenz so weit möglich.\nProvisorische Fixation mit feinen K-Drähten 1,0 mm. BV-Kontrolle in zwei Ebenen, akzeptable Reposition. Definitive Osteosynthese mit zwei bis drei Mini-Schrauben in versenkter Lage. Kontrolle der freien Pro-/Supination ohne Implantat-Konflikt. BV-Abschlusskontrolle.\nSpülung, Kapselnaht, schichtweiser Wundverschluss.`,
+humerus_subcap_wsp:`Markierung der anatomischen Landmarken am Schultergürtel. Deltoideopektoraler Zugang von etwa 1 cm unterhalb des Akromions ziehend nach distal entlang der V. cephalica. Schichtweise Präparation, Identifikation und Schonung der V. cephalica – wahlweise nach lateral oder medial luxiert. Stumpfes Spreizen zwischen M. deltoideus und M. pectoralis major.\nDarstellung der Frakturzone, hier zeigt sich eine subcapitale Humerusfraktur mit dislozierter Tuberkulum-Region. Spülung des Hämatoms, vorsichtiges Mobilisieren der Fragmente unter Schonung der Rotatorenmanschettenansätze. Anlage von Haltefäden Vicryl 2-0 an Tuberculum majus und minus.\nReposition der Fraktur unter BV-Kontrolle. Anatomische Stellung mit korrektem Halsschaftwinkel und Adaptation der Tuberkula. BV-Kontrolle in zwei Ebenen, regelrechte Stellung. Vorlage einer winkelstabilen anatomischen Philos-Platte anatomiegerecht am proximalen Humerus, lateral des Sulcus bicipitalis. Provisorische Fixation mit K-Drähten.\nBesetzen der Platte mit winkelstabilen Schrauben passender Länge: zunächst die Calcar-Schraube zur medialen Abstützung – essentiell für die Stabilität. Anschließend die proximalen winkelstabilen Schrauben in den Humeruskopf in divergenter Anordnung, jeweils mit Längenmessung und Abstand von mindestens 5 mm zur subchondralen Knochenplatte. Distale bicortikale Schrauben im Schaft.\nSicherung der Tuberkulum-Fragmente durch Einknüpfen der zuvor angelegten Haltefäden in die Plattenösen (Tuberkulum-Fixation). BV-Abschlusskontrolle in zwei Ebenen, anatomische Reposition, regelrechte Schraubenlage, alle Schrauben intraossär. Funktionsprüfung der Schulter unter BV – freie passive Beweglichkeit, keine Implantat-Konflikte.`,
+humerus_targon_nagel:`Markierung der Landmarken. Antegrader Zugang über den Schultergürtel: kleine Hautinzision lateral des Akromions, etwa 5 cm nach distal verlaufend, längs des M. deltoideus. Stumpfes Spreizen der Deltoideusfasern in Faserrichtung unter Schonung des N. axillaris (cave: ca. 5–6 cm distal des Akromions). Tasten der Eintrittsstelle am Übergang zwischen Tuberculum majus und der humeralen Knorpelkappe.\nEröffnung der Rotatorenmanschette längs des Faserverlaufs des M. supraspinatus mit Einlage von Haltefäden zur späteren Naht. Darstellung der Eintrittsstelle medial der Knorpelgrenze des Humeruskopfes.\nBV-gestützte Eröffnung des Markraums mit dem Pfriem in zentrierter Position, Vorlegen des Führungsdrahtes nach distal über die Frakturzone hinaus bis in den distalen Humerus. BV-Kontrolle in zwei Ebenen – Lage des Drahtes regelrecht und intramedullär. Reposition der Frakturzone manuell unter BV-Kontrolle.\nLängenmessung über den Führungsdraht und Bestimmung der Nageldicke. Aufbohren des Markraums mit dem flexiblen Bohrer in passender Stärke (typisch 1 mm größer als gewählter Nageldurchmesser). Einbringen des Targon-Nagels – Länge ___ mm, Durchmesser ___ mm – über den Zielbügel in korrekter Rotation.\nBV-Kontrolle der Eintauchtiefe – Nagelende unterhalb der Knorpelkappe versenkt. Proximale Verriegelung über den Zielbügel mit drei winkelstabilen Schrauben (eine Calcar-Schraube, zwei in den Kopf divergent eingebracht). Distale Verriegelung statisch über zwei Querschrauben in Freihandtechnik unter BV-Kontrolle.\nBV-Abschlusskontrolle in zwei Ebenen: anatomische Reposition, regelrechte Nagellage, korrekte Schraubenlängen, alle Verriegelungen sicher gefasst. Naht der Rotatorenmanschette mit den vorgelegten Haltefäden Vicryl 2-0. Funktionsprüfung der Schulter – freie passive Beweglichkeit.`,
 fhl_transfer:`Hautinzision geschwungen medial über der Achillessehne im Verlauf der alten Narbe. Stumpfe Präparation des Subcutangewebes, deutlich palpable intratendinöse Ossifikationen und Nekroseareale sowie Insuffizienz der Achillessehne, massive Verwachsungen. Erschwerte Präparation bei deutlichen Adhäsionen. Split der Achillessehne und Exzision der entzündlich veränderten Bursa Subachillea und Lösung von Adhäsionen. Abtragung einer Calcaneusexostose mit einem Osteotom von medial nach lateral. Die Kanten werden mit dem Luer geglättet. Entfernung der ausgeprägten prominenten und palpablen kalzifizierenden Nekrosen und Ossifikationen im Verlauf der Achillessehne. Vorsichtige Darstellung der FHL Sehne, dabei streng laterales Arbeiten der Sehne. Tiefe Tenotomie und Armierung. Dann unter BV Kontrolle Bohrung 6mm durch das Fersenbein, Vorlage eines Shuttle-Fadens und Einziehen der Sehne, es wird eine regelrechte Vorspannung eingestellt. Dann Einbringen einer 5,5 mm Arthrex Tenodeseschraube. Naht Achillessehne und Sehnenscheide.`,
-arthrorise_einseitig:`Palpation des Sinus Tarsi, Stichinzision und Stumpfes Spreizen auf den Calcaneus. Nun Einbringen eines Drahtes unter BV Kontrolle und in forcierter Inversionsstellung des Fußes in den Calcaneus nach plantar auf das CC Gelenk hinlaufend. Gute Lage des Drahtes, nun Überbohren und Einbringen einer Talus Stopp Schraube. Kontrolle BV in 2 Ebenen, hier zeigt sich eine korrekte Stellung.\nKlinische Kontrolle der Rückfußstellung und Beweglichkeit, regelrechte Korrektur, 10-15° Resteversion möglich.`,
-arthrorise_bds:`Beginn auf der linken Seite, Palpation des Sinus Tarsi, Stichinzision und Stumpfes Spreizen auf den Calcaneus. Nun Einbringen eines Drahtes unter BV Kontrolle und in forcierter Inversionsstellung des Fußes in den Calcaneus nach plantar auf das CC Gelenk hinlaufend. Gute Lage des Drahtes, nun Überbohren und Einbringen einer Talus Stopp Schraube. Kontrolle BV in 2 Ebenen, hier zeigt sich eine korrekte Stellung.\nNun Zuwendung zur rechten Seite, hier ebenfalls Palpation des Sinus Tarsi, Stichinzision und Stumpfes Spreizen auf den Calcaneus. Einbringen eines Drahtes unter BV Kontrolle und in forcierter Inversionsstellung des Fußes in den Calcaneus nach plantar auf das CC Gelenk hinlaufend. Gute Lage des Drahtes, nun Überbohren und Einbringen einer Talus Stopp Schraube. Kontrolle BV in 2 Ebenen, hier zeigt sich auch eine korrekte Stellung.\nKlinische Kontrolle der Rückfußstellung und Beweglichkeit bds, regelrechte Korrektur, 10-15° Resteversion möglich.`,
+arthrorise_einseitig:`Markierung der anatomischen Landmarken am Rückfuß. Palpation des Sinus Tarsi unter forcierter Inversion des Fußes. Stichinzision auf Höhe des Sinus Tarsi und stumpfes Spreizen mit der Klemme bis auf den Calcaneus. Unter BV-Kontrolle Einbringen eines Führungsdrahts in forcierter Inversionsstellung des Fußes vom Sinus Tarsi nach plantar in den Calcaneuskörper, gerichtet auf das Calcaneocuboidalgelenk. BV-Kontrolle in zwei Ebenen, regelrechte Drahtlage. Längenmessung über den Draht.\nÜberbohren des Drahtes und Einbringen einer kanülierten 7,0 mm Talus-Stopp-Schraube (Königsee) in passender Länge. BV-Abschlusskontrolle in zwei Ebenen mit korrekter Schraubenlage und sinngemäßer Begrenzung der Eversion. Klinische Kontrolle der Rückfußstellung und passiven Beweglichkeit, regelrechte Korrektur, 10-15° Resteversion belassen.`,
+arthrorise_bds:`Beginn auf der linken Seite. Markierung der anatomischen Landmarken am Rückfuß. Palpation des Sinus Tarsi unter forcierter Inversion des Fußes. Stichinzision auf Höhe des Sinus Tarsi und stumpfes Spreizen mit der Klemme bis auf den Calcaneus. Unter BV-Kontrolle Einbringen eines Führungsdrahts in forcierter Inversionsstellung des Fußes vom Sinus Tarsi nach plantar in den Calcaneuskörper, gerichtet auf das Calcaneocuboidalgelenk. BV-Kontrolle in zwei Ebenen, regelrechte Drahtlage. Längenmessung über den Draht. Überbohren des Drahtes und Einbringen einer kanülierten 7,0 mm Talus-Stopp-Schraube (Königsee) in passender Länge. BV-Abschlusskontrolle in zwei Ebenen mit korrekter Schraubenlage und sinngemäßer Begrenzung der Eversion.\nNun Zuwendung zur rechten Seite. Erneute Palpation des Sinus Tarsi unter forcierter Inversion. Stichinzision und stumpfes Spreizen bis auf den Calcaneus. Einbringen eines Führungsdrahts in forcierter Inversionsstellung in identischer Technik. BV-Kontrolle in zwei Ebenen, regelrechte Drahtlage. Längenmessung, Überbohren und Einbringen einer kanülierten 7,0 mm Talus-Stopp-Schraube (Königsee) in passender Länge. BV-Abschlusskontrolle in zwei Ebenen mit korrekter Schraubenlage.\nKlinische Kontrolle der Rückfußstellung und passiven Beweglichkeit beidseits, regelrechte Korrektur, 10-15° Resteversion belassen.`,
 subtalar:`Horizontalverlaufende Hautinzision lateral von der Spitze des Außenknöchels nach vorne gezogen, vorher Narkoseuntersuchung des Fußes und Markierung aller Landmarken. Subtile stumpfe Präparation in die Tiefe nach Sondierung des Sinus Tarsi, Darstellung der Peronealsehnen und Schutz dieser, ebenfalls Darstellung und Schutz LFC, Beiseitehalten dieser mit einem Lidhaken. Nun Ausräumung des Sinus Tarsi und schrittweise Entknorpelung der medialen und hinteren Facette mit Meißel, scharfem Löffel und Kürette. Einsetzen eines Arthrodesespreizers, Sicherstellung der kompletten Entknorpelung. Spülung, schachbrettartiges Eröffnen der knöchernen Flächen mit dem Meißel. Nun Einbringen der entsprechend zubereiteten Späne und der Spongiosa.\nUnter BV Kontrolle werden nach Hautinzision, stumpfem Spreizen des Gewebes und manueller Korrektur des Rückfußes unter Schutz mit einer Gewebeschutzhülse zwei Drähte von plantar über das Tuber calcaneum sowie den Calcaneuskörper über das Subtalargelenk in den Talus gebracht. Kontrolle in 2 Ebenen unter BV, klinische Kontrolle der Rückfußachse, Vorbohren, dann Einbringen von 7,0er kanülierten Schrauben entsprechend der erfolgten Messung. Gute Kompression im Gelenk, korrekte Schraubenlage.\nAbschlusskontrolle in 4 Ebenen (Fuß ap, seitlich, OSG ap und Rückfuß axial).`,
 dwyer:`Inzision lateral am Fersenbein, schräg verlaufende Inzision hinter der Peronealsehnenloge, Präparation auf das Fersenbein, Festlegen der Osteotomieebene unter BV und komplette Osteotomie des Fersenbeins mit der oszillierenden Säge unter Schutz der Wundränder und Wasserkühlung. Nun zweite Osteotomie und damit Entnahme eines lateralbasigen Keiles.\nNun wird das dorsale Fragment nach lateral verschoben und zur weiteren Korrektur der Rückfußstellung gekippt. Unter BV Kontrolle seitlich und axial werden dann 2 Drähte über die Ferse vorgelegt und bei korrekter Lage nach Stichinzision der Haut und stumpfem Spreizen auf den Knochen überbohrt. Einbringen von 2 7,0 Schrauben entsprechend Längenmessung. Stabile Osteosynthese, gute Korrektur der Rückfußachse klinisch und radiologisch in 2 E.`,
 dwyer_steindler:`Inzision medial am Fußrand auf Höhe der proximalen Insertion der Plantarfaszie. Stumpfe vorsichtige Präparation in die Tiefe und Darstellung der Plantarfaszie, diese wird unter Sicht von medial bis lateral durchtrennt, ebenfalls Ablösen der Weichteile am Calcaneus und akribischem Schutz der plantaren Fußnerven unter Sicht. Dadurch gute Entspannung des kontrakten Längsgewölbes.`,
@@ -6498,7 +6602,7 @@ function OPBerichtApp(){
   const [ucMeZusatz,setUcMeZusatz]=useState("");
   // H-DRG-Fähigkeits-Check: jeder Key kann null (nicht geprüft), true (erfüllt), false (nicht erfüllt) sein
   const [ucHdrg,setUcHdrg]=useState({});
-  const [ucSec,setUcSec]=useState({rad:false,fib:false,fem:false,ell:false,kla:false,me:false});
+  const [ucSec,setUcSec]=useState({rad:false,fib:false,fem:false,ell:false,kla:false,hum:false,sehn:false,me:false});
   const [olekOSE,setOlekOSE]=useState("wsp");
   // ENDO (Endoprothetik – Knie/Hüfte)
   const [endoOp,setEndoOp]=useState("");
@@ -6687,6 +6791,9 @@ function OPBerichtApp(){
       if(ucOp==="tfna")codes.push({hd:true,code:"S72.1"+s,desc:"Pertrochantäre Femurfraktur"});
       if(ucOp==="duokopf")codes.push({hd:true,code:"S72.0"+s,desc:"Schenkelhalsfraktur"});
       if(ucOp.startsWith("fibula"))codes.push({hd:true,code:"S82.6"+s,desc:"Fraktur des Außenknöchels"});
+      if(ucOp==="as_ruptur_offen")codes.push({hd:true,code:"S86.0",desc:"Verletzung der Achillessehne"});
+      if(ucOp==="humerus_subcap_wsp")codes.push({hd:true,code:"S42.2"+s,desc:"Fraktur des oberen Endes des Humerus"});
+      if(ucOp==="humerus_schaft_targon")codes.push({hd:true,code:"S42.3"+s,desc:"Fraktur des Humerusschaftes"});
     }
     return codes;
   },[gz,mitAkin,hoffTill,zc,dmmo,osgOp,tepType,rfOp,peronealTyp,supramalTyp,hohlfussTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side]);
@@ -6701,9 +6808,34 @@ function OPBerichtApp(){
     if(gz==="exostose")o.push("5-788.00");
     if(gz==="scarf")o.push("5-788.5e");
     const pipMap={1:"d",2:"e",3:"f",4:"g"};
-    [2,3,4,5].forEach(z=>{const e=zc[z]||[];if(e.includes("pip")){const cnt=Math.min(Object.values(zc).filter(a=>a.includes("pip")).length,4);o.push("5-808.b"+(pipMap[cnt]||"d"));}if(e.includes("ext_verl"))o.push("5-854.0c");if(e.includes("fdl"))o.push("5-854.2c");if(e.includes("ext_teno"))o.push("5-851.1a");if(e.includes("beuge_trans"))o.push("5-854.2c");});
+    // Zehen-Eingriffe: nur EINMAL pro Eingriffstyp pushen (unabhängig von Anzahl der Zehen)
+    const zeheOpsSet = new Set();
+    [2,3,4,5].forEach(z=>{(zc[z]||[]).forEach(op=>zeheOpsSet.add(op));});
+    // PIP-Anzahl: kodiert die Zehen-Anzahl im Suffix (5-808.bd/be/bf/bg)
+    const pipZehenCnt = Math.min([2,3,4,5].filter(z=>(zc[z]||[]).includes("pip")).length, 4);
+    if(pipZehenCnt > 0) o.push("5-808.b" + (pipMap[pipZehenCnt] || "d"));
+    // Andere Zehen-Eingriffe: jeweils einmal
+    const zeheCodes = new Set();
+    if(zeheOpsSet.has("ext_verl")) zeheCodes.add("5-854.0c");
+    if(zeheOpsSet.has("fdl")) zeheCodes.add("5-854.2c");
+    if(zeheOpsSet.has("ext_teno")) zeheCodes.add("5-851.1a");
+    if(zeheOpsSet.has("beuge_trans")) zeheCodes.add("5-854.2c");
+    zeheCodes.forEach(c=>o.push(c));
     if(dmmo.length===1)o.push("5-788.52");else if(dmmo.length===2)o.push("5-788.53");else if(dmmo.length===3)o.push("5-788.54");else if(dmmo.length>=4)o.push("5-788.55");
     if(dmmo.length>0)o.push("5-93b.0");
+    // Strahl-Anzahl-Code 5-86a.1x bei ≥ 2 betroffenen Strahlen
+    const strahlenSet = new Set();
+    if(["chevron","chevron_akin","scarf","lapidus","mtp1art","cheilek","exostose"].includes(gz)) strahlenSet.add(1);
+    if(mitAkin) strahlenSet.add(1);
+    [2,3,4,5].forEach(z=>{
+      if((zc[z]||[]).length>0) strahlenSet.add(z);
+      if(dmmo.includes(z)) strahlenSet.add(z);
+    });
+    const strahlAnz = strahlenSet.size;
+    if(strahlAnz >= 2) {
+      const strahlMap = {2:"5-86a.10", 3:"5-86a.11", 4:"5-86a.12", 5:"5-86a.13"};
+      o.push(strahlMap[strahlAnz] || "5-86a.14"); // 6+ Strahlen → 5-86a.14
+    }
     osgOp.forEach(op=>{
       if(op==="ask"){o.push("5-812.ek","5-811.2k");if(askOsteo)o.push("5-812.kk");}
       if(op==="ask_nano"){o.push("5-812.ek","5-811.2k","5-812.fk");if(askOsteo)o.push("5-812.kk");}
@@ -7102,7 +7234,19 @@ function OPBerichtApp(){
     klav_mehr_wsp:{l:"Klavikula Mehrfragment (winkelstab. Platte)",ops:["5-796.k0"],kontextOps:["5-784.00"],
       hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.432",pct:"82%",
       hint:"H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!",
-      kodier:"5-796.k0. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.00) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},};
+      kodier:"5-796.k0. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.00) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
+    as_ruptur_offen:{l:"Achillessehnenruptur (offene Naht)",ops:["5-855.19","5-855.39"],
+      hdrg:"—",hdrgE:"—",basis:"___",basisE:"___",pct:"—",
+      hint:"⚠ DRG-Werte noch nachzutragen.\n\n💡 ZWINGEND BEIDE OPS-CODES KODIEREN:\n• 5-855.19 (Naht einer Sehne, primär)\n• 5-855.39 (Naht der Sehnenscheide)\nNur die Kombination beider Codes löst die höhere DRG aus. Wird nur einer kodiert, fällt der Erlös auf eine deutlich niedrigere DRG zurück.",
+      kodier:"5-855.19 + 5-855.39 (BEIDE Codes zwingend!).\n\n💡 ERLÖSREGEL ACHILLESSEHNENNAHT:\nDie Sehnennaht (5-855.19) und die Naht der Sehnenscheide (5-855.39) müssen GEMEINSAM kodiert werden, um die höhere DRG zu erreichen.\nFehlt einer der Codes → niedrigere DRG → relevanter Erlösverlust.\n\nICD-Hauptdiagnose: S86.0 (Verletzung der Achillessehne)."},
+    humerus_subcap_wsp:{l:"Humerus subcapital (winkelstab. Platte)",ops:["___"],
+      hdrg:"—",hdrgE:"—",basis:"___",basisE:"___",pct:"—",
+      hint:"⚠ DRG-Werte und OPS-Code noch nachzutragen.",
+      kodier:"OPS noch nachzutragen.\n\nICD-Hauptdiagnose: S42.2 (Fraktur des oberen Endes des Humerus)."},
+    humerus_schaft_targon:{l:"Humerusschaft (Targon-Nagel)",ops:["___"],
+      hdrg:"—",hdrgE:"—",basis:"___",basisE:"___",pct:"—",
+      hint:"⚠ DRG-Werte und OPS-Code noch nachzutragen.",
+      kodier:"OPS noch nachzutragen.\n\nICD-Hauptdiagnose: S42.3 (Fraktur des Humerusschaftes)."},};
 
   // ============================================================
   // ENDO_EINGRIFFE — Endoprothetik Knie/Hüfte
@@ -7170,6 +7314,10 @@ const UC_TEXT_MAP={
   duokopf:"duokopf",
   fibula_einf_schr:"fraktur_fibula_einf",fibula_einf_pl:"fraktur_fibula_einf",fibula_einf_wsp:"fraktur_fibula_einf",
   fibula_mehr_schr:"fraktur_fibula_einf",fibula_mehr_pl:"fraktur_fibula_einf",fibula_mehr_wsp:"fraktur_fibula_einf",
+  as_ruptur_offen:"as_naht_offen",
+  olekranon_einf:"olekranon_einf",olekranon_mehr:"olekranon_mehr",
+  radius_prox_einf_schr:"radius_prox_einf",radius_prox_mehr_schr:"radius_prox_mehr",
+  humerus_subcap_wsp:"humerus_subcap_wsp",humerus_schaft_targon:"humerus_targon_nagel",
 };
 
   // Abgeleitet: H-DRG-Ausschluss durch Ausschlusskriterien oder Alter <18
@@ -7212,8 +7360,12 @@ const UC_TEXT_MAP={
     else if(ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox"))t=t.replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben");
     else if(ucOp&&ucOp.startsWith("fibula"))t=t.replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":"");
     else if(ucOp&&ucOp.startsWith("klav"))t=t.replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben");
+    else if(ucOp&&ucOp.startsWith("olekranon")){
+      var oseDetail = olekOSE === "zugg" ? T.olek_ose_zg : olekOSE === "schr" ? T.olek_ose_schr : T.olek_ose_wsp;
+      t = t.replace(/§OSE_DETAIL§/g, oseDetail);
+    }
     return t;
-  },[ucOp,side,tfnaAngle,tfnaLength,tfnaDiam,tfnaBlade,dkShell,dkShaft,dkHead]);
+  },[ucOp,side,tfnaAngle,tfnaLength,tfnaDiam,tfnaBlade,dkShell,dkShaft,dkHead,olekOSE]);
 
   const ucErloesText=useMemo(()=>{
     if(!ucErloesData)return "";
@@ -7261,7 +7413,7 @@ const UC_TEXT_MAP={
     if(!gender||!side||!hasAny)return "";
     const p=[];
     p.push(buildPraeop(gender,side,risk,riskTxt,fprae,praeType));
-    p.push("\nVerlauf:\n");
+    p.push("\n\nVerlauf:\n");
     p.push(buildLagerung(side,bs,ss,ana,lage));
     if(gz==="chevron"){p.push("\n\n"+T.chevron);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
     if(gz==="lapidus"){p.push("\n\n"+T.lapidus);if(mitSubcap)p.push("\n\n"+T.subcapitale);if(mitAkin)p.push("\n\n"+T.akin_lapidus);p.push("\n\n"+T.rebalancing);}
@@ -7420,10 +7572,9 @@ const UC_TEXT_MAP={
     rfOp.forEach(op=>{
       if(op==="arthrorise"){
         if(arthroBds){
-          p.push("\n\n"+T.arthrorise);
+          p.push("\n\n"+T.arthrorise_bds);
         } else {
-          var artText="Palpation des Sinus Tarsi, Stichinzision und Stumpfes Spreizen auf den Calcaneus. Nun Einbringen eines Drahtes unter BV Kontrolle und in forcierter Inversionsstellung des Fu\u00dfes in den Calcaneus nach plantar auf das CC Gelenk hinlaufend. Gute Lage des Drahtes, nun \u00dcberbohren und Einbringen einer Talus Stopp Schraube. Kontrolle BV in 2 Ebenen, hier zeigt sich eine korrekte Stellung.\nKlinische Kontrolle der R\u00fcckfu\u00dfstellung und Beweglichkeit, regelrechte Korrektur, 10-15\u00b0 Resteversion m\u00f6glich.";
-          p.push("\n\n"+artText);
+          p.push("\n\n"+T.arthrorise_einseitig);
         }
       }
       if(op==="haglund_mini")p.push("\n\n"+T.haglund_mini);
@@ -7542,11 +7693,11 @@ const UC_TEXT_MAP={
     try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
     document.body.removeChild(ta);
   }
-  const copy=()=>{if(!canExport)return;obFallbackCopy(fullText+icdText);};
+  const copy=()=>{if(!canExport)return;obFallbackCopy(fullText);};
   const dlDocx=()=>{
     if(!canExport)return;
     try{
-      const f=buildDocx(fullText+icdText,"");
+      const f=buildDocx(fullText,"");
       const z=createZip(f);
       // Convert to base64
       const bytes=new Uint8Array(z);
@@ -7583,11 +7734,11 @@ const UC_TEXT_MAP={
       }catch(e2){}
 
       showToast("⚠ Download blockiert – Text kopiert");
-      obFallbackCopy(fullText+icdText)
+      obFallbackCopy(fullText)
     }catch(e){
       console.error(e);
       showToast("⚠ Fehler – Text wird kopiert");
-      obFallbackCopy(fullText+icdText);
+      obFallbackCopy(fullText);
     }
   };
 
@@ -8172,9 +8323,23 @@ const UC_TEXT_MAP={
           </OBSec>
           <OBSec title="💪 Ellenbogen" open={ucSec.ell} onToggle={()=>setUcSec(p=>({...p,ell:!p.ell}))} active={ucOp&&(ucOp.startsWith("olekranon")||ucOp.startsWith("radius_prox"))} onReset={()=>{setUcOp("");setOlekOSE("wsp");}}>
             <div style={row}>{["olekranon_einf","olekranon_mehr","radius_prox_einf_schr","radius_prox_mehr_schr"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
+            {ucOp&&ucOp.startsWith("olekranon")&&<div style={{marginTop:8,padding:"6px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
+              <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>OSTEOSYNTHESE-VERFAHREN</div>
+              <div style={row}>
+                <div style={chip(olekOSE==="wsp")} onClick={()=>setOlekOSE("wsp")}>Winkelstab. Platte</div>
+                <div style={chip(olekOSE==="zugg")} onClick={()=>setOlekOSE("zugg")}>Zuggurtung</div>
+                {ucOp==="olekranon_einf"&&<div style={chip(olekOSE==="schr")} onClick={()=>setOlekOSE("schr")}>Schraube</div>}
+              </div>
+            </div>}
           </OBSec>
           <OBSec title="🔑 Klavikula" open={ucSec.kla} onToggle={()=>setUcSec(p=>({...p,kla:!p.kla}))} active={ucOp&&ucOp.startsWith("klav")} onReset={()=>{setUcOp("");}}>
             <div style={row}>{["klav_einf_pl","klav_einf_wsp","klav_mehr_pl","klav_mehr_wsp"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
+          </OBSec>
+          <OBSec title="🦾 Humerus" open={ucSec.hum} onToggle={()=>setUcSec(p=>({...p,hum:!p.hum}))} active={ucOp&&ucOp.startsWith("humerus")} onReset={()=>{setUcOp("");}}>
+            <div style={row}>{["humerus_subcap_wsp","humerus_schaft_targon"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
+          </OBSec>
+          <OBSec title="🪢 Sehnen" open={ucSec.sehn} onToggle={()=>setUcSec(p=>({...p,sehn:!p.sehn}))} active={ucOp&&ucOp.startsWith("as_")} onReset={()=>{setUcOp("");}}>
+            <div style={row}>{["as_ruptur_offen"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
           </OBSec>
           <OBSec title="🔩 Metallentfernung" open={ucSec.me} onToggle={()=>setUcSec(p=>({...p,me:!p.me}))} active={!!ucMeRegion} onReset={()=>{setUcMeRegion("");setUcMeImpl("");setUcMeZusatz("");setUcMe(false);}}>
             <MEPicker region={ucMeRegion} setRegion={(r)=>{setUcMeRegion(r);setUcMe(!!r);if(r)setUcOp("");}} impl={ucMeImpl} setImpl={setUcMeImpl} zusatz={ucMeZusatz} setZusatz={setUcMeZusatz}/>
@@ -8377,7 +8542,7 @@ const UC_TEXT_MAP={
         </div>}
         {ucOp&&UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12}}>
           <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:6}}>📝 OP-Bericht</div>
-          <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{(ucOp==="tfna"?T[UC_TEXT_MAP[ucOp]].replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___"):ucOp==="duokopf"?T[UC_TEXT_MAP[ucOp]].replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken"):ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox")?T[UC_TEXT_MAP[ucOp]].replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):ucOp&&ucOp.startsWith("fibula")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":""):ucOp&&ucOp.startsWith("klav")?T[UC_TEXT_MAP[ucOp]].replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben"):T[UC_TEXT_MAP[ucOp]])}</div>
+          <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{ucFullText}</div>
           <div style={{display:"flex",gap:6,marginTop:8}}>
             <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{obFallbackCopy(ucFullText+ucErloesText)}}>📋 Text kopieren</div>
             <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#00838F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{try{var icdT="";if(icdCodes.length>0){icdT="\n\nICD-10 DIAGNOSEN:\n";icdCodes.forEach(function(c){icdT+=(c.hd?"HD: ":"ND: ")+c.code+" "+c.desc+"\n";});}var f=buildDocx(ucFullText+icdT,ucErloesText);var z=createZip(f);var bytes=new Uint8Array(z);var b="";for(var i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]);var d="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,"+btoa(b);var a=document.createElement("a");a.href=d;a.download="UC_OP_Bericht.docx";document.body.appendChild(a);a.click();document.body.removeChild(a);showToast("📄 Word heruntergeladen!");}catch(e){console.error(e);showToast("⚠ Fehler beim Download");}}}>📄 Word</div>
