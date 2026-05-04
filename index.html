@@ -6317,14 +6317,9 @@ var _s = useState, _m = useMemo;
                   {hasFK && (function(){
                     var dbII = erloes - drgData.fallTotal;
                     var dbColor = dbII >= 0 ? "#00897B" : "#C62828";
-                    return <div>
-                      <div style={{ marginTop: 6, padding: "6px 8px", background: dbII >= 0 ? "rgba(0,137,123,.08)" : "rgba(198,40,40,.08)", border: "1px solid " + (dbII >= 0 ? "rgba(0,137,123,.3)" : "rgba(198,40,40,.3)"), borderRadius: 4, fontSize: 11, color: dbColor, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                        <span>💰</span>
-                        <span>DB II: {erloes.toLocaleString("de-DE")} € − {drgData.fallTotal.toLocaleString("de-DE")} € = <span style={{ fontSize: 12 }}>{dbII >= 0 ? "+" : ""}{dbII.toLocaleString("de-DE")} €</span></span>
-                      </div>
-                      {endoOpSystem==="omnibot" && <div style={{ marginTop: 4, padding: "5px 8px", background: "rgba(229,81,0,.08)", border: "1px solid rgba(229,81,0,.3)", borderRadius: 4, fontSize: 10, color: "#BF360C", fontStyle: "italic" }}>
-                        🤖 Bei Omnibot: tatsächlicher DB II ist niedriger – Robotik-Mehrkosten (Verbrauchsmaterial + Refinanzierung) sind hier <strong>nicht</strong> einbezogen.
-                      </div>}
+                    return <div style={{ marginTop: 6, padding: "6px 8px", background: dbII >= 0 ? "rgba(0,137,123,.08)" : "rgba(198,40,40,.08)", border: "1px solid " + (dbII >= 0 ? "rgba(0,137,123,.3)" : "rgba(198,40,40,.3)"), borderRadius: 4, fontSize: 11, color: dbColor, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                      <span>💰</span>
+                      <span>DB II: {erloes.toLocaleString("de-DE")} € − {drgData.fallTotal.toLocaleString("de-DE")} € = <span style={{ fontSize: 12 }}>{dbII >= 0 ? "+" : ""}{dbII.toLocaleString("de-DE")} €</span></span>
                     </div>;
                   })()}
                   {/* Zusatzentgelte (nur bei Wechsel-Konstellationen) */}
