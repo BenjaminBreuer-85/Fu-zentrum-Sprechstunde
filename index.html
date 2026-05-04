@@ -6258,22 +6258,22 @@ var _s = useState, _m = useMemo;
                         else if (dbIIReal > dbIIInek) { dbAmpel = "🟢"; dbColor = "#00897B"; dbText = "Marge besser als InEK-Median"; }
                         else { dbAmpel = "🟡"; dbColor = "#E65100"; dbText = "positiv, aber unter InEK-Median-Marge"; }
                       }
-                      return <div key={k} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "rgba(255,255,255,.85)", borderRadius: 5, border: "1px solid rgba(0,0,0,.06)", fontSize: 10, flexWrap: "wrap" }}>
-                        <div style={{ fontSize: 14, lineHeight: 1 }}>{ampel}</div>
-                        <div style={{ flex: "0 0 auto", minWidth: 100 }}>
-                          <div style={{ fontWeight: 700, color: "#2D3748" }}>{imp.l}</div>
-                          <div style={{ fontSize: 9, color: "#718096" }}>{imp.lieferant}</div>
+                      return <div key={k} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 8px", background: "rgba(255,255,255,.85)", borderRadius: 5, border: "1px solid rgba(0,0,0,.06)", fontSize: 10, flexWrap: "wrap" }}>
+                        <div style={{ fontSize: 14, lineHeight: 1, flex: "0 0 auto" }}>{ampel}</div>
+                        <div style={{ flex: "1 1 100px", minWidth: 0, overflow: "hidden" }}>
+                          <div style={{ fontWeight: 700, color: "#2D3748", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{imp.l}</div>
+                          <div style={{ fontSize: 9, color: "#718096", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{imp.lieferant}</div>
                         </div>
-                        <div style={{ flex: "0 0 auto", minWidth: 80, textAlign: "right" }}>
+                        <div style={{ flex: "0 0 70px", textAlign: "right" }}>
                           <div style={{ fontSize: 9, color: "#718096" }}>Preis</div>
                           <div style={{ fontWeight: 700, color: hasPrice ? "#2D3748" : "#BF360C" }}>{hasPrice ? imp.preis.toLocaleString("de-DE") + " €" : "fehlt"}</div>
                         </div>
-                        {canCompare && <div style={{ flex: "0 0 auto", minWidth: 90, textAlign: "right" }}>
-                          <div style={{ fontSize: 9, color: "#718096" }}>Δ vs. InEK-Ref</div>
+                        {canCompare && <div style={{ flex: "0 0 75px", textAlign: "right" }}>
+                          <div style={{ fontSize: 9, color: "#718096" }}>Δ InEK</div>
                           <div style={{ fontWeight: 700, color: ampelColor }}>{diff > 0 ? "+" : ""}{diff.toLocaleString("de-DE")} €</div>
                         </div>}
-                        {canDbII && <div style={{ flex: "0 0 auto", minWidth: 90, textAlign: "right", borderLeft: "1px dashed rgba(0,0,0,.15)", paddingLeft: 8 }}>
-                          <div style={{ fontSize: 9, color: "#718096" }}>DB II real {dbAmpel}</div>
+                        {canDbII && <div style={{ flex: "0 0 80px", textAlign: "right", borderLeft: "1px dashed rgba(0,0,0,.15)", paddingLeft: 6 }}>
+                          <div style={{ fontSize: 9, color: "#718096" }}>DB II {dbAmpel}</div>
                           <div style={{ fontWeight: 700, color: dbColor }}>{dbIIReal >= 0 ? "+" : ""}{dbIIReal.toLocaleString("de-DE")} €</div>
                         </div>}
                         <div style={{ flex: "1 1 100%", fontSize: 9, color: ampelColor, fontStyle: "italic", marginTop: 2 }}>InEK: {ampelText}{canDbII ? " · DB II: " + dbText : ""}</div>
@@ -8786,18 +8786,18 @@ const UC_TEXT_MAP={
                   else { ampel = "🔴"; ampelColor = "#C62828"; }
                 }
                 var aktiv = endoHtepImpl === k;
-                return <div key={k} onClick={function(){setEndoHtepImpl(aktiv?"":k);}} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 8px",background:aktiv?"rgba(0,137,123,.1)":"rgba(255,255,255,.85)",borderRadius:5,border:aktiv?"2px solid #00897B":"1px solid rgba(0,0,0,.06)",fontSize:10,cursor:"pointer",userSelect:"none"}}>
-                  <div style={{fontSize:14,lineHeight:1}}>{ampel}</div>
-                  <div style={{flex:"0 0 auto",minWidth:120}}>
-                    <div style={{fontWeight:700,color:"#2D3748"}}>{imp.l}</div>
-                    <div style={{fontSize:9,color:"#718096"}}>{imp.lieferant}</div>
+                return <div key={k} onClick={function(){setEndoHtepImpl(aktiv?"":k);}} style={{display:"flex",alignItems:"center",gap:6,padding:"6px 8px",background:aktiv?"rgba(0,137,123,.1)":"rgba(255,255,255,.85)",borderRadius:5,border:aktiv?"2px solid #00897B":"1px solid rgba(0,0,0,.06)",fontSize:10,cursor:"pointer",userSelect:"none",flexWrap:"wrap"}}>
+                  <div style={{fontSize:14,lineHeight:1,flex:"0 0 auto"}}>{ampel}</div>
+                  <div style={{flex:"1 1 100px",minWidth:0,overflow:"hidden"}}>
+                    <div style={{fontWeight:700,color:"#2D3748",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{imp.l}</div>
+                    <div style={{fontSize:9,color:"#718096",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{imp.lieferant}</div>
                   </div>
-                  <div style={{flex:"0 0 auto",minWidth:80,textAlign:"right"}}>
+                  <div style={{flex:"0 0 70px",textAlign:"right"}}>
                     <div style={{fontSize:9,color:"#718096"}}>Preis</div>
                     <div style={{fontWeight:700,color:hasPrice?"#2D3748":"#BF360C"}}>{hasPrice?imp.preis.toLocaleString("de-DE")+" €":"fehlt"}</div>
                   </div>
-                  {canCompare && <div style={{flex:"0 0 auto",minWidth:90,textAlign:"right"}}>
-                    <div style={{fontSize:9,color:"#718096"}}>Δ vs. InEK</div>
+                  {canCompare && <div style={{flex:"0 0 75px",textAlign:"right"}}>
+                    <div style={{fontSize:9,color:"#718096"}}>Δ InEK</div>
                     <div style={{fontWeight:700,color:ampelColor}}>{(imp.preis-inekRef>0?"+":"")+(imp.preis-inekRef).toLocaleString("de-DE")+" €"}</div>
                   </div>}
                 </div>;
