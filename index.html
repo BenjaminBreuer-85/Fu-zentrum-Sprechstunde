@@ -5644,7 +5644,7 @@ var _s = useState, _m = useMemo;
     }
     // Online-Aufklärung: Hinweis im Brief, wenn QR-Code beigefügt wird
     if (aufShowQr) {
-      ab += "\n\nOnline-Aufklärung\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht eine Online-Aufklärungsseite zur Verfügung. Diese kann über den unten beigefügten QR-Code aufgerufen werden. Sie ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.\n" + aufUrl;
+      ab += "\n\nOnline-Aufklärung\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht eine Online-Aufklärungsseite zur Verfügung. Diese kann über den unten beigefügten QR-Code aufgerufen werden. Sie ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.";
     }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
@@ -5947,14 +5947,6 @@ var _s = useState, _m = useMemo;
           <div style={row}>
             <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code beifügen</div>
           </div>
-          {aufQrAktiv && <div style={{ marginTop: 6 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 2, gap: 6 }}>
-              <div style={{ fontSize: 9, color: "#718096" }}>Basis-URL der Aufklärungsseiten</div>
-              {aufBaseUrl !== AUFKLAERUNG_DEFAULT_URL && <div style={{ fontSize: 9, color: "#00897B", cursor: "pointer", whiteSpace: "nowrap" }} onClick={resetAufBaseUrl}>↺ Standard wiederherstellen</div>}
-            </div>
-            <input value={aufBaseUrl} onChange={function(e) { setAufBaseUrl(e.target.value); }} placeholder="https://..." style={{ width: "100%" }} />
-            {aufUrl ? <div style={{ fontSize: 9, color: "#00897B", marginTop: 2, wordBreak: "break-all" }}>→ {aufUrl}</div> : <div style={{ fontSize: 9, color: "#BF360C", marginTop: 2 }}>⚠ Bitte Basis-URL eingeben, damit der QR-Code generiert werden kann</div>}
-          </div>}
         </div>}
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
@@ -6521,7 +6513,7 @@ var _s = useState, _m = useMemo;
               <QRCanvas text={aufUrl} size={120} />
               <div style={{ flex: 1, fontSize: 9, color: "#4A5568", lineHeight: 1.4 }}>
                 <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Online-Aufklärung</div>
-                <div>QR-Code für Patient. URL: <span style={{ wordBreak: "break-all" }}>{aufUrl}</span></div>
+                <div>QR-Code für den Patienten zum Scannen.</div>
               </div>
             </div>}
           </div>
@@ -6543,8 +6535,7 @@ var _s = useState, _m = useMemo;
             <QRCanvas text={aufUrl} size={140} />
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
               <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Online-Aufklärung</div>
-              <div style={{ marginBottom: 4 }}>{aufActive.entry.label}</div>
-              <div style={{ fontSize: 9, color: "#718096", wordBreak: "break-all" }}>{aufUrl}</div>
+              <div>{aufActive.entry.label}</div>
             </div>
           </div>}
         </div>
