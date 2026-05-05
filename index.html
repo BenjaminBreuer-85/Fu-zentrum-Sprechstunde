@@ -5144,9 +5144,18 @@ var _s = useState, _m = useMemo;
   var kts = _s(""), kontrolleType = kts[0], setKontrolleType = kts[1];
 
   // Online-Aufklärung — QR-Code-Beigabe
-  var aufBaseInit = (function() { try { return localStorage.getItem("aufklaerungBaseUrl") || ""; } catch(e) { return ""; } })();
+  // Default-URL ist hartcodiert, sodass das Tool auf jedem Rechner sofort funktioniert.
+  // localStorage kann diesen Default überschreiben (z.B. wenn der Repo-Name geändert wird).
+  var AUFKLAERUNG_DEFAULT_URL = "https://BenjaminBreuer-85.github.io/Info-Fu-";
+  var aufBaseInit = (function() {
+    try {
+      var stored = localStorage.getItem("aufklaerungBaseUrl");
+      return (stored !== null && stored !== "") ? stored : AUFKLAERUNG_DEFAULT_URL;
+    } catch(e) { return AUFKLAERUNG_DEFAULT_URL; }
+  })();
   var aubs = _s(aufBaseInit), aufBaseUrl = aubs[0], setAufBaseUrlRaw = aubs[1];
   function setAufBaseUrl(v) { setAufBaseUrlRaw(v); try { localStorage.setItem("aufklaerungBaseUrl", v); } catch(e) {} }
+  function resetAufBaseUrl() { setAufBaseUrlRaw(AUFKLAERUNG_DEFAULT_URL); try { localStorage.removeItem("aufklaerungBaseUrl"); } catch(e) {} }
   var aups = _s(true), aufQrAktiv = aups[0], setAufQrAktiv = aups[1];
   // Aufklärungs-Eintrag aus AUFKLAERUNG_MAP für die aktuell gewählte OP-Methode
   var aufActive = _m(function() {
@@ -5939,7 +5948,10 @@ var _s = useState, _m = useMemo;
             <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code beifügen</div>
           </div>
           {aufQrAktiv && <div style={{ marginTop: 6 }}>
-            <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Basis-URL der Aufklärungsseiten (z.B. https://fnk.github.io/fusszentrum-toolbox)</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 2, gap: 6 }}>
+              <div style={{ fontSize: 9, color: "#718096" }}>Basis-URL der Aufklärungsseiten</div>
+              {aufBaseUrl !== AUFKLAERUNG_DEFAULT_URL && <div style={{ fontSize: 9, color: "#00897B", cursor: "pointer", whiteSpace: "nowrap" }} onClick={resetAufBaseUrl}>↺ Standard wiederherstellen</div>}
+            </div>
             <input value={aufBaseUrl} onChange={function(e) { setAufBaseUrl(e.target.value); }} placeholder="https://..." style={{ width: "100%" }} />
             {aufUrl ? <div style={{ fontSize: 9, color: "#00897B", marginTop: 2, wordBreak: "break-all" }}>→ {aufUrl}</div> : <div style={{ fontSize: 9, color: "#BF360C", marginTop: 2 }}>⚠ Bitte Basis-URL eingeben, damit der QR-Code generiert werden kann</div>}
           </div>}
