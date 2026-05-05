@@ -5642,9 +5642,9 @@ var _s = useState, _m = useMemo;
     if (litArr.length > 0) {
       ab += "\n\nZur weiteren Information empfehlen wir folgende wissenschaftliche Übersichtsarbeit" + (litArr.length > 1 ? "en" : "") + ":\n" + litArr.join("\n");
     }
-    // Online-Aufklärung: Hinweis im Brief, wenn QR-Code beigefügt wird
+    // Online-Information: Hinweis im Brief, wenn QR-Code beigefügt wird
     if (aufShowQr) {
-      ab += "\n\nOnline-Aufklärung\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht eine Online-Aufklärungsseite zur Verfügung. Diese kann über den unten beigefügten QR-Code aufgerufen werden. Sie ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.";
+      ab += "\n\nOnline-Information\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht ein Online-Informationsmaterial zur Verfügung. Dieses kann über den unten beigefügten QR-Code aufgerufen werden. Es dient der vorbereitenden Information und ersetzt das ärztliche Aufklärungsgespräch nicht.";
     }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
@@ -5684,7 +5684,7 @@ var _s = useState, _m = useMemo;
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "";
-        if (line.startsWith("Diagnosen:") || line.startsWith("Elektive operative Option:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:") || line.startsWith("Online-Aufklärung")) {
+        if (line.startsWith("Diagnosen:") || line.startsWith("Elektive operative Option:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:") || line.startsWith("Online-Information")) {
           return "<p style='margin:6pt 0 2pt;font-weight:bold;font-size:11pt;font-family:Arial'>" + line + "</p>";
         }
         if (line.startsWith("Zur weiteren Information")) {
@@ -5696,7 +5696,7 @@ var _s = useState, _m = useMemo;
       if (aufShowQr) {
         var qrData = getQrDataUrl(aufUrl, 300);
         if (qrData) {
-          htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code Online-Aufklärung'/></p>";
+          htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code Online-Information'/></p>";
           htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code für die Online-Aufklärungsseite. Diese ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.</p>";
         }
       }
@@ -5942,8 +5942,8 @@ var _s = useState, _m = useMemo;
         </div>}
         {diagnosen.length > 0 && <div><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
         {aufActive && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Aufklärung verfügbar</div>
-          <div style={{ fontSize: 9, color: "#718096", marginBottom: 4 }}>Aufklärungsseite zu „{aufActive.entry.label}" — als QR-Code im Brief beifügen?</div>
+          <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
+          <div style={{ fontSize: 9, color: "#718096", marginBottom: 4 }}>Informationsmaterial zu „{aufActive.entry.label}" — als QR-Code im Brief beifügen?</div>
           <div style={row}>
             <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code beifügen</div>
           </div>
@@ -6512,7 +6512,7 @@ var _s = useState, _m = useMemo;
             {showPv && aufShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
               <QRCanvas text={aufUrl} size={120} />
               <div style={{ flex: 1, fontSize: 9, color: "#4A5568", lineHeight: 1.4 }}>
-                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Online-Aufklärung</div>
+                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Online-Information</div>
                 <div>QR-Code für den Patienten zum Scannen.</div>
               </div>
             </div>}
@@ -6534,7 +6534,7 @@ var _s = useState, _m = useMemo;
           {aufShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
             <QRCanvas text={aufUrl} size={140} />
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
-              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Online-Aufklärung</div>
+              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Online-Information</div>
               <div>{aufActive.entry.label}</div>
             </div>
           </div>}
