@@ -5026,9 +5026,8 @@ const OP_STEUERUNG={
   dmmo:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3121,cm:0.684,ugvd:1,mvwd:2.9,impl:43,empf:"both",hebel:null,hebelName:null,ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54",name:"3× DMMO MT II–V"},{code:"5-788.55",name:"4× DMMO MT II–V"}]}},
   kleinzehen_pip:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3121,cm:0.684,ugvd:1,mvwd:2.9,impl:16,empf:"both",hebel:null,hebelName:null},
   fhl_transfer:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:296.80,empf:"stat",hebel:null,hebelName:null},
-  as_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,ugvd:1,mvwd:3.4,impl:0,empf:"stat",hebel:"5-855.19 + 5-855.39",hebelName:"Achillessehnennaht (beide Codes!)",kontext:[{code:"5-855.19",name:"Naht einer Sehne, primär (Hauptcode)"},{code:"5-855.39",name:"Naht der Sehnenscheide (zwingend mitkodieren!)"}],hinweise:[
-    {typ:"alert",txt:"⚠ ZWINGEND BEIDE OPS-CODES KODIEREN: 5-855.19 (Hauptcode, Sehnennaht primär) UND 5-855.39 (Naht Sehnenscheide). Wird nur einer kodiert, fällt der Erlös auf eine deutlich niedrigere DRG zurück."},
-    {typ:"warn",txt:"💡 Häufiger Codierfehler: 5-855.39 wird vergessen. Beide Codes müssen im OP-Bericht explizit beschrieben sein (Sehnennaht + Sehnenscheidennaht)."}
+  as_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,ugvd:1,mvwd:3.4,impl:0,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null,opsCodes:[{code:"5-855.19",name:"Sehnennaht primär (Hauptcode)"},{code:"5-855.39",name:"Naht der Sehnenscheide (zwingend mitkodieren)"}],hinweise:[
+    {typ:"alert",txt:"⚠ ZWINGEND BEIDE OPS-CODES KODIEREN: 5-855.19 (Sehnennaht primär) UND 5-855.39 (Naht Sehnenscheide). Wird nur 5-855.19 kodiert, fällt der Fall in I20F → Erlösverlust 268 € bei voller DRG, 328 € bei UGVD-Abschlag (1 Tag)."}
   ]},
   peroneal_naht:{hdrg:null,hdrgE:0,drg:"I27E",drgE:3389,cm:0.743,ugvd:1,mvwd:3.4,impl:0,empf:"stat",hebel:null,hebelName:null},
   t2_nagel:{hdrg:null,hdrgE:0,drg:"I20A",drgE:8954,cm:1.963,ugvd:2,mvwd:9.1,impl:634,empf:"stat",hebel:null,hebelName:null,hinweise:[
@@ -6268,35 +6267,9 @@ var _s = useState, _m = useMemo;
                     </div>;})}
                   </div>;
                 }()}
-                {bestKey==="as_naht" && <div style={{marginTop:6,padding:"8px 10px",background:"rgba(0,131,143,.04)",border:"1px solid rgba(0,131,143,.25)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-                  <div style={{fontWeight:700,color:"#00838F",marginBottom:4,fontSize:11}}>📊 Erlöse — beide Codes vs. nur 5-855.19</div>
-                  <div style={{overflowX:"auto"}}>
-                    <table style={{width:"100%",borderCollapse:"collapse",fontSize:10}}>
-                      <thead>
-                        <tr style={{borderBottom:"1px solid rgba(0,0,0,.15)"}}>
-                          <th style={{textAlign:"left",padding:"3px 5px",fontWeight:700,color:"#718096"}}>Belegungstage</th>
-                          <th style={{textAlign:"right",padding:"3px 5px",fontWeight:700,color:"#2E7D32"}}>I27E (beide Codes)</th>
-                          <th style={{textAlign:"right",padding:"3px 5px",fontWeight:700,color:"#C62828"}}>I20F (nur 5-855.19)</th>
-                          <th style={{textAlign:"right",padding:"3px 5px",fontWeight:700,color:"#C62828"}}>Erlösverlust</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr style={{borderBottom:"1px solid rgba(0,0,0,.06)"}}>
-                          <td style={{padding:"3px 5px"}}>1 Tag (UGVD)</td>
-                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace"}}>2.778 €</td>
-                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace"}}>2.450 €</td>
-                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace",fontWeight:700,color:"#C62828"}}>−328 €</td>
-                        </tr>
-                        <tr>
-                          <td style={{padding:"3px 5px"}}>≥2 Tage (volle DRG)</td>
-                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace"}}>3.389 €</td>
-                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace"}}>3.121 €</td>
-                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace",fontWeight:700,color:"#C62828"}}>−268 €</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div style={{fontSize:9,color:"#4A5568",fontStyle:"italic",marginTop:5}}>Wird der Code <strong>5-855.39</strong> (Naht der Sehnenscheide) vergessen, fällt der Fall in die niedriger bewertete DRG I20F.</div>
+                {best.opsCodes && best.opsCodes.length>0 && <div style={{marginTop:6,padding:"8px 10px",background:"rgba(0,131,143,.06)",border:"1px solid rgba(0,131,143,.3)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+                  <div style={{fontWeight:700,color:"#00838F",marginBottom:4,fontSize:11}}>OPS-Codes (zwingend beide kodieren)</div>
+                  {best.opsCodes.map(function(c,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#00838F"}}>{c.code}</span> <span style={{color:"#555"}}>— {c.name}</span></div>;})}
                 </div>}
               </div>;
             }()}
