@@ -4241,9 +4241,26 @@ const DIAG = {
       { id: "thompson", pos: "Thompson-Test positiv", neg: "Thompson-Test negativ" },
       { id: "schuhkonflikt_post", pos: "Schuhkonflikt posterior", neg: "Kein Schuhkonflikt" },
     ],
-    opMethoden: ["haglund_mini","haglund_as_split","fhl_transfer","as_naht"],
+    opMethoden: ["haglund_mini","haglund_as_split","fhl_transfer"],
     bildBefunde: "Haglund-Exostose mit Verkalkung am Achillessehnenansatz",
     literatur: "Zhi X et al. (2021) Nonoperative treatment of insertional Achilles tendinopathy: a systematic review. J Orthop Surg Res. https://doi.org/10.1186/s13018-021-02370-0 (weitere Informationen zur konservativen Behandlung)",
+  },
+  achillesruptur: {
+    label: "Achillessehnenruptur",
+    diagnoseText: "frische Achillessehnenruptur",
+    lokBeschwerden: "im Bereich der Achillessehne",
+    konservativ: ["Frühfunktionelle Therapie im Spitzfußstiefel"],
+    befunde: [
+      { id: "haut_asr", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "thompson_asr", pos: "Thompson-Test positiv", neg: "Thompson-Test negativ" },
+      { id: "defekt_asr", pos: "Tastbare Delle im Verlauf der Achillessehne", neg: "Keine tastbare Delle" },
+      { id: "schwaeche_pf", pos: "Aktive Plantarflexion gegen Widerstand abgeschwächt", neg: "Aktive Plantarflexion kraftvoll" },
+      { id: "haematom_asr", pos: "Hämatom im Verlauf der Achillessehne", neg: "Kein Hämatom" },
+      { id: "schwellung_asr", pos: "Schwellung im Sehnenverlauf", neg: "Keine Schwellung" },
+    ],
+    opMethoden: ["as_naht"],
+    bildBefunde: "Sonographisch / MR-tomographisch nachgewiesene komplette Ruptur der Achillessehne",
+    literatur: "",
   },
   juvenil_ppv: {
     label: "Juvenil PPV",
@@ -4404,7 +4421,7 @@ const OPS = {
   kleinzehen_pip: { k: "Kleinzehen/PIP", b: "eine Korrektur der Kleinzehenfehlstellung mit PIP-Arthrodese", r: "Infektion, Pseudarthrose, Rezidiv, Steifigkeit", t: "Kleinzehenkorrektur mit PIP-Arthrodese" },
   haglund_mini: { k: "Haglund mini open", b: "eine Abtragung der Haglund-Exostose ohne Achillessehnenablösung", r: "Infektion, Kalzifikationsrezidiv, Nervenverletzung", t: "Haglund-Abtragung mini open" },
   fhl_transfer: { k: "FHL-Transfer", b: "einen FHL-Sehnentransfer zur Augmentation der insuffizienten Achillessehne", r: "Infektion, Reruptur, Schwäche der Großzehe, Nervenverletzung, Thrombose", t: "FHL-Sehnentransfer mit Tenodeseschraube" },
-  as_naht: { k: "Achillessehnennaht", b: "eine Naht der Achillessehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose, Wundheilungsstörung", t: "Achillessehnennaht" },
+  as_naht: { k: "Achillessehnennaht (offen)", b: "eine offene Naht der Achillessehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose, Wundheilungsstörung", t: "Achillessehnennaht (offen)" },
   peroneal_naht: { k: "Peronealsehnennaht", b: "eine Naht/Rekonstruktion der Peronealsehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose", t: "Peronealsehnennaht/-rekonstruktion" },
   peroneal_rek: { k: "Peronealsehnenrekonstruktion", b: "eine Rekonstruktion der Peronealsehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose, Sehnenverkürzung", t: "Peronealsehnenrekonstruktion (ggf. mit Sehnentransfer)" },
   peroneal_lux: { k: "Peronealsehnen-Stabilisierung bei Luxation", b: "eine Stabilisierung der Peronealsehnen mit Vertiefung der retromalleolären Rinne und Retinaculum-Rekonstruktion", r: "Infektion, Re-Luxation, Nervenverletzung, Thrombose", t: "Peronealsehnen-Stabilisierung mit Rinnenvertiefung und Retinaculum-Rekonstruktion" },
@@ -6251,6 +6268,36 @@ var _s = useState, _m = useMemo;
                     </div>;})}
                   </div>;
                 }()}
+                {bestKey==="as_naht" && <div style={{marginTop:6,padding:"8px 10px",background:"rgba(0,131,143,.04)",border:"1px solid rgba(0,131,143,.25)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+                  <div style={{fontWeight:700,color:"#00838F",marginBottom:4,fontSize:11}}>📊 Erlöse — beide Codes vs. nur 5-855.19</div>
+                  <div style={{overflowX:"auto"}}>
+                    <table style={{width:"100%",borderCollapse:"collapse",fontSize:10}}>
+                      <thead>
+                        <tr style={{borderBottom:"1px solid rgba(0,0,0,.15)"}}>
+                          <th style={{textAlign:"left",padding:"3px 5px",fontWeight:700,color:"#718096"}}>Belegungstage</th>
+                          <th style={{textAlign:"right",padding:"3px 5px",fontWeight:700,color:"#2E7D32"}}>I27E (beide Codes)</th>
+                          <th style={{textAlign:"right",padding:"3px 5px",fontWeight:700,color:"#C62828"}}>I20F (nur 5-855.19)</th>
+                          <th style={{textAlign:"right",padding:"3px 5px",fontWeight:700,color:"#C62828"}}>Erlösverlust</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr style={{borderBottom:"1px solid rgba(0,0,0,.06)"}}>
+                          <td style={{padding:"3px 5px"}}>1 Tag (UGVD)</td>
+                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace"}}>2.778 €</td>
+                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace"}}>2.450 €</td>
+                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace",fontWeight:700,color:"#C62828"}}>−328 €</td>
+                        </tr>
+                        <tr>
+                          <td style={{padding:"3px 5px"}}>≥2 Tage (volle DRG)</td>
+                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace"}}>3.389 €</td>
+                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace"}}>3.121 €</td>
+                          <td style={{padding:"3px 5px",textAlign:"right",fontFamily:"monospace",fontWeight:700,color:"#C62828"}}>−268 €</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div style={{fontSize:9,color:"#4A5568",fontStyle:"italic",marginTop:5}}>Wird der Code <strong>5-855.39</strong> (Naht der Sehnenscheide) vergessen, fällt der Fall in die niedriger bewertete DRG I20F.</div>
+                </div>}
               </div>;
             }()}
           </div>}
@@ -7335,7 +7382,7 @@ function OPBerichtApp(){
       kodier:"5-809.1m (Arthrorise USG). Kontextfaktor Alter <18 → keine H-DRG."}];
 
     // Achillessehnennaht → I27E
-    if(hasASnaht&&_prio==="as_naht") return [o,{label:"Achillessehnennaht",ops:o,
+    if(hasASnaht&&_prio==="as_naht") return [o,{label:"Achillessehnennaht (offen)",ops:o,
       hdrg:"—",ebm:"—",kurz:"I27E ~2.700 €",drg:"I27E 3.389 €",hdrg_n1:"—",empf:"n2",
       ziel:"Kein H-DRG (seit 2025 entfernt). Stationär ≥2 Nächte → I27E (CM 0,743 = 3.389 €).",
       kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ 5-855.39 IMMER mitkodieren → I20F wird zu I27E!\n⚠ Naht der Sehnenscheide/Paratenon MUSS im OP-Bericht stehen!"}];
@@ -7955,7 +8002,7 @@ const UC_TEXT_MAP={
       }
       if(op==="haglund_mini")p.push("\n\n"+T.haglund_mini);
       if(op==="haglund")p.push("\n\n"+T.haglund);
-      else if(op==="as_naht")p.push("\n\nZuwendung zur Achillessehnennaht.\n"+T.as_naht);
+      else if(op==="as_naht")p.push("\n\nZuwendung zur Achillessehnennaht.\n"+T.as_naht_offen);
       else if(op==="fhl_transfer")p.push("\n\nZuwendung zum FHL-Transfer.\n"+T.fhl_transfer);
       else if(op==="subtalar")p.push("\n\n"+T.subtalar);
       if(op==="hohlfuss"){
@@ -8331,7 +8378,7 @@ const UC_TEXT_MAP={
       {/* RÜCKFUSS */}
       <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);}}>
         <div style={row}>
-          {[["haglund_mini","Haglund mini open"],["haglund","Haglund + AS-Split"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL Transfer"],["as_naht","Achillessehnennaht"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
+          {[["haglund_mini","Haglund mini open"],["haglund","Haglund + AS-Split"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
           )}
         </div>
