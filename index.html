@@ -5655,7 +5655,61 @@ var _s = useState, _m = useMemo;
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() {
-    fallbackCopy(fullText);
+    // Wenn QR-Code aktiv: versuche Rich-Text mit eingebettetem Bild (für Word/Outlook).
+    // Fallback: Plain Text (für Software ohne Bild-Support).
+    if (aufShowQr && aufUrl) {
+      copyWithQr();
+    } else {
+      fallbackCopy(fullText);
+    }
+  }
+  function copyWithQr() {
+    try {
+      var qrData = getQrDataUrl(aufUrl, 300);
+      if (!qrData) { fallbackCopy(fullText); return; }
+      // HTML-Version: Brieftext + QR-Bild
+      var lines = fullText.split("\n");
+      var htmlBody = lines.map(function(line) {
+        if (!line.trim()) return "<br>";
+        // Escape HTML-relevante Zeichen
+        var safe = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return safe + "<br>";
+      }).join("\n");
+      var html = "<div style='font-family:Arial,sans-serif;font-size:11pt'>" + htmlBody +
+                 "<br><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code'/></div>";
+      // Plain-Text-Variante als Fallback
+      var plain = fullText;
+      // ClipboardItem API (Chrome, Edge, neuere Safari/Firefox)
+      if (typeof ClipboardItem !== "undefined" && navigator.clipboard && navigator.clipboard.write) {
+        var blobHtml = new Blob([html], { type: "text/html" });
+        var blobText = new Blob([plain], { type: "text/plain" });
+        var item = new ClipboardItem({ "text/html": blobHtml, "text/plain": blobText });
+        navigator.clipboard.write([item]).then(function() {
+          showToast("📋 Brief mit QR-Code kopiert!");
+        }).catch(function(e) {
+          // Fallback: nur Plain Text
+          fallbackCopy(plain);
+        });
+      } else {
+        fallbackCopy(plain);
+      }
+    } catch (e) {
+      fallbackCopy(fullText);
+    }
+  }
+  function downloadQrPng() {
+    if (!aufShowQr || !aufUrl) { showToast("Kein QR-Code aktiv"); return; }
+    try {
+      var qrData = getQrDataUrl(aufUrl, 600); // höhere Auflösung für Druck
+      if (!qrData) { showToast("QR-Erstellung fehlgeschlagen"); return; }
+      var a = document.createElement("a");
+      a.href = qrData;
+      a.download = "QR-Code-Aufklaerung.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("🖼 QR-Code heruntergeladen");
+    } catch (e) { showToast("Fehler beim Download"); }
   }
   function fallbackCopy(text){
     // Modern API: liefert plain text ohne HTML/CSS-Styles → in Word saubere Standard-Formatierung
@@ -6099,6 +6153,24 @@ var _s = useState, _m = useMemo;
                   var pct = function(v){ return Math.round(v / d.fallTotal * 100); };
                   var dbII = drgE - d.fallTotal;
                   var dbColor = dbII >= 0 ? "#00897B" : "#C62828";
+                  // DB II (real) mit echten Implantatkosten — Variante γ, konsistent zur UC-Sektion
+                  // Formel: DB II_real = DB II_InEK + (InEK-Implantatref − tatsächliche Implantate)
+                  var inekImpRef = d.inekImpl !== null && d.inekImpl !== undefined ? d.inekImpl : INEK_IMPL[drg];
+                  var hasRealImpl = best.impl !== undefined && best.impl !== null && inekImpRef !== null && inekImpRef !== undefined;
+                  var dbIIReal = hasRealImpl ? dbII + (inekImpRef - best.impl) : null;
+                  var dbRealAmpel = "⚪", dbRealColor = "#718096", dbRealText = "DB II (real) nicht berechenbar — Implantatdaten fehlen";
+                  if (hasRealImpl) {
+                    if (dbIIReal < 0) {
+                      dbRealAmpel = "🔴"; dbRealColor = "#C62828";
+                      dbRealText = "Defizit — Eingriff verlustbringend";
+                    } else if (dbIIReal > dbII) {
+                      dbRealAmpel = "🟢"; dbRealColor = "#00897B";
+                      dbRealText = "Marge besser als InEK-Median (Implantate günstiger als Referenz)";
+                    } else {
+                      dbRealAmpel = "🟡"; dbRealColor = "#E65100";
+                      dbRealText = "positiv, aber unter InEK-Median (Implantate teurer als Referenz)";
+                    }
+                  }
                   return <div style={{marginBottom:6}}>
                     <div style={{padding:"6px 8px",background:"rgba(0,0,0,.025)",border:"1px solid rgba(0,0,0,.06)",borderRadius:4,fontSize:9,fontFamily:"monospace",color:"#2D3748",lineHeight:1.55,marginBottom:4}}>
                       <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3,fontFamily:"system-ui"}}>📊 INEK-FALLKOSTEN Ø: {d.fallTotal.toLocaleString("de-DE")} €{d.fallStdAbw?<span style={{color:"#BF360C"}}> ± {d.fallStdAbw.toLocaleString("de-DE")} € (StdAbw)</span>:null}</div>
@@ -6108,10 +6180,21 @@ var _s = useState, _m = useMemo;
                       <div>├─ Anästhesie:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallAnaesth.toLocaleString("de-DE")} € ({pct(d.fallAnaesth)}%)</div>
                       <div>└─ Diagnostik/Sonst.:&nbsp;{d.fallRest.toLocaleString("de-DE")} € ({pct(d.fallRest)}%)</div>
                     </div>
-                    <div style={{padding:"6px 8px",background:dbII>=0?"rgba(0,137,123,.08)":"rgba(198,40,40,.08)",border:"1px solid "+(dbII>=0?"rgba(0,137,123,.3)":"rgba(198,40,40,.3)"),borderRadius:4,fontSize:11,color:dbColor,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
+                    <div style={{padding:"6px 8px",background:dbII>=0?"rgba(0,137,123,.08)":"rgba(198,40,40,.08)",border:"1px solid "+(dbII>=0?"rgba(0,137,123,.3)":"rgba(198,40,40,.3)"),borderRadius:4,fontSize:11,color:dbColor,fontWeight:700,display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
                       <span>💰</span>
-                      <span>DB II: {drgE.toLocaleString("de-DE")} € − {d.fallTotal.toLocaleString("de-DE")} € = <span style={{fontSize:12}}>{dbII>=0?"+":""}{dbII.toLocaleString("de-DE")} €</span></span>
+                      <span>DB II (InEK-Median): {drgE.toLocaleString("de-DE")} € − {d.fallTotal.toLocaleString("de-DE")} € = <span style={{fontSize:12}}>{dbII>=0?"+":""}{dbII.toLocaleString("de-DE")} €</span></span>
                     </div>
+                    {hasRealImpl && (function(){
+                      var bg = dbIIReal < 0 ? "rgba(198,40,40,.08)" : (dbIIReal > dbII ? "rgba(0,137,123,.08)" : "rgba(230,81,0,.08)");
+                      var border = dbIIReal < 0 ? "rgba(198,40,40,.3)" : (dbIIReal > dbII ? "rgba(0,137,123,.3)" : "rgba(230,81,0,.3)");
+                      return <div style={{padding:"6px 8px",background:bg,border:"1px solid "+border,borderRadius:4,fontSize:11,color:dbRealColor,fontWeight:700,display:"flex",flexDirection:"column",gap:2}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <span>{dbRealAmpel}</span>
+                          <span>DB II (real): {drgE.toLocaleString("de-DE")} € − {(d.fallTotal-inekImpRef).toLocaleString("de-DE")} € − <span style={{textDecoration:"underline",textDecorationStyle:"dotted"}} title="Eure tatsächlichen Implantatkosten für diesen Eingriff">{best.impl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</span> = <span style={{fontSize:12}}>{dbIIReal>=0?"+":""}{dbIIReal.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</span></span>
+                        </div>
+                        <div style={{fontSize:9,fontWeight:400,fontStyle:"italic",paddingLeft:22,opacity:0.85}}>{dbRealText}</div>
+                      </div>;
+                    })()}
                   </div>;
                 })()}
                 {!hideKontext&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
@@ -6502,9 +6585,10 @@ var _s = useState, _m = useMemo;
           <div style={card}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
               <div style={h3s}>Vorschau & Export</div>
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
+                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadQrPng}>🖼 QR-PNG</div>}
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
@@ -6525,9 +6609,10 @@ var _s = useState, _m = useMemo;
         <div style={{ background: "rgba(255,255,255,1)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 10, padding: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
             <div style={h3s}>Brief-Vorschau</div>
-            <div style={{ display: "flex", gap: 6 }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
+              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadQrPng}>🖼 QR-PNG</div>}
             </div>
           </div>
           <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
