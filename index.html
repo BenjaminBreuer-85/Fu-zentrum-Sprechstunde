@@ -4576,7 +4576,7 @@ const ENDO_KONSTELLATIONEN = {
   ],
   // Schenkelhalsfraktur — UC-Duokopf-Indikation
   schenkelhalsfraktur: [
-    { id: "duokopf_zem", label: "Duokopf zementiert (Hemi-Endoprothese)", icd: "S72.0", ops: ["5-820.41"], drg03: "I47B", drg4: "I47B", hebel: "Schenkelhalsfraktur + Duokopf zementiert → I47B (CM 1,749). Kein PCCL-Split — auch bei PCCL 4 bleibt es I47B." },
+    { id: "duokopf_zem", label: "Duokopf zementiert (Hemi-Endoprothese)", icd: "S72.0", ops: ["5-820.41"], drg03: "I47B", drg4: "I47B" },
   ],
 };
 
@@ -6774,6 +6774,51 @@ function OBSec({title,open,onToggle,active,onReset,children}){
 }
 
 // ============================================================
+// MaterialkostenBlock — wiederverwendbarer UI-Block für Implantat-Aufschlüsselung
+// (Komponenten-Tabelle + Summe + InEK-Ampel)
+// genutzt im UC-Bereich, Endo-Bereich (Duokopf) — analog Aufbau zum Sprechstundenbrief-Block
+// ============================================================
+function MaterialkostenBlock({items, drg, label}){
+  if(!items || items.length===0) return null;
+  const ist = items.reduce((s,m) => s + (m.preis||0), 0);
+  const a = drg ? implAmpel(ist, drg) : null;
+  const ampelIcon = a ? (a.state==="gruen" ? "🟢" : a.state==="gelb" ? "🟡" : "🔴") : "";
+  const ampelColor = a ? (a.state==="gruen" ? "#2E7D32" : a.state==="gelb" ? "#E65100" : "#C62828") : "#1565C0";
+  const ampelText = a ? (a.state==="gruen" ? (a.ist<=a.soll ? "im InEK-Rahmen" : "bis 20% über InEK — akzeptabel") : a.state==="gelb" ? a.pct+"% über InEK" : a.pct+"% über InEK — kritisch") : null;
+  return <div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
+    <div style={{background:"#1565C0",padding:"6px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
+      <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>💶 {label || "Materialkosten (Implantate)"}</span>
+      <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{ist.toFixed(2)} € {ampelIcon}</span>
+    </div>
+    <div style={{padding:"8px 12px",background:"rgba(21,101,192,.04)"}}>
+      <table style={{width:"100%",fontSize:11,borderCollapse:"collapse"}}>
+        <tbody>{items.map(function(m,i){return <tr key={i} style={{borderBottom:"1px solid rgba(0,0,0,.05)"}}>
+          <td style={{padding:"4px"}}>{m.name}</td>
+          <td style={{padding:"4px",color:"#718096",fontSize:10}}>{m.lieferant}</td>
+          <td style={{textAlign:"right",padding:"4px",fontWeight:600,color:m.preis?"#2D3748":"#E65100"}}>{m.preis?m.preis.toFixed(2)+" €":m.hinweis||"—"}</td>
+        </tr>;})}
+        <tr style={{borderTop:"2px solid rgba(21,101,192,.3)",background:"rgba(21,101,192,.04)"}}>
+          <td style={{padding:"4px",fontWeight:700,color:a?ampelColor:"#1565C0"}} colSpan={2}>{a?ampelIcon:"💶"} GESAMT</td>
+          <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{ist.toFixed(2)} €</td>
+        </tr>
+        {a && <tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
+          <td style={{padding:"4px",fontSize:9,color:"#718096"}} colSpan={2}>InEK-Referenz {drg} (Kostenstelle 5, Ø Implantat)</td>
+          <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{a.soll.toFixed(2)} €</td>
+        </tr>}
+        {a && <tr>
+          <td style={{padding:"4px",fontSize:9,color:ampelColor,fontWeight:600}} colSpan={2}>{ampelText}</td>
+          <td style={{textAlign:"right",padding:"4px",fontSize:10,color:ampelColor,fontWeight:700}}>{a.delta>=0?"+":""}{a.delta.toFixed(2)} €</td>
+        </tr>}
+        </tbody>
+      </table>
+      {a && a.state==="rot" && <div style={{marginTop:6,fontSize:9,color:"#C62828",padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung. Volle DRG zwingend ansteuern, Materialalternativen prüfen.</div>}
+      {a && a.state==="gelb" && <div style={{marginTop:6,fontSize:9,color:"#E65100",padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
+      {items.some(function(m){return !m.preis;}) && <div style={{marginTop:4,fontSize:9,color:"#E65100"}}>⚠️ Einige Preise fehlen – Gesamtsumme ist unvollständig</div>}
+    </div>
+  </div>;
+}
+
+// ============================================================
 // ME-PICKER: wiederverwendbare ME-Auswahl mit Region/Implantat/Zusatz
 // verwendet von Fuß-OP-Bericht UND UC-OP-Bericht
 // ============================================================
@@ -6956,6 +7001,7 @@ function OPBerichtApp(){
   const [endoOpSystem,setEndoOpSystem]=useState("");// nur K-TEP: omnibot | columbus
   const [endoObPccl,setEndoObPccl]=useState("03");// "03" oder "4" – PCCL-Toggle im OB-Generator
   const [endoHtepImpl,setEndoHtepImpl]=useState("");// brehm | excia_zfr | metha | trendhip | troja
+  const [endoDuokopfImpl,setEndoDuokopfImpl]=useState("mathys");// excia_zem | mathys
   // WS (Wirbelsäule – Kypho/Deko)
   const [wsOp,setWsOp]=useState("");// kypho | deko
   const [wsHoehen,setWsHoehen]=useState([]);// Multi-Select: Wirbel oder Segmente
@@ -9271,6 +9317,61 @@ const UC_TEXT_MAP={
               </div>
             </div>
 
+            {/* ERLÖS-BOX (γ-Variante: AMB nicht zulässig / gekürzte DRG / volle DRG) — nur bei drgData verfügbar */}
+            {drgData && (function(){
+              var ugvdAbschlag = UGVD_ABSCHLAG[drgKey] || null;
+              var gekuerzt = ugvdAbschlag ? erloes - ugvdAbschlag : null;
+              return <div style={{marginBottom:10}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+                  {/* AMBULANT */}
+                  <div style={{borderRadius:8,padding:8,textAlign:"center",border:"1px solid rgba(0,0,0,.08)",background:"rgba(198,40,40,.04)"}}>
+                    <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:6}}>AMBULANT</div>
+                    <div style={{fontSize:11,fontWeight:600,color:"#C62828",marginBottom:4}}>❌ nicht zulässig</div>
+                    <div style={{fontSize:9,color:"#718096",fontStyle:"italic",lineHeight:1.3}}>{eingriff.l.includes("Duokopf")?"Schenkelhalsfraktur immer stationär":"Endoprothetik immer stationär"}</div>
+                  </div>
+                  {/* GEKÜRZTE DRG (1 Nacht / UGVD-Abschlag) */}
+                  <div style={{borderRadius:8,padding:8,textAlign:"center",border:"1px solid rgba(245,127,23,.3)",background:"rgba(245,127,23,.04)"}}>
+                    <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:6}}>GEKÜRZTE DRG</div>
+                    <div style={{fontSize:10,color:"#2D3748",marginBottom:2}}>{drgKey}</div>
+                    {gekuerzt !== null
+                      ? <><div style={{fontSize:13,fontWeight:700,color:"#F57F17"}}>{gekuerzt.toLocaleString("de-DE")} €</div>
+                         <div style={{fontSize:9,color:"#F57F17",marginTop:2}}>(− {ugvdAbschlag.toLocaleString("de-DE")} € UGVD)</div></>
+                      : <><div style={{fontSize:10,color:"#718096"}}>UGVD-Abschlag</div>
+                         <div style={{fontSize:9,color:"#E65100",marginTop:2}}>fehlt</div></>
+                    }
+                  </div>
+                  {/* VOLLE DRG (Empfehlung) */}
+                  <div style={{borderRadius:8,padding:8,textAlign:"center",border:"2px solid #00897B",background:"rgba(0,137,123,.08)"}}>
+                    <div style={{fontSize:9,fontWeight:700,color:"#00897B",marginBottom:6}}>VOLLE DRG ✓</div>
+                    <div style={{fontSize:10,color:"#00897B",marginBottom:2}}>{drgKey}</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"#00897B"}}>{erloes.toLocaleString("de-DE")} €</div>
+                    <div style={{fontSize:9,color:"#00897B",marginTop:2,fontWeight:700}}>⭐ EMPF.</div>
+                  </div>
+                </div>
+                <div style={{fontSize:9,color:"#718096",marginTop:4,fontStyle:"italic",textAlign:"center"}}>Volle DRG ab {drgData.mvd?Math.ceil(drgData.mvd):"≥2"} Belegungstage · MVD {drgData.mvd} Tage</div>
+              </div>;
+            })()}
+
+            {/* SCHAFTAUSWAHL Duokopf — analog UC-Bereich */}
+            {endoOp==="duokopf_uc" && (function(){
+              var keys=Object.keys(ENDO_DUOKOPF_IMPL);
+              return <div style={{marginBottom:10,padding:"8px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
+                <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>SCHAFTAUSWAHL (Klinik-Netto-Komplettpreise)</div>
+                <div style={{fontSize:9,color:"#718096",marginBottom:6,fontStyle:"italic"}}>Komplettpreis = Schaft + Bipolarkopf + Kopf + 2× Palacos R+G. Aufschlüsselung in der Materialkostenübersicht.</div>
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  {keys.map(function(k){
+                    var imp=ENDO_DUOKOPF_IMPL[k];
+                    var sel=endoDuokopfImpl===k;
+                    return <div key={k} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 8px",borderRadius:4,cursor:"pointer",background:sel?"rgba(229,81,0,.1)":"transparent",border:sel?"1px solid #E65100":"1px solid transparent"}} onClick={function(){setEndoDuokopfImpl(k);}}>
+                      <div style={{width:14,height:14,borderRadius:7,border:"2px solid "+(sel?"#E65100":"#A0AEC0"),background:sel?"#E65100":"transparent",flexShrink:0}}></div>
+                      <div style={{flex:1,fontSize:10}}><strong>{imp.l}</strong> <span style={{color:"#718096"}}>· {imp.lieferant}</span></div>
+                      <div style={{fontSize:11,fontWeight:700,color:"#2D3748"}}>{imp.preis.toLocaleString("de-DE")} €</div>
+                    </div>;
+                  })}
+                </div>
+              </div>;
+            })()}
+
             {/* DRG-Werte */}
             {drgData && <div style={{padding:"8px 10px",background:"rgba(0,131,143,.05)",border:"1px solid rgba(0,131,143,.2)",borderRadius:6,marginBottom:10,fontSize:11,lineHeight:1.6,color:"#2D3748"}}>
               <div><strong>DRG (PCCL {endoObPccl==="4"?"4":"0–3"}):</strong> {drgKey} – <span style={{color:"#718096"}}>{drgData.label}</span></div>
@@ -9301,6 +9402,23 @@ const UC_TEXT_MAP={
             {endoOp==="htep"&&endoHtepImpl&&<div style={{marginTop:10,padding:"6px 10px",background:"rgba(0,137,123,.08)",border:"1px solid rgba(0,137,123,.25)",borderRadius:5,fontSize:10}}>
               <strong>Verbindlich gewählter Schaft:</strong> {ENDO_HTEP_IMPL[endoHtepImpl].l} ({ENDO_HTEP_IMPL[endoHtepImpl].lieferant}){ENDO_HTEP_IMPL[endoHtepImpl].preis?" — Klinik-Preis: "+ENDO_HTEP_IMPL[endoHtepImpl].preis.toLocaleString("de-DE")+" €":" — Klinik-Preis: nicht hinterlegt"}
             </div>}
+
+            {/* Materialkosten-Block bei Duokopf — Komponenten-Aufschlüsselung mit InEK-Ampel */}
+            {endoOp==="duokopf_uc" && (function(){
+              var items=[];
+              if(endoDuokopfImpl==="mathys"){
+                items.push({name:"CCA Schaft 11.25 zementiert",lieferant:"Mathys",preis:400});
+                items.push({name:"Bipolarkopf Stahl 52/28",lieferant:"Mathys",preis:378});
+                items.push({name:"Kopf CoCr 28 L",lieferant:"Mathys",preis:110});
+                items.push({name:"2× Palacos R+G 40g",lieferant:"Apotheke",preis:64});
+              } else if(endoDuokopfImpl==="excia_zem"){
+                items.push({name:"Excia T zementiert",lieferant:"Aesculap",preis:232});
+                items.push({name:"Bipolar Cup",lieferant:"Aesculap",preis:159});
+                items.push({name:"Metallkopf Isodur CoCr",lieferant:"Aesculap",preis:120});
+                items.push({name:"2× Palacos R+G 40g",lieferant:"Apotheke",preis:64});
+              }
+              return <MaterialkostenBlock items={items} drg={drgKey} />;
+            })()}
           </div>;
         })()}
       </div>}
