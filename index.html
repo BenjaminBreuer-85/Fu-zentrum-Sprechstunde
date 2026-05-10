@@ -4634,6 +4634,31 @@ const ENDO_DUOKOPF_IMPL = {
   mathys:      { l: "Mathys (CCA Schaft)",         lieferant: "Mathys",    preis: 951 },
 };
 
+// Komponenten-Aufschlüsselungen (Einzelpreise aus Klinik-Materialkosten-Excel Sheet 2)
+// Leeres Array = noch nicht gepflegt → UI fällt auf Komplettpreis zurück.
+// Sobald für einen Schaft Komponenten gepflegt sind, zeigt der MaterialkostenBlock automatisch die Aufschlüsselung.
+const ENDO_IMPL_KOMPONENTEN = {
+  // Duokopf (Schenkelhalsfraktur, Komplettpreis aus ENDO_DUOKOPF_IMPL)
+  mathys: [
+    { name: "CCA Schaft 11.25 zementiert", lieferant: "Mathys",   preis: 400 },
+    { name: "Bipolarkopf Stahl 52/28",     lieferant: "Mathys",   preis: 378 },
+    { name: "Kopf CoCr 28 L",              lieferant: "Mathys",   preis: 110 },
+    { name: "2× Palacos R+G 40g",          lieferant: "Apotheke", preis: 64  },
+  ],
+  excia_zem: [
+    { name: "Excia T zementiert",          lieferant: "Aesculap", preis: 232 },
+    { name: "Bipolar Cup",                 lieferant: "Aesculap", preis: 159 },
+    { name: "Metallkopf Isodur CoCr",      lieferant: "Aesculap", preis: 120 },
+    { name: "2× Palacos R+G 40g",          lieferant: "Apotheke", preis: 64  },
+  ],
+  // H-TEP — Komponenten-Aufschlüsselung NOCH NICHT gepflegt (Klinikpreise stehen jeweils im ENDO_HTEP_IMPL als Komplettpreis)
+  brehm:    [],
+  excia_zfr:[],
+  metha:    [],
+  trendhip: [],
+  troja:    [],
+};
+
 // K-TEP / Knie-Implantat-Optionen (bikondylärer Oberflächenersatz, OPS 5-822.G1)
 const ENDO_KTEP_IMPL = {
   corin:      { l: "Corin Unity",                  lieferant: "Corin",    preis: 1253 },
@@ -7696,7 +7721,6 @@ function OPBerichtApp(){
       konstellation: { diag: "schenkelhalsfraktur", id: "duokopf_zem" },
       ops: ["5-820.41"],
       hatImplantatAuswahl: true,
-      hinweis: "DRG I47B (CM 1,749). Standard zementiert. Implantat-Optionen: Excia T zementiert (Aesculap) oder CCA Schaft (Mathys), beide mit Bipolarkopf + 2× Palacos R+G.",
       kodier: "Hemi-Endoprothese zementiert bei Schenkelhalsfraktur (S72.0). OPS 5-820.41. Im Gegensatz zur elektiven Duokopf-Versorgung (5-820.21) eigene DRG-Schiene aufgrund der Frakturindikation. Gruppiert in I47B (Hüft-TEP mit komplexem Eingriff) — kein PCCL-Split.",
     },
   };
@@ -7823,18 +7847,11 @@ const UC_TEXT_MAP={
     // Klavikula
     if(ucOp==="klav_einf_pl"||ucOp==="klav_mehr_pl"){P("WSP Platte Klavikula 8-Loch","Marquardt Axomed",308);P("8× Kortikalisschraube 3,5","Marquardt Axomed",8*10.75);}
     if(ucOp==="klav_einf_wsp"||ucOp==="klav_mehr_wsp"){P("WSP Platte Klavikula 8-Loch","Marquardt Axomed",308);P("8× WSP Schraube 3,5","Marquardt Axomed",8*23.44);}
-    // Duokopf — Schaftauswahl Mathys / Excia (Komponenten-Aufschlüsselung aus Einzelpreisen)
+    // Duokopf — Schaftauswahl Mathys / Excia (Komponenten-Aufschlüsselung aus zentraler Struktur ENDO_IMPL_KOMPONENTEN)
     if(ucOp==="duokopf"){
-      if(ucDuokopfImpl==="mathys"){
-        P("CCA Schaft 11.25 zementiert","Mathys",400);
-        P("Bipolarkopf Stahl 52/28","Mathys",378);
-        P("Kopf CoCr 28 L","Mathys",110);
-        P("2× Palacos R+G 40g","Apotheke",64);
-      } else if(ucDuokopfImpl==="excia_zem"){
-        P("Excia T zementiert","Aesculap",232);
-        P("Bipolar Cup","Aesculap",159);
-        P("Metallkopf Isodur CoCr","Aesculap",120);
-        P("2× Palacos R+G 40g","Apotheke",64);
+      var dkComp = ENDO_IMPL_KOMPONENTEN[ucDuokopfImpl] || [];
+      if(dkComp.length>0){
+        dkComp.forEach(function(c){ P(c.name, c.lieferant, c.preis); });
       } else {
         PEND("Duokopfprothese – Schaftauswahl ausstehend","–");
       }
@@ -9352,6 +9369,74 @@ const UC_TEXT_MAP={
               </div>;
             })()}
 
+            {/* INEK-FALLKOSTEN + DB II + AMPEL — analog UC-Bereich (Endo-Variante) */}
+            {drgData && (function(){
+              var d = drgData;
+              if(!d.fallTotal){
+                return <div style={{marginTop:8,marginBottom:10,padding:"8px 10px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:6,fontSize:10,color:"#BF360C",lineHeight:1.5}}>
+                  ⏳ <strong>InEK-Fallkosten + DB II für DRG {drgKey} noch nicht hinterlegt.</strong> Datenpflege ausstehend &mdash; Block wird ergänzt, sobald Daten verfügbar.
+                </div>;
+              }
+              var pct = function(v){ return Math.round(v / d.fallTotal * 100); };
+              var dbII = erloes - d.fallTotal;
+              var dbColor = dbII >= 0 ? "#00897B" : "#C62828";
+              // DB II (real): Implantatkosten aus Schaftauswahl
+              var materialIst = null;
+              var materialKomplette = false;
+              var materialFehlerHinweis = null;
+              if(endoOp==="duokopf_uc"){
+                var dkComp = ENDO_IMPL_KOMPONENTEN[endoDuokopfImpl] || [];
+                if(dkComp.length>0){ materialIst = dkComp.reduce(function(s,c){return s+(c.preis||0);},0); materialKomplette = true; }
+                else { materialFehlerHinweis = "Schaftauswahl ausstehend"; }
+              } else if(endoOp==="htep"){
+                if(endoHtepImpl && ENDO_HTEP_IMPL[endoHtepImpl] && ENDO_HTEP_IMPL[endoHtepImpl].preis){ materialIst = ENDO_HTEP_IMPL[endoHtepImpl].preis; materialKomplette = true; }
+                else if(!endoHtepImpl){ materialFehlerHinweis = "Schaftauswahl ausstehend"; }
+                else { materialFehlerHinweis = "Klinikpreis für " + ENDO_HTEP_IMPL[endoHtepImpl].l + " nicht hinterlegt"; }
+              } else {
+                materialFehlerHinweis = "Implantat-Tracking für diesen Eingriff noch nicht hinterlegt";
+              }
+              var inekImpRef = d.inekImpl;
+              var hasReal = materialKomplette && inekImpRef !== null && inekImpRef !== undefined;
+              var dbIIReal = hasReal ? dbII + (inekImpRef - materialIst) : null;
+              var dbRealAmpel="⚪",dbRealColor="#718096",dbRealText="";
+              if(hasReal){
+                if(dbIIReal < 0){ dbRealAmpel="🔴"; dbRealColor="#C62828"; dbRealText="Defizit — Eingriff verlustbringend"; }
+                else if(dbIIReal > dbII){ dbRealAmpel="🟢"; dbRealColor="#00897B"; dbRealText="Marge besser als InEK-Median (Implantate günstiger als Referenz)"; }
+                else { dbRealAmpel="🟡"; dbRealColor="#E65100"; dbRealText="positiv, aber unter InEK-Median (Implantate teurer als Referenz)"; }
+              }
+              return <div style={{marginTop:8,marginBottom:10}}>
+                {/* InEK-Fallkosten-Block */}
+                <div style={{padding:"6px 8px",background:"rgba(0,0,0,.025)",border:"1px solid rgba(0,0,0,.06)",borderRadius:4,fontSize:9,fontFamily:"monospace",color:"#2D3748",lineHeight:1.55,marginBottom:4}}>
+                  <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3,fontFamily:"system-ui"}}>📊 INEK-FALLKOSTEN Ø: {d.fallTotal.toLocaleString("de-DE")} €{d.fallStdAbw?<span style={{color:"#BF360C"}}> ± {d.fallStdAbw.toLocaleString("de-DE")} € (StdAbw)</span>:null}</div>
+                  <div>├─ OP-Bereich:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallOp.toLocaleString("de-DE")} € ({pct(d.fallOp)}%)</div>
+                  {d.inekImpl !== null && d.inekImpl !== undefined && <div style={{color:"#718096"}}>│&nbsp;&nbsp;&nbsp;└─ davon Implantate: {d.inekImpl.toLocaleString("de-DE")} €</div>}
+                  <div>├─ Normalstation:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallNormal.toLocaleString("de-DE")} € ({pct(d.fallNormal)}%)</div>
+                  <div>├─ Anästhesie:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallAnaesth.toLocaleString("de-DE")} € ({pct(d.fallAnaesth)}%)</div>
+                  <div>└─ Diagnostik/Sonst.:&nbsp;{d.fallRest.toLocaleString("de-DE")} € ({pct(d.fallRest)}%)</div>
+                </div>
+                {/* DB II (InEK-Median) */}
+                <div style={{padding:"6px 8px",background:dbII>=0?"rgba(0,137,123,.08)":"rgba(198,40,40,.08)",border:"1px solid "+(dbII>=0?"rgba(0,137,123,.3)":"rgba(198,40,40,.3)"),borderRadius:4,fontSize:11,color:dbColor,fontWeight:700,display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                  <span>💰</span>
+                  <span>DB II (InEK-Median): {erloes.toLocaleString("de-DE")} € − {d.fallTotal.toLocaleString("de-DE")} € = <span style={{fontSize:12}}>{dbII>=0?"+":""}{dbII.toLocaleString("de-DE")} €</span></span>
+                </div>
+                {/* DB II (real) mit Ampel */}
+                {hasReal
+                  ? (function(){
+                      var bg = dbIIReal < 0 ? "rgba(198,40,40,.08)" : (dbIIReal > dbII ? "rgba(0,137,123,.08)" : "rgba(230,81,0,.08)");
+                      var border = dbIIReal < 0 ? "rgba(198,40,40,.3)" : (dbIIReal > dbII ? "rgba(0,137,123,.3)" : "rgba(230,81,0,.3)");
+                      return <div style={{padding:"6px 8px",background:bg,border:"1px solid "+border,borderRadius:4,fontSize:11,color:dbRealColor,fontWeight:700,display:"flex",flexDirection:"column",gap:2}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <span>{dbRealAmpel}</span>
+                          <span>DB II (real): {erloes.toLocaleString("de-DE")} € − {(d.fallTotal-inekImpRef).toLocaleString("de-DE")} € − <span style={{textDecoration:"underline",textDecorationStyle:"dotted"}} title="Tatsächliche Implantatkosten dieses Eingriffs (Klinik-Komplettpreis bzw. Komponenten-Summe)">{materialIst.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</span> = <span style={{fontSize:12}}>{dbIIReal>=0?"+":""}{dbIIReal.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</span></span>
+                        </div>
+                        <div style={{fontSize:9,fontWeight:400,fontStyle:"italic",paddingLeft:22,opacity:0.85}}>{dbRealText}</div>
+                      </div>;
+                    })()
+                  : <div style={{padding:"6px 8px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:4,fontSize:10,color:"#BF360C"}}>⏳ DB II (real) noch nicht berechenbar — <strong>{materialFehlerHinweis}</strong>.</div>
+                }
+              </div>;
+            })()}
+
             {/* SCHAFTAUSWAHL Duokopf — analog UC-Bereich */}
             {endoOp==="duokopf_uc" && (function(){
               var keys=Object.keys(ENDO_DUOKOPF_IMPL);
@@ -9405,18 +9490,7 @@ const UC_TEXT_MAP={
 
             {/* Materialkosten-Block bei Duokopf — Komponenten-Aufschlüsselung mit InEK-Ampel */}
             {endoOp==="duokopf_uc" && (function(){
-              var items=[];
-              if(endoDuokopfImpl==="mathys"){
-                items.push({name:"CCA Schaft 11.25 zementiert",lieferant:"Mathys",preis:400});
-                items.push({name:"Bipolarkopf Stahl 52/28",lieferant:"Mathys",preis:378});
-                items.push({name:"Kopf CoCr 28 L",lieferant:"Mathys",preis:110});
-                items.push({name:"2× Palacos R+G 40g",lieferant:"Apotheke",preis:64});
-              } else if(endoDuokopfImpl==="excia_zem"){
-                items.push({name:"Excia T zementiert",lieferant:"Aesculap",preis:232});
-                items.push({name:"Bipolar Cup",lieferant:"Aesculap",preis:159});
-                items.push({name:"Metallkopf Isodur CoCr",lieferant:"Aesculap",preis:120});
-                items.push({name:"2× Palacos R+G 40g",lieferant:"Apotheke",preis:64});
-              }
+              var items = ENDO_IMPL_KOMPONENTEN[endoDuokopfImpl] || [];
               return <MaterialkostenBlock items={items} drg={drgKey} />;
             })()}
           </div>;
