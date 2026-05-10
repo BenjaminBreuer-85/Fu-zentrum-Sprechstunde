@@ -5656,11 +5656,11 @@ var _s = useState, _m = useMemo;
       if (diag && diag.literaturTEP && ops.some(function(o) { return o.indexOf("tep") >= 0; })) litArr.push(diag.literaturTEP);
     });
     if (litArr.length > 0) {
-      ab += "\n\nZur weiteren Information empfehlen wir folgende wissenschaftliche Übersichtsarbeit" + (litArr.length > 1 ? "en" : "") + ":\n" + litArr.join("\n");
+      ab += "\n\nZur weiteren Information empfehlen wir folgende wissenschaftliche Quelle:\n" + litArr.join("\n");
     }
     // Online-Information: Hinweis im Brief, wenn QR-Code beigefügt wird
     if (aufShowQr) {
-      ab += "\n\nOnline-Information\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht ein Online-Informationsmaterial zur Verfügung. Dieses kann über den unten beigefügten QR-Code aufgerufen werden. Es dient der vorbereitenden Information und ersetzt das ärztliche Aufklärungsgespräch nicht.";
+      ab += "\n\nWeitere Informationen Online:\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht ein Online-Informationsmaterial mit Darstellung des OP-Verfahrens und mehr Informationen zum Krankheitsbild zur Verfügung. Dieses kann über den unten beigefügten QR-Code aufgerufen werden.";
     }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
@@ -5754,7 +5754,7 @@ var _s = useState, _m = useMemo;
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "";
-        if (line.startsWith("Diagnosen:") || line.startsWith("Elektive operative Option:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:") || line.startsWith("Online-Information")) {
+        if (line.startsWith("Diagnosen:") || line.startsWith("Elektive operative Option:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:") || line.startsWith("Weitere Informationen Online:")) {
           return "<p style='margin:6pt 0 2pt;font-weight:bold;font-size:11pt;font-family:Arial'>" + line + "</p>";
         }
         if (line.startsWith("Zur weiteren Information")) {
@@ -7358,7 +7358,7 @@ function OPBerichtApp(){
     if(hasASnaht&&_prio==="as_naht") return [o,{label:"Achillessehnennaht (offen)",ops:o,
       hdrg:"—",ebm:"—",kurz:"I27E ~2.700 €",drg:"I27E 3.389 €",hdrg_n1:"—",empf:"n2",
       ziel:"Kein H-DRG (seit 2025 entfernt). Stationär ≥2 Nächte → I27E (CM 0,743 = 3.389 €).",
-      kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ 5-855.39 IMMER mitkodieren → I20F wird zu I27E!\n⚠ Naht der Sehnenscheide/Paratenon MUSS im OP-Bericht stehen!"}];
+      kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ ZWINGEND BEIDE OPS-CODES KODIEREN: Wird nur 5-855.19 kodiert, fällt der Fall in I20F → Erlösverlust 268 € bei voller DRG, 328 € bei UGVD-Abschlag (1 Tag).\n⚠ Naht der Sehnenscheide/Paratenon MUSS im OP-Bericht stehen!"}];
 
     // FHL Transfer → I27D
     if(rfOp.includes("fhl_transfer")&&_prio==="fhl_transfer") return [o,{label:"FHL Transfer",ops:o,
@@ -8548,6 +8548,85 @@ const UC_TEXT_MAP={
           <span>MVWD <b style={{color:"#00838F"}}>{GVD[erloesData.drg.split(" ")[0]].mvwd} T</b></span>
           <span>OGVD <b style={{color:"#1565C0"}}>{GVD[erloesData.drg.split(" ")[0]].ogvd} T</b></span>
         </div>}
+
+        {/* INEK-FALLKOSTEN + DB II + AMPEL — analog Sprechstundenbrief, Variante γ */}
+        {function(){
+          var drgCode = erloesData.drg ? erloesData.drg.split(" ")[0] : "";
+          var d = drgCode && FUSS_DRG[drgCode] ? FUSS_DRG[drgCode] : null;
+          // Erlös aus erloesData.drg parsen ("I27E 3.389 €" → 3389)
+          var drgErloesNum = (function(){
+            if(!erloesData.drg) return null;
+            var parts = erloesData.drg.split(" ");
+            for(var i=1;i<parts.length;i++){
+              var n = Number(String(parts[i]).replace(/\./g,"").replace(",","."));
+              if(!isNaN(n)&&n>0) return n;
+            }
+            return null;
+          })();
+          // Materialkosten-Summe (nur wenn alle Preise vorhanden)
+          var materialIst = materialKosten.reduce(function(s,m){return s+(m.preis||0);},0);
+          var materialComplete = materialKosten.length>0 && !materialKosten.some(function(m){return !m.preis;});
+
+          if(!d || !d.fallTotal){
+            return <div style={{marginBottom:8,padding:"8px 10px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:6,fontSize:10,color:"#BF360C",lineHeight:1.5}}>
+              ⏳ <strong>InEK-Fallkosten + DB II für DRG {drgCode||"—"} noch nicht hinterlegt.</strong> Datenpflege ausstehend &mdash; Block wird ergänzt, sobald Daten verfügbar.
+            </div>;
+          }
+          var pct = function(v){ return Math.round(v / d.fallTotal * 100); };
+          var dbII = drgErloesNum !== null ? drgErloesNum - d.fallTotal : null;
+          var dbColor = dbII === null ? "#718096" : (dbII >= 0 ? "#00897B" : "#C62828");
+          // DB II (real): Variante γ
+          var inekImpRef = d.inekImpl !== null && d.inekImpl !== undefined ? d.inekImpl : INEK_IMPL[drgCode];
+          var hasReal = drgErloesNum !== null && inekImpRef !== null && inekImpRef !== undefined && materialComplete;
+          var dbIIReal = hasReal ? dbII + (inekImpRef - materialIst) : null;
+          var dbRealAmpel="⚪",dbRealColor="#718096",dbRealText="";
+          if(hasReal){
+            if(dbIIReal < 0){ dbRealAmpel="🔴"; dbRealColor="#C62828"; dbRealText="Defizit — Eingriff verlustbringend"; }
+            else if(dbIIReal > dbII){ dbRealAmpel="🟢"; dbRealColor="#00897B"; dbRealText="Marge besser als InEK-Median (Implantate günstiger als Referenz)"; }
+            else { dbRealAmpel="🟡"; dbRealColor="#E65100"; dbRealText="positiv, aber unter InEK-Median (Implantate teurer als Referenz)"; }
+          }
+          return <div style={{marginBottom:8}}>
+            {/* InEK-Fallkosten-Block */}
+            <div style={{padding:"6px 8px",background:"rgba(0,0,0,.025)",border:"1px solid rgba(0,0,0,.06)",borderRadius:4,fontSize:9,fontFamily:"monospace",color:"#2D3748",lineHeight:1.55,marginBottom:4}}>
+              <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3,fontFamily:"system-ui"}}>📊 INEK-FALLKOSTEN Ø: {d.fallTotal.toLocaleString("de-DE")} €{d.fallStdAbw?<span style={{color:"#BF360C"}}> ± {d.fallStdAbw.toLocaleString("de-DE")} € (StdAbw)</span>:null}</div>
+              <div>├─ OP-Bereich:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallOp.toLocaleString("de-DE")} € ({pct(d.fallOp)}%)</div>
+              {d.inekImpl !== null && <div style={{color:"#718096"}}>│&nbsp;&nbsp;&nbsp;└─ davon Implantate: {d.inekImpl.toLocaleString("de-DE")} €</div>}
+              <div>├─ Normalstation:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallNormal.toLocaleString("de-DE")} € ({pct(d.fallNormal)}%)</div>
+              <div>├─ Anästhesie:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallAnaesth.toLocaleString("de-DE")} € ({pct(d.fallAnaesth)}%)</div>
+              <div>└─ Diagnostik/Sonst.:&nbsp;{d.fallRest.toLocaleString("de-DE")} € ({pct(d.fallRest)}%)</div>
+            </div>
+            {/* DB II (InEK-Median) */}
+            {dbII !== null
+              ? <div style={{padding:"6px 8px",background:dbII>=0?"rgba(0,137,123,.08)":"rgba(198,40,40,.08)",border:"1px solid "+(dbII>=0?"rgba(0,137,123,.3)":"rgba(198,40,40,.3)"),borderRadius:4,fontSize:11,color:dbColor,fontWeight:700,display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                  <span>💰</span>
+                  <span>DB II (InEK-Median): {drgErloesNum.toLocaleString("de-DE")} € − {d.fallTotal.toLocaleString("de-DE")} € = <span style={{fontSize:12}}>{dbII>=0?"+":""}{dbII.toLocaleString("de-DE")} €</span></span>
+                </div>
+              : <div style={{padding:"6px 8px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:4,fontSize:10,color:"#BF360C",marginBottom:4}}>⏳ DB II (InEK-Median) — DRG-Erlös konnte nicht aus „{erloesData.drg||"—"}" gelesen werden. Datenpflege ausstehend.</div>
+            }
+            {/* DB II (real) mit Ampel */}
+            {hasReal
+              ? (function(){
+                  var bg = dbIIReal < 0 ? "rgba(198,40,40,.08)" : (dbIIReal > dbII ? "rgba(0,137,123,.08)" : "rgba(230,81,0,.08)");
+                  var border = dbIIReal < 0 ? "rgba(198,40,40,.3)" : (dbIIReal > dbII ? "rgba(0,137,123,.3)" : "rgba(230,81,0,.3)");
+                  return <div style={{padding:"6px 8px",background:bg,border:"1px solid "+border,borderRadius:4,fontSize:11,color:dbRealColor,fontWeight:700,display:"flex",flexDirection:"column",gap:2}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <span>{dbRealAmpel}</span>
+                      <span>DB II (real): {drgErloesNum.toLocaleString("de-DE")} € − {(d.fallTotal-inekImpRef).toLocaleString("de-DE")} € − <span style={{textDecoration:"underline",textDecorationStyle:"dotted"}} title="Tatsächliche Implantatkosten dieses Eingriffs (Summe Materialkosten)">{materialIst.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</span> = <span style={{fontSize:12}}>{dbIIReal>=0?"+":""}{dbIIReal.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</span></span>
+                    </div>
+                    <div style={{fontSize:9,fontWeight:400,fontStyle:"italic",paddingLeft:22,opacity:0.85}}>{dbRealText}</div>
+                  </div>;
+                })()
+              : (function(){
+                  var fehlend=[];
+                  if(drgErloesNum===null) fehlend.push("DRG-Erlös");
+                  if(inekImpRef===null||inekImpRef===undefined) fehlend.push("InEK-Implantatreferenz");
+                  if(materialKosten.length===0) fehlend.push("Implantate (keine ausgewählt)");
+                  else if(!materialComplete) fehlend.push("Implantatpreise unvollständig");
+                  return <div style={{padding:"6px 8px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:4,fontSize:10,color:"#BF360C"}}>⏳ DB II (real) noch nicht berechenbar — fehlt: <strong>{fehlend.join(", ")}</strong>. Datenpflege/Auswahl ausstehend.</div>;
+                })()
+            }
+          </div>;
+        }()}
 
         {/* ERLÖSRELEVANTE KODIERHINWEISE — EINZIGE Stelle für OPS-Codes */}
         {erloesData.kodier&&<div style={{marginBottom:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
