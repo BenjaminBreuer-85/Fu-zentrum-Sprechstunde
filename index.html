@@ -4482,7 +4482,7 @@ const ENDO_BEF_TEP_SCHMERZ = [
 const ENDO_DRG = {
   // Primäre Hüfte
   "I47C": { bwr: 1.396, mvdPflege: 0, mvd: 6.1, label: "Hüft-TEP, ohne kompl. Eingriff, ohne CC", inekImpl: 1242, pflegeProTag: 180.37, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 6064, fallOp: 2947, fallNormal: 1830, fallAnaesth: 720, fallRest: 567 },
-  "I47B": { bwr: 1.749, mvdPflege: 0, mvd: 9.0, label: "Hüft-TEP, mit kompl. Eingriff", inekImpl: 932, pflegeProTag: 217.20, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 7465, fallOp: 2848, fallNormal: 2340, fallAnaesth: 899, fallRest: 1378 },
+  "I47B": { bwr: 1.749, mvdPflege: 0, mvd: 9.0, label: "Hüft-TEP, mit kompl. Eingriff", inekImpl: 932, pflegeProTag: 217.20, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 7465, fallOp: 2848, fallNormal: 2340, fallAnaesth: 899, fallRest: 1378, fallStdAbw: 2048 },
   // Aseptischer Pfannenwechsel hat eigenes I47A
   "I47A": { bwr: 2.113, mvdPflege: 0, mvd: 10.0, label: "Pfannenwechsel / Revision Hüfte mit kompl. Eingriff", inekImpl: 1363, pflegeProTag: 207.06, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 9024, fallOp: 4041, fallNormal: 2605, fallAnaesth: 1098, fallRest: 1280 },
   // Schaftwechsel
@@ -4537,7 +4537,9 @@ const FUSS_DRG = {
   "I05B": { bwr: 1.923, mvd: 6.2, label: "TTC-Arthrodese / Großeingriff Sprunggelenk", inekImpl: 2643.61, pflegeProTag: 195.82, fallTotal: 8240, fallOp: 4826, fallNormal: 1780, fallAnaesth: 939, fallRest: 695, fallStdAbw: 2126, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
   "I08F": { bwr: 1.511, mvd: 8.2, label: "OSG mit Knochenersatz", inekImpl: 572.22, pflegeProTag: 214.45, fallTotal: 6444, fallOp: 2175, fallNormal: 2205, fallAnaesth: 822, fallRest: 1241, fallStdAbw: 2145, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
   "I21Z": { bwr: 0.938, mvd: 3.4, label: "Z-DRG Sprunggelenk/Sehne", inekImpl: 283.87, pflegeProTag: 209.65, fallTotal: 3997, fallOp: 1697, fallNormal: 1108, fallAnaesth: 726, fallRest: 466, fallStdAbw: 1248, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I59Z": { bwr: 0.707, mvd: 2.4, label: "Diverse OSG/Fuß", inekImpl: 74.43, pflegeProTag: 264.96, fallTotal: 3011, fallOp: 1142, fallNormal: 960, fallAnaesth: 585, fallRest: 324, fallStdAbw: 936, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" }
+  "I59Z": { bwr: 0.707, mvd: 2.4, label: "Diverse OSG/Fuß", inekImpl: 74.43, pflegeProTag: 264.96, fallTotal: 3011, fallOp: 1142, fallNormal: 960, fallAnaesth: 585, fallRest: 324, fallStdAbw: 936, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
+  // UC / Trauma (Schulter)
+  "I29B": { bwr: 0.972, mvd: 2.6, label: "Komplexe Eingriffe Schulter / Klavikula-OS", inekImpl: 343.39, pflegeProTag: 224.20, fallTotal: 4151, fallOp: 2145, fallNormal: 956, fallAnaesth: 752, fallRest: 298, fallStdAbw: 1176, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" }
 };
 
 // Konstellationen pro Endo-Diagnose: Liste möglicher OPS+ICD+DRG-Pfade
@@ -6159,8 +6161,8 @@ var _s = useState, _m = useMemo;
                   </div>;}()}
                 </div>
                 {/* FALLKOSTEN + DB II — analog zu Endo (nur stationär, wenn DRG vorhanden und FUSS_DRG-Fallkosten gepflegt) */}
-                {hasStat && drg && FUSS_DRG[drg] && (function(){
-                  var d = FUSS_DRG[drg];
+                {hasStat && drg && (FUSS_DRG[drg] || ENDO_DRG[drg]) && (function(){
+                  var d = FUSS_DRG[drg] || ENDO_DRG[drg];
                   if(!d.fallTotal) {
                     return <div style={{marginBottom:6,padding:"6px 8px",background:"rgba(255,193,7,.08)",border:"1px solid rgba(255,193,7,.3)",borderRadius:6,fontSize:9,color:"#BF360C",lineHeight:1.5}}>
                       ⏳ <strong>InEK-Fallkosten für DRG {drg} noch nicht hinterlegt</strong> – Excel-Datenjahr 2024 ausstehend. DB II daher noch nicht berechenbar.
@@ -8555,7 +8557,7 @@ const UC_TEXT_MAP={
         {/* INEK-FALLKOSTEN + DB II + AMPEL — analog Sprechstundenbrief, Variante γ */}
         {function(){
           var drgCode = erloesData.drg ? erloesData.drg.split(" ")[0] : "";
-          var d = drgCode && FUSS_DRG[drgCode] ? FUSS_DRG[drgCode] : null;
+          var d = drgCode ? (FUSS_DRG[drgCode] || ENDO_DRG[drgCode] || null) : null;
           // Erlös aus erloesData.drg parsen ("I27E 3.389 €" → 3389)
           var drgErloesNum = (function(){
             if(!erloesData.drg) return null;
@@ -8972,6 +8974,81 @@ const UC_TEXT_MAP={
               :<div style={{fontSize:11,color:"#2D3748"}}>Bei stationärer Führung: Volle DRG {ucErloesData.basis} ({ucErloesData.basisE} €), Liegezeit ≥ 2 Tage</div>
             }
           </div>
+
+          {/* INEK-FALLKOSTEN + DB II + AMPEL — analog Fuß-OP-Bericht / Sprechstundenbrief, Variante γ */}
+          {function(){
+            var drgCode = ucErloesData.basis;
+            var d = drgCode ? (FUSS_DRG[drgCode] || ENDO_DRG[drgCode] || null) : null;
+            // Erlös aus ucErloesData.basisE parsen ("4.279" → 4279)
+            var drgErloesNum = (function(){
+              if(!ucErloesData.basisE) return null;
+              var n = Number(String(ucErloesData.basisE).replace(/\./g,"").replace(",","."));
+              return !isNaN(n)&&n>0 ? n : null;
+            })();
+            // Materialkosten-Summe (0 € = keine Implantate ist valider Wert; Lücke nur wenn Preise fehlen)
+            var materialIst = materialKosten.reduce(function(s,m){return s+(m.preis||0);},0);
+            var materialComplete = !materialKosten.some(function(m){return !m.preis;});
+
+            if(!d || !d.fallTotal){
+              return <div style={{marginTop:8,marginBottom:8,padding:"8px 10px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:6,fontSize:10,color:"#BF360C",lineHeight:1.5}}>
+                ⏳ <strong>InEK-Fallkosten + DB II für DRG {drgCode||"—"} noch nicht hinterlegt.</strong> Datenpflege ausstehend &mdash; Block wird ergänzt, sobald Daten verfügbar.
+              </div>;
+            }
+            var pct = function(v){ return Math.round(v / d.fallTotal * 100); };
+            var dbII = drgErloesNum !== null ? drgErloesNum - d.fallTotal : null;
+            var dbColor = dbII === null ? "#718096" : (dbII >= 0 ? "#00897B" : "#C62828");
+            // DB II (real): Variante γ
+            var inekImpRef = d.inekImpl !== null && d.inekImpl !== undefined ? d.inekImpl : INEK_IMPL[drgCode];
+            var hasReal = drgErloesNum !== null && inekImpRef !== null && inekImpRef !== undefined && materialComplete;
+            var dbIIReal = hasReal ? dbII + (inekImpRef - materialIst) : null;
+            var dbRealAmpel="⚪",dbRealColor="#718096",dbRealText="";
+            if(hasReal){
+              if(dbIIReal < 0){ dbRealAmpel="🔴"; dbRealColor="#C62828"; dbRealText="Defizit — Eingriff verlustbringend"; }
+              else if(dbIIReal > dbII){ dbRealAmpel="🟢"; dbRealColor="#00897B"; dbRealText="Marge besser als InEK-Median (Implantate günstiger als Referenz)"; }
+              else { dbRealAmpel="🟡"; dbRealColor="#E65100"; dbRealText="positiv, aber unter InEK-Median (Implantate teurer als Referenz)"; }
+            }
+            return <div style={{marginTop:8,marginBottom:8}}>
+              {/* InEK-Fallkosten-Block */}
+              <div style={{padding:"6px 8px",background:"rgba(0,0,0,.025)",border:"1px solid rgba(0,0,0,.06)",borderRadius:4,fontSize:9,fontFamily:"monospace",color:"#2D3748",lineHeight:1.55,marginBottom:4}}>
+                <div style={{fontSize:9,color:"#718096",fontWeight:700,marginBottom:3,fontFamily:"system-ui"}}>📊 INEK-FALLKOSTEN Ø: {d.fallTotal.toLocaleString("de-DE")} €{d.fallStdAbw?<span style={{color:"#BF360C"}}> ± {d.fallStdAbw.toLocaleString("de-DE")} € (StdAbw)</span>:null}</div>
+                <div>├─ OP-Bereich:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallOp.toLocaleString("de-DE")} € ({pct(d.fallOp)}%)</div>
+                {d.inekImpl !== null && <div style={{color:"#718096"}}>│&nbsp;&nbsp;&nbsp;└─ davon Implantate: {d.inekImpl.toLocaleString("de-DE")} €</div>}
+                <div>├─ Normalstation:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallNormal.toLocaleString("de-DE")} € ({pct(d.fallNormal)}%)</div>
+                <div>├─ Anästhesie:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{d.fallAnaesth.toLocaleString("de-DE")} € ({pct(d.fallAnaesth)}%)</div>
+                <div>└─ Diagnostik/Sonst.:&nbsp;{d.fallRest.toLocaleString("de-DE")} € ({pct(d.fallRest)}%)</div>
+              </div>
+              {/* DB II (InEK-Median) */}
+              {dbII !== null
+                ? <div style={{padding:"6px 8px",background:dbII>=0?"rgba(0,137,123,.08)":"rgba(198,40,40,.08)",border:"1px solid "+(dbII>=0?"rgba(0,137,123,.3)":"rgba(198,40,40,.3)"),borderRadius:4,fontSize:11,color:dbColor,fontWeight:700,display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                    <span>💰</span>
+                    <span>DB II (InEK-Median): {drgErloesNum.toLocaleString("de-DE")} € − {d.fallTotal.toLocaleString("de-DE")} € = <span style={{fontSize:12}}>{dbII>=0?"+":""}{dbII.toLocaleString("de-DE")} €</span></span>
+                  </div>
+                : <div style={{padding:"6px 8px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:4,fontSize:10,color:"#BF360C",marginBottom:4}}>⏳ DB II (InEK-Median) — DRG-Erlös konnte nicht aus „{ucErloesData.basisE||"—"}" gelesen werden. Datenpflege ausstehend.</div>
+              }
+              {/* DB II (real) mit Ampel */}
+              {hasReal
+                ? (function(){
+                    var bg = dbIIReal < 0 ? "rgba(198,40,40,.08)" : (dbIIReal > dbII ? "rgba(0,137,123,.08)" : "rgba(230,81,0,.08)");
+                    var border = dbIIReal < 0 ? "rgba(198,40,40,.3)" : (dbIIReal > dbII ? "rgba(0,137,123,.3)" : "rgba(230,81,0,.3)");
+                    return <div style={{padding:"6px 8px",background:bg,border:"1px solid "+border,borderRadius:4,fontSize:11,color:dbRealColor,fontWeight:700,display:"flex",flexDirection:"column",gap:2}}>
+                      <div style={{display:"flex",alignItems:"center",gap:6}}>
+                        <span>{dbRealAmpel}</span>
+                        <span>DB II (real): {drgErloesNum.toLocaleString("de-DE")} € − {(d.fallTotal-inekImpRef).toLocaleString("de-DE")} € − <span style={{textDecoration:"underline",textDecorationStyle:"dotted"}} title="Tatsächliche Implantatkosten dieses Eingriffs (Summe Materialkosten)">{materialIst.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</span> = <span style={{fontSize:12}}>{dbIIReal>=0?"+":""}{dbIIReal.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</span></span>
+                      </div>
+                      <div style={{fontSize:9,fontWeight:400,fontStyle:"italic",paddingLeft:22,opacity:0.85}}>{dbRealText}</div>
+                    </div>;
+                  })()
+                : (function(){
+                    var fehlend=[];
+                    if(drgErloesNum===null) fehlend.push("DRG-Erlös");
+                    if(inekImpRef===null||inekImpRef===undefined) fehlend.push("InEK-Implantatreferenz");
+                    if(!materialComplete) fehlend.push("Implantatpreise unvollständig");
+                    return <div style={{padding:"6px 8px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:4,fontSize:10,color:"#BF360C"}}>⏳ DB II (real) noch nicht berechenbar — fehlt: <strong>{fehlend.join(", ")}</strong>. Datenpflege ausstehend.</div>;
+                  })()
+              }
+            </div>;
+          }()}
+
           {/* Erlösrelevante Kodierhinweise */}
           {ucErloesData.kodier&&<div style={{marginTop:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
             <div style={{background:"#E65100",padding:"6px 12px"}}>
