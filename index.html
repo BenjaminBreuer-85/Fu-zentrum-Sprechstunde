@@ -6942,6 +6942,8 @@ function OPBerichtApp(){
   const [ucMeRegion,setUcMeRegion]=useState("");
   const [ucMeImpl,setUcMeImpl]=useState("");
   const [ucMeZusatz,setUcMeZusatz]=useState("");
+  // UC-Duokopf: Schaftauswahl (Mathys CCA = Standard, Excia T zementiert = Alternative)
+  const [ucDuokopfImpl,setUcDuokopfImpl]=useState("mathys");
   // H-DRG-Fähigkeits-Check: jeder Key kann null (nicht geprüft), true (erfüllt), false (nicht erfüllt) sein
   const [ucHdrg,setUcHdrg]=useState({});
   const [ucSec,setUcSec]=useState({rad:false,fib:false,fem:false,ell:false,kla:false,hum:false,sehn:false,me:false});
@@ -7643,13 +7645,6 @@ function OPBerichtApp(){
       hatImplantatAuswahl: true,
       kodier: "Hüft-TEP primär, zementfrei. ICD-Hauptdiagnose: M16.1 (sonstige primäre Coxarthrose). Bei Pfannenboden-/Pfannendachplastik (5-829.h / 5-829.1) springt I47C → I47B (BWR +0,353).",
     },
-    duokopf_endo: {
-      l: "Duokopf (elektiv)", region: "huefte",
-      konstellation: { diag: "coxarthrose", id: "zementfrei" },
-      ops: ["5-820.21"],
-      hinweis: "⚠ NICHT zu verwechseln mit UC-Duokopf bei Schenkelhalsfraktur. Elektive Indikation – DRG-Pfad identisch mit zementfreier TEP (I47C / I05A bei PCCL 4).",
-      kodier: "Duokopf-Prothese elektiv (ohne Pfannenersatz). OPS 5-820.21 gruppiert in dieselbe DRG-Schiene wie 5-820.00 (zementfreie TEP). Klinische Indikation typisch: hohes Alter / hohe Komorbidität / kontraindizierte Pfannenversorgung.",
-    },
     duokopf_uc: {
       l: "Duokopf bei Schenkelhalsfraktur (UC)", region: "huefte",
       konstellation: { diag: "schenkelhalsfraktur", id: "duokopf_zem" },
@@ -7782,8 +7777,22 @@ const UC_TEXT_MAP={
     // Klavikula
     if(ucOp==="klav_einf_pl"||ucOp==="klav_mehr_pl"){P("WSP Platte Klavikula 8-Loch","Marquardt Axomed",308);P("8× Kortikalisschraube 3,5","Marquardt Axomed",8*10.75);}
     if(ucOp==="klav_einf_wsp"||ucOp==="klav_mehr_wsp"){P("WSP Platte Klavikula 8-Loch","Marquardt Axomed",308);P("8× WSP Schraube 3,5","Marquardt Axomed",8*23.44);}
-    // Duokopf / TFNA
-    if(ucOp==="duokopf")PEND("Duokopfprothese (Schale + Schaft + Kopf)","Stryker/DePuy");
+    // Duokopf — Schaftauswahl Mathys / Excia (Komponenten-Aufschlüsselung aus Einzelpreisen)
+    if(ucOp==="duokopf"){
+      if(ucDuokopfImpl==="mathys"){
+        P("CCA Schaft 11.25 zementiert","Mathys",400);
+        P("Bipolarkopf Stahl 52/28","Mathys",378);
+        P("Kopf CoCr 28 L","Mathys",110);
+        P("2× Palacos R+G 40g","Apotheke",64);
+      } else if(ucDuokopfImpl==="excia_zem"){
+        P("Excia T zementiert","Aesculap",232);
+        P("Bipolar Cup","Aesculap",159);
+        P("Metallkopf Isodur CoCr","Aesculap",120);
+        P("2× Palacos R+G 40g","Apotheke",64);
+      } else {
+        PEND("Duokopfprothese – Schaftauswahl ausstehend","–");
+      }
+    }
     if(ucOp==="tfna")PEND("TFNA Nagel (Stryker)","Stryker");
     // Humerus proximal — 6 Optionen via Implantat-Auswahl (PHILOS, Targon, WINSTA, Königsee)
     // humerus_subcap_wsp: alle Plattenoptionen + Targon (Anwender wählt)
@@ -7803,7 +7812,7 @@ const UC_TEXT_MAP={
       else PEND("Targon-Nagel Humerus","Aesculap");
     }
     return items;
-  },[ucOp,olekOSE,humerusImpl,radiusImpl]);
+  },[ucOp,olekOSE,humerusImpl,radiusImpl,ucDuokopfImpl]);
 
 
   // BUILD TEXT
@@ -8810,8 +8819,26 @@ const UC_TEXT_MAP={
           <OBSec title="🦵 OSG / Fibula distal" open={ucSec.fib} onToggle={()=>setUcSec(p=>({...p,fib:!p.fib}))} active={ucOp&&ucOp.startsWith("fibula")} onReset={()=>{setUcOp("");}}>
             <div style={row}>{["fibula_einf_schr","fibula_einf_pl","fibula_einf_wsp","fibula_mehr_schr","fibula_mehr_pl","fibula_mehr_wsp"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
           </OBSec>
-          <OBSec title="🦿 Proximales Femur" open={ucSec.fem} onToggle={()=>setUcSec(p=>({...p,fem:!p.fem}))} active={ucOp&&(ucOp==="duokopf"||ucOp==="tfna")} onReset={()=>{setUcOp("");setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");}}>
+          <OBSec title="🦿 Proximales Femur" open={ucSec.fem} onToggle={()=>setUcSec(p=>({...p,fem:!p.fem}))} active={ucOp&&(ucOp==="duokopf"||ucOp==="tfna")} onReset={()=>{setUcOp("");setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");setUcDuokopfImpl("mathys");}}>
             <div style={row}>{["duokopf","tfna"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
+            {ucOp==="duokopf"&&(function(){
+              var keys=Object.keys(ENDO_DUOKOPF_IMPL);
+              return <div style={{marginTop:8,padding:"8px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
+                <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>SCHAFTAUSWAHL (Klinik-Netto-Komplettpreise)</div>
+                <div style={{fontSize:9,color:"#718096",marginBottom:6,fontStyle:"italic"}}>Komplettpreis = Schaft + Bipolarkopf + Kopf + 2× Palacos R+G. Aufschlüsselung in der Materialkostenübersicht.</div>
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  {keys.map(function(k){
+                    var imp=ENDO_DUOKOPF_IMPL[k];
+                    var sel=ucDuokopfImpl===k;
+                    return <div key={k} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 8px",borderRadius:4,cursor:"pointer",background:sel?"rgba(229,81,0,.1)":"transparent",border:sel?"1px solid #E65100":"1px solid transparent"}} onClick={function(){setUcDuokopfImpl(k);}}>
+                      <div style={{width:14,height:14,borderRadius:7,border:"2px solid "+(sel?"#E65100":"#A0AEC0"),background:sel?"#E65100":"transparent",flexShrink:0}}></div>
+                      <div style={{flex:1,fontSize:10}}><strong>{imp.l}</strong> <span style={{color:"#718096"}}>· {imp.lieferant}</span></div>
+                      <div style={{fontSize:11,fontWeight:700,color:"#2D3748"}}>{imp.preis.toLocaleString("de-DE")} €</div>
+                    </div>;
+                  })}
+                </div>
+              </div>;
+            })()}
           </OBSec>
           <OBSec title="💪 Ellenbogen" open={ucSec.ell} onToggle={()=>setUcSec(p=>({...p,ell:!p.ell}))} active={ucOp&&(ucOp.startsWith("olekranon")||ucOp.startsWith("radius_prox"))} onReset={()=>{setUcOp("");setOlekOSE("wsp");}}>
             <div style={row}>{["olekranon_einf","olekranon_mehr","radius_prox_einf_schr","radius_prox_mehr_schr"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
@@ -8986,8 +9013,8 @@ const UC_TEXT_MAP={
               return !isNaN(n)&&n>0 ? n : null;
             })();
             // Materialkosten-Summe (0 € = keine Implantate ist valider Wert; Lücke nur wenn Preise fehlen)
-            var materialIst = materialKosten.reduce(function(s,m){return s+(m.preis||0);},0);
-            var materialComplete = !materialKosten.some(function(m){return !m.preis;});
+            var materialIst = ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0);
+            var materialComplete = !ucMaterialKosten.some(function(m){return !m.preis;});
 
             if(!d || !d.fallTotal){
               return <div style={{marginTop:8,marginBottom:8,padding:"8px 10px",background:"rgba(255,193,7,.06)",border:"1px dashed rgba(255,193,7,.4)",borderRadius:6,fontSize:10,color:"#BF360C",lineHeight:1.5}}>
