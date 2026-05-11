@@ -7025,8 +7025,7 @@ function OPBerichtApp(){
   const [endoOp,setEndoOp]=useState("");
   const [endoOpSystem,setEndoOpSystem]=useState("");// nur K-TEP: omnibot | columbus
   const [endoObPccl,setEndoObPccl]=useState("03");// "03" oder "4" – PCCL-Toggle im OB-Generator
-  const [endoHtepImpl,setEndoHtepImpl]=useState("");// brehm | excia_zfr | metha | trendhip | troja
-  const [endoDuokopfImpl,setEndoDuokopfImpl]=useState("mathys");// excia_zem | mathys
+  const [endoImplWahl,setEndoImplWahl]=useState("");// zentraler State für alle Endo-Implantat-Auswahlen (H-TEP, K-TEP, Duokopf, etc.) — kein Default
   // WS (Wirbelsäule – Kypho/Deko)
   const [wsOp,setWsOp]=useState("");// kypho | deko
   const [wsHoehen,setWsHoehen]=useState([]);// Multi-Select: Wirbel oder Segmente
@@ -9244,12 +9243,12 @@ const UC_TEXT_MAP={
 
         <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>KNIE</div>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
-          {Object.keys(ENDO_EINGRIFFE).filter(k=>ENDO_EINGRIFFE[k].region==="knie").map(k=><div key={k} style={gb(endoOp===k)} onClick={()=>{setEndoOp(endoOp===k?"":k);setEndoHtepImpl("");setEndoOpSystem("");}}>{ENDO_EINGRIFFE[k].l}</div>)}
+          {Object.keys(ENDO_EINGRIFFE).filter(k=>ENDO_EINGRIFFE[k].region==="knie").map(k=><div key={k} style={gb(endoOp===k)} onClick={()=>{setEndoOp(endoOp===k?"":k);setEndoImplWahl("");setEndoOpSystem("");}}>{ENDO_EINGRIFFE[k].l}</div>)}
         </div>
 
         <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>HÜFTE</div>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
-          {Object.keys(ENDO_EINGRIFFE).filter(k=>ENDO_EINGRIFFE[k].region==="huefte").map(k=><div key={k} style={gb(endoOp===k)} onClick={()=>{setEndoOp(endoOp===k?"":k);setEndoHtepImpl("");setEndoOpSystem("");}}>{ENDO_EINGRIFFE[k].l}</div>)}
+          {Object.keys(ENDO_EINGRIFFE).filter(k=>ENDO_EINGRIFFE[k].region==="huefte").map(k=><div key={k} style={gb(endoOp===k)} onClick={()=>{setEndoOp(endoOp===k?"":k);setEndoImplWahl("");setEndoOpSystem("");}}>{ENDO_EINGRIFFE[k].l}</div>)}
         </div>
 
         {/* OP-System-Toggle (nur K-TEP) */}
@@ -9287,8 +9286,8 @@ const UC_TEXT_MAP={
                   else if (pct <= 1.15) { ampel = "🟡"; ampelColor = "#E65100"; }
                   else { ampel = "🔴"; ampelColor = "#C62828"; }
                 }
-                var aktiv = endoHtepImpl === k;
-                return <div key={k} onClick={function(){setEndoHtepImpl(aktiv?"":k);}} style={{display:"flex",alignItems:"center",gap:6,padding:"6px 8px",background:aktiv?"rgba(0,137,123,.1)":"rgba(255,255,255,.85)",borderRadius:5,border:aktiv?"2px solid #00897B":"1px solid rgba(0,0,0,.06)",fontSize:10,cursor:"pointer",userSelect:"none",flexWrap:"wrap"}}>
+                var aktiv = endoImplWahl === k;
+                return <div key={k} onClick={function(){setEndoImplWahl(aktiv?"":k);}} style={{display:"flex",alignItems:"center",gap:6,padding:"6px 8px",background:aktiv?"rgba(0,137,123,.1)":"rgba(255,255,255,.85)",borderRadius:5,border:aktiv?"2px solid #00897B":"1px solid rgba(0,0,0,.06)",fontSize:10,cursor:"pointer",userSelect:"none",flexWrap:"wrap"}}>
                   <div style={{fontSize:14,lineHeight:1,flex:"0 0 auto"}}>{ampel}</div>
                   <div style={{flex:"1 1 100px",minWidth:0,overflow:"hidden"}}>
                     <div style={{fontWeight:700,color:"#2D3748",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{imp.l}</div>
@@ -9321,9 +9320,6 @@ const UC_TEXT_MAP={
           var erloes = drgData ? Math.round(drgData.bwr * 4562) : null;
           return <div style={card}>
             <div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {eingriff.l}{endoOpSystem&&eingriff.opSysteme?" ("+eingriff.opSysteme[endoOpSystem]+")":""}</div>
-            <div style={{padding:"8px 12px",background:"rgba(0,107,111,.08)",borderRadius:6,marginBottom:10,fontSize:10,lineHeight:1.5,color:"#2D3748"}}>
-              <strong>ℹ Nicht hybrid-fähig</strong> – keine H-DRG, immer reguläre DRG. Stationäre Behandlung obligat.
-            </div>
 
             {/* PCCL-Toggle */}
             <div style={{marginBottom:10,padding:"6px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
@@ -9385,13 +9381,13 @@ const UC_TEXT_MAP={
               var materialKomplette = false;
               var materialFehlerHinweis = null;
               if(endoOp==="duokopf_uc"){
-                var dkComp = ENDO_IMPL_KOMPONENTEN[endoDuokopfImpl] || [];
+                var dkComp = ENDO_IMPL_KOMPONENTEN[endoImplWahl] || [];
                 if(dkComp.length>0){ materialIst = dkComp.reduce(function(s,c){return s+(c.preis||0);},0); materialKomplette = true; }
                 else { materialFehlerHinweis = "Schaftauswahl ausstehend"; }
               } else if(endoOp==="htep"){
-                if(endoHtepImpl && ENDO_HTEP_IMPL[endoHtepImpl] && ENDO_HTEP_IMPL[endoHtepImpl].preis){ materialIst = ENDO_HTEP_IMPL[endoHtepImpl].preis; materialKomplette = true; }
-                else if(!endoHtepImpl){ materialFehlerHinweis = "Schaftauswahl ausstehend"; }
-                else { materialFehlerHinweis = "Klinikpreis für " + ENDO_HTEP_IMPL[endoHtepImpl].l + " nicht hinterlegt"; }
+                if(endoImplWahl && ENDO_HTEP_IMPL[endoImplWahl] && ENDO_HTEP_IMPL[endoImplWahl].preis){ materialIst = ENDO_HTEP_IMPL[endoImplWahl].preis; materialKomplette = true; }
+                else if(!endoImplWahl){ materialFehlerHinweis = "Schaftauswahl ausstehend"; }
+                else { materialFehlerHinweis = "Klinikpreis für " + ENDO_HTEP_IMPL[endoImplWahl].l + " nicht hinterlegt"; }
               } else {
                 materialFehlerHinweis = "Implantat-Tracking für diesen Eingriff noch nicht hinterlegt";
               }
@@ -9437,26 +9433,6 @@ const UC_TEXT_MAP={
               </div>;
             })()}
 
-            {/* SCHAFTAUSWAHL Duokopf — analog UC-Bereich */}
-            {endoOp==="duokopf_uc" && (function(){
-              var keys=Object.keys(ENDO_DUOKOPF_IMPL);
-              return <div style={{marginBottom:10,padding:"8px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
-                <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>SCHAFTAUSWAHL (Klinik-Netto-Komplettpreise)</div>
-                <div style={{fontSize:9,color:"#718096",marginBottom:6,fontStyle:"italic"}}>Komplettpreis = Schaft + Bipolarkopf + Kopf + 2× Palacos R+G. Aufschlüsselung in der Materialkostenübersicht.</div>
-                <div style={{display:"flex",flexDirection:"column",gap:4}}>
-                  {keys.map(function(k){
-                    var imp=ENDO_DUOKOPF_IMPL[k];
-                    var sel=endoDuokopfImpl===k;
-                    return <div key={k} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 8px",borderRadius:4,cursor:"pointer",background:sel?"rgba(229,81,0,.1)":"transparent",border:sel?"1px solid #E65100":"1px solid transparent"}} onClick={function(){setEndoDuokopfImpl(k);}}>
-                      <div style={{width:14,height:14,borderRadius:7,border:"2px solid "+(sel?"#E65100":"#A0AEC0"),background:sel?"#E65100":"transparent",flexShrink:0}}></div>
-                      <div style={{flex:1,fontSize:10}}><strong>{imp.l}</strong> <span style={{color:"#718096"}}>· {imp.lieferant}</span></div>
-                      <div style={{fontSize:11,fontWeight:700,color:"#2D3748"}}>{imp.preis.toLocaleString("de-DE")} €</div>
-                    </div>;
-                  })}
-                </div>
-              </div>;
-            })()}
-
             {/* DRG-Werte */}
             {drgData && <div style={{padding:"8px 10px",background:"rgba(0,131,143,.05)",border:"1px solid rgba(0,131,143,.2)",borderRadius:6,marginBottom:10,fontSize:11,lineHeight:1.6,color:"#2D3748"}}>
               <div><strong>DRG (PCCL {endoObPccl==="4"?"4":"0–3"}):</strong> {drgKey} – <span style={{color:"#718096"}}>{drgData.label}</span></div>
@@ -9483,14 +9459,9 @@ const UC_TEXT_MAP={
               💡 <strong>Hebel:</strong> {konstEntry.hebel}
             </div>}
 
-            {/* Implantat-Bestätigung bei H-TEP */}
-            {endoOp==="htep"&&endoHtepImpl&&<div style={{marginTop:10,padding:"6px 10px",background:"rgba(0,137,123,.08)",border:"1px solid rgba(0,137,123,.25)",borderRadius:5,fontSize:10}}>
-              <strong>Verbindlich gewählter Schaft:</strong> {ENDO_HTEP_IMPL[endoHtepImpl].l} ({ENDO_HTEP_IMPL[endoHtepImpl].lieferant}){ENDO_HTEP_IMPL[endoHtepImpl].preis?" — Klinik-Preis: "+ENDO_HTEP_IMPL[endoHtepImpl].preis.toLocaleString("de-DE")+" €":" — Klinik-Preis: nicht hinterlegt"}
-            </div>}
-
             {/* Materialkosten-Block bei Duokopf — Komponenten-Aufschlüsselung mit InEK-Ampel */}
             {endoOp==="duokopf_uc" && (function(){
-              var items = ENDO_IMPL_KOMPONENTEN[endoDuokopfImpl] || [];
+              var items = ENDO_IMPL_KOMPONENTEN[endoImplWahl] || [];
               return <MaterialkostenBlock items={items} drg={drgKey} />;
             })()}
           </div>;
