@@ -4373,6 +4373,25 @@ const DIAG = {
     opMethoden: [],
     bildBefunde: "Kein eindeutig pathologischer Befund / weiter abzuklären",
   },
+  plantarfasciitis: {
+    label: "Plantarfasciitis",
+    diagnoseText: "Plantarfasciitis",
+    lokBeschwerden: "im Bereich der Ferse plantar mit belastungsabhängiger Schmerzsymptomatik, typischerweise Anlauf-/Morgenschmerz",
+    konservativ: ["Belassen des Befundes", "Belastungsreduktion", "Einlagenversorgung mit Fersenpolsterung / weicher Fersenschalung", "Schmerztherapie", "Anpassung des Schuhwerks (gedämpfte Sohle, Absatzerhöhung)", "Physiotherapie mit Wadendehnung und Plantarfasziendehnung", "Eigendehnübungen mehrmals täglich", "Stoßwellentherapie (ESWT)", "Infiltrationstherapie", "Nachtschiene zur Dauerdehnung"],
+    befunde: [
+      { id: "haut_pf", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_calc_medial", pos: "Druckschmerz medioplantar am Tuber calcanei (Ansatz der Plantarfaszie)", neg: "Kein Druckschmerz medioplantar am Tuber calcanei" },
+      { id: "ds_plantarfaszie", pos: "Druckschmerz im Verlauf der Plantarfaszie", neg: "Kein Druckschmerz im Faszienverlauf" },
+      { id: "anlaufschmerz", pos: "Anlaufschmerz / Morgenschmerz bei den ersten Schritten", neg: "Kein typischer Anlaufschmerz" },
+      { id: "windlass", pos: "Schmerzprovokation durch passive Dorsalextension der Großzehe (Windlass-Test positiv)", neg: "Windlass-Test negativ" },
+      { id: "wadendehnung", pos: "Verkürzung der Wadenmuskulatur (Silfverskiöld-Test positiv)", neg: "Keine relevante Wadenverkürzung (Silfverskiöld-Test negativ)" },
+      { id: "fussform_pf", input: true, label: "Fußstatik", placeholder: "z.B. Senk-/Spreizfuß, Hohlfuß" },
+      { id: "ausstrahlung", pos: "Ausstrahlung der Schmerzen in den medialen Fußrand", neg: "Keine Schmerzausstrahlung" },
+      { id: "achilles_ds", pos: "Begleitende Achillodynie", neg: "Achillessehne unauffällig" },
+    ],
+    opMethoden: ["fasziotomie_offen", "gastroc_strayer", "gastroc_pmgr"],
+    bildBefunde: "Sonographische Verdickung der Plantarfaszie >4 mm am Ansatz; ggf. MRT mit Knochenmarködem am Tuber calcanei",
+  },
 };
 
 const COALITIO_BEFUNDE = [
@@ -4427,6 +4446,9 @@ const OPS = {
   peroneal_lux: { k: "Peronealsehnen-Stabilisierung bei Luxation", b: "eine Stabilisierung der Peronealsehnen mit Vertiefung der retromalleolären Rinne und Retinaculum-Rekonstruktion", r: "Infektion, Re-Luxation, Nervenverletzung, Thrombose", t: "Peronealsehnen-Stabilisierung mit Rinnenvertiefung und Retinaculum-Rekonstruktion" },
   t2_nagel: { k: "T2 Nagel (TTC)", b: "eine tibio-talo-calcaneare Arthrodese mit retrogradem Marknagel", r: "Infektion, Pseudarthrose, Materialversagen, Beinlängendifferenz, Thrombose", t: "TTC-Arthrodese mit T2 retrogradem Marknagel" },
   supramal_ot: { k: "Supramalleolare OT", b: "eine supramalleolare Korrekturosteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen, Thrombose", t: "Supramalleolare Umstellungsosteotomie" },
+  fasziotomie_offen: { k: "Offene plantare Fasziotomie", b: "eine offene plantare Fasziotomie zur Entlastung der chronisch entzündeten Plantarfaszie", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung (R. calcaneus N. tibialis), Rezidiv, Schwächung des Längsgewölbes, Thrombose", t: "offene plantare Fasziotomie" },
+  gastroc_strayer: { k: "Strayer-Verlängerung", b: "eine Gastrocnemius-Sehnenverlängerung nach Strayer zur Korrektur der Wadenverkürzung als Ursache der plantaren Fersenschmerzsymptomatik", r: "Infektion, Wundheilungsstörung, N.-suralis-Läsion, Überkorrektur mit Kraftminderung der Plantarflexion, Rezidiv, Thrombose", t: "Gastrocnemius-Verlängerung nach Strayer" },
+  gastroc_pmgr: { k: "PMGR (Baumann)", b: "eine proximale mediale Gastrocnemius-Recession (PMGR/Baumann) zur Korrektur der isolierten Gastrocnemius-Verkürzung", r: "Infektion, Wundheilungsstörung, N.-saphenus-Läsion, Überkorrektur mit Kraftminderung, Rezidiv, Thrombose", t: "proximale mediale Gastrocnemius-Recession (Baumann/PMGR)" },
 };
 
 // ============================================================
@@ -4620,18 +4642,178 @@ const ENDO_ZE = {
   },
 };
 
+// ============================================================
+// EINZELPREISE — zentrale Klinik-Netto-Einzelpreise (Sheet 2 der Materialkosten-Excel)
+// SINGLE-SOURCE-OF-TRUTH: alle Datenstrukturen referenzieren von hier aus.
+// Bei Excel-Update: diese Konstante aktualisieren, Differenzen werden im Diff-Bericht ausgewiesen.
+// Stand: Excel-Sync 11.05.2026
+// ============================================================
+const EINZELPREISE = {
+  // --- OSG Prothese ---
+  infinity_tibial_tray: { name: "Infinity Tibial Tray", artikel: "Infinity TIBIAL TRAY SZ3 STD", lieferant: "Stryker", preis: 1902.81 },
+  infinity_talar_dome: { name: "Infinity Talar Dome", artikel: "Infinity TALAR DOME SZ 3", lieferant: "Stryker", preis: 1783.81 },
+  infinity_poly_insert: { name: "Infinity Poly Insert", artikel: "Infinity POLY INSERT SZ3 8MM", lieferant: "Stryker", preis: 672.35 },
+  inbone_talar_stem: { name: "Inbone Talar Stem", artikel: "Inbone Talar Stem 10", lieferant: "Stryker", preis: 699.95 },
+  inbone_tibial_tray: { name: "Inbone Tibial Tray", artikel: "Inbone Tibial Tray", lieferant: "Stryker", preis: 1499.45 },
+  inbone_poly_insert: { name: "Inbone Poly Insert", artikel: "Inbone Poly Insert 10mm", lieferant: "Stryker", preis: 569.95 },
+  inbone_mid_top_stem: { name: "Inbone Mid/Top Stem", artikel: "Inbone Tibial Mid Stem/Top Stem 16", lieferant: "Stryker", preis: 245 },
+  inbone_talar_dome: { name: "Inbone Talar Dome", artikel: "Inbone Talar Dome 3", lieferant: "Stryker", preis: 1405 },
+  inbone_base_stem: { name: "Inbone Base Stem", artikel: "Inbone Tibial Base Stem 18", lieferant: "Stryker", preis: 245 },
+  // --- Hüft-Endoprothetik ---
+  trj_schaft_standard: { name: "TRJ Schaft Standard", artikel: "TRJ Standard zementfrei (NU105T)", lieferant: "Aesculap", preis: 458 },
+  metha_kurzschaft: { name: "Metha Kurzschaft", artikel: "Metha 120/130/135° Schaft (NC285T)", lieferant: "Aesculap", preis: 760 },
+  trendhip_schaft: { name: "Trendhip Schaft", artikel: "Trendhip Standard zementfrei (GL-HET-HS402)", lieferant: "Aesculap", preis: 468 },
+  excia_t_zementfrei: { name: "Excia T zementfrei", artikel: "Excia T Schaft zementfrei (NU210T)", lieferant: "Aesculap", preis: 413 },
+  excia_t_zementiert: { name: "Excia T zementiert", artikel: "Excia T zementiert (NU272K)", lieferant: "Aesculap", preis: 232 },
+  plasmafit_plus_3_pfanne: { name: "Plasmafit Plus 3 Pfanne", artikel: "Plasmafit Plus 3 Pfanne (NV250T)", lieferant: "Aesculap", preis: 358 },
+  plasmafit_pe_inlay: { name: "Plasmafit PE Inlay", artikel: "Plasmafit PE Inlay (NV202E)", lieferant: "Aesculap", preis: 151 },
+  keramikkopf_biolox_delta: { name: "Keramikkopf Biolox Delta", artikel: "Keramikkopf Biolox Delta (NK561D)", lieferant: "Aesculap", preis: 182 },
+  metallkopf_isodur_cocr: { name: "Metallkopf Isodur CoCr", artikel: "Metallkopf Isodur CoCr (NK430K)", lieferant: "Aesculap", preis: 120 },
+  bipolar_cup_aesculap: { name: "Bipolar Cup Aesculap", artikel: "Bipolar Cup (NK043S)", lieferant: "Aesculap", preis: 159 },
+  cca_schaft_11_25: { name: "CCA Schaft 11.25", artikel: "CCA Schaft std. CoCr 11.25 zementiert (2.30.352)", lieferant: "Mathys", preis: 400 },
+  kopf_cocr_28_l: { name: "Kopf CoCr 28 L", artikel: "Kopf CoCr 28 L (2.30.012)", lieferant: "Mathys", preis: 110 },
+  bipolarkopf_stahl_52_28: { name: "Bipolarkopf Stahl 52/28", artikel: "Bipolarkopf Stahl 52/28 (54.11.0052)", lieferant: "Mathys", preis: 378 },
+  palacos_r_g_40g: { name: "Palacos R+G 40g", artikel: "PALACOS R+G Knochenzement, 40g-Tube", lieferant: "Apotheke", preis: 32 },
+  // --- Knie-Endoprothetik ---
+  unity_femur_komp: { name: "Unity Femur Komp.", artikel: "Unity Femur CR Komp., zementiert, Gr.5 (112.001.30)", lieferant: "Corin", preis: 565 },
+  unity_tibia_komp: { name: "Unity Tibia Komp.", artikel: "Unity Tibia Komp. Fixed zementiert, Gr.5 (112.040.10)", lieferant: "Corin", preis: 405 },
+  unity_tibia_inlay: { name: "Unity Tibia Inlay", artikel: "Unity Tibia Inlay CR Fixed, Gr.5, 9mm (112.014.82)", lieferant: "Corin", preis: 220 },
+  e_motion_femurkomp: { name: "E.Motion Femurkomp", artikel: "E.Motion Femurkomp FP/UC zementiert (NO819K)", lieferant: "Aesculap", preis: 608 },
+  e_motion_meniskuskomp: { name: "E.Motion Meniskuskomp", artikel: "E.Motion Meniskuskomp UC PRO (NX406)", lieferant: "Aesculap", preis: 105 },
+  e_motion_tibiakomp: { name: "E.Motion Tibiakomp", artikel: "E.Motion PRO Tibiakomp zementiert (NX737K)", lieferant: "Aesculap", preis: 584 },
+  e_motion_tibia_stopfen: { name: "E.Motion Tibia Stopfen", artikel: "Tibia Verschlussstopfen (NN260P)", lieferant: "Aesculap", preis: 36 },
+  as_e_motion_femurkomp: { name: "AS E.Motion Femurkomp", artikel: "AS E.Motion Femurkomp FP/UC zementiert (NO819Z)", lieferant: "Aesculap", preis: 1600 },
+  as_e_motion_tibiakomp: { name: "AS E.Motion Tibiakomp", artikel: "AS E.Motion PRO Tibiakomp zementiert (NX737Z)", lieferant: "Aesculap", preis: 1041 },
+  enduro_femurkomp: { name: "EnduRo Femurkomp", artikel: "EnduRo Femurkompo zementiert (NB015K)", lieferant: "Aesculap", preis: 1442 },
+  enduro_femur_schaft: { name: "EnduRo Femur Schaft", artikel: "EnduRo Femur Schaft zementiert (NR292K)", lieferant: "Aesculap", preis: 771 },
+  enduro_meniskuskomp: { name: "EnduRo Meniskuskomp", artikel: "EnduRo Meniskuskomponente (NR880M)", lieferant: "Aesculap", preis: 548 },
+  enduro_tibiakomp: { name: "EnduRo Tibiakomp", artikel: "EnduRo Tibiakompo M zementiert (NB012K)", lieferant: "Aesculap", preis: 1078 },
+  enduro_tibia_schaft: { name: "EnduRo Tibia Schaft", artikel: "EnduRo Tibia Schaft zementiert (NR192K)", lieferant: "Aesculap", preis: 417 },
+  enduro_femurschaft_mutter: { name: "EnduRo Femurschaft-Mutter", artikel: "EnduRo Femurschaft-Mutter, neutral (NR400K)", lieferant: "Aesculap", preis: 110 },
+  as_enduro_femurkomp: { name: "AS EnduRo Femurkomp", artikel: "AS EnduRo Femurkompo zementiert (NB015Z)", lieferant: "Aesculap", preis: 1917 },
+  as_enduro_femur_schaft: { name: "AS EnduRo Femur Schaft", artikel: "AS EnduRo Femur Schaft zementiert (NR292Z)", lieferant: "Aesculap", preis: 1025 },
+  as_enduro_meniskuskomp: { name: "AS EnduRo Meniskuskomp", artikel: "AS EnduRo Meniskuskomponente (NR880Z)", lieferant: "Aesculap", preis: 640 },
+  as_enduro_tibiakomp: { name: "AS EnduRo Tibiakomp", artikel: "AS EnduRo Tibiakompo M zementiert (NB012Z)", lieferant: "Aesculap", preis: 1434 },
+  as_enduro_tibia_schaft: { name: "AS EnduRo Tibia Schaft", artikel: "AS EnduRo Tibia Schaft zementiert (NR192Z)", lieferant: "Aesculap", preis: 555 },
+  as_enduro_femurschaft_mutter: { name: "AS EnduRo Femurschaft-Mutter", artikel: "AS EnduRo Femurschaft-Mutter (NR400Z)", lieferant: "Aesculap", preis: 146 },
+  // --- Nagel ---
+  t2_sga_nagel_12_200mm: { name: "T2 SGA Nagel Ø12×200mm", artikel: "T2 SGA Nagel Ø12×200mm rechts (Art. 18191120S)", lieferant: "Stryker", preis: 431 },
+  t2_querschraube_5mm: { name: "T2 Querschraube 5mm", artikel: "Querschraube 5mm Vollgewinde (Art. 18965035S/037S/070S)", lieferant: "Stryker", preis: 34 },
+  t2_verschlussschraube: { name: "T2 Verschlussschraube", artikel: "Verschlussschraube T2 SGA / SCN (Art. 18260003S)", lieferant: "Stryker", preis: 35 },
+  targon_ph_nagel_10_8_150: { name: "Targon PH Nagel 10/8×150", artikel: "Targon PH Nagel 10/8×150mm (KE004T)", lieferant: "Aesculap", preis: 389 },
+  targon_ph_fixierschraube_4_5: { name: "Targon PH Fixierschraube 4.5", artikel: "Targon PH/H Fixierschraube Ø4.5×22mm (KB062T)", lieferant: "Aesculap", preis: 60 },
+  targon_ph_verriegelungsschraube_3_5: { name: "Targon PH Verriegelungsschraube 3.5", artikel: "Targon PH/H Verriegelungsschraube Ø3.5×18mm (KB518T)", lieferant: "Aesculap", preis: 40 },
+  // --- Platte ---
+  medial_column_plate_lang: { name: "Medial Column Plate lang", artikel: "Medial Column Fusion Plate R, long", lieferant: "Stryker", preis: 223.62 },
+  slim_straight_plate_5l: { name: "Slim Straight Plate 5L", artikel: "Slim Straight Plate, 5 holes", lieferant: "Stryker", preis: 149.19 },
+  rechteckplatte_6l: { name: "Rechteckplatte 6L", artikel: "6 Holes rectangular plate w. compression", lieferant: "Stryker", preis: 239.19 },
+  variax_curved_plate_4l: { name: "Variax Curved Plate 4L", artikel: "4 Holes Curved Plate, Variax foot", lieferant: "Stryker", preis: 172.25 },
+  variax_curved_plate_5l: { name: "Variax Curved Plate 5L", artikel: "5 Holes Curved plate, right, variax foot", lieferant: "Stryker", preis: 172.25 },
+  ortholoc_lapidus_platte: { name: "Ortholoc Lapidus Platte", artikel: "Ortholoc plantar 3di Lapidus Plate", lieferant: "Stryker", preis: 318.80 },
+  ankle_fusion_plate_ant: { name: "Ankle Fusion Plate ant.", artikel: "Ankle Fusion Plate, Anterior TT, short neck", lieferant: "Arthrex", preis: 880.11 },
+  ankle_fusion_plate_lat: { name: "Ankle Fusion Plate lat.", artikel: "Ankle Fusion Plate, Lateral TT", lieferant: "Arthrex", preis: 876.01 },
+  ant_tt_platte: { name: "Ant TT Platte", artikel: "Anterior TT Plate", lieferant: "Paragon", preis: 698 },
+  mini_platte: { name: "Mini Platte", artikel: "Mini Platte", lieferant: "Arthrex", preis: 290 },
+  lcp_1_3_rohr_6l: { name: "LCP 1/3 Rohr 6L", artikel: "LCP One-third Tub 3,5, 6 Holes", lieferant: "DePuy Synthes", preis: 28.55 },
+  lcp_1_3_rohr_9l: { name: "LCP 1/3 Rohr 9L", artikel: "LCP One-third Tub 3,5, 9 Holes", lieferant: "DePuy Synthes", preis: 34.20 },
+  lcp_mdtp_6l: { name: "LCP MDTP 6L", artikel: "LCP MDTP 3,5, 6 holes, 135mm", lieferant: "DePuy Synthes", preis: 430.07 },
+  philos_humerusplatte_5_loch: { name: "PHILOS Humerusplatte 5-Loch", artikel: "PHILOS Proximale Humerusplatte 3.5 Titan steril, 5-Loch (441.903S)", lieferant: "DePuy Synthes", preis: 402 },
+  philos_humerusplatte_3_loch: { name: "PHILOS Humerusplatte 3-Loch", artikel: "PHILOS Proximale Humerusplatte 3.5 Titan steril, 3-Loch (441.901S)", lieferant: "DePuy Synthes", preis: 366 },
+  koenigsee_humerusplatte_5l: { name: "Königsee Humerusplatte 5L", artikel: "Prox. Humerus Pl. 4.0/3.5; 8/5L; L 109mm; vws; 2g; T (5.07933.85)", lieferant: "Königsee", preis: 263 },
+  winsta_ph2_ws_platte_5_loch: { name: "WINSTA-PH2 WS Platte 5-Loch", artikel: "WINSTA-PH2 WS proximale Humerusplatte 5-Loch Titan (14.11200.005S)", lieferant: "Marquardt axomed", preis: 415 },
+  winsta_ph2_ws_platte_3_loch: { name: "WINSTA-PH2 WS Platte 3-Loch", artikel: "WINSTA-PH2 WS proximale Humerusplatte 3-Loch Titan (14.11200.003S)", lieferant: "Marquardt axomed", preis: 376 },
+  aptus_trilock_radius_distal_11l: { name: "Aptus TriLock Radius distal 11L", artikel: "2.5 TriLock Distaler Radius Frakturplatte, 11 Loch (A-4750.01)", lieferant: "Medartis", preis: 235 },
+  // --- Schraube ---
+  variax_locking_3_5: { name: "Variax Locking 3,5", artikel: "Variax 2 Locking Screw 3,5", lieferant: "Stryker", preis: 34.49 },
+  variax_locking_2_7: { name: "Variax Locking 2,7", artikel: "Variax 2 Locking Screw 2,7", lieferant: "Stryker", preis: 24.74 },
+  fixos_hks_4_0: { name: "Fixos HKS 4,0", artikel: "Fixos II, 4,0mm headless compression screw", lieferant: "Stryker", preis: 113.05 },
+  fixos_hks_7_0: { name: "Fixos HKS 7,0", artikel: "Fixos II, 7,0mm headless compression screw", lieferant: "Stryker", preis: 148.75 },
+  ortholoc_locking: { name: "Ortholoc Locking", artikel: "Ortholoc 3Di Locking Screw", lieferant: "Stryker", preis: 76.65 },
+  kortikalis_3_5: { name: "Kortikalis 3,5", artikel: "Cortex Screw Stardrive 3,5", lieferant: "DePuy Synthes", preis: 11.84 },
+  kanuel_schraube_7_0_koenigsee: { name: "Kanül. Schraube 7,0 Königsee", artikel: "7,0 kanülierte Schraube, 16mm Gewinde", lieferant: "Königsee", preis: 56 },
+  kanuel_schraube_4_0_koenigsee: { name: "Kanül. Schraube 4,0 Königsee", artikel: "4,0 kanülierte Schraube, 16mm Gewinde", lieferant: "Königsee", preis: 51 },
+  monster_schraube: { name: "Monster Schraube", artikel: "Monster kanülierte Schraube", lieferant: "Paragon", preis: 117 },
+  gorilla_3_5_locking: { name: "Gorilla 3,5 Locking", artikel: "Gorilla 3,5 Locking screw", lieferant: "Paragon", preis: 38 },
+  silverback_4_5_locking: { name: "Silverback 4,5 Locking", artikel: "Silverback 4,5 Locking", lieferant: "Paragon", preis: 52 },
+  silverback_4_5_non_locking: { name: "Silverback 4,5 non-locking", artikel: "Silverback 4,5 non-locking", lieferant: "Paragon", preis: 52 },
+  arthrex_4_5_locking: { name: "Arthrex 4,5 Locking", artikel: "4,5 locking screw", lieferant: "Arthrex", preis: 50 },
+  arthrex_4_5_kortikalis: { name: "Arthrex 4,5 Kortikalis", artikel: "4,5 Kortikalis screw", lieferant: "Arthrex", preis: 50 },
+  k_draht: { name: "K-Draht", artikel: "K-Draht", lieferant: "-", preis: 16 },
+  kortikalis_3_5_34_koenigsee: { name: "Kortikalis 3.5×34 Königsee", artikel: "Kortikalis Ø3.5×34 VG ISR15 ss T (3.1321.34)", lieferant: "Königsee", preis: 16 },
+  kortikalis_4_0_40_wstab_koenigsee: { name: "Kortikalis 4.0×40 wstab Königsee", artikel: "Kortikalis Ø4.0×40mm winkelstabil VG ss ISR15 (3.0140.40)", lieferant: "Königsee", preis: 18 },
+  kortikalis_3_5_34_synthes: { name: "Kortikalis 3.5×34 Synthes", artikel: "Kortikalisschraube Ø3.5mm L=34mm (404.834S)", lieferant: "DePuy Synthes", preis: 14 },
+  verriegelung_3_5_40_synthes: { name: "Verriegelung 3.5×40 Synthes", artikel: "Verriegelungsschraube Ø3.5mm L=40mm (413.040S)", lieferant: "DePuy Synthes", preis: 37 },
+  aptus_trilock_2_5_18_wstab: { name: "Aptus TriLock 2.5×18 wstab", artikel: "2.5 TriLock Schraube HexaDrive 7, 18mm winkelstabil (A-5750-18)", lieferant: "Medartis", preis: 32 },
+  aptus_kortikalis_2_5_18: { name: "Aptus Kortikalis 2.5×18", artikel: "2.5 Kortikalisschraube HexaDrive 7, 18mm (A-5700.18)", lieferant: "Medartis", preis: 17 },
+  kortikalis_3_5_axomed: { name: "Kortikalis 3.5 axomed", artikel: "3,5 mm Kortikalisschraube 20-40 mm selbstschneidend Titan steril (03.03612.020S)", lieferant: "Marquardt axomed", preis: 11 },
+  ws_kortikalis_3_5_axomed: { name: "WS Kortikalis 3.5 axomed", artikel: "WS Kortikalisschraube Ø3.5×20-60 mm selbstschneidend Titan steril (03.05612.020S)", lieferant: "Marquardt axomed", preis: 23 },
+  // --- Anker/Naht ---
+  fiberwire_2: { name: "FiberWire 2", artikel: "FiberWire 2", lieferant: "Arthrex", preis: 19.51 },
+  biocomposite_tenodese_4_75: { name: "BioComposite Tenodese 4,75", artikel: "BioComposite-Tenodesis Screw 4,75x15mm", lieferant: "Arthrex", preis: 296.80 },
+  internal_brace: { name: "Internal Brace", artikel: "Internal Brace", lieferant: "Arthrex", preis: 507 },
+  fibre_tak: { name: "Fibre Tak", artikel: "Fibre Tak", lieferant: "Arthrex", preis: 140 },
+  iconix_anchor_suture_tape: { name: "Iconix Anchor Suture Tape", artikel: "Iconix 2,3 Anchor TT Suture Tape", lieferant: "Stryker", preis: 233.06 },
+  iconix_anchor_force_fibre: { name: "Iconix Anchor Force Fibre", artikel: "Iconix 2,3 Anchor Force Fibre Suture", lieferant: "Stryker", preis: 298.68 },
+  gii_quickanchor_orthocord: { name: "GII Quickanchor Orthocord", artikel: "GII Quickanchor Plus Orthocord", lieferant: "DePuy Mitek", preis: 205.92 },
+  gii_quickanchor_ethibond: { name: "GII Quickanchor Ethibond", artikel: "GII Quickanchor Plus Ethibond", lieferant: "DePuy Mitek", preis: 195.92 },
+  dyna_mite_klammer: { name: "Dyna-Mite Klammer", artikel: "Dyna-Mite Klammer", lieferant: "Arthrex", preis: 350 },
+  dyna_mite_set: { name: "Dyna-Mite Set", artikel: "Set Dyna-Mite Klammer", lieferant: "Arthrex", preis: 399 },
+  monocryl_3_0: { name: "Monocryl 3-0", artikel: "Monocryl 3-0", lieferant: "Ethicon", preis: 3.84 },
+  vicryl_2_0: { name: "Vicryl 2-0", artikel: "Vicryl 2-0", lieferant: "Ethicon", preis: 15.95 },
+  // --- Knochen/Bio ---
+  tutogene_1_2_kopf: { name: "Tutogene 1/2 Kopf", artikel: "Tutogene 1/2 Kopf", lieferant: "Tutogene", preis: 705 },
+  tutogene_1_2_kopf_klein: { name: "Tutogene 1/2 Kopf klein", artikel: "Tutogene 1/2 Kopf klein", lieferant: "Tutogene", preis: 538 },
+  tutogene_block_30x10x10: { name: "Tutogene Block 30x10x10", artikel: "Tutogene 30x10x10", lieferant: "Tutogene", preis: 440 },
+  tutogene_block_20x20x10: { name: "Tutogene Block 20x20x10", artikel: "Tutogene 20x20x10", lieferant: "Tutogene", preis: 445 },
+  tutogene_block_20x10x10: { name: "Tutogene Block 20x10x10", artikel: "Tutogene 20x10x10", lieferant: "Tutogene", preis: 333 },
+  tutogene_block_8x8x8: { name: "Tutogene Block 8x8x8", artikel: "Tutogene 8x8x8", lieferant: "Tutogene", preis: 113 },
+  tutogene_chips_15qcm_1_10mm: { name: "Tutogene Chips 15qcm 1-10mm", artikel: "Tutogene 15 qcm Chips 1-10mm", lieferant: "Tutogene", preis: 495 },
+  tutogene_chips_10qcm: { name: "Tutogene Chips 10qcm", artikel: "Tutogene 10 qcm Chips", lieferant: "Tutogene", preis: 394 },
+  tutogene_chips_5qcm: { name: "Tutogene Chips 5qcm", artikel: "Tutogene 5 qcm Chips", lieferant: "Tutogene", preis: 210 },
+  tutogene_chips_15qcm_2_4mm: { name: "Tutogene Chips 15qcm 2-4mm", artikel: "Tutogene 15 qcm Chips 2-4mm", lieferant: "Tutogene", preis: 515 },
+  tutogene_chips_3qcm: { name: "Tutogene Chips 3qcm", artikel: "Tutogene 3 qcm Chips", lieferant: "Tutogene", preis: 200 },
+  lyostypt_10x12: { name: "Lyostypt 10x12", artikel: "Lyostypt 10x12", lieferant: "Braun", preis: 25.11 },
+  lyostypt_3x5: { name: "Lyostypt 3x5", artikel: "Lyostypt 3x5cm", lieferant: "Braun", preis: 9.08 },
+  // --- Instrument ---
+  bohrer_bk: { name: "Bohrer BK", artikel: "Bohrer BK kanüliert", lieferant: "Arthrex", preis: 260 },
+  einmal_bohrer_kanueliert: { name: "Einmal Bohrer kanüliert", artikel: "Einmal Bohrer kanüliert", lieferant: "Arthrex", preis: 206 },
+  shannon_recta_2_0mm: { name: "Shannon Recta 2,0mm", artikel: "Fräser Shannon Recta Ø 2,0mm L 13mm steril, Art. 12.20038.050S", lieferant: "Marquardt axomed", preis: 43 },
+  shannon_recta_larga_2_2mm: { name: "Shannon Recta Larga 2,2mm", artikel: "Fräser Shannon Recta Larga Ø 2,2mm L 22mm steril, Art. 12.20038.060S", lieferant: "Marquardt axomed", preis: 43 },
+  // --- Antibiotikum lokal ---
+  // --- Wirbelsäule ---
+  verticale_stab_5_5: { name: "VERTICALE Stab Ø5,5", artikel: "VERTICALE gebogener Stab Ø5,5 / 45 mm Ti (S-VST-0045-T) — BME 2 ST/PK", lieferant: "Silony", preis: 55 },
+  verticale_polyschraube: { name: "VERTICALE Polyschraube", artikel: "VERTICALE Poly Schr ST Ø6,2x35 mm kan+fen (S-VPS-6235-KF2)", lieferant: "Silony", preis: 140 },
+  madenschraube_torx_25: { name: "Madenschraube Torx 25", artikel: "Madenschraube Torx 25 (S-VMS-2025) — BME 2 ST", lieferant: "Silony", preis: 30 },
+  favo_s_tlif_cage: { name: "FAVO S-TLIF Cage", artikel: "FAVO S-TLIF Cage 07x11x28 mm 5° (S-FST-07112805-S)", lieferant: "Silony", preis: 600 },
+  exp_stab_40_mm: { name: "EXP Stab 40 mm", artikel: "EXP Stab 40 mm (179772040S)", lieferant: "DePuy Synthes", preis: 92 },
+  exp_viper2_cfx_polyschraube: { name: "EXP Viper2 CFX Polyschraube", artikel: "EXP Viper2 CFX Polyschraube 6x45 mm zementierbar (186727645S)", lieferant: "DePuy Synthes", preis: 217 },
+  exp_single_innie: { name: "EXP Single Innie", artikel: "EXP Single Innie (179702000S)", lieferant: "DePuy Synthes", preis: 53 },
+  kyphopak_ballon_20er: { name: "KyphoPak Ballon 20er", artikel: "CLASSIC KyphoPak One-Step 20er Ballon (KPT2005)", lieferant: "Medtronic", preis: 499 },
+  kyphopak_ballon_15_3: { name: "KyphoPak Ballon 15/3", artikel: "CLASSIC KyphoPak One-Step Ballon 15/3 (KPT1505)", lieferant: "Medtronic", preis: 499 },
+  knochenzement_kypho: { name: "Knochenzement Kypho", artikel: "Knochenzement (CX01B-C)", lieferant: "Medtronic", preis: 111 },
+  adapter_a23: { name: "Adapter A23", artikel: "Adapter A23 (passt zu KPT2005)", lieferant: "Medtronic", preis: 10 },
+  adapter_a22: { name: "Adapter A22", artikel: "Adapter A22 (passt zu KPT1505)", lieferant: "Medtronic", preis: 10 },
+  trokar_t15j: { name: "Trokar T15J", artikel: "Trokar 3er passt in 3 (T15J)", lieferant: "Medtronic", preis: 141 },
+  trokar_t34a: { name: "Trokar T34A", artikel: "Trokar 2er passt in 2 (T34A)", lieferant: "Medtronic", preis: 141 },
+  zementapplikator_15_3: { name: "Zementapplikator 15/3", artikel: "Zementapplikator 15/3 (F04B)", lieferant: "Medtronic", preis: 29 },
+  // --- ⚠️ Einträge mit "Preis fehlt" müssen manuell ergänzt werden (Apothekenpreise oder fehlende Einkaufsdaten). ---
+  fixos_hks_2_5: { name: "Fixos HKS 2,5", artikel: "Fixos II, 2,5mm headless compression screw", lieferant: "Stryker", preis: 123.70 },
+  t2_nagel_kit: { name: "T2 Nagel-Kit", artikel: "T2 SGA Nagel + 5× Querschraube 5mm + 1× Verschlussschraube (Zusammenstellung)", lieferant: "Stryker", preis: 636 },
+  chondro_gide_membran: { name: "Chondro-Gide Membran", artikel: "Chondro-Gide Knorpel-Knochen-Membran", lieferant: "Geistlich", preis: 950 },
+};
+
 const ENDO_HTEP_IMPL = {
   brehm:       { l: "Brehm",                       lieferant: "Brehm",     preis: null },
-  excia_zfr:   { l: "Excia T zementfrei",          lieferant: "Aesculap",  preis: 1105 },
-  metha:       { l: "Metha (Kurzschaft)",          lieferant: "Aesculap",  preis: 1452 },
-  trendhip:    { l: "Trend-Hip",                   lieferant: "Aesculap",  preis: 1160 },
-  troja:       { l: "Troja",                       lieferant: "Aesculap",  preis: 1150 },
+  excia_zfr:   { l: "Excia T zementfrei",          lieferant: "Aesculap",  preis: 1104 },
+  metha:       { l: "Metha (Kurzschaft)",          lieferant: "Aesculap",  preis: 1451 },
+  trendhip:    { l: "Trend-Hip",                   lieferant: "Aesculap",  preis: 1159 },
+  troja:       { l: "Troja",                       lieferant: "Aesculap",  preis: 1149 },
 };
 
 // Duokopf / Hemi-Endoprothese (zementiert) — Excel-Datenbasis: 2 Tuben Palacos R+G
 const ENDO_DUOKOPF_IMPL = {
-  excia_zem:   { l: "Excia T zementiert",          lieferant: "Aesculap",  preis: 574 },
-  mathys:      { l: "Mathys (CCA Schaft)",         lieferant: "Mathys",    preis: 951 },
+  excia_zem:   { l: "Excia T zementiert",          lieferant: "Aesculap",  preis: 575 },
+  mathys:      { l: "Mathys (CCA Schaft)",         lieferant: "Mathys",    preis: 952 },
 };
 
 // Komponenten-Aufschlüsselungen (Einzelpreise aus Klinik-Materialkosten-Excel Sheet 2)
@@ -4652,11 +4834,32 @@ const ENDO_IMPL_KOMPONENTEN = {
     { name: "2× Palacos R+G 40g",          lieferant: "Apotheke", preis: 64  },
   ],
   // H-TEP — Komponenten-Aufschlüsselung NOCH NICHT gepflegt (Klinikpreise stehen jeweils im ENDO_HTEP_IMPL als Komplettpreis)
-  brehm:    [],
-  excia_zfr:[],
-  metha:    [],
-  trendhip: [],
-  troja:    [],
+  // H-TEP — Komponenten-Aufschlüsselung aus Sheet 2-Einzelpreisen (Plasmafit Pfanne + PE Inlay + Keramikkopf Biolox Delta + jeweiliger Schaft)
+  brehm:    [], // Klinikpreis Schaft nicht hinterlegt
+  excia_zfr:[
+    { name: "Excia T Schaft zementfrei",       lieferant: "Aesculap", preis: 413 },
+    { name: "Plasmafit Plus 3 Pfanne",          lieferant: "Aesculap", preis: 358 },
+    { name: "Plasmafit PE Inlay",                lieferant: "Aesculap", preis: 151 },
+    { name: "Keramikkopf Biolox Delta",          lieferant: "Aesculap", preis: 182 },
+  ],
+  metha:    [
+    { name: "Metha 120/130/135° Kurzschaft",    lieferant: "Aesculap", preis: 760 },
+    { name: "Plasmafit Plus 3 Pfanne",          lieferant: "Aesculap", preis: 358 },
+    { name: "Plasmafit PE Inlay",                lieferant: "Aesculap", preis: 151 },
+    { name: "Keramikkopf Biolox Delta",          lieferant: "Aesculap", preis: 182 },
+  ],
+  trendhip: [
+    { name: "Trendhip Schaft Standard zementfrei", lieferant: "Aesculap", preis: 468 },
+    { name: "Plasmafit Plus 3 Pfanne",          lieferant: "Aesculap", preis: 358 },
+    { name: "Plasmafit PE Inlay",                lieferant: "Aesculap", preis: 151 },
+    { name: "Keramikkopf Biolox Delta",          lieferant: "Aesculap", preis: 182 },
+  ],
+  troja:    [
+    { name: "TRJ Schaft Standard zementfrei",   lieferant: "Aesculap", preis: 458 },
+    { name: "Plasmafit Plus 3 Pfanne",          lieferant: "Aesculap", preis: 358 },
+    { name: "Plasmafit PE Inlay",                lieferant: "Aesculap", preis: 151 },
+    { name: "Keramikkopf Biolox Delta",          lieferant: "Aesculap", preis: 182 },
+  ],
 };
 
 // K-TEP / Knie-Implantat-Optionen (bikondylärer Oberflächenersatz, OPS 5-822.G1)
@@ -5060,6 +5263,15 @@ const OP_STEUERUNG={
   t2_nagel:{hdrg:null,hdrgE:0,drg:"I20A",drgE:8954,cm:1.963,ugvd:2,mvwd:9.1,impl:634,empf:"stat",hebel:null,hebelName:null,hinweise:[
     {typ:"alert",txt:"UGVD = 2 Tage, volle DRG erst ab 3 Belegungstagen. Bei Entlassung am 1. oder 2. Tag nach OP: Abschlag ~1.209 € pro Tag."},
     {typ:"warn",txt:"Mindestens 3 Übernachtungen einplanen."}
+  ]},
+  fasziotomie_offen:{hdrg:"I20O",hdrgE:1007,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:0,empf:"amb",hebel:null,hebelName:null,opsCodes:[{code:"5-841.10",name:"Inzision an Sehnen und Faszien, Fuß"}],hinweise:[
+    {typ:"info",txt:"Standard-Weg: ambulant als H-DRG I20O (1.007 €). Bei beidseitigem Vorgehen oder anderen Ausnahmefällen kurzstationär als I59Z (3.225 € abzgl. UGVD-Abschlag bei 1 Tag)."}
+  ]},
+  gastroc_strayer:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:0,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null,opsCodes:[{code:"5-859.0",name:"Sehnenverlängerung untere Extremität"}],hinweise:[
+    {typ:"info",txt:"Ambulant per EBM (AOP-fähig) oder kurzstationär als I59Z möglich. Bei stationärer Führung UGVD = 1 Tag — volle DRG erst ab 2 Belegungstagen."}
+  ]},
+  gastroc_pmgr:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:0,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null,opsCodes:[{code:"5-859.0",name:"Sehnenverlängerung untere Extremität"}],hinweise:[
+    {typ:"info",txt:"Ambulant per EBM (AOP-fähig) oder kurzstationär als I59Z möglich. Bei stationärer Führung UGVD = 1 Tag — volle DRG erst ab 2 Belegungstagen."}
   ]},
 };
 
@@ -6769,6 +6981,9 @@ tep_infinity_standard:`Längsverlaufende Inzision ventral des oberen Sprunggelen
 tep_infinity_flatcut:`Längsverlaufende Inzision ventral des oberen Sprunggelenkes. Darstellen des Retinaculums, Lösungen der Verwachsungen des Retinaculums mit der langen Strecksehne der Großzehe und der Tibialis anterior-Sehne. Eingehen in der Tib Ant Sehnenscheide zwischen den beiden Sehnen auf das obere Sprunggelenk. Es entleert sich ein klarer Erguss, es quillt veränderte Synovialis hervor. Synovialektomie.\nZunächst werden die ventralen Osteophyten am Talus und der Tibia entfernt.\nErhebliche flächige 4°ige Arthrose, schwerer fortgeschrittener Befund. Einbringen der Gutter-Fork und Ausrichtung des Instrumentariums. Setzen des bicorticalen 3,2er Pins, nach Einstellung der axialen Rotation mittels Ausrichtung des Pointers zur Achse der Tibia. Nun Zusammenbau des Ausrichtungsrahmens und Fixation dieses am distalen Pin und einem Pin in der Tuberositas Tibia nach BV Lokalisierung und exakter Prüfung auf korrekte Rotation des Beines sowie Ausrichtung der Beinachse von der Hüfte aus referenziert entsprechend vorheriger Planung. Einstellung des Rahmens und BV Kontrolle mit Ausrichtung in der Coronarebene mittels Alignment Wing. Korrekte Einstellung von Varus und Valgus unter Beachtung einer Ausrichtung zur mechanischen Achse des Beines.\nNun Einstellung der sagittalen Ebene über Alignment Rod unter BV Kontrolle. Einstellung Flexion und Extension, dann Fixation aller Schrauben und Besetzen von 3,2er Pins bicortical in die distale Tibia über vorgegebene Löcher. Anbringen Adjustment Block an die Pins und Fixation knapp über der Gelenkebene, Fixation der grauen Schraube. Anbringen Sizing Guide und Einstellung präzise unter BV Kontrolle. Nach genauer Einstellung Fixation. Anbringen Sizing-Arm und BV seitlich, Einstellung der korrekten Höhe true lateral und Fixation bei Fuß in 90° Position. Der Talus kann gut unter die Tibia kongruent eingestellt werden.\nMessung Tibia. Einbringen von Drähten und Kürzung dieser über Sizing Frame, Seitliches Röntgen. Alle Bohrungen finden unter seitlicher Röntgenkontrolle statt, so dass ein zu tiefes Bohren mit Schädigung des Nerven-Gefäß-Bündels vermieden werden kann. Bohren der Ecklöcher. Dann Wechsel auf Sägeblock. Einbringen von 2,4er Drähten in die Gutter-Löcher medial und lateral. Sägen unter Wasserkühlung, Entfernung des Blockes, Glätten der Resektionsflächen, Entfernung des Knochenblockes und Präparation der tibialen Ecken. Besondere Beachtung wird dem lateralen und medialen Gutter geschenkt, hier Entfernung von Osteophyten und impingementgefährdeten Knochenanteilen. Vorsichtiges Release der hinteren Kapsel am Knochen, Einbringen der entsprechenden Probeprothesen und BV Kontrolle. Einstellung der tibialen Position. Einbringen der Pegs zur Platzierung der tibialen Führung.\nEinbringen Führungsinlay zur Bohrung am Talus wird eingebracht, Exakte Einstellung unter BV. Dann Vorlegen von 2 Pins und Aufbringen Schnittblock Talus. Talar Dome Trial wird aufgelegt, Messung Größe.\nPlatzierung Pins unter BV, Wechsel auf Schnittblock, Durchführung der planaren Resektion am Talus (Flat-Cut). Entfernung des Knochenblocks von der Talusrolle. Einbringen Tibia, Inlay und Talus Probe. Die Größen sind gut.\nPeg Drilling talar nach Fixation Taluskomponente. Ausgiebige Spülung und Wechsel der Handschuhe.\nEinbringen der tibialen Komponente nach Herstellerangaben und Einbolzen mit externem Instrument. Die Prothese sitzt fest, klinisch und radiologisch. Einbringen der talaren Komponente (Flat-Cut), Impaktierung mit Instrumentarium und Einbringen des Inlays nach Überprüfung auf korrekte Bandspannung mittels Probekomponenten. Abschluss BV Kontrolle, Stabilitätsprüfung und Überprüfung sowohl der Ausrichtung der Prothese zur Beinachse als auch die Rückfußachse. Klinisch und radiologisch stabile Bandverhältnisse bei achsgerechter Stellung und stabiler Prothese, keine impingementgefährdeten Strukturen.`,
 tep_infinity_prophecy:`Längsverlaufende Inzision ventral des oberen Sprunggelenkes. Darstellen des Retinaculums, Lösungen der Verwachsungen des Retinaculums mit der langen Strecksehne der Großzehe und der Tibialis anterior-Sehne. Eingehen in der Tib Ant Sehnenscheide zwischen den beiden Sehnen auf das obere Sprunggelenk. Es entleert sich ein klarer Erguss, es quillt veränderte Synovialis hervor. Synovialektomie.\nErhebliche flächige 4°ige Arthrose, schwerer fortgeschrittener Befund. Die ventralen Osteophyten werden belassen, da diese in das Surface-Matching der patientenspezifischen Prophecy-Guides integriert sind. Entfernung loser Gelenkkörper.\nFreilegen der anterioren Tibia von Weichteilen im Bereich des Guide-Auflagers. Platzierung des Prophecy Tibia Resect-Through Guide auf der anterioren Tibia im Surface-Match, der Guide sitzt in einer einzigen korrekten Position. Einbringen eines 2,4 mm Steinmann-Pins zur temporären Fixation. Anbringen des Conversion Instruments und BV Kontrolle in AP-Projektion, Vergleich mit dem präoperativen Prophecy-Plan. Überprüfung der korrekten koronaren und sagittalen Ausrichtung des Guides. Die Ausrichtung entspricht der präoperativen CT-basierten Planung.\nNach Bestätigung der korrekten Position Einbringen von insgesamt vier 2,4 mm Steinmann-Pins bicortical durch den Guide in die Tibia und Kürzen der Pins. Seitliche BV Kontrolle zur Verifizierung der Flexions-/Extensionsausrichtung.\nBohren der tibialen Ecklöcher durch den Resect-Through Guide mittels Tibial Corner Drill, Einsetzen der Corner Protector Pegs zum Schutz der Ecken.\nSägen der tibialen Resektion direkt durch die Schlitze des Resect-Through Guide unter Wasserkühlung. Die talare Resektion erfolgt zu diesem Zeitpunkt noch nicht. Entfernung des Conversion Instruments, der Corner Protector Pegs und des Resect-Through Guide Inserts. Die proximalen tibialen Steinmann-Pins verbleiben.\nAbtragen des vorderen Tibia-Anteils mittels Osteotom in ca. 60° nach distal, Entfernung des Knochenblockes. Glätten der Resektionsflächen. Besondere Beachtung wird dem lateralen und medialen Gutter geschenkt, hier Entfernung von Osteophyten und impingementgefährdeten Knochenanteilen.\nPlatzierung des Prophecy Talus Alignment Guide auf dem Talusdach im Surface-Match nach Plantarflexion des Fußes. Temporäre Fixation mit einem 2,4 mm Steinmann-Pin, dann Einbringen von zwei 2,4 mm Steinmann-Pins anterior in den Talus über die vorgegebenen Löcher des Guides. Entfernung des Talus-Guides über die Pins.\nSeitliche BV Kontrolle zur Verifikation der Talus-Pin-Position, Vergleich mit dem präoperativen Prophecy-Plan.\nAufbringen des reversiblen Talar Saw Guide über die Talus-Pins, Ausrichtung mit CHMF nach oben für Chamfer-Cut. Einbringen von 2,4 mm Gutter-Pins medial und lateral zum Schutz der Malleolen. Durchführung der talaren Resektion mit der oszillierenden Säge durch den Schnittblock. Entfernung des Talusdoms. Kontrolle der Resektion mittels Osteotom.\nVorsichtiges Release der hinteren Kapsel am Knochen, Einbringen der entsprechenden Probeprothesen und BV Kontrolle. Einstellung der tibialen Position. Einbringen der Pegs zur Platzierung der tibialen Führung.\nEinbringen Führungsinlay zur Bohrung am Talus, exakte Einstellung unter BV. Talar Dome Trial wird aufgelegt, Messung Größe.\nEinbringen Tibia, Inlay und Talus Probe. Die Größen sind gut.\nPeg Drilling talar nach Fixation Taluskomponente. Ausgiebige Spülung und Wechsel der Handschuhe.\nEinbringen der tibialen Komponente nach Herstellerangaben und Einbolzen mit externem Instrument. Die Prothese sitzt fest, klinisch und radiologisch. Einbringen der talaren Komponente, Impaktierung mit Instrumentarium und Einbringen des Inlays nach Überprüfung auf korrekte Bandspannung mittels Probekomponenten. Abschluss BV Kontrolle, Stabilitätsprüfung und Überprüfung sowohl der Ausrichtung der Prothese zur Beinachse als auch die Rückfußachse. Klinisch und radiologisch stabile Bandverhältnisse bei achsgerechter Stellung und stabiler Prothese, keine impingementgefährdeten Strukturen.`,
 tep_inbone:`Längsverlaufende Inzision ventral des oberen Sprunggelenkes. Darstellen des Retinaculums, Lösungen der Verwachsungen des Retinaculums mit der langen Strecksehne der Großzehe und der Tibialis anterior-Sehne. Eingehen zwischen den beiden Sehnen auf das obere Sprunggelenk. Es entleert sich ein klarer Erguss, es quillt etwas Synovialis hervor.\nErhebliche flächige Arthrose talar und tibial, deutliche Verwachsungen. Nun Darstellung von Talus und Tibia, Entfernung des Periostes zur exakten Auflage der Prophecy Fräsenschablone tibial. Hier wird der Sitz unter BV exakt überprüft, Einstellung mit eingebrachten Pins in „Gun Sight" Ansicht. Dann Fixierung mit K-Drähten und Röntgenkontrolle. Es zeigt sich ein korrekter Sitz und achsgerechte Ausrichtung. Wechsel auf Fräsehilfen, Einstellung Erneute BV-Kontrolle in 2 Ebenen. Es zeigt sich in Abgleich mit der digitalen Planung ein korrekter Sitz, keine Überlänge der Drähte. BV Kontrolle in 2 Ebenen und Kontrolle der Achsausrichtung nach proximal um korrekte Achsausrichtung, korrekten Slope und korrekte Resektionshöhe verifizieren zu können. Nun Bohrung der Eckkanten unter BV Kontrolle zum Vermeiden einer medialen zu tiefen Bohrung und Affektion des Gefäß-Nerven-Bündels. Der Talus kann in kongruenter Position unter der Tibia eingestellt werden, Fixierung mittels K-Drähten. Röntgen ap und seitlich, gute Lage der Drähte. Bohrung Antirotationsnut unter BV Kontrolle seitlich.\nDann Sägeschnitte tibial und talar nach Vorlage der Malleolenschutzpins unter BV Kontrolle zur exakten Kontrolle der Frästiefe. Bestätigung komplette Durchtrennung mittels Resektions-Tiefenmessers. Abnahme der Fräsehilfe und Entfernung der Knochen tibial und talar. Tibial kann das Fragment nicht komplett geborgen werden, daher wird der restliche Knochen vorsichtig unter BV Kontrolle mit einem Meißel nach lateral gerichtet gespalten, dann vorsichtig mit stumpfen Klemmen entfernt. Aus dem Knochen wird reichlich autologe Spongiosa gewonnen. Nacharbeiten der Kanten mit dem Meißel, hierbei wird genau geachtet keinen übermäßigen Stress auf den Innenknöchel zu bringen. Vorsichtiges Kapselrelease mit Instrument.\nEinbringen der patientenindividuellen Box und der Bohrhilfe, BV Kontrolle auf korrekte Lage.\nAnbringen der Fixationsschraube tibial und Auflage der Fußhalterung. Diese wird arretiert und unter BV genau ausgerichtet. Dann Markierung des Eintrittspunktes plantar und vorsichtiges Vorbohren. Der Draht lässt sich gut positionieren, Ausrichtung nach der mechanischen Achse des Beines. BV Kontrolle über komplette Beinachse.\nAufsetzen Fräskopf auf den Fräseschaft mit 12mm Durchmesser, händisches Fräsen nach proximal. Dann Fräsen mit 14 mm Durchmesser nach Wechsel Fräskopf. Fräsen der Basis und Mid Stem mit 16mm, hierbei wird an der Markierung am Frässchaft im anterioren Fenster referenziert. Spülung jeweils des Gelenkraumes, dann Entfernung des Fräskopfes. Einsetzen der AP Größenlehre, Messung. Die Abdeckung mit Corticalis ist allseits sehr gut.\nNun Einbringen der tibialen Komponenten schrittweise über das anteriore Fenster mittels Gabelschlüssel und Clip, nach Einbringung Rotation der Tibiakomponente, dass die Entriegelungsöffnung anterior unter der Antirotationsnut liegt. Einbringen der Tibiakomponente, Verbindung und Einschlagen nach Spülung.\nEntfernung der Halterung.\nEinbringen der Talusprobe, Reinigung von Ossikeln und Osteophyten aus dem lateralen und medialen Gutter, vor allem tief mediale Reinigung. Visuell, radiologisch und palpatorisch guter Sitz und kein Überstand. Einsetzen Probeinlay und BV Kontrolle, guter Sitz und gutes Gleiten. Markieren der anterioren Grenze der Taluskomponente, um eine Migration während der Bewegungsprüfung auszuschließen.\nBei optimaler Position Einbringen von zwei 1,4 mm Drähten, dann erneute Bewegungsprüfung. Entfernung Probeinlay und Bohren mit Taluszapfen-Bohrer, dann Einbringen des zentralen Drahtes. Entfernung Talusdom Probe und Bohren mit Talusschaft-Fräse 10mm. Montage der Taluskomponente mit Impaktion des Verankerungszapfens. Einbringen Talusdom unter Nutzung Tibiabasisschutz. Einschlagen unter BV Kontrolle mit Domeinschläger.\nEinsetzen des Inlays über Einführhilfe mittels Befestigungsschraube. Nahtloser Bewegungsumfang ohne Impingement. Die Bandspannung ist gut balanciert, keine Kontraktur, keine Instabilität, keine Translation oder Verkippung der Komponenten bei Bewegungsprüfung oder Varus-Valgus-Stress.\nAchsgerechte Ausrichtung, BV Kontrolle in 2 Ebenen, keine Fissur oder Implantatfehllage.\nAusgiebige Spülung aller Zugänge. Öffnung der Blutsperre, nur geringe venöse Blutung, Blutstillung. Erneute ausgiebige Spülung.`,
+fasziotomie_offen:`Längsverlaufende Inzision von circa 4 cm medioplantar am Tuber calcanei in Höhe des Ansatzes der Plantarfaszie. Stumpfes Spalten des Subcutangewebes unter Schonung der Nn. plantares mediales et laterales sowie des R. calcaneus medialis des N. tibialis. Darstellen der oberflächlichen Schicht der Plantarfaszie. Die Faszie zeigt sich am Ansatz verdickt und derb, partiell mit Verkalkungen am Tuber calcanei. Nun quere Fasziotomie der medialen zwei Drittel der Plantarfaszie unter Schonung des lateralen Drittels zur Erhaltung der Stabilität des Längsgewölbes. Klinische Prüfung der Korrektur durch Dorsalextension der Großzehe (Windlass-Mechanismus), hier zeigt sich eine deutlich reduzierte Spannung. Spülung des Situs, Blutstillung, schichtweiser Wundverschluss mit Vicryl 3-0 und Hautnaht mit Donati-Rückstichnaht.`,
+gastroc_strayer:`Längsverlaufende Inzision von circa 6 cm an der dorsalen Wade in der Mitte des Unterschenkels über dem muskulotendinösen Übergang des M. gastrocnemius. Stumpfes Spalten des Subcutangewebes unter Schonung des N. suralis und der V. saphena parva. Darstellung der Gastrocnemius-Aponeurose, diese zeigt sich verkürzt und derb. Mobilisierung der Aponeurose vom darunterliegenden M. soleus. Quere Inzision der Gastrocnemius-Aponeurose komplett unter Erhaltung der Soleus-Sehne. Aktive und passive Dorsalextension des Fußes bei gestrecktem Knie zur Prüfung der Längengewinnung — hier zeigt sich nun eine Dorsalextension über die Neutralposition hinaus (Silfverskiöld-Test postoperativ negativ). Spülung, Blutstillung, schichtweise Naht der Faszie mit Vicryl 3-0, Subcutan- und Hautnaht mit Donati-Rückstichnaht.`,
+gastroc_pmgr:`Längsverlaufende Inzision von circa 5 cm proximal-medial an der Wade in Höhe des Übergangs vom M. gastrocnemius medialis. Stumpfes Spalten des Subcutangewebes unter Schonung des N. saphenus und der V. saphena magna. Darstellung der medialen Aponeurose des M. gastrocnemius. Mobilisierung der Aponeurose vom darunterliegenden Muskel. Quere Inzision der medialen Aponeurose unter Erhaltung des lateralen Anteils und der Muskelfasern (Recession nach Baumann). Aktive und passive Dorsalextension des Fußes bei gestrecktem Knie zur Prüfung — Silfverskiöld-Test postoperativ negativ. Spülung, Blutstillung, schichtweise Naht der Subcutis mit Vicryl 3-0 und Hautnaht mit Donati-Rückstichnaht.`,
 };
 
 function buildDMMO(mts){const main=mts.filter(m=>m<=3),extra=mts.filter(m=>m>=4);let t="Zuwendung zum Mittelfuß. Es zeigt sich radiologisch und palpatorisch ein Misalignment der Metatarsale, plantare Mehrbeschwielung. Stichinzision subkapital des MT "+main.join(" und ")+", Umfahren subkapital mit minimalinvasiven Klemmchen, jeweils Schrägosteotomie mit der perkutanen Fräse unter fortlaufender Wasserspülung unter BV-Kontrolle.";if(extra.length>0)t+=" Es zeigt sich hier noch eine relative Überlänge des MT "+extra.join(" und ")+", sodass dort in gleicher Weise eine perkutane Verkürzungsosteotomie im DMMO Stil erfolgt.";t+=" Spülung aller Zugänge.\nInsgesamt zeigt sich nun in der radiologischen Kontrolle eine sehr zufriedenstellende Korrektur des Alignements, palpatorisch gute Verbesserung der Druckverteilung.";return t;}
@@ -7084,25 +7299,25 @@ function OPBerichtApp(){
     const P=function(name,lief,preis){items.push({name:name,lieferant:lief,preis:preis});};
     const PEND=function(name,lief){items.push({name:name,lieferant:lief,preis:null,hinweis:"Datensatz ausstehend"});};
     // VORFUSS
-    if(gz==="chevron")P("Fixos HKS 2,5mm","Stryker",123.70);
-    if(gz==="scarf"){P("2× Fixos HKS 2,5mm","Stryker",247.40);}
-    if(gz==="lapidus"){P("Ortholoc Lapidus Platte",  "Stryker",318.80);P("4× Variax Bone 2,7","Stryker",98.96);P("Fixos HKS 4,0","Stryker",113.05);}
-    if(gz==="mtp1art"){P("Variax Curved Plate 4L","Stryker",172.25);P("4× Variax Locking 2,7","Stryker",98.96);P("Fixos HKS 4,0","Stryker",113.05);}
-    if(mitSubcap)P("Fixos HKS 2,5mm (Subcap)","Stryker",123.70);
+    if(gz==="chevron")P("Fixos HKS 2,5","Stryker",EINZELPREISE.fixos_hks_2_5.preis);
+    if(gz==="scarf"){P("2× Fixos HKS 2,5","Stryker",2*EINZELPREISE.fixos_hks_2_5.preis);}
+    if(gz==="lapidus"){P("Ortholoc Lapidus Platte",  "Stryker",318.80);P("4× Variax Locking 2,7","Stryker",4*EINZELPREISE.variax_locking_2_7.preis);P("Fixos HKS 4,0","Stryker",EINZELPREISE.fixos_hks_4_0.preis);}
+    if(gz==="mtp1art"){P("Variax Curved Plate 4L","Stryker",EINZELPREISE.variax_curved_plate_4l.preis);P("4× Variax Locking 2,7","Stryker",4*EINZELPREISE.variax_locking_2_7.preis);P("Fixos HKS 4,0","Stryker",113.05);}
+    if(mitSubcap)P("Fixos HKS 2,5 (Subcap)","Stryker",EINZELPREISE.fixos_hks_2_5.preis);
     if(Object.values(zc).some(a=>a.includes("pip"))){var pipCount=Object.values(zc).flat().filter(x=>x==="pip").length;P(pipCount+"× K-Draht (PIP)","–",pipCount*16);}
     if(Object.values(zc).some(a=>a.includes("weil"))){var weilCount=Object.values(zc).flat().filter(x=>x==="weil").length;P(weilCount+"× Fixos Twist off 2,0 (Weil)","Stryker",weilCount*124.95);}
-    if(dmmo.length>0)P("Shannon Recta 2,0mm (Single-use)","Marquardt axomed",43);
+    if(dmmo.length>0)P("Shannon Recta 2,0mm (Single-use)","Marquardt axomed",EINZELPREISE.shannon_recta_2_0mm.preis);
     // OSG
     osgOp.forEach(op=>{
-      if(op==="brostrom"){if(brostromIB){P("2× Fibre Tak","Arthrex",280);P("Internal Brace","Arthrex",507);}else{P("2× GII Quickanchor Ethibond","DePuy Mitek",391.84);}}
-      if(op==="amic")P("Chondro-Gide Membran","Geistlich",950);
-      if(op==="arthrodese_osg"){P("2× Fixos HKS 7,0","Stryker",297.50);if(osgArtPlatte){P("Mini Platte","Arthrex",290);P("2× Arthrex 4,5 Locking","Arthrex",100);}}
-      if(op==="t2_nagel")P("T2 Nagel + 5× Querschraube + Verschlussschraube","Stryker",634);
-      if(op==="arthrorise")P("Kanül. Schraube 7,0","Königsee",56);
+      if(op==="brostrom"){if(brostromIB){P("2× Fibre Tak","Arthrex",2*EINZELPREISE.fibre_tak.preis);P("Internal Brace","Arthrex",EINZELPREISE.internal_brace.preis);}else{P("2× GII Quickanchor Ethibond","DePuy Mitek",2*EINZELPREISE.gii_quickanchor_ethibond.preis);}}
+      if(op==="amic")P("Chondro-Gide Membran","Geistlich",EINZELPREISE.chondro_gide_membran.preis);
+      if(op==="arthrodese_osg"){P("2× Fixos HKS 7,0","Stryker",2*EINZELPREISE.fixos_hks_7_0.preis);if(osgArtPlatte){P("Mini Platte","Arthrex",EINZELPREISE.mini_platte.preis);P("2× Arthrex 4,5 Locking","Arthrex",2*EINZELPREISE.arthrex_4_5_locking.preis);}}
+      if(op==="t2_nagel")P("T2 Nagel + 5× Querschraube + Verschlussschraube","Stryker",EINZELPREISE.t2_nagel_kit.preis);
+      if(op==="arthrorise")P("Kanül. Schraube 7,0","Königsee",EINZELPREISE.kanuel_schraube_7_0.preis);
     });
     // TEP
-    if(tepType==="primaer_infinity"||tepType==="wechsel_infinity"){P("Infinity Tibial Tray","Stryker",1902.81);P("Infinity Talar Dome","Stryker",1783.81);P("Infinity Poly Insert","Stryker",672.35);}
-    if(tepType==="primaer_inbone"||tepType==="wechsel_inbone"){P("Inbone Tibial Tray","Stryker",1499.45);P("Inbone Talar Dome","Stryker",1405);P("Inbone Talar Stem","Stryker",699.95);P("Inbone Poly Insert","Stryker",569.95);P("Inbone Base Stem","Stryker",245);P("Inbone Mid Stem","Stryker",245);P("Inbone Top Stem","Stryker",245);}
+    if(tepType==="primaer_infinity"||tepType==="wechsel_infinity"){P("Infinity Tibial Tray","Stryker",EINZELPREISE.infinity_tibial_tray.preis);P("Infinity Talar Dome","Stryker",EINZELPREISE.infinity_talar_dome.preis);P("Infinity Poly Insert","Stryker",EINZELPREISE.infinity_poly_insert.preis);}
+    if(tepType==="primaer_inbone"||tepType==="wechsel_inbone"){P("Inbone Tibial Tray","Stryker",EINZELPREISE.inbone_tibial_tray.preis);P("Inbone Talar Dome","Stryker",EINZELPREISE.inbone_talar_dome.preis);P("Inbone Talar Stem","Stryker",EINZELPREISE.inbone_talar_stem.preis);P("Inbone Poly Insert","Stryker",EINZELPREISE.inbone_poly_insert.preis);P("Inbone Base Stem","Stryker",EINZELPREISE.inbone_base_stem.preis);P("Inbone Mid Stem","Stryker",EINZELPREISE.inbone_mid_top_stem.preis);P("Inbone Top Stem","Stryker",EINZELPREISE.inbone_mid_top_stem.preis);}
     // RÜCKFUSS
     rfOp.forEach(op=>{
       if(op==="subtalar")P("2× Fixos HKS 7,0","Stryker",297.50);
@@ -7110,34 +7325,34 @@ function OPBerichtApp(){
       if(op==="as_naht"){} // kein Implantat
       if(op==="mdo_mini"||op==="mdo_offen")P("2× Fixos HKS 7,0","Stryker",297.50);
       if(op==="mdo_mini")P("Shannon Recta Larga 2,2mm (Single-use)","Marquardt axomed",43);
-      if(op==="calc_ot_verl")P("Tutogene Block 20×10×10","Tutogene",333);
+      if(op==="calc_ot_verl")P("Tutogene Block 20×10×10","Tutogene",EINZELPREISE.tutogene_block_20x10x10.preis);
       if(op==="peroneal"&&peronealTyp==="naht"){} // kein Implantat
       if(op==="peroneal"&&peronealTyp==="tenodese"){} // kein Implantat (korrigiert)
       if(op==="peroneal"&&peronealTyp==="luxation"){} // kein Implantat
       if(op==="os_tib_ext"){} // kein Implantat
-      if(op==="fhl_transfer")P("Arthrex Tenodeseschraube 5,5mm","Arthrex",296.80);
+      if(op==="fhl_transfer")P("Arthrex Tenodeseschraube 4,75mm","Arthrex",EINZELPREISE.biocomposite_tenodese_4_75.preis);
     });
     // FDL-Transfer Toggle unter MDO
-    if(mdoFDL)P("Arthrex Tenodeseschraube 4,75mm (FDL)","Arthrex",296.80);
+    if(mdoFDL)P("Arthrex Tenodeseschraube 4,75mm (FDL)","Arthrex",EINZELPREISE.biocomposite_tenodese_4_75.preis);
     // Cotton-OT als Toggle unter MDO (allogen)
-    if(mdoCotton==="allogen")P("Tutogene Block 20×10×10 (Cotton via MDO)","Tutogene",333);
+    if(mdoCotton==="allogen")P("Tutogene Block 20×10×10 (Cotton via MDO)","Tutogene",EINZELPREISE.tutogene_block_20x10x10.preis);
     // Hohlfuß
-    if(hohlfussTyp==="dwyer")P("2× Fixos HKS 7,0 (Dwyer)","Stryker",297.50);
-    if(hohlfussTyp==="lambrinudi")P("3× Kanül. Schraube 7,0 (Triple)","Königsee",168);
+    if(hohlfussTyp==="dwyer")P("2× Fixos HKS 7,0 (Dwyer)","Stryker",2*EINZELPREISE.fixos_hks_7_0.preis);
+    if(hohlfussTyp==="lambrinudi")P("3× Kanül. Schraube 7,0 (Triple)","Königsee",3*EINZELPREISE.kanuel_schraube_7_0.preis);
     // Supramal
-    if(rfOp.includes("supramal_ot")&&(supramalTyp==="wedge"))P("Tutogene Block (Keil)","Tutogene",333);
-    if(supramalBrostrom)P("2× GII Quickanchor Ethibond (Brostrom)","DePuy Mitek",391.84);
+    if(rfOp.includes("supramal_ot")&&(supramalTyp==="wedge"))P("Tutogene Block (Keil)","Tutogene",EINZELPREISE.tutogene_block_20x10x10.preis);
+    if(supramalBrostrom)P("2× GII Quickanchor Ethibond (Brostrom)","DePuy Mitek",2*EINZELPREISE.gii_quickanchor_ethibond.preis);
     // COALITIO
-    if(coalLCOT)P("Tutogene Block 20×10×10 (LCOT)","Tutogene",333);
+    if(coalLCOT)P("Tutogene Block 20×10×10 (LCOT)","Tutogene",EINZELPREISE.tutogene_block_20x10x10.preis);
     // MITTELFUSS
-    if(mfCotton&&mfCottonKnochen==="allogen")P("Tutogene Block 20×10×10 (Cotton)","Tutogene",333);
-    if(mfTmt.length>0){var tmtGelenke=0;mfTmt.forEach(function(t){if(t==="tmt1"||t==="tmt2")tmtGelenke+=1;if(t==="tmt2_3")tmtGelenke+=2;if(t==="tmt1_3")tmtGelenke+=3;});if(tmtGelenke>0)P(tmtGelenke+"× Variax Curved 4L + 4× Variax 2,7 (TMT ×"+tmtGelenke+" Gelenke)","Stryker",tmtGelenke*271.21);}
+    if(mfCotton&&mfCottonKnochen==="allogen")P("Tutogene Block 20×10×10 (Cotton)","Tutogene",EINZELPREISE.tutogene_block_20x10x10.preis);
+    if(mfTmt.length>0){var tmtGelenke=0;mfTmt.forEach(function(t){if(t==="tmt1"||t==="tmt2")tmtGelenke+=1;if(t==="tmt2_3")tmtGelenke+=2;if(t==="tmt1_3")tmtGelenke+=3;});if(tmtGelenke>0)P(tmtGelenke+"× Variax Curved 4L + 4× Variax Locking 2,7 (TMT ×"+tmtGelenke+" Gelenke)","Stryker",tmtGelenke*(EINZELPREISE.variax_curved_plate_4l.preis + 4*EINZELPREISE.variax_locking_2_7.preis));}
     // FRAKTUREN
     fxOp.forEach(op=>{
-      if(op==="fibula_einf"){P("LCP 1/3 Rohr 6L","DePuy Synthes",28.55);P("6× Cortex Screw Stardrive 3,5","DePuy Synthes",71.04);}
+      if(op==="fibula_einf"){P("LCP 1/3 Rohr 6L","DePuy Synthes",EINZELPREISE.lcp_1_3_rohr_6l.preis);P("6× Cortex Screw Stardrive 3,5","DePuy Synthes",6*EINZELPREISE.kortikalis_3_5.preis);}
       if(op==="fibula_mehr"){P("LCP 1/3 Rohr 6L","DePuy Synthes",28.55);P("6× Locking 3,5 + 1× Kortikalis 3,5","DePuy Synthes",82.88);}
     });
-    if(fxSyndes)P("Stellschraube Kortikalis 3,5","DePuy Synthes",11.84);
+    if(fxSyndes)P("Stellschraube Kortikalis 3,5","DePuy Synthes",EINZELPREISE.kortikalis_3_5.preis);
     return items;
   },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,rfOp,peronealTyp,hohlfussTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,mdoFDL,mdoCotton]);
 
@@ -7587,7 +7802,7 @@ function OPBerichtApp(){
     koenigsee:   { l: "Königsee Humerusplatte 5-Loch", lieferant: "Königsee", preis: 476 },
   };
   const UC_IMPL_RADIUS_DISTAL = {
-    aptus_11l:   { l: "Aptus TriLock 11-Loch", lieferant: "Medartis",         preis: 442 },
+    aptus_11l:   { l: "Aptus TriLock 11-Loch", lieferant: "Medartis",         preis: 444 },
   };
 
   // Steuerung Trauma: H-DRG ambulant attraktiv. Bei 1 Nacht: Differenz H-DRG vs. Kurzlieger gering.
@@ -7818,8 +8033,8 @@ const UC_TEXT_MAP={
     const PEND=function(name,lief){items.push({name:name,lieferant:lief,preis:null,hinweis:"Preis ausstehend"});};
     if(!ucOp)return items;
     // Radius distal — winkelstabile Aptus-Platte (Standard, einzige Option laut Klinik-Vorgabe)
-    if(ucOp==="radius_einf_pl")PEND("Aptusplatte Radius distal","Medartis");
-    if(ucOp==="radius_einf_wsp"||ucOp==="radius_mehr_wsp"){
+    // Radius distal — einfach/MFF mit Platte = identische winkelstabile Aptusplatte (Klinik-Standard)
+    if(ucOp==="radius_einf_pl"||ucOp==="radius_einf_wsp"||ucOp==="radius_mehr_wsp"){
       var rImp=UC_IMPL_RADIUS_DISTAL[radiusImpl];
       if(rImp){
         P("Aptus TriLock Radiusplatte 11-Loch + 6× TriLock 2.5×18 + 1× Kortikalis 2.5×18", rImp.lieferant, rImp.preis);
@@ -7828,7 +8043,7 @@ const UC_TEXT_MAP={
       }
     }
     // Radius proximal
-    if(ucOp==="radius_prox_einf_schr")PEND("Schraube Radiuskopf","Medartis/Synthes");
+    if(ucOp==="radius_prox_einf_schr")PEND("Schraube Radiuskopf","–");
     if(ucOp==="radius_prox_mehr_schr")PEND("Schrauben Radiuskopf","Medartis/Synthes");
     // Olekranon
     if(ucOp==="olekranon_einf"&&olekOSE==="schr")PEND("Schraube Olekranon","Medartis/Synthes");
@@ -9166,42 +9381,7 @@ const UC_TEXT_MAP={
           <div style={{marginTop:4,fontSize:9,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
         </div>}
 
-        {ucErloesData&&ucMaterialKosten.length>0&&function(){
-          const ist=ucMaterialKosten.reduce(function(s,m){return s+(m.preis||0);},0);
-          const a=implAmpel(ist,ucErloesData.basis);
-          const ampelIcon=a?(a.state==="gruen"?"🟢":a.state==="gelb"?"🟡":"🔴"):"";
-          const ampelColor=a?(a.state==="gruen"?"#2E7D32":a.state==="gelb"?"#E65100":"#C62828"):"#1565C0";
-          const ampelText=a?(a.state==="gruen"?(a.ist<=a.soll?"im InEK-Rahmen":"bis 20% über InEK — akzeptabel"):a.state==="gelb"?a.pct+"% über InEK":a.pct+"% über InEK — kritisch"):null;
-          return <div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
-          <div style={{background:"#1565C0",padding:"6px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
-            <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>💶 Materialkosten (Implantate)</span>
-            <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{ist.toFixed(2)} € {ampelIcon}</span>
-          </div>
-          <div style={{padding:"8px 12px",background:"rgba(21,101,192,.04)"}}>
-            <table style={{width:"100%",fontSize:11,borderCollapse:"collapse"}}>
-              <tbody>{ucMaterialKosten.map(function(m,i){return <tr key={i} style={{borderBottom:"1px solid rgba(0,0,0,.05)"}}>
-                <td style={{padding:"4px"}}>{m.name}</td>
-                <td style={{padding:"4px",color:"#718096",fontSize:10}}>{m.lieferant}</td>
-                <td style={{textAlign:"right",padding:"4px",fontWeight:600,color:m.preis?"#2D3748":"#E65100"}}>{m.preis?m.preis.toFixed(2)+" €":m.hinweis||"—"}</td>
-              </tr>;})}
-              <tr style={{borderTop:"2px solid rgba(21,101,192,.3)",background:"rgba(21,101,192,.04)"}}>
-                <td style={{padding:"4px",fontWeight:700,color:a?ampelColor:"#1565C0"}} colSpan={2}>{a?ampelIcon:"💶"} GESAMT</td>
-                <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{ist.toFixed(2)} €</td>
-              </tr>
-              {a&&<tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
-                <td style={{padding:"4px",fontSize:9,color:"#718096"}} colSpan={2}>InEK-Referenz {ucErloesData.basis} (Kostenstelle 5, Ø Implantat)</td>
-                <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{a.soll.toFixed(2)} €</td>
-              </tr>}
-              {a&&<tr>
-                <td style={{padding:"4px",fontSize:9,color:ampelColor,fontWeight:600}} colSpan={2}>{ampelText}</td>
-                <td style={{textAlign:"right",padding:"4px",fontSize:10,fontWeight:700,color:ampelColor}}>{a.delta>=0?"+":""}{a.delta.toFixed(2)} €</td>
-              </tr>}
-            </tbody></table>
-            {ucMaterialKosten.some(function(m){return !m.preis;})&&<div style={{marginTop:4,fontSize:9,color:"#E65100"}}>⚠️ UC-Implantatpreise noch nicht verifiziert – folgen später</div>}
-            {a&&a.state==="rot"&&<div style={{marginTop:6,fontSize:9,color:"#C62828",padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung oder Erlös unter regulärer DRG. Volle DRG zwingend ansteuern, Materialalternativen prüfen.</div>}
-            {a&&a.state==="gelb"&&<div style={{marginTop:6,fontSize:9,color:"#E65100",padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
-          </div>
-        </div>;}()}
+        {ucErloesData && ucMaterialKosten.length>0 && <MaterialkostenBlock items={ucMaterialKosten} drg={ucErloesData.basis} />}
 
         {ucOp==="duokopf"&&<div style={{marginTop:12,display:"flex",gap:12,flexWrap:"wrap"}}>
           <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Kopfschale</div><select value={dkShell} onChange={e=>setDkShell(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["38","40","42","44","46","48","50","52","54","56"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
@@ -9385,7 +9565,10 @@ const UC_TEXT_MAP={
                 if(dkComp.length>0){ materialIst = dkComp.reduce(function(s,c){return s+(c.preis||0);},0); materialKomplette = true; }
                 else { materialFehlerHinweis = "Schaftauswahl ausstehend"; }
               } else if(endoOp==="htep"){
-                if(endoImplWahl && ENDO_HTEP_IMPL[endoImplWahl] && ENDO_HTEP_IMPL[endoImplWahl].preis){ materialIst = ENDO_HTEP_IMPL[endoImplWahl].preis; materialKomplette = true; }
+                // Bevorzugt Komponenten-Quersumme (konsistent zu Duokopf), Fallback auf Komplettpreis aus ENDO_HTEP_IMPL
+                var htepComp = ENDO_IMPL_KOMPONENTEN[endoImplWahl] || [];
+                if(htepComp.length>0){ materialIst = htepComp.reduce(function(s,c){return s+(c.preis||0);},0); materialKomplette = true; }
+                else if(endoImplWahl && ENDO_HTEP_IMPL[endoImplWahl] && ENDO_HTEP_IMPL[endoImplWahl].preis){ materialIst = ENDO_HTEP_IMPL[endoImplWahl].preis; materialKomplette = true; }
                 else if(!endoImplWahl){ materialFehlerHinweis = "Schaftauswahl ausstehend"; }
                 else { materialFehlerHinweis = "Klinikpreis für " + ENDO_HTEP_IMPL[endoImplWahl].l + " nicht hinterlegt"; }
               } else {
@@ -9459,8 +9642,8 @@ const UC_TEXT_MAP={
               💡 <strong>Hebel:</strong> {konstEntry.hebel}
             </div>}
 
-            {/* Materialkosten-Block bei Duokopf — Komponenten-Aufschlüsselung mit InEK-Ampel */}
-            {endoOp==="duokopf_uc" && (function(){
+            {/* Materialkosten-Block — Komponenten-Aufschlüsselung mit InEK-Ampel (bei Duokopf + H-TEP) */}
+            {(endoOp==="duokopf_uc"||endoOp==="htep") && (function(){
               var items = ENDO_IMPL_KOMPONENTEN[endoImplWahl] || [];
               return <MaterialkostenBlock items={items} drg={drgKey} />;
             })()}
