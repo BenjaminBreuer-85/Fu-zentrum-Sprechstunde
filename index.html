@@ -4457,8 +4457,11 @@ const OPS = {
 // Aktuell: nur Hallux valgus / Chevron-Akin-Pilot. Weitere folgen.
 // ============================================================
 const AUFKLAERUNG_MAP = {
-  chevron:      { slug: "aufklaerung_chevron.html", label: "Hallux valgus — Chevron-Osteotomie" },
-  chevron_akin: { slug: "aufklaerung_chevron.html", label: "Hallux valgus — Chevron-Akin-Osteotomie" },
+  chevron:        { slug: "aufklaerung_chevron.html", label: "Hallux valgus — Chevron-Osteotomie" },
+  chevron_akin:   { slug: "aufklaerung_chevron.html", label: "Hallux valgus — Chevron-Akin-Osteotomie" },
+  arthrodese_osg: { url: "https://benjaminbreuer-85.github.io/Info-OSG-Arthrose/aufklaerung_osg_arthrose.html", label: "OSG-Arthrose — Information zu Versteifung und Prothese" },
+  tep_infinity:   { url: "https://benjaminbreuer-85.github.io/Info-OSG-Arthrose/aufklaerung_osg_arthrose.html", label: "OSG-Arthrose — Information zu Versteifung und Prothese" },
+  tep_inbone:     { url: "https://benjaminbreuer-85.github.io/Info-OSG-Arthrose/aufklaerung_osg_arthrose.html", label: "OSG-Arthrose — Information zu Versteifung und Prothese" },
 };
 
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
@@ -5420,11 +5423,16 @@ var _s = useState, _m = useMemo;
     }
     return null;
   }, [opMethode]);
-  // Vollständige URL für QR-Code (BasisURL + slug). Nur wenn beides vorhanden.
+  // Vollständige URL für QR-Code. Pro Eintrag: entry.url (Vollpfad) hat Vorrang, sonst baseUrl + slug.
   var aufUrl = _m(function() {
-    if (!aufActive || !aufBaseUrl) return "";
+    if (!aufActive) return "";
+    var entry = aufActive.entry;
+    // Direkter Vollpfad?
+    if (entry.url) return entry.url;
+    // Fallback: baseUrl + slug
+    if (!aufBaseUrl || !entry.slug) return "";
     var b = aufBaseUrl.replace(/\/+$/,""); // trailing slashes weg
-    return b + "/" + aufActive.entry.slug;
+    return b + "/" + entry.slug;
   }, [aufActive, aufBaseUrl]);
   // Soll der QR-Code im Brief erscheinen? Nur wenn: Aktiv UND OP-Methode passt UND URL vollständig
   var aufShowQr = aufQrAktiv && aufActive && aufUrl;
@@ -5899,7 +5907,7 @@ var _s = useState, _m = useMemo;
     }
     // Online-Information: Hinweis im Brief, wenn QR-Code beigefügt wird
     if (aufShowQr) {
-      ab += "\n\nWeitere Informationen Online:\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht ein Online-Informationsmaterial mit Darstellung des OP-Verfahrens und mehr Informationen zum Krankheitsbild zur Verfügung. Dieses kann über den unten beigefügten QR-Code aufgerufen werden.";
+      ab += "\n\nWeitere Informationen Online:\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht ein Online-Informationsmaterial mit Darstellung des OP-Verfahrens und mehr Informationen zum Krankheitsbild zur Verfügung. Sie können das Material über folgenden Link aufrufen:\n\n" + aufUrl + "\n\nAlternativ können Sie den separat beigefügten QR-Code mit Ihrem Handy scannen.";
     }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
@@ -5952,19 +5960,34 @@ var _s = useState, _m = useMemo;
       fallbackCopy(fullText);
     }
   }
-  function downloadQrPng() {
+  function copyQrToClipboard() {
     if (!aufShowQr || !aufUrl) { showToast("Kein QR-Code aktiv"); return; }
     try {
-      var qrData = getQrDataUrl(aufUrl, 600); // höhere Auflösung für Druck
+      var qrData = getQrDataUrl(aufUrl, 600); // höhere Auflösung
       if (!qrData) { showToast("QR-Erstellung fehlgeschlagen"); return; }
-      var a = document.createElement("a");
-      a.href = qrData;
-      a.download = "QR-Code-Aufklaerung.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast("🖼 QR-Code heruntergeladen");
-    } catch (e) { showToast("Fehler beim Download"); }
+      // ClipboardItem-API für Bild-in-Clipboard (Chrome/Edge/Safari/Firefox modern)
+      if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
+        // Fallback: Download wie zuvor
+        var a = document.createElement("a");
+        a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        showToast("🖼 Browser unterstützt kein Kopieren — heruntergeladen");
+        return;
+      }
+      // Data-URL → Blob konvertieren
+      fetch(qrData).then(function(res) { return res.blob(); }).then(function(blob) {
+        var item = new ClipboardItem({ "image/png": blob });
+        return navigator.clipboard.write([item]);
+      }).then(function() {
+        showToast("📋 QR-Code in Zwischenablage kopiert!");
+      }).catch(function(err) {
+        // Fallback Download bei Fehler (z.B. fehlende Permission)
+        var a = document.createElement("a");
+        a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        showToast("🖼 Kopieren fehlgeschlagen — heruntergeladen");
+      });
+    } catch (e) { showToast("Fehler beim QR-Kopieren"); }
   }
   function fallbackCopy(text){
     // Modern API: liefert plain text ohne HTML/CSS-Styles → in Word saubere Standard-Formatierung
@@ -6847,7 +6870,7 @@ var _s = useState, _m = useMemo;
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
-                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadQrPng}>🖼 QR-PNG</div>}
+                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copyQrToClipboard}>📋 QR-Code</div>}
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
@@ -6871,7 +6894,7 @@ var _s = useState, _m = useMemo;
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
-              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadQrPng}>🖼 QR-PNG</div>}
+              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copyQrToClipboard}>📋 QR-Code</div>}
             </div>
           </div>
           <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
