@@ -10368,10 +10368,254 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Sortierte Sammlung von OP-Technik-Manualen und Implantatsystemen als PDF.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Infinity · Inbone II · Prophecy · konventionell</div>
         </div>
+        <div onClick={()=>onSelect("fusstrack")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:12}}>🗺️</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Fuß-Track</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Patientenbegleiter: Eingriff und Variante wählen, Phasen einsehen, QR-Code zum freien Einsatz (z.B. Entlassbrief).</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>3 Eingriffe · 6 Varianten · freier QR-Code</div>
+        </div>
       </div>
       <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.3 · April 2026</div>
     </div>
   );
+}
+
+function FussTrackTool() {
+  const { useState, useEffect, useMemo } = React;
+  // URL der phasen.json auf GitHub Pages
+  const PHASEN_JSON_URL = "https://benjaminbreuer-85.github.io/Fuss-Track/phasen.json";
+  const FUSSTRACK_BASE_URL = "https://benjaminbreuer-85.github.io/Fuss-Track/fusstrack.html";
+
+  const [data, setData] = useState(null);
+  const [loadError, setLoadError] = useState("");
+  const [selectedOp, setSelectedOp] = useState("");
+  const [selectedVar, setSelectedVar] = useState("");
+  const [toast, setToast] = useState("");
+
+  // Daten laden beim Start
+  useEffect(function() {
+    fetch(PHASEN_JSON_URL + "?v=" + Date.now())
+      .then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(d) { setData(d); })
+      .catch(function(err) {
+        setLoadError("Phasen-Daten konnten nicht geladen werden: " + err.message);
+      });
+  }, []);
+
+  function showToast(msg) { setToast(msg); setTimeout(function() { setToast(""); }, 2500); }
+
+  // Aktuell verfügbare Eingriffe
+  const eingriffe = data ? data.EINGRIFFE : {};
+  // Aktuell wählbare Varianten
+  const varianten = useMemo(function() {
+    if (!selectedOp || !eingriffe[selectedOp]) return null;
+    return eingriffe[selectedOp].varianten || null;
+  }, [selectedOp, eingriffe]);
+
+  // URL für den QR-Code
+  const ftUrl = useMemo(function() {
+    if (!selectedOp || !selectedVar) return "";
+    return FUSSTRACK_BASE_URL + "?op=" + selectedOp + "&var=" + selectedVar;
+  }, [selectedOp, selectedVar]);
+
+  // Phasen-Liste für die aktuelle Auswahl
+  const phasen = useMemo(function() {
+    if (!data || !selectedOp || !selectedVar) return [];
+    const postGroup = data.POST_OP_PHASEN_BY_OP[selectedOp];
+    const post = (postGroup && postGroup[selectedVar]) || [];
+    return data.ONBOARDING_PHASEN.concat(data.SHARED_PRE_OP_PHASEN).concat(post);
+  }, [data, selectedOp, selectedVar]);
+
+  // Variant beim Eingriffswechsel zurücksetzen
+  useEffect(function() { setSelectedVar(""); }, [selectedOp]);
+
+  // QR-Code kopieren
+  function copyQr() {
+    if (!ftUrl) return;
+    try {
+      const qrData = getQrDataUrl(ftUrl, 600);
+      if (!qrData) { showToast("QR-Erstellung fehlgeschlagen"); return; }
+      if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
+        const a = document.createElement("a");
+        a.href = qrData; a.download = "Fuss-Track-QR.png";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        showToast("🖼 Heruntergeladen (Browser unterstützt kein Kopieren)");
+        return;
+      }
+      fetch(qrData).then(function(r) { return r.blob(); }).then(function(blob) {
+        const item = new ClipboardItem({ "image/png": blob });
+        return navigator.clipboard.write([item]);
+      }).then(function() { showToast("📋 QR-Code kopiert!"); })
+        .catch(function() {
+          const a = document.createElement("a");
+          a.href = qrData; a.download = "Fuss-Track-QR.png";
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          showToast("🖼 Heruntergeladen");
+        });
+    } catch (e) { showToast("Fehler"); }
+  }
+  function copyUrl() {
+    if (!ftUrl) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ftUrl).then(function() { showToast("📋 Link kopiert!"); });
+    } else {
+      const ta = document.createElement("textarea"); ta.value = ftUrl;
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); showToast("📋 Link kopiert!"); }
+      catch (e) { showToast("Kopieren fehlgeschlagen"); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  // Loading- bzw. Fehler-States
+  if (loadError) {
+    return <div style={{background:"#fff",border:"1px solid rgba(245,158,11,.3)",borderRadius:14,padding:24,textAlign:"center",color:"#92400E"}}>
+      <div style={{fontSize:32,marginBottom:8}}>⚠️</div>
+      <div style={{fontWeight:600,marginBottom:6}}>Daten konnten nicht geladen werden</div>
+      <div style={{fontSize:12,color:"#92400E"}}>{loadError}</div>
+      <div style={{marginTop:10,fontSize:11,color:"#718096"}}>Internetverbindung prüfen oder Seite neu laden.</div>
+    </div>;
+  }
+  if (!data) {
+    return <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:48,textAlign:"center",color:"#718096"}}>
+      <div style={{fontSize:32,marginBottom:8}}>⏳</div>
+      <div>Phasen-Daten werden geladen…</div>
+    </div>;
+  }
+
+  // Chip-Style-Helper (lokal — Tool-Stil reicht hier nicht hin, weil CB() nicht im Scope)
+  function chipStyle(active) {
+    return {
+      padding: "8px 14px",
+      borderRadius: 6,
+      fontSize: 12,
+      cursor: "pointer",
+      border: active ? "1px solid #00838F" : "1px solid rgba(0,0,0,.12)",
+      background: active ? "rgba(0,131,143,.10)" : "#fff",
+      color: active ? "#00838F" : "#4A5568",
+      fontWeight: active ? 600 : 500,
+      userSelect: "none",
+      transition: "all 0.12s"
+    };
+  }
+
+  return <div>
+    {toast && <div style={{position:"fixed",top:60,left:"50%",transform:"translateX(-50%)",background:"#1A202C",color:"#fff",padding:"8px 16px",borderRadius:6,fontSize:12,fontWeight:600,zIndex:9999,boxShadow:"0 4px 12px rgba(0,0,0,.2)"}}>{toast}</div>}
+
+    <div style={{display:"grid",gridTemplateColumns:"minmax(280px, 380px) 1fr",gap:16,alignItems:"start"}}>
+      {/* Linke Spalte: Auswahl + QR */}
+      <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:18,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
+        <div style={{fontSize:13,fontWeight:700,color:"#006B6F",marginBottom:8}}>1. Eingriff wählen</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
+          {Object.keys(eingriffe).map(function(opKey) {
+            return <div key={opKey} style={chipStyle(selectedOp === opKey)}
+                        onClick={function() { setSelectedOp(selectedOp === opKey ? "" : opKey); }}>
+              {eingriffe[opKey].kurzlabel || eingriffe[opKey].label}
+            </div>;
+          })}
+        </div>
+
+        {varianten && <>
+          <div style={{fontSize:13,fontWeight:700,color:"#006B6F",marginBottom:8}}>2. Variante wählen</div>
+          <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:16}}>
+            {Object.keys(varianten).map(function(varKey) {
+              return <div key={varKey} style={chipStyle(selectedVar === varKey)}
+                          onClick={function() { setSelectedVar(selectedVar === varKey ? "" : varKey); }}>
+                {varianten[varKey].anzeigename || varianten[varKey].label || varKey}
+              </div>;
+            })}
+          </div>
+          {selectedVar && varianten[selectedVar] && varianten[selectedVar].beschreibung &&
+            varianten[selectedVar].beschreibung !== (varianten[selectedVar].anzeigename || varianten[selectedVar].label) &&
+            <div style={{fontSize:10,color:"#718096",fontStyle:"italic",marginBottom:12,padding:"6px 10px",background:"rgba(0,0,0,.02)",borderRadius:4}}>
+              {varianten[selectedVar].beschreibung}
+            </div>
+          }
+        </>}
+
+        {ftUrl && <>
+          <div style={{fontSize:13,fontWeight:700,color:"#006B6F",marginBottom:8,paddingTop:8,borderTop:"1px solid rgba(0,0,0,.06)"}}>3. QR-Code</div>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:14,background:"rgba(0,137,123,.04)",borderRadius:8,border:"1px dashed rgba(0,137,123,.25)"}}>
+            <div onClick={copyQr} title="Klicken zum Kopieren" style={{cursor:"pointer",padding:8,background:"#fff",borderRadius:4}}>
+              <QRCanvas text={ftUrl} size={160} />
+            </div>
+            <div style={{fontSize:10,color:"#00897B",marginTop:8,fontWeight:600}}>📋 Klicken zum Kopieren</div>
+          </div>
+          <div style={{display:"flex",gap:6,marginTop:10}}>
+            <div style={{flex:1,padding:"8px 12px",border:"none",borderRadius:6,background:"#00897B",color:"#fff",fontWeight:600,fontSize:11,cursor:"pointer",textAlign:"center"}} onClick={copyQr}>📋 QR-Code kopieren</div>
+            <div style={{flex:1,padding:"8px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,background:"#fff",color:"#006B6F",fontWeight:600,fontSize:11,cursor:"pointer",textAlign:"center"}} onClick={copyUrl}>🔗 Link kopieren</div>
+          </div>
+          <div style={{fontSize:9,color:"#A0AEC0",marginTop:8,wordBreak:"break-all"}}>{ftUrl}</div>
+        </>}
+
+        {!selectedOp && <div style={{fontSize:11,color:"#718096",padding:14,background:"rgba(0,0,0,.02)",borderRadius:6,textAlign:"center",fontStyle:"italic"}}>
+          Bitte zuerst einen Eingriff wählen.
+        </div>}
+        {selectedOp && !selectedVar && <div style={{fontSize:11,color:"#d97706",padding:10,background:"rgba(217,119,6,.08)",borderRadius:6,textAlign:"center"}}>
+          ⚠ Bitte eine Variante wählen.
+        </div>}
+      </div>
+
+      {/* Rechte Spalte: Phasen-Vorschau */}
+      <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:18,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          <div style={{fontSize:13,fontWeight:700,color:"#006B6F"}}>Phasen-Vorschau</div>
+          {phasen.length > 0 && <div style={{fontSize:10,color:"#718096"}}>{phasen.length} Phasen</div>}
+        </div>
+        {phasen.length === 0 ? (
+          <div style={{padding:32,textAlign:"center",color:"#A0AEC0",fontSize:12,fontStyle:"italic"}}>
+            Auswahl treffen, um die Phasen-Liste anzuzeigen.
+          </div>
+        ) : (
+          <div style={{maxHeight:600,overflowY:"auto",border:"1px solid rgba(0,0,0,.04)",borderRadius:6}}>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+              <thead style={{background:"rgba(0,137,123,.05)",position:"sticky",top:0,zIndex:1}}>
+                <tr>
+                  <th style={{padding:"8px 10px",textAlign:"left",color:"#006B6F",fontWeight:600,borderBottom:"1px solid rgba(0,0,0,.06)"}}>#</th>
+                  <th style={{padding:"8px 6px",textAlign:"center",color:"#006B6F",fontWeight:600,borderBottom:"1px solid rgba(0,0,0,.06)"}}></th>
+                  <th style={{padding:"8px 10px",textAlign:"left",color:"#006B6F",fontWeight:600,borderBottom:"1px solid rgba(0,0,0,.06)"}}>Thema</th>
+                  <th style={{padding:"8px 10px",textAlign:"left",color:"#006B6F",fontWeight:600,borderBottom:"1px solid rgba(0,0,0,.06)"}}>Zeitpunkt</th>
+                </tr>
+              </thead>
+              <tbody>
+                {phasen.map(function(p, i) {
+                  // Bei Datumsphasen Tag-Offset anzeigen
+                  let tagInfo = "";
+                  if (p.type === "calendar" && typeof p.tagOffset === "number") {
+                    if (p.tagOffset === 0) tagInfo = "OP-Tag";
+                    else if (p.tagOffset > 0) tagInfo = "+" + p.tagOffset + "d";
+                    else tagInfo = p.tagOffset + "d (vor OP)";
+                  } else if (p.type === "onboarding") {
+                    tagInfo = "Onboarding";
+                  } else if (p.type === "milestone") {
+                    tagInfo = "Meilenstein";
+                  }
+                  return <tr key={p.id} style={{borderBottom:"1px solid rgba(0,0,0,.04)"}}>
+                    <td style={{padding:"6px 10px",color:"#A0AEC0",fontSize:10,verticalAlign:"top"}}>{i + 1}</td>
+                    <td style={{padding:"6px 6px",fontSize:14,textAlign:"center",verticalAlign:"top"}}>{p.emoji || ""}</td>
+                    <td style={{padding:"6px 10px",color:"#2D3748",verticalAlign:"top"}}>{p.thema}</td>
+                    <td style={{padding:"6px 10px",color:"#718096",fontSize:10,verticalAlign:"top"}}>
+                      <div>{p.label}</div>
+                      {tagInfo && <div style={{color:"#A0AEC0",fontSize:9,marginTop:1}}>{tagInfo}</div>}
+                    </td>
+                  </tr>;
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div style={{marginTop:16,fontSize:10,color:"#A0AEC0",textAlign:"center"}}>
+      Daten werden direkt aus <code style={{background:"rgba(0,0,0,.04)",padding:"1px 4px",borderRadius:3}}>phasen.json</code> des Fuß-Track-Repos geladen. Änderungen dort wirken sich sofort hier aus.
+    </div>
+  </div>;
 }
 
 function App() {
@@ -10474,6 +10718,23 @@ function App() {
         <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
           <MERechner/>
         </div>
+      </div>
+    </div>
+  );
+
+  if (tool === "fusstrack") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:11,fontWeight:600}}>
+          ← Toolbox
+        </div>
+      </div>
+      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:1100,margin:"0 auto",padding:"60px 16px 40px"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🗺️ Fuß-Track Patientenbegleiter</div>
+          <div style={{fontSize:11,color:"#718096"}}>Eingriff und Variante wählen · Phasen-Vorschau · QR-Code zur freien Verwendung</div>
+        </div>
+        <FussTrackTool/>
       </div>
     </div>
   );
