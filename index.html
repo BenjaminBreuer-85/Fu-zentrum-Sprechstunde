@@ -5462,7 +5462,7 @@ var _s = useState, _m = useMemo;
   var aubs = _s(aufBaseInit), aufBaseUrl = aubs[0], setAufBaseUrlRaw = aubs[1];
   function setAufBaseUrl(v) { setAufBaseUrlRaw(v); try { localStorage.setItem("aufklaerungBaseUrl", v); } catch(e) {} }
   function resetAufBaseUrl() { setAufBaseUrlRaw(AUFKLAERUNG_DEFAULT_URL); try { localStorage.removeItem("aufklaerungBaseUrl"); } catch(e) {} }
-  var aups = _s(true), aufQrAktiv = aups[0], setAufQrAktiv = aups[1];
+  var aups = _s(false), aufQrAktiv = aups[0], setAufQrAktiv = aups[1];
   // Aufklärungs-Eintrag aus AUFKLAERUNG_MAP für die aktuell gewählte OP-Methode
   var aufActive = _m(function() {
     if (!opMethode || opMethode.length === 0) return null;
@@ -6057,16 +6057,19 @@ var _s = useState, _m = useMemo;
       fallbackCopy(fullText);
     }
   }
-  function copyQrToClipboard() {
-    if (!aufShowQr || !aufUrl) { showToast("Kein QR-Code aktiv"); return; }
+  function copyQrToClipboard(url, label) {
+    // Generisch: nimmt URL + Label (z.B. "Aufklärung", "Fuß-Track")
+    if (!url) { showToast("Kein QR-Code aktiv"); return; }
+    var lab = label || "QR-Code";
+    var fileSlug = lab.replace(/[^a-zA-Z0-9]/g, "-");
     try {
-      var qrData = getQrDataUrl(aufUrl, 600); // höhere Auflösung
+      var qrData = getQrDataUrl(url, 600); // höhere Auflösung
       if (!qrData) { showToast("QR-Erstellung fehlgeschlagen"); return; }
-      // ClipboardItem-API für Bild-in-Clipboard (Chrome/Edge/Safari/Firefox modern)
+      // ClipboardItem-API für Bild-in-Clipboard
       if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
-        // Fallback: Download wie zuvor
+        // Fallback: Download
         var a = document.createElement("a");
-        a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
+        a.href = qrData; a.download = "QR-" + fileSlug + ".png";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         showToast("🖼 Browser unterstützt kein Kopieren — heruntergeladen");
         return;
@@ -6076,11 +6079,11 @@ var _s = useState, _m = useMemo;
         var item = new ClipboardItem({ "image/png": blob });
         return navigator.clipboard.write([item]);
       }).then(function() {
-        showToast("📋 QR-Code in Zwischenablage kopiert!");
+        showToast("📋 QR-Code " + lab + " kopiert!");
       }).catch(function(err) {
-        // Fallback Download bei Fehler (z.B. fehlende Permission)
+        // Fallback Download bei Fehler
         var a = document.createElement("a");
-        a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
+        a.href = qrData; a.download = "QR-" + fileSlug + ".png";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         showToast("🖼 Kopieren fehlgeschlagen — heruntergeladen");
       });
@@ -6107,47 +6110,6 @@ var _s = useState, _m = useMemo;
     ta.select();
     try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
     document.body.removeChild(ta);
-  }
-  function downloadWord() {
-    try {
-      var lines = fullText.split("\n");
-      var htmlBody = lines.map(function(line) {
-        if (!line.trim()) return "";
-        if (line.startsWith("Diagnosen:") || line.startsWith("Elektive operative Option:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:") || line.startsWith("Weitere Informationen Online:")) {
-          return "<p style='margin:6pt 0 2pt;font-weight:bold;font-size:11pt;font-family:Arial'>" + line + "</p>";
-        }
-        if (line.startsWith("Zur weiteren Information")) {
-          return "<p style='margin:6pt 0 0;font-size:9pt;font-family:Arial;color:#555'>" + line + "</p>";
-        }
-        return "<p style='margin:2pt 0;font-size:11pt;font-family:Arial'>" + line + "</p>";
-      }).join("");
-      // QR-Code als Bild anhängen, falls vorhanden
-      if (aufShowQr) {
-        var qrData = getQrDataUrl(aufUrl, 300);
-        if (qrData) {
-          htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code Online-Information'/></p>";
-          htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code für die Online-Aufklärungsseite. Diese ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.</p>";
-        }
-      }
-      if (ftShowQr) {
-        var qrFtData = getQrDataUrl(ftUrl, 300);
-        if (qrFtData) {
-          htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrFtData + "' width='130' height='130' style='display:block' alt='QR-Code Fuß-Track'/></p>";
-          htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code für den Patientenbegleiter Fuß-Track.</p>";
-        }
-      }
-      var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>@page{margin:2.5cm}</style></head><body>" + htmlBody + "</body></html>";
-      var blob = new Blob(["\ufeff" + html], { type: "application/msword" });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      a.href = url;
-      a.download = "Sprechstundenbrief.doc";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("📄 Word-Datei heruntergeladen!");
-    } catch (e) { showToast("Fehler beim Download"); }
   }
   function resetAll() {
     setGender(""); setBegleitung(""); setSeite(""); setDiagnosen([]); setCoalitio(false); setCoalitioVar("");
@@ -6391,23 +6353,20 @@ var _s = useState, _m = useMemo;
             <div style={CB(ftQrAktiv)} onClick={function() { setFtQrAktiv(!ftQrAktiv); }}>QR-Code beifügen</div>
           </div>
           {ftQrAktiv && <div style={{ marginTop: 6 }}>
-            <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Variante wählen:</div>
-            <select value={ftVariante} onChange={function(e) { setFtVariante(e.target.value); }}
-                    style={{ width: "100%", maxWidth: 460, padding: "5px 7px", border: "1px solid #cbd5e0", borderRadius: 4, fontSize: 11, background: "white" }}>
-              <option value="">— bitte wählen —</option>
+            <div style={{ fontSize: 9, color: "#718096", marginBottom: 4 }}>Variante wählen:</div>
+            <div style={row}>
               {Object.keys(ftVarianten).map(function(k) {
-                return <option key={k} value={k}>{ftVarianten[k].label}</option>;
+                return <div key={k} style={CB(ftVariante === k)}
+                            onClick={function() { setFtVariante(ftVariante === k ? "" : k); }}>
+                  {ftVarianten[k].label}
+                </div>;
               })}
-            </select>
+            </div>
             {ftActiveVariante && <div style={{ marginTop: 4, fontSize: 9, color: "#718096", fontStyle: "italic" }}>
               {ftActiveVariante.beschreibung}
             </div>}
             {!ftVariante && <div style={{ marginTop: 4, fontSize: 9, color: "#d97706" }}>
               ⚠ Bitte Variante wählen, damit der QR-Code generiert wird.
-            </div>}
-            {ftShowQr && <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
-              <QRCanvas text={ftUrl} size={64} />
-              <div style={{ fontSize: 9, color: "#718096" }}>Vorschau</div>
             </div>}
           </div>}
         </div>}
@@ -7000,24 +6959,26 @@ var _s = useState, _m = useMemo;
               <div style={h3s}>Vorschau & Export</div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
-                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
-                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copyQrToClipboard}>📋 QR-Code</div>}
+                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "Aufklärung"); }}>📋 QR-Aufklärung</div>}
+                {ftShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(ftUrl, "Fuß-Track"); }}>📋 QR-Fuß-Track</div>}
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
             {showPv && <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
-            {showPv && aufShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
+            {showPv && aufShowQr && <div title="Klicken zum Kopieren" onClick={function() { copyQrToClipboard(aufUrl, "Aufklärung"); }}
+                                        style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
               <QRCanvas text={aufUrl} size={120} />
               <div style={{ flex: 1, fontSize: 9, color: "#4A5568", lineHeight: 1.4 }}>
                 <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Online-Information</div>
-                <div>QR-Code für den Patienten zum Scannen.</div>
+                <div>QR-Code für den Patienten zum Scannen. <span style={{ color: "#00897B" }}>Klicken zum Kopieren</span></div>
               </div>
             </div>}
-            {showPv && ftShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
+            {showPv && ftShowQr && <div title="Klicken zum Kopieren" onClick={function() { copyQrToClipboard(ftUrl, "Fuß-Track"); }}
+                                       style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
               <QRCanvas text={ftUrl} size={120} />
               <div style={{ flex: 1, fontSize: 9, color: "#4A5568", lineHeight: 1.4 }}>
                 <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>🗺️ Patientenbegleiter Fuß-Track</div>
-                <div>{ftActiveVariante && ftActiveVariante.label}</div>
+                <div>{ftActiveVariante && ftActiveVariante.label} — <span style={{ color: "#00897B" }}>Klicken zum Kopieren</span></div>
               </div>
             </div>}
           </div>
@@ -7031,24 +6992,28 @@ var _s = useState, _m = useMemo;
             <div style={h3s}>Brief-Vorschau</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
-              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
-              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copyQrToClipboard}>📋 QR-Code</div>}
+              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "Aufklärung"); }}>📋 QR-Aufklärung</div>}
+              {ftShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(ftUrl, "Fuß-Track"); }}>📋 QR-Fuß-Track</div>}
             </div>
           </div>
           <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
-          {aufShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
+          {aufShowQr && <div title="Klicken zum Kopieren" onClick={function() { copyQrToClipboard(aufUrl, "Aufklärung"); }}
+                              style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
             <QRCanvas text={aufUrl} size={140} />
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
               <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Online-Information</div>
               <div>{aufActive.entry.label}</div>
+              <div style={{ fontSize: 9, color: "#00897B", marginTop: 4 }}>📋 Klicken zum Kopieren</div>
             </div>
           </div>}
-          {ftShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
+          {ftShowQr && <div title="Klicken zum Kopieren" onClick={function() { copyQrToClipboard(ftUrl, "Fuß-Track"); }}
+                            style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
             <QRCanvas text={ftUrl} size={140} />
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
               <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>🗺️ Patientenbegleiter Fuß-Track</div>
               <div>{ftActiveVariante && ftActiveVariante.label}</div>
               {ftActiveVariante && <div style={{ fontSize: 9, color: "#718096", fontStyle: "italic", marginTop: 2 }}>{ftActiveVariante.beschreibung}</div>}
+              <div style={{ fontSize: 9, color: "#00897B", marginTop: 4 }}>📋 Klicken zum Kopieren</div>
             </div>
           </div>}
         </div>
