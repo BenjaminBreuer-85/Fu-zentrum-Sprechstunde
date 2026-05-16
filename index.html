@@ -4464,6 +4464,54 @@ const AUFKLAERUNG_MAP = {
   tep_inbone:     { url: "https://benjaminbreuer-85.github.io/Info-OSG-Arthrose/aufklaerung_osg_arthrose.html", label: "OSG-Arthrose — Information zu Versteifung und Prothese" },
 };
 
+// ============================================================
+// FUSSTRACK — Patientenbegleiter (Fuß-Track)
+// Eingriffe haben jeweils eine Basis- und eine Komplex-Variante.
+// Operateur wählt im Generator die zutreffende Variante; der QR-Code-Link
+// enthält dann die Variante als URL-Parameter.
+// ============================================================
+const FUSSTRACK_BASE_URL = "https://benjaminbreuer-85.github.io/Fuss-Track/fusstrack.html";
+// Mapping: OP-Methode → Fuß-Track-Eingriff-Key (gleicher Eingriff für mehrere OP-Methoden)
+const FUSSTRACK_MAP = {
+  chevron:        "chevron",
+  chevron_akin:   "chevron",
+  arthrodese_osg: "osg_arthrodese",
+  tep_infinity:   "osg_tep",
+  tep_inbone:     "osg_tep"
+};
+const FUSSTRACK_VARIANTEN = {
+  chevron: {
+    einfach: {
+      label: "Chevron/Akin-Osteotomie",
+      beschreibung: "Standard-Eingriff am Großzehengrundgelenk"
+    },
+    komplex: {
+      label: "Chevron/Akin-Osteotomie mit Zusatzeingriff",
+      beschreibung: "Mit zusätzlichem Eingriff an Metatarsale oder Zehen"
+    }
+  },
+  osg_arthrodese: {
+    einfach: {
+      label: "OSG-Arthrodese — Teilbelastung",
+      beschreibung: "Teilbelastung im Walker (15 kg) ab dem ersten Tag"
+    },
+    komplex: {
+      label: "OSG-Arthrodese — Entlastung",
+      beschreibung: "Vollentlastung im Gips für 8 Wochen, dann Walker"
+    }
+  },
+  osg_tep: {
+    einfach: {
+      label: "OSG-Prothese",
+      beschreibung: "Standard-Eingriff ohne Bandstabilisierung oder knöcherne Korrektur"
+    },
+    komplex: {
+      label: "OSG-Prothese mit Zusatzeingriff",
+      beschreibung: "Mit Stabilisierung oder weiterer knöcherner Korrektur (Osteotomie/Arthrodese)"
+    }
+  }
+};
+
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
 const RISIKEN = ["Nikotinabusus", "Diabetes mellitus", "Rheumatische Erkrankung", "Eingeschränkte Mobilität", "Eingeschränkte häusliche Versorgung", "Z.n. fehlgeschlagener Voroperation", "Adipositas", "Immunsuppression"];
 // Endo-spezifische Risikofaktoren (zusätzlich zu RISIKEN bei pfad="endo")
@@ -5437,6 +5485,41 @@ var _s = useState, _m = useMemo;
   // Soll der QR-Code im Brief erscheinen? Nur wenn: Aktiv UND OP-Methode passt UND URL vollständig
   var aufShowQr = aufQrAktiv && aufActive && aufUrl;
 
+  // ============================================================
+  // Fuß-Track — Patientenbegleiter-QR-Code
+  // ============================================================
+  var ftaqs = _s(false), ftQrAktiv = ftaqs[0], setFtQrAktiv = ftaqs[1];
+  var ftvars = _s(""), ftVariante = ftvars[0], setFtVariante = ftvars[1]; // "" = nicht gewählt
+  // Welcher Fuß-Track-Eingriff passt zur aktuellen OP-Methode?
+  var ftEingriff = _m(function() {
+    if (!opMethode || opMethode.length === 0) return null;
+    for (var i = 0; i < opMethode.length; i++) {
+      if (FUSSTRACK_MAP[opMethode[i]]) return FUSSTRACK_MAP[opMethode[i]];
+    }
+    return null;
+  }, [opMethode]);
+  // Welche Varianten stehen zur Auswahl? (Objekt aus FUSSTRACK_VARIANTEN[eingriff])
+  var ftVarianten = _m(function() {
+    if (!ftEingriff) return null;
+    return FUSSTRACK_VARIANTEN[ftEingriff] || null;
+  }, [ftEingriff]);
+  // Wenn sich der Eingriff ändert (z.B. neue OP-Methode), Variante zurücksetzen
+  useEffect(function() {
+    setFtVariante("");
+  }, [ftEingriff]);
+  // Gewählte Variante (Label + Beschreibung)
+  var ftActiveVariante = _m(function() {
+    if (!ftVarianten || !ftVariante) return null;
+    return ftVarianten[ftVariante] || null;
+  }, [ftVarianten, ftVariante]);
+  // Vollständige URL für QR-Code
+  var ftUrl = _m(function() {
+    if (!ftEingriff || !ftVariante) return "";
+    return FUSSTRACK_BASE_URL + "?op=" + ftEingriff + "&var=" + ftVariante;
+  }, [ftEingriff, ftVariante]);
+  // QR-Code im Brief erscheinen? Nur wenn: Aktiv UND Eingriff passt UND Variante gewählt
+  var ftShowQr = ftQrAktiv && ftEingriff && ftVariante && ftUrl;
+
   function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
   function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
   function togDiag(d) { setDiagnosen(function(p) { return p.indexOf(d) >= 0 ? p.filter(function(x) { return x !== d; }) : p.concat([d]).slice(0, 2); }); setOpMethode([]); }
@@ -5909,18 +5992,22 @@ var _s = useState, _m = useMemo;
     if (aufShowQr) {
       ab += "\n\nWeitere Informationen Online:\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht ein Online-Informationsmaterial mit Darstellung des OP-Verfahrens und mehr Informationen zum Krankheitsbild zur Verfügung. Sie können das Material über folgenden Link aufrufen:\n\n" + aufUrl + "\n\nAlternativ können Sie den separat beigefügten QR-Code mit Ihrem Handy scannen.";
     }
+    // Fuß-Track Patientenbegleiter: Hinweis im Brief, wenn aktiv und Variante gewählt
+    if (ftShowQr) {
+      ab += "\n\nPatientenbegleiter Fuß-Track:\n\nZur Begleitung rund um Ihren Eingriff steht Ihnen ein digitaler Patientenbegleiter zur Verfügung. Dieser informiert Sie phasenweise — vor und nach der OP — über das passende Vorgehen. Sie können das Material über folgenden Link aufrufen:\n\n" + ftUrl + "\n\nAlternativ können Sie den separat beigefügten QR-Code mit Ihrem Handy scannen.";
+    }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return rawOut.replace(/\bundefined\b/g, "___");
-  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl]);
+  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl, ftShowQr, ftUrl]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() {
-    // Wenn QR-Code aktiv: versuche Rich-Text mit eingebettetem Bild (für Word/Outlook).
+    // Wenn mindestens ein QR-Code aktiv: versuche Rich-Text mit eingebettetem Bild.
     // Fallback: Plain Text (für Software ohne Bild-Support).
-    if (aufShowQr && aufUrl) {
+    if ((aufShowQr && aufUrl) || (ftShowQr && ftUrl)) {
       copyWithQr();
     } else {
       fallbackCopy(fullText);
@@ -5928,29 +6015,39 @@ var _s = useState, _m = useMemo;
   }
   function copyWithQr() {
     try {
-      var qrData = getQrDataUrl(aufUrl, 300);
-      if (!qrData) { fallbackCopy(fullText); return; }
-      // HTML-Version: Brieftext + QR-Bild
+      // Brieftext zu HTML
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "<br>";
-        // Escape HTML-relevante Zeichen
         var safe = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         return safe + "<br>";
       }).join("\n");
-      var html = "<div style='font-family:Arial,sans-serif;font-size:11pt'>" + htmlBody +
-                 "<br><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code'/></div>";
-      // Plain-Text-Variante als Fallback
+      // QR-Code(s) am Ende anhängen
+      var qrHtml = "";
+      if (aufShowQr && aufUrl) {
+        var qrAuf = getQrDataUrl(aufUrl, 300);
+        if (qrAuf) {
+          qrHtml += "<br><div style='margin-top:8pt'><img src='" + qrAuf + "' width='130' height='130' style='display:block' alt='QR-Code Aufklärung'/>" +
+                    "<div style='font-size:9pt;color:#555;margin-top:2pt'>QR-Code: Online-Information zum Eingriff</div></div>";
+        }
+      }
+      if (ftShowQr && ftUrl) {
+        var qrFt = getQrDataUrl(ftUrl, 300);
+        if (qrFt) {
+          qrHtml += "<br><div style='margin-top:8pt'><img src='" + qrFt + "' width='130' height='130' style='display:block' alt='QR-Code Fuß-Track'/>" +
+                    "<div style='font-size:9pt;color:#555;margin-top:2pt'>QR-Code: Patientenbegleiter Fuß-Track</div></div>";
+        }
+      }
+      if (!qrHtml) { fallbackCopy(fullText); return; }
+      var html = "<div style='font-family:Arial,sans-serif;font-size:11pt'>" + htmlBody + qrHtml + "</div>";
       var plain = fullText;
-      // ClipboardItem API (Chrome, Edge, neuere Safari/Firefox)
       if (typeof ClipboardItem !== "undefined" && navigator.clipboard && navigator.clipboard.write) {
         var blobHtml = new Blob([html], { type: "text/html" });
         var blobText = new Blob([plain], { type: "text/plain" });
         var item = new ClipboardItem({ "text/html": blobHtml, "text/plain": blobText });
         navigator.clipboard.write([item]).then(function() {
-          showToast("📋 Brief mit QR-Code kopiert!");
+          showToast("📋 Brief mit QR-Code(s) kopiert!");
         }).catch(function(e) {
-          // Fallback: nur Plain Text
           fallbackCopy(plain);
         });
       } else {
@@ -6030,6 +6127,13 @@ var _s = useState, _m = useMemo;
         if (qrData) {
           htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code Online-Information'/></p>";
           htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code für die Online-Aufklärungsseite. Diese ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.</p>";
+        }
+      }
+      if (ftShowQr) {
+        var qrFtData = getQrDataUrl(ftUrl, 300);
+        if (qrFtData) {
+          htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrFtData + "' width='130' height='130' style='display:block' alt='QR-Code Fuß-Track'/></p>";
+          htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code für den Patientenbegleiter Fuß-Track.</p>";
         }
       }
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>@page{margin:2.5cm}</style></head><body>" + htmlBody + "</body></html>";
@@ -6279,6 +6383,33 @@ var _s = useState, _m = useMemo;
           <div style={row}>
             <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code beifügen</div>
           </div>
+        </div>}
+        {ftEingriff && ftVarianten && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+          <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>🗺️ Patientenbegleiter Fuß-Track verfügbar</div>
+          <div style={{ fontSize: 9, color: "#718096", marginBottom: 4 }}>Digitale Begleitung vor und nach der OP — als QR-Code im Brief beifügen?</div>
+          <div style={row}>
+            <div style={CB(ftQrAktiv)} onClick={function() { setFtQrAktiv(!ftQrAktiv); }}>QR-Code beifügen</div>
+          </div>
+          {ftQrAktiv && <div style={{ marginTop: 6 }}>
+            <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Variante wählen:</div>
+            <select value={ftVariante} onChange={function(e) { setFtVariante(e.target.value); }}
+                    style={{ width: "100%", maxWidth: 460, padding: "5px 7px", border: "1px solid #cbd5e0", borderRadius: 4, fontSize: 11, background: "white" }}>
+              <option value="">— bitte wählen —</option>
+              {Object.keys(ftVarianten).map(function(k) {
+                return <option key={k} value={k}>{ftVarianten[k].label}</option>;
+              })}
+            </select>
+            {ftActiveVariante && <div style={{ marginTop: 4, fontSize: 9, color: "#718096", fontStyle: "italic" }}>
+              {ftActiveVariante.beschreibung}
+            </div>}
+            {!ftVariante && <div style={{ marginTop: 4, fontSize: 9, color: "#d97706" }}>
+              ⚠ Bitte Variante wählen, damit der QR-Code generiert wird.
+            </div>}
+            {ftShowQr && <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
+              <QRCanvas text={ftUrl} size={64} />
+              <div style={{ fontSize: 9, color: "#718096" }}>Vorschau</div>
+            </div>}
+          </div>}
         </div>}
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
@@ -6882,6 +7013,13 @@ var _s = useState, _m = useMemo;
                 <div>QR-Code für den Patienten zum Scannen.</div>
               </div>
             </div>}
+            {showPv && ftShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
+              <QRCanvas text={ftUrl} size={120} />
+              <div style={{ flex: 1, fontSize: 9, color: "#4A5568", lineHeight: 1.4 }}>
+                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>🗺️ Patientenbegleiter Fuß-Track</div>
+                <div>{ftActiveVariante && ftActiveVariante.label}</div>
+              </div>
+            </div>}
           </div>
         </div>
       </div>}
@@ -6903,6 +7041,14 @@ var _s = useState, _m = useMemo;
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
               <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Online-Information</div>
               <div>{aufActive.entry.label}</div>
+            </div>
+          </div>}
+          {ftShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
+            <QRCanvas text={ftUrl} size={140} />
+            <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
+              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>🗺️ Patientenbegleiter Fuß-Track</div>
+              <div>{ftActiveVariante && ftActiveVariante.label}</div>
+              {ftActiveVariante && <div style={{ fontSize: 9, color: "#718096", fontStyle: "italic", marginTop: 2 }}>{ftActiveVariante.beschreibung}</div>}
             </div>
           </div>}
         </div>
