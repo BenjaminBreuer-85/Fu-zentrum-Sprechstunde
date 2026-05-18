@@ -4464,54 +4464,6 @@ const AUFKLAERUNG_MAP = {
   tep_inbone:     { url: "https://benjaminbreuer-85.github.io/Info-OSG-Arthrose/aufklaerung_osg_arthrose.html", label: "OSG-Arthrose — Information zu Versteifung und Prothese" },
 };
 
-// ============================================================
-// FUSSTRACK — Patientenbegleiter (Fuß-Track)
-// Eingriffe haben jeweils eine Basis- und eine Komplex-Variante.
-// Operateur wählt im Generator die zutreffende Variante; der QR-Code-Link
-// enthält dann die Variante als URL-Parameter.
-// ============================================================
-const FUSSTRACK_BASE_URL = "https://benjaminbreuer-85.github.io/Fuss-Track/fusstrack.html";
-// Mapping: OP-Methode → Fuß-Track-Eingriff-Key (gleicher Eingriff für mehrere OP-Methoden)
-const FUSSTRACK_MAP = {
-  chevron:        "chevron",
-  chevron_akin:   "chevron",
-  arthrodese_osg: "osg_arthrodese",
-  tep_infinity:   "osg_tep",
-  tep_inbone:     "osg_tep"
-};
-const FUSSTRACK_VARIANTEN = {
-  chevron: {
-    einfach: {
-      label: "Chevron/Akin-Osteotomie",
-      beschreibung: "Standard-Eingriff am Großzehengrundgelenk"
-    },
-    komplex: {
-      label: "Chevron/Akin-Osteotomie mit Zusatzeingriff",
-      beschreibung: "Mit zusätzlichem Eingriff an Metatarsale oder Zehen"
-    }
-  },
-  osg_arthrodese: {
-    einfach: {
-      label: "OSG-Arthrodese — Teilbelastung",
-      beschreibung: "Teilbelastung im Walker (15 kg) ab dem ersten Tag"
-    },
-    komplex: {
-      label: "OSG-Arthrodese — Entlastung",
-      beschreibung: "Vollentlastung im Gips für 8 Wochen, dann Walker"
-    }
-  },
-  osg_tep: {
-    einfach: {
-      label: "OSG-Prothese",
-      beschreibung: "Standard-Eingriff ohne Bandstabilisierung oder knöcherne Korrektur"
-    },
-    komplex: {
-      label: "OSG-Prothese mit Zusatzeingriff",
-      beschreibung: "Mit Stabilisierung oder weiterer knöcherner Korrektur (Osteotomie/Arthrodese)"
-    }
-  }
-};
-
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
 const RISIKEN = ["Nikotinabusus", "Diabetes mellitus", "Rheumatische Erkrankung", "Eingeschränkte Mobilität", "Eingeschränkte häusliche Versorgung", "Z.n. fehlgeschlagener Voroperation", "Adipositas", "Immunsuppression"];
 // Endo-spezifische Risikofaktoren (zusätzlich zu RISIKEN bei pfad="endo")
@@ -5462,7 +5414,7 @@ var _s = useState, _m = useMemo;
   var aubs = _s(aufBaseInit), aufBaseUrl = aubs[0], setAufBaseUrlRaw = aubs[1];
   function setAufBaseUrl(v) { setAufBaseUrlRaw(v); try { localStorage.setItem("aufklaerungBaseUrl", v); } catch(e) {} }
   function resetAufBaseUrl() { setAufBaseUrlRaw(AUFKLAERUNG_DEFAULT_URL); try { localStorage.removeItem("aufklaerungBaseUrl"); } catch(e) {} }
-  var aups = _s(false), aufQrAktiv = aups[0], setAufQrAktiv = aups[1];
+  var aups = _s(true), aufQrAktiv = aups[0], setAufQrAktiv = aups[1];
   // Aufklärungs-Eintrag aus AUFKLAERUNG_MAP für die aktuell gewählte OP-Methode
   var aufActive = _m(function() {
     if (!opMethode || opMethode.length === 0) return null;
@@ -5484,41 +5436,6 @@ var _s = useState, _m = useMemo;
   }, [aufActive, aufBaseUrl]);
   // Soll der QR-Code im Brief erscheinen? Nur wenn: Aktiv UND OP-Methode passt UND URL vollständig
   var aufShowQr = aufQrAktiv && aufActive && aufUrl;
-
-  // ============================================================
-  // Fuß-Track — Patientenbegleiter-QR-Code
-  // ============================================================
-  var ftaqs = _s(false), ftQrAktiv = ftaqs[0], setFtQrAktiv = ftaqs[1];
-  var ftvars = _s(""), ftVariante = ftvars[0], setFtVariante = ftvars[1]; // "" = nicht gewählt
-  // Welcher Fuß-Track-Eingriff passt zur aktuellen OP-Methode?
-  var ftEingriff = _m(function() {
-    if (!opMethode || opMethode.length === 0) return null;
-    for (var i = 0; i < opMethode.length; i++) {
-      if (FUSSTRACK_MAP[opMethode[i]]) return FUSSTRACK_MAP[opMethode[i]];
-    }
-    return null;
-  }, [opMethode]);
-  // Welche Varianten stehen zur Auswahl? (Objekt aus FUSSTRACK_VARIANTEN[eingriff])
-  var ftVarianten = _m(function() {
-    if (!ftEingriff) return null;
-    return FUSSTRACK_VARIANTEN[ftEingriff] || null;
-  }, [ftEingriff]);
-  // Wenn sich der Eingriff ändert (z.B. neue OP-Methode), Variante zurücksetzen
-  useEffect(function() {
-    setFtVariante("");
-  }, [ftEingriff]);
-  // Gewählte Variante (Label + Beschreibung)
-  var ftActiveVariante = _m(function() {
-    if (!ftVarianten || !ftVariante) return null;
-    return ftVarianten[ftVariante] || null;
-  }, [ftVarianten, ftVariante]);
-  // Vollständige URL für QR-Code
-  var ftUrl = _m(function() {
-    if (!ftEingriff || !ftVariante) return "";
-    return FUSSTRACK_BASE_URL + "?op=" + ftEingriff + "&var=" + ftVariante;
-  }, [ftEingriff, ftVariante]);
-  // QR-Code im Brief erscheinen? Nur wenn: Aktiv UND Eingriff passt UND Variante gewählt
-  var ftShowQr = ftQrAktiv && ftEingriff && ftVariante && ftUrl;
 
   function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
   function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
@@ -5992,22 +5909,18 @@ var _s = useState, _m = useMemo;
     if (aufShowQr) {
       ab += "\n\nWeitere Informationen Online:\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht ein Online-Informationsmaterial mit Darstellung des OP-Verfahrens und mehr Informationen zum Krankheitsbild zur Verfügung. Sie können das Material über folgenden Link aufrufen:\n\n" + aufUrl + "\n\nAlternativ können Sie den separat beigefügten QR-Code mit Ihrem Handy scannen.";
     }
-    // Fuß-Track Patientenbegleiter: Hinweis im Brief, wenn aktiv und Variante gewählt
-    if (ftShowQr) {
-      ab += "\n\nPatientenbegleiter Fuß-Track:\n\nZur Begleitung rund um Ihren Eingriff steht Ihnen ein digitaler Patientenbegleiter zur Verfügung. Dieser informiert Sie phasenweise — vor und nach der OP — über das passende Vorgehen. Sie können das Material über folgenden Link aufrufen:\n\n" + ftUrl + "\n\nAlternativ können Sie den separat beigefügten QR-Code mit Ihrem Handy scannen.";
-    }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return rawOut.replace(/\bundefined\b/g, "___");
-  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl, ftShowQr, ftUrl]);
+  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, efas1, efas2, aofas, vasScore, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   function copy() {
-    // Wenn mindestens ein QR-Code aktiv: versuche Rich-Text mit eingebettetem Bild.
+    // Wenn QR-Code aktiv: versuche Rich-Text mit eingebettetem Bild (für Word/Outlook).
     // Fallback: Plain Text (für Software ohne Bild-Support).
-    if ((aufShowQr && aufUrl) || (ftShowQr && ftUrl)) {
+    if (aufShowQr && aufUrl) {
       copyWithQr();
     } else {
       fallbackCopy(fullText);
@@ -6015,39 +5928,29 @@ var _s = useState, _m = useMemo;
   }
   function copyWithQr() {
     try {
-      // Brieftext zu HTML
+      var qrData = getQrDataUrl(aufUrl, 300);
+      if (!qrData) { fallbackCopy(fullText); return; }
+      // HTML-Version: Brieftext + QR-Bild
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "<br>";
+        // Escape HTML-relevante Zeichen
         var safe = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         return safe + "<br>";
       }).join("\n");
-      // QR-Code(s) am Ende anhängen
-      var qrHtml = "";
-      if (aufShowQr && aufUrl) {
-        var qrAuf = getQrDataUrl(aufUrl, 300);
-        if (qrAuf) {
-          qrHtml += "<br><div style='margin-top:8pt'><img src='" + qrAuf + "' width='130' height='130' style='display:block' alt='QR-Code Aufklärung'/>" +
-                    "<div style='font-size:9pt;color:#555;margin-top:2pt'>QR-Code: Online-Information zum Eingriff</div></div>";
-        }
-      }
-      if (ftShowQr && ftUrl) {
-        var qrFt = getQrDataUrl(ftUrl, 300);
-        if (qrFt) {
-          qrHtml += "<br><div style='margin-top:8pt'><img src='" + qrFt + "' width='130' height='130' style='display:block' alt='QR-Code Fuß-Track'/>" +
-                    "<div style='font-size:9pt;color:#555;margin-top:2pt'>QR-Code: Patientenbegleiter Fuß-Track</div></div>";
-        }
-      }
-      if (!qrHtml) { fallbackCopy(fullText); return; }
-      var html = "<div style='font-family:Arial,sans-serif;font-size:11pt'>" + htmlBody + qrHtml + "</div>";
+      var html = "<div style='font-family:Arial,sans-serif;font-size:11pt'>" + htmlBody +
+                 "<br><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code'/></div>";
+      // Plain-Text-Variante als Fallback
       var plain = fullText;
+      // ClipboardItem API (Chrome, Edge, neuere Safari/Firefox)
       if (typeof ClipboardItem !== "undefined" && navigator.clipboard && navigator.clipboard.write) {
         var blobHtml = new Blob([html], { type: "text/html" });
         var blobText = new Blob([plain], { type: "text/plain" });
         var item = new ClipboardItem({ "text/html": blobHtml, "text/plain": blobText });
         navigator.clipboard.write([item]).then(function() {
-          showToast("📋 Brief mit QR-Code(s) kopiert!");
+          showToast("📋 Brief mit QR-Code kopiert!");
         }).catch(function(e) {
+          // Fallback: nur Plain Text
           fallbackCopy(plain);
         });
       } else {
@@ -6057,19 +5960,16 @@ var _s = useState, _m = useMemo;
       fallbackCopy(fullText);
     }
   }
-  function copyQrToClipboard(url, label) {
-    // Generisch: nimmt URL + Label (z.B. "Aufklärung", "Fuß-Track")
-    if (!url) { showToast("Kein QR-Code aktiv"); return; }
-    var lab = label || "QR-Code";
-    var fileSlug = lab.replace(/[^a-zA-Z0-9]/g, "-");
+  function copyQrToClipboard() {
+    if (!aufShowQr || !aufUrl) { showToast("Kein QR-Code aktiv"); return; }
     try {
-      var qrData = getQrDataUrl(url, 600); // höhere Auflösung
+      var qrData = getQrDataUrl(aufUrl, 600); // höhere Auflösung
       if (!qrData) { showToast("QR-Erstellung fehlgeschlagen"); return; }
-      // ClipboardItem-API für Bild-in-Clipboard
+      // ClipboardItem-API für Bild-in-Clipboard (Chrome/Edge/Safari/Firefox modern)
       if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
-        // Fallback: Download
+        // Fallback: Download wie zuvor
         var a = document.createElement("a");
-        a.href = qrData; a.download = "QR-" + fileSlug + ".png";
+        a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         showToast("🖼 Browser unterstützt kein Kopieren — heruntergeladen");
         return;
@@ -6079,11 +5979,11 @@ var _s = useState, _m = useMemo;
         var item = new ClipboardItem({ "image/png": blob });
         return navigator.clipboard.write([item]);
       }).then(function() {
-        showToast("📋 QR-Code " + lab + " kopiert!");
+        showToast("📋 QR-Code in Zwischenablage kopiert!");
       }).catch(function(err) {
-        // Fallback Download bei Fehler
+        // Fallback Download bei Fehler (z.B. fehlende Permission)
         var a = document.createElement("a");
-        a.href = qrData; a.download = "QR-" + fileSlug + ".png";
+        a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         showToast("🖼 Kopieren fehlgeschlagen — heruntergeladen");
       });
@@ -6110,6 +6010,40 @@ var _s = useState, _m = useMemo;
     ta.select();
     try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
     document.body.removeChild(ta);
+  }
+  function downloadWord() {
+    try {
+      var lines = fullText.split("\n");
+      var htmlBody = lines.map(function(line) {
+        if (!line.trim()) return "";
+        if (line.startsWith("Diagnosen:") || line.startsWith("Elektive operative Option:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:") || line.startsWith("Weitere Informationen Online:")) {
+          return "<p style='margin:6pt 0 2pt;font-weight:bold;font-size:11pt;font-family:Arial'>" + line + "</p>";
+        }
+        if (line.startsWith("Zur weiteren Information")) {
+          return "<p style='margin:6pt 0 0;font-size:9pt;font-family:Arial;color:#555'>" + line + "</p>";
+        }
+        return "<p style='margin:2pt 0;font-size:11pt;font-family:Arial'>" + line + "</p>";
+      }).join("");
+      // QR-Code als Bild anhängen, falls vorhanden
+      if (aufShowQr) {
+        var qrData = getQrDataUrl(aufUrl, 300);
+        if (qrData) {
+          htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code Online-Information'/></p>";
+          htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code für die Online-Aufklärungsseite. Diese ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.</p>";
+        }
+      }
+      var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>@page{margin:2.5cm}</style></head><body>" + htmlBody + "</body></html>";
+      var blob = new Blob(["\ufeff" + html], { type: "application/msword" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "Sprechstundenbrief.doc";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("📄 Word-Datei heruntergeladen!");
+    } catch (e) { showToast("Fehler beim Download"); }
   }
   function resetAll() {
     setGender(""); setBegleitung(""); setSeite(""); setDiagnosen([]); setCoalitio(false); setCoalitioVar("");
@@ -6345,30 +6279,6 @@ var _s = useState, _m = useMemo;
           <div style={row}>
             <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code beifügen</div>
           </div>
-        </div>}
-        {ftEingriff && ftVarianten && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>🗺️ Patientenbegleiter Fuß-Track verfügbar</div>
-          <div style={{ fontSize: 9, color: "#718096", marginBottom: 4 }}>Digitale Begleitung vor und nach der OP — als QR-Code im Brief beifügen?</div>
-          <div style={row}>
-            <div style={CB(ftQrAktiv)} onClick={function() { setFtQrAktiv(!ftQrAktiv); }}>QR-Code beifügen</div>
-          </div>
-          {ftQrAktiv && <div style={{ marginTop: 6 }}>
-            <div style={{ fontSize: 9, color: "#718096", marginBottom: 4 }}>Variante wählen:</div>
-            <div style={row}>
-              {Object.keys(ftVarianten).map(function(k) {
-                return <div key={k} style={CB(ftVariante === k)}
-                            onClick={function() { setFtVariante(ftVariante === k ? "" : k); }}>
-                  {ftVarianten[k].label}
-                </div>;
-              })}
-            </div>
-            {ftActiveVariante && <div style={{ marginTop: 4, fontSize: 9, color: "#718096", fontStyle: "italic" }}>
-              {ftActiveVariante.beschreibung}
-            </div>}
-            {!ftVariante && <div style={{ marginTop: 4, fontSize: 9, color: "#d97706" }}>
-              ⚠ Bitte Variante wählen, damit der QR-Code generiert wird.
-            </div>}
-          </div>}
         </div>}
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
@@ -6959,26 +6869,17 @@ var _s = useState, _m = useMemo;
               <div style={h3s}>Vorschau & Export</div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
-                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "Aufklärung"); }}>📋 QR-Aufklärung</div>}
-                {ftShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(ftUrl, "Fuß-Track"); }}>📋 QR-Fuß-Track</div>}
+                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
+                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copyQrToClipboard}>📋 QR-Code</div>}
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
             {showPv && <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
-            {showPv && aufShowQr && <div title="Klicken zum Kopieren" onClick={function() { copyQrToClipboard(aufUrl, "Aufklärung"); }}
-                                        style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+            {showPv && aufShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
               <QRCanvas text={aufUrl} size={120} />
               <div style={{ flex: 1, fontSize: 9, color: "#4A5568", lineHeight: 1.4 }}>
                 <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Online-Information</div>
-                <div>QR-Code für den Patienten zum Scannen. <span style={{ color: "#00897B" }}>Klicken zum Kopieren</span></div>
-              </div>
-            </div>}
-            {showPv && ftShowQr && <div title="Klicken zum Kopieren" onClick={function() { copyQrToClipboard(ftUrl, "Fuß-Track"); }}
-                                       style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-              <QRCanvas text={ftUrl} size={120} />
-              <div style={{ flex: 1, fontSize: 9, color: "#4A5568", lineHeight: 1.4 }}>
-                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>🗺️ Patientenbegleiter Fuß-Track</div>
-                <div>{ftActiveVariante && ftActiveVariante.label} — <span style={{ color: "#00897B" }}>Klicken zum Kopieren</span></div>
+                <div>QR-Code für den Patienten zum Scannen.</div>
               </div>
             </div>}
           </div>
@@ -6992,28 +6893,16 @@ var _s = useState, _m = useMemo;
             <div style={h3s}>Brief-Vorschau</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
-              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "Aufklärung"); }}>📋 QR-Aufklärung</div>}
-              {ftShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(ftUrl, "Fuß-Track"); }}>📋 QR-Fuß-Track</div>}
+              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
+              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00838F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copyQrToClipboard}>📋 QR-Code</div>}
             </div>
           </div>
           <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
-          {aufShowQr && <div title="Klicken zum Kopieren" onClick={function() { copyQrToClipboard(aufUrl, "Aufklärung"); }}
-                              style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+          {aufShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
             <QRCanvas text={aufUrl} size={140} />
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
               <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Online-Information</div>
               <div>{aufActive.entry.label}</div>
-              <div style={{ fontSize: 9, color: "#00897B", marginTop: 4 }}>📋 Klicken zum Kopieren</div>
-            </div>
-          </div>}
-          {ftShowQr && <div title="Klicken zum Kopieren" onClick={function() { copyQrToClipboard(ftUrl, "Fuß-Track"); }}
-                            style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
-            <QRCanvas text={ftUrl} size={140} />
-            <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
-              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>🗺️ Patientenbegleiter Fuß-Track</div>
-              <div>{ftActiveVariante && ftActiveVariante.label}</div>
-              {ftActiveVariante && <div style={{ fontSize: 9, color: "#718096", fontStyle: "italic", marginTop: 2 }}>{ftActiveVariante.beschreibung}</div>}
-              <div style={{ fontSize: 9, color: "#00897B", marginTop: 4 }}>📋 Klicken zum Kopieren</div>
             </div>
           </div>}
         </div>
@@ -7679,6 +7568,8 @@ function OPBerichtApp(){
     if(mfTmt.length>0){var _tmtCm=mfTmt.includes("tmt1_3")?1.111:1.033;_candidates.push({p:"tmt",cm:_tmtCm});}
     if(rfOp.includes("supramal_ot"))_candidates.push({p:"supramal",cm:1.278});
     if(coalTyp)_candidates.push({p:"coalitio",cm:0.743});
+    if(rfOp.includes("haglund_mini"))_candidates.push({p:"haglund_mini",cm:0.576});
+    if(rfOp.includes("haglund"))_candidates.push({p:"haglund",cm:0.95});
     if(hasFX)_candidates.push({p:"fx",cm:fxSyndes?1.278:0.995});
     if(hasME)_candidates.push({p:"me",cm:0});
     // Höchsten CM finden
@@ -7759,20 +7650,20 @@ function OPBerichtApp(){
       kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?"\n⚠ HEBEL-CODE: 5-784.0n + 5-783.0d (Spongiosa Tibia) → I13E → I13D (+1.250 €)!\n⚠ Spongiosa muss im OP-Bericht dokumentiert sein!\n⚠ Häufiger Fehler: Spongiosa entnommen aber nicht kodiert → 1.250 € Erlösverlust!":"\n💡 Toggle: + Spongiosa → I13D (7.079 € statt 5.829 €)\n⚠ Häufiger Fehler: Spongiosa vergessen zu kodieren → 1.250 € verschenkt!")}];
 
     // AMIC → I13G / I13E
-    if(osgOp.includes("amic")) return [o,{label:amicIKO?"AMIC + Innenknöchelosteotomie":"AMIC offen",ops:o,
+    if(osgOp.includes("amic")&&_prio==="amic") return [o,{label:amicIKO?"AMIC + Innenknöchelosteotomie":"AMIC offen",ops:o,
       hdrg:"—",ebm:"—",kurz:amicIKO?"I13E ~4.600 €":"I13G ~3.600 €",drg:amicIKO?"I13E 5.829 €":"I13G 4.539 €",hdrg_n1:"—",empf:"n2",
       ziel:amicIKO?"AMIC + IKO → I13E (CM 1,278 = 5.829 €). Immer stationär.":"AMIC offen → I13G (CM 0,995 = 4.539 €). Mit Spongiosa gleiche DRG.\nKeine H-DRG (5-801.nk nicht auf Positivliste).",
       kodier:amicIKO?"5-801.nk + 5-781.an + 5-784.0s + 5-93b.0 (Schraubenosteosynthese IKO).":"5-801.nk (AMIC offen)."+(askVorher?" + 5-812.ek (ASK vorher).":"")}];
 
     // Brostrom → I59Z
-    if(osgOp.includes("brostrom")) return [o,{label:"Brostrom-Gould"+(brostromIB?" + Internal Brace":""),ops:o,
+    if(osgOp.includes("brostrom")&&_prio==="brostrom") return [o,{label:"Brostrom-Gould"+(brostromIB?" + Internal Brace":""),ops:o,
       hdrg:"—",ebm:"EBM ~300 €",kurz:"I59Z ~2.627 €",drg:"I59Z 3.225 €",hdrg_n1:"—",empf:"n2",
       ziel:"Kein H-DRG! Auch mit ASK kein H-DRG.\n1 Nacht: gekürzte DRG I59Z (CM 0,576 = ~2.627 €).\nAb 2 Nächte → I59Z (CM 0,707 = 3.225 €).",
       kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+" → I59Z.\n⚠ KEIN H-DRG möglich — auch nicht mit zusätzlicher ASK!\n⚠ Häufiger Fehler: Brostrom als H-DRG-fähig eingestuft → Erlösverlust bei ambulanter Planung.\n→ Stationär planen, mind. 2 Nächte für volle DRG I59Z (3.225 €)."}];
 
 
     // Arthrorise → kein H-DRG (Klientel <18)
-    if(osgOp.includes("arthrorise")) return [o,{label:"Arthrorise",ops:o,
+    if(osgOp.includes("arthrorise")&&_prio==="arthrorise") return [o,{label:"Arthrorise",ops:o,
       hdrg:"—",ebm:"EBM",kurz:"DRG variabel",drg:"DRG variabel",hdrg_n1:"—",empf:"amb",
       ziel:"⚠ 5-809.1m steht auf Positivliste, ABER Patientenklientel <18 J. → Kontextfaktor Alter → KEIN H-DRG möglich!\nAmbulant: EBM. Stationär: reguläre DRG.",
       kodier:"5-809.1m (Arthrorise USG). Kontextfaktor Alter <18 → keine H-DRG."}];
@@ -7801,19 +7692,19 @@ function OPBerichtApp(){
     }
 
     // Calcaneus-OT (MDO/LCOT/Dwyer) → I20C
-    if(hasCalcOT||rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen")) return [o,{label:"Calcaneus-OT",ops:o,
+    if((hasCalcOT||rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen"))&&_prio==="mdo") return [o,{label:"Calcaneus-OT",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20C ~4.000 €",drg:"I20C 5.067 €",hdrg_n1:"—",empf:"n2",
       ziel:"Keine H-DRG → stationär ≥2 Nächte → I20C (CM 1,111 = 5.067 €).\nMDO, LCOT und Dwyer alle gleiche DRG.",
       kodier:"MDO: 5-781.1t + 5-93b.0. LCOT: 5-781.8t. Dwyer: 5-781.1t + 5-93b.0."}];
 
     // Haglund mini open → H-DRG I20O
-    if(rfOp.includes("haglund_mini")) return [o,{label:"Haglund mini open",ops:o,
+    if(rfOp.includes("haglund_mini")&&_prio==="haglund_mini") return [o,{label:"Haglund mini open",ops:o,
       hdrg:"I20O 1.007 €",ebm:"EBM ~300 €",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"I20O 1.007 €",empf:"amb",
       ziel:"Ambulant → H-DRG I20O (1.007 €).",
       kodier:"5-782.at + 5-855.39 + 5-859.1a."}];
 
     // Haglund + AS-Split → I27D
-    if(rfOp.includes("haglund")) return [o,{label:"Haglund + AS-Split",ops:o,
+    if(rfOp.includes("haglund")&&_prio==="haglund") return [o,{label:"Haglund + AS-Split",ops:o,
       hdrg:"—",ebm:"—",kurz:"I27D ~3.400 €",drg:"I27D 4.333 €",hdrg_n1:"—",empf:"n2",
       ziel:"Keine H-DRG (5-854.29 = Kontextprozedur). Stationär ≥2N → I27D (CM 0,95 = 4.333 €).",
       kodier:"5-782.at + 5-855.39 + 5-855.19 + 5-854.29 + 5-859.19."}];
@@ -10368,254 +10259,10 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Sortierte Sammlung von OP-Technik-Manualen und Implantatsystemen als PDF.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Infinity · Inbone II · Prophecy · konventionell</div>
         </div>
-        <div onClick={()=>onSelect("fusstrack")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
-          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
-          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
-          <div style={{fontSize:36,marginBottom:12}}>🗺️</div>
-          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Fuß-Track</div>
-          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Patientenbegleiter: Eingriff und Variante wählen, Phasen einsehen, QR-Code zum freien Einsatz (z.B. Entlassbrief).</div>
-          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>3 Eingriffe · 6 Varianten · freier QR-Code</div>
-        </div>
       </div>
       <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.3 · April 2026</div>
     </div>
   );
-}
-
-function FussTrackTool() {
-  const { useState, useEffect, useMemo } = React;
-  // URL der phasen.json auf GitHub Pages
-  const PHASEN_JSON_URL = "https://benjaminbreuer-85.github.io/Fuss-Track/phasen.json";
-  const FUSSTRACK_BASE_URL = "https://benjaminbreuer-85.github.io/Fuss-Track/fusstrack.html";
-
-  const [data, setData] = useState(null);
-  const [loadError, setLoadError] = useState("");
-  const [selectedOp, setSelectedOp] = useState("");
-  const [selectedVar, setSelectedVar] = useState("");
-  const [toast, setToast] = useState("");
-
-  // Daten laden beim Start
-  useEffect(function() {
-    fetch(PHASEN_JSON_URL + "?v=" + Date.now())
-      .then(function(r) {
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json();
-      })
-      .then(function(d) { setData(d); })
-      .catch(function(err) {
-        setLoadError("Phasen-Daten konnten nicht geladen werden: " + err.message);
-      });
-  }, []);
-
-  function showToast(msg) { setToast(msg); setTimeout(function() { setToast(""); }, 2500); }
-
-  // Aktuell verfügbare Eingriffe
-  const eingriffe = data ? data.EINGRIFFE : {};
-  // Aktuell wählbare Varianten
-  const varianten = useMemo(function() {
-    if (!selectedOp || !eingriffe[selectedOp]) return null;
-    return eingriffe[selectedOp].varianten || null;
-  }, [selectedOp, eingriffe]);
-
-  // URL für den QR-Code
-  const ftUrl = useMemo(function() {
-    if (!selectedOp || !selectedVar) return "";
-    return FUSSTRACK_BASE_URL + "?op=" + selectedOp + "&var=" + selectedVar;
-  }, [selectedOp, selectedVar]);
-
-  // Phasen-Liste für die aktuelle Auswahl
-  const phasen = useMemo(function() {
-    if (!data || !selectedOp || !selectedVar) return [];
-    const postGroup = data.POST_OP_PHASEN_BY_OP[selectedOp];
-    const post = (postGroup && postGroup[selectedVar]) || [];
-    return data.ONBOARDING_PHASEN.concat(data.SHARED_PRE_OP_PHASEN).concat(post);
-  }, [data, selectedOp, selectedVar]);
-
-  // Variant beim Eingriffswechsel zurücksetzen
-  useEffect(function() { setSelectedVar(""); }, [selectedOp]);
-
-  // QR-Code kopieren
-  function copyQr() {
-    if (!ftUrl) return;
-    try {
-      const qrData = getQrDataUrl(ftUrl, 600);
-      if (!qrData) { showToast("QR-Erstellung fehlgeschlagen"); return; }
-      if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
-        const a = document.createElement("a");
-        a.href = qrData; a.download = "Fuss-Track-QR.png";
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        showToast("🖼 Heruntergeladen (Browser unterstützt kein Kopieren)");
-        return;
-      }
-      fetch(qrData).then(function(r) { return r.blob(); }).then(function(blob) {
-        const item = new ClipboardItem({ "image/png": blob });
-        return navigator.clipboard.write([item]);
-      }).then(function() { showToast("📋 QR-Code kopiert!"); })
-        .catch(function() {
-          const a = document.createElement("a");
-          a.href = qrData; a.download = "Fuss-Track-QR.png";
-          document.body.appendChild(a); a.click(); document.body.removeChild(a);
-          showToast("🖼 Heruntergeladen");
-        });
-    } catch (e) { showToast("Fehler"); }
-  }
-  function copyUrl() {
-    if (!ftUrl) return;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(ftUrl).then(function() { showToast("📋 Link kopiert!"); });
-    } else {
-      const ta = document.createElement("textarea"); ta.value = ftUrl;
-      document.body.appendChild(ta); ta.select();
-      try { document.execCommand("copy"); showToast("📋 Link kopiert!"); }
-      catch (e) { showToast("Kopieren fehlgeschlagen"); }
-      document.body.removeChild(ta);
-    }
-  }
-
-  // Loading- bzw. Fehler-States
-  if (loadError) {
-    return <div style={{background:"#fff",border:"1px solid rgba(245,158,11,.3)",borderRadius:14,padding:24,textAlign:"center",color:"#92400E"}}>
-      <div style={{fontSize:32,marginBottom:8}}>⚠️</div>
-      <div style={{fontWeight:600,marginBottom:6}}>Daten konnten nicht geladen werden</div>
-      <div style={{fontSize:12,color:"#92400E"}}>{loadError}</div>
-      <div style={{marginTop:10,fontSize:11,color:"#718096"}}>Internetverbindung prüfen oder Seite neu laden.</div>
-    </div>;
-  }
-  if (!data) {
-    return <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:48,textAlign:"center",color:"#718096"}}>
-      <div style={{fontSize:32,marginBottom:8}}>⏳</div>
-      <div>Phasen-Daten werden geladen…</div>
-    </div>;
-  }
-
-  // Chip-Style-Helper (lokal — Tool-Stil reicht hier nicht hin, weil CB() nicht im Scope)
-  function chipStyle(active) {
-    return {
-      padding: "8px 14px",
-      borderRadius: 6,
-      fontSize: 12,
-      cursor: "pointer",
-      border: active ? "1px solid #00838F" : "1px solid rgba(0,0,0,.12)",
-      background: active ? "rgba(0,131,143,.10)" : "#fff",
-      color: active ? "#00838F" : "#4A5568",
-      fontWeight: active ? 600 : 500,
-      userSelect: "none",
-      transition: "all 0.12s"
-    };
-  }
-
-  return <div>
-    {toast && <div style={{position:"fixed",top:60,left:"50%",transform:"translateX(-50%)",background:"#1A202C",color:"#fff",padding:"8px 16px",borderRadius:6,fontSize:12,fontWeight:600,zIndex:9999,boxShadow:"0 4px 12px rgba(0,0,0,.2)"}}>{toast}</div>}
-
-    <div style={{display:"grid",gridTemplateColumns:"minmax(280px, 380px) 1fr",gap:16,alignItems:"start"}}>
-      {/* Linke Spalte: Auswahl + QR */}
-      <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:18,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
-        <div style={{fontSize:13,fontWeight:700,color:"#006B6F",marginBottom:8}}>1. Eingriff wählen</div>
-        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
-          {Object.keys(eingriffe).map(function(opKey) {
-            return <div key={opKey} style={chipStyle(selectedOp === opKey)}
-                        onClick={function() { setSelectedOp(selectedOp === opKey ? "" : opKey); }}>
-              {eingriffe[opKey].kurzlabel || eingriffe[opKey].label}
-            </div>;
-          })}
-        </div>
-
-        {varianten && <>
-          <div style={{fontSize:13,fontWeight:700,color:"#006B6F",marginBottom:8}}>2. Variante wählen</div>
-          <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:16}}>
-            {Object.keys(varianten).map(function(varKey) {
-              return <div key={varKey} style={chipStyle(selectedVar === varKey)}
-                          onClick={function() { setSelectedVar(selectedVar === varKey ? "" : varKey); }}>
-                {varianten[varKey].anzeigename || varianten[varKey].label || varKey}
-              </div>;
-            })}
-          </div>
-          {selectedVar && varianten[selectedVar] && varianten[selectedVar].beschreibung &&
-            varianten[selectedVar].beschreibung !== (varianten[selectedVar].anzeigename || varianten[selectedVar].label) &&
-            <div style={{fontSize:10,color:"#718096",fontStyle:"italic",marginBottom:12,padding:"6px 10px",background:"rgba(0,0,0,.02)",borderRadius:4}}>
-              {varianten[selectedVar].beschreibung}
-            </div>
-          }
-        </>}
-
-        {ftUrl && <>
-          <div style={{fontSize:13,fontWeight:700,color:"#006B6F",marginBottom:8,paddingTop:8,borderTop:"1px solid rgba(0,0,0,.06)"}}>3. QR-Code</div>
-          <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:14,background:"rgba(0,137,123,.04)",borderRadius:8,border:"1px dashed rgba(0,137,123,.25)"}}>
-            <div onClick={copyQr} title="Klicken zum Kopieren" style={{cursor:"pointer",padding:8,background:"#fff",borderRadius:4}}>
-              <QRCanvas text={ftUrl} size={160} />
-            </div>
-            <div style={{fontSize:10,color:"#00897B",marginTop:8,fontWeight:600}}>📋 Klicken zum Kopieren</div>
-          </div>
-          <div style={{display:"flex",gap:6,marginTop:10}}>
-            <div style={{flex:1,padding:"8px 12px",border:"none",borderRadius:6,background:"#00897B",color:"#fff",fontWeight:600,fontSize:11,cursor:"pointer",textAlign:"center"}} onClick={copyQr}>📋 QR-Code kopieren</div>
-            <div style={{flex:1,padding:"8px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,background:"#fff",color:"#006B6F",fontWeight:600,fontSize:11,cursor:"pointer",textAlign:"center"}} onClick={copyUrl}>🔗 Link kopieren</div>
-          </div>
-          <div style={{fontSize:9,color:"#A0AEC0",marginTop:8,wordBreak:"break-all"}}>{ftUrl}</div>
-        </>}
-
-        {!selectedOp && <div style={{fontSize:11,color:"#718096",padding:14,background:"rgba(0,0,0,.02)",borderRadius:6,textAlign:"center",fontStyle:"italic"}}>
-          Bitte zuerst einen Eingriff wählen.
-        </div>}
-        {selectedOp && !selectedVar && <div style={{fontSize:11,color:"#d97706",padding:10,background:"rgba(217,119,6,.08)",borderRadius:6,textAlign:"center"}}>
-          ⚠ Bitte eine Variante wählen.
-        </div>}
-      </div>
-
-      {/* Rechte Spalte: Phasen-Vorschau */}
-      <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:18,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <div style={{fontSize:13,fontWeight:700,color:"#006B6F"}}>Phasen-Vorschau</div>
-          {phasen.length > 0 && <div style={{fontSize:10,color:"#718096"}}>{phasen.length} Phasen</div>}
-        </div>
-        {phasen.length === 0 ? (
-          <div style={{padding:32,textAlign:"center",color:"#A0AEC0",fontSize:12,fontStyle:"italic"}}>
-            Auswahl treffen, um die Phasen-Liste anzuzeigen.
-          </div>
-        ) : (
-          <div style={{maxHeight:600,overflowY:"auto",border:"1px solid rgba(0,0,0,.04)",borderRadius:6}}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
-              <thead style={{background:"rgba(0,137,123,.05)",position:"sticky",top:0,zIndex:1}}>
-                <tr>
-                  <th style={{padding:"8px 10px",textAlign:"left",color:"#006B6F",fontWeight:600,borderBottom:"1px solid rgba(0,0,0,.06)"}}>#</th>
-                  <th style={{padding:"8px 6px",textAlign:"center",color:"#006B6F",fontWeight:600,borderBottom:"1px solid rgba(0,0,0,.06)"}}></th>
-                  <th style={{padding:"8px 10px",textAlign:"left",color:"#006B6F",fontWeight:600,borderBottom:"1px solid rgba(0,0,0,.06)"}}>Thema</th>
-                  <th style={{padding:"8px 10px",textAlign:"left",color:"#006B6F",fontWeight:600,borderBottom:"1px solid rgba(0,0,0,.06)"}}>Zeitpunkt</th>
-                </tr>
-              </thead>
-              <tbody>
-                {phasen.map(function(p, i) {
-                  // Bei Datumsphasen Tag-Offset anzeigen
-                  let tagInfo = "";
-                  if (p.type === "calendar" && typeof p.tagOffset === "number") {
-                    if (p.tagOffset === 0) tagInfo = "OP-Tag";
-                    else if (p.tagOffset > 0) tagInfo = "+" + p.tagOffset + "d";
-                    else tagInfo = p.tagOffset + "d (vor OP)";
-                  } else if (p.type === "onboarding") {
-                    tagInfo = "Onboarding";
-                  } else if (p.type === "milestone") {
-                    tagInfo = "Meilenstein";
-                  }
-                  return <tr key={p.id} style={{borderBottom:"1px solid rgba(0,0,0,.04)"}}>
-                    <td style={{padding:"6px 10px",color:"#A0AEC0",fontSize:10,verticalAlign:"top"}}>{i + 1}</td>
-                    <td style={{padding:"6px 6px",fontSize:14,textAlign:"center",verticalAlign:"top"}}>{p.emoji || ""}</td>
-                    <td style={{padding:"6px 10px",color:"#2D3748",verticalAlign:"top"}}>{p.thema}</td>
-                    <td style={{padding:"6px 10px",color:"#718096",fontSize:10,verticalAlign:"top"}}>
-                      <div>{p.label}</div>
-                      {tagInfo && <div style={{color:"#A0AEC0",fontSize:9,marginTop:1}}>{tagInfo}</div>}
-                    </td>
-                  </tr>;
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-
-    <div style={{marginTop:16,fontSize:10,color:"#A0AEC0",textAlign:"center"}}>
-      Daten werden direkt aus <code style={{background:"rgba(0,0,0,.04)",padding:"1px 4px",borderRadius:3}}>phasen.json</code> des Fuß-Track-Repos geladen. Änderungen dort wirken sich sofort hier aus.
-    </div>
-  </div>;
 }
 
 function App() {
@@ -10718,23 +10365,6 @@ function App() {
         <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
           <MERechner/>
         </div>
-      </div>
-    </div>
-  );
-
-  if (tool === "fusstrack") return (
-    <div>
-      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
-        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:11,fontWeight:600}}>
-          ← Toolbox
-        </div>
-      </div>
-      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:1100,margin:"0 auto",padding:"60px 16px 40px"}}>
-        <div style={{textAlign:"center",marginBottom:24}}>
-          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🗺️ Fuß-Track Patientenbegleiter</div>
-          <div style={{fontSize:11,color:"#718096"}}>Eingriff und Variante wählen · Phasen-Vorschau · QR-Code zur freien Verwendung</div>
-        </div>
-        <FussTrackTool/>
       </div>
     </div>
   );
