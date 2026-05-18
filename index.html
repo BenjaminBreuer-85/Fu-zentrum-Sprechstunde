@@ -10312,18 +10312,41 @@ const FT_OSG_TEP_POST = [
   { label: "3 Monate nach OP",      emoji: "✅", thema: "Kontrolle" }
 ];
 
-const FUSSTRACK_FLOWS = [
-  { key: "chevron",        var: "einfach", label: "Großzehe (Chevron) — einfach",         beschreibung: "Operation an der Großzehe allein",                              post: FT_CHEVRON_EINFACH_POST },
-  { key: "chevron",        var: "komplex", label: "Großzehe (Chevron) — komplex",         beschreibung: "Großzehe plus Mittelfußosteotomie / Kleinzehenkorrektur",      post: FT_CHEVRON_KOMPLEX_POST },
-  { key: "osg_arthrodese", var: "einfach", label: "OSG-Versteifung — einfach",            beschreibung: "Mit Teilbelastung",                                              post: FT_OSG_ARTHRODESE_POST },
-  { key: "osg_arthrodese", var: "komplex", label: "OSG-Versteifung — komplex",            beschreibung: "Mit kompletter Entlastung",                                      post: FT_OSG_ARTHRODESE_POST },
-  { key: "osg_tep",        var: "einfach", label: "OSG-Prothese — einfach",                beschreibung: "Prothese allein",                                                post: FT_OSG_TEP_POST },
-  { key: "osg_tep",        var: "komplex", label: "OSG-Prothese — komplex",                beschreibung: "Mit knöcherner Korrektur / Stabilisierung",                      post: FT_OSG_TEP_POST }
-];
-
-const FUSSTRACK_AUFKLAERUNG = [
-  { key: "chevron",        label: "Aufklärung Hallux valgus / Chevron",     hinweis: "Slideshow (vor OP-Entscheidung) · ⚠ Chevron-Slides noch leer" },
-  { key: "osg_arthrose",   label: "Aufklärung OSG-Arthrose",                hinweis: "Slideshow (vor OP-Entscheidung) · 5 Slides verfügbar" }
+// Hierarchische Struktur: Krankheitsbild → (Aufklärung + Begleit-Flow-Varianten)
+// Pro Krankheitsbild ein Eintrag, darunter alle relevanten Modi und Varianten.
+// Aufklärung: externe HTML-Seite (Standalone, identisch zur im Sprechstundenbrief genutzten).
+// Begleit-Flow: fusstrack.html mit ?op&var-Parametern.
+const FUSSTRACK_KRANKHEITSBILDER = [
+  {
+    key: "hallux_valgus",
+    label: "Hallux valgus",
+    untertitel: "Großzehen-Fehlstellung · Chevron-Osteotomie",
+    emoji: "🦶",
+    aufklaerung: {
+      url: "https://benjaminbreuer-85.github.io/Info-Fu-/aufklaerung_chevron.html",
+      hinweis: "Standalone-Aufklärungsseite · auch im Sprechstundenbrief verlinkt"
+    },
+    flows: [
+      { opKey: "chevron", var: "einfach", label: "Begleit-Flow — einfach",   beschreibung: "Operation an der Großzehe allein",                              post: FT_CHEVRON_EINFACH_POST },
+      { opKey: "chevron", var: "komplex", label: "Begleit-Flow — komplex",   beschreibung: "Großzehe plus Mittelfußosteotomie / Kleinzehenkorrektur",      post: FT_CHEVRON_KOMPLEX_POST }
+    ]
+  },
+  {
+    key: "osg_arthrose",
+    label: "OSG-Arthrose",
+    untertitel: "Verschleiß des oberen Sprunggelenks · Versteifung oder Prothese",
+    emoji: "🦴",
+    aufklaerung: {
+      url: "https://benjaminbreuer-85.github.io/Info-OSG-Arthrose/aufklaerung_osg_arthrose.html",
+      hinweis: "Standalone-Aufklärungsseite · auch im Sprechstundenbrief verlinkt"
+    },
+    flows: [
+      { opKey: "osg_arthrodese", var: "einfach", label: "Versteifung — einfach",  beschreibung: "Arthrodese mit Teilbelastung",                                   post: FT_OSG_ARTHRODESE_POST },
+      { opKey: "osg_arthrodese", var: "komplex", label: "Versteifung — komplex",  beschreibung: "Arthrodese mit kompletter Entlastung",                           post: FT_OSG_ARTHRODESE_POST },
+      { opKey: "osg_tep",        var: "einfach", label: "Prothese — einfach",     beschreibung: "Endoprothese allein",                                            post: FT_OSG_TEP_POST },
+      { opKey: "osg_tep",        var: "komplex", label: "Prothese — komplex",     beschreibung: "Endoprothese mit knöcherner Korrektur / Stabilisierung",         post: FT_OSG_TEP_POST }
+    ]
+  }
 ];
 
 const FT_WISSEN_KATEGORIEN = {
@@ -10364,11 +10387,16 @@ function ftShowToast(text) {
   setTimeout(function() { el.remove(); }, 2000);
 }
 
+
 function FussTrackQrApp() {
   const [tab, setTab] = useState("flow");
-  const [selectedFlowIdx, setSelectedFlowIdx] = useState(null);
-  const [selectedAufIdx, setSelectedAufIdx] = useState(null);
-  const [selectedWissenIdx, setSelectedWissenIdx] = useState(null);
+  // Flow-Tab: 2-stufige Navigation
+  const [selectedKbIdx, setSelectedKbIdx] = useState(null);          // Krankheitsbild-Index
+  const [selectedOption, setSelectedOption] = useState(null);        // { typ:"aufklaerung" } | { typ:"flow", idx:N }
+  // Wissen-Tab: Filter + Auswahl
+  const [wissenKategorie, setWissenKategorie] = useState("alle");
+  const [wissenSuche, setWissenSuche] = useState("");
+  const [selectedWissenKey, setSelectedWissenKey] = useState(null);
 
   const TEAL = "#006B6F";
   const TEAL_BG = "rgba(0,107,111,.06)";
@@ -10392,12 +10420,49 @@ function FussTrackQrApp() {
     });
   }
 
-  var activeFlow = (selectedFlowIdx !== null && selectedFlowIdx >= 0) ? FUSSTRACK_FLOWS[selectedFlowIdx] : null;
-  var activeAuf = (selectedAufIdx !== null && selectedAufIdx >= 0) ? FUSSTRACK_AUFKLAERUNG[selectedAufIdx] : null;
-  var activeWissen = (selectedWissenIdx !== null && selectedWissenIdx >= 0) ? FUSSTRACK_WISSEN[selectedWissenIdx] : null;
+  function resetFlowSelection() {
+    setSelectedKbIdx(null);
+    setSelectedOption(null);
+  }
 
-  var flowUrl = activeFlow ? (FUSSTRACK_BASE_URL + "?op=" + activeFlow.key + "&var=" + activeFlow.var) : "";
-  var aufUrl = activeAuf ? (FUSSTRACK_BASE_URL + "?op=" + activeAuf.key + "&modus=aufklaerung") : "";
+  // === FLOW-TAB: aktive URL bestimmen ===
+  var activeKb = (selectedKbIdx !== null && selectedKbIdx >= 0) ? FUSSTRACK_KRANKHEITSBILDER[selectedKbIdx] : null;
+  var activeOption = null;
+  var activeUrl = "";
+  var activeTitle = "";
+  if (activeKb && selectedOption) {
+    if (selectedOption.typ === "aufklaerung") {
+      activeOption = activeKb.aufklaerung;
+      activeUrl = activeKb.aufklaerung.url;  // direkte externe URL (nicht via fusstrack.html)
+      activeTitle = "Aufklärung — " + activeKb.label;
+    } else if (selectedOption.typ === "flow" && activeKb.flows[selectedOption.idx]) {
+      activeOption = activeKb.flows[selectedOption.idx];
+      activeUrl = FUSSTRACK_BASE_URL + "?op=" + activeOption.opKey + "&var=" + activeOption.var;
+      activeTitle = activeKb.label + " · " + activeOption.label;
+    }
+  }
+
+  // === WISSEN-TAB: Filterung ===
+  var kategorienMitCounts = Object.keys(FT_WISSEN_KATEGORIEN).map(function(k) {
+    var cnt = FUSSTRACK_WISSEN.filter(function(w) { return w.kategorie === k; }).length;
+    return { key: k, label: FT_WISSEN_KATEGORIEN[k].label, emoji: FT_WISSEN_KATEGORIEN[k].emoji, count: cnt };
+  }).filter(function(k) { return k.count > 0; });
+
+  var gefilterteWissen = FUSSTRACK_WISSEN.filter(function(w) {
+    if (wissenKategorie !== "alle" && w.kategorie !== wissenKategorie) return false;
+    if (wissenSuche.trim()) {
+      var s = wissenSuche.toLowerCase();
+      if (w.titel.toLowerCase().indexOf(s) < 0 && w.key.indexOf(s) < 0) return false;
+    }
+    return true;
+  });
+  // Aktiv vor Platzhalter sortieren
+  gefilterteWissen.sort(function(a, b) {
+    if (a.status === b.status) return 0;
+    return a.status === "aktiv" ? -1 : 1;
+  });
+
+  var activeWissen = selectedWissenKey ? FUSSTRACK_WISSEN.find(function(w) { return w.key === selectedWissenKey; }) : null;
   var wissenUrl = activeWissen ? (FUSSTRACK_BASE_URL + "?wissen=" + activeWissen.key) : "";
 
   var tabStyle = function(active) {
@@ -10412,6 +10477,7 @@ function FussTrackQrApp() {
     };
   };
 
+  // === QR-Panel (gemeinsam für Flow + Wissen) ===
   function QrPanel({ url, title, children }) {
     return (
       <div style={{ marginTop: 16, padding: 16, background: TEAL_BG, border: "1px solid " + TEAL_BORDER, borderRadius: 8 }}>
@@ -10446,7 +10512,6 @@ function FussTrackQrApp() {
       <div style={{textAlign:"center",marginBottom:20}}>
         <div style={{fontSize:22,fontWeight:700,color:TEAL,marginBottom:4}}>🗺️ Fuß-Track QR-Generator</div>
         <div style={{fontSize:11,color:"#718096"}}>QR-Codes für den Patientenbegleiter — kompletter Flow oder einzelnes Wissensthema</div>
-        <div style={{fontSize:10,color:"#A0AEC0",marginTop:4}}>Stand: 18.05.2026 · 6 Flows · 2 Aufklärungen · 15 Wissensthemen (9 aktiv · 6 Platzhalter)</div>
       </div>
 
       <div style={{ display: "flex", gap: 4, borderBottom: "1px solid rgba(0,0,0,.08)" }}>
@@ -10456,122 +10521,220 @@ function FussTrackQrApp() {
 
       <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,.08)", borderTop: "none", borderRadius: "0 0 8px 8px", padding: 20, marginBottom: 24 }}>
 
+        {/* =============================================== */}
+        {/* TAB 1: KOMPLETTER FLOW                            */}
+        {/* =============================================== */}
         {tab === "flow" && <div>
-          <div style={{ fontSize: 12, color: "#4A5568", marginBottom: 12, lineHeight: 1.5 }}>
-            Wählen Sie einen Begleit-Flow oder eine Aufklärungs-Slideshow. Der Patient bekommt nur den gewählten Inhalt angezeigt.
-          </div>
 
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: TEAL, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
-              Begleit-Modus (nach OP-Entscheidung · Phasenkalender)
+          {/* Stufe 1: Krankheitsbild noch nicht gewählt */}
+          {!activeKb && <div>
+            <div style={{ fontSize: 12, color: "#4A5568", marginBottom: 14, lineHeight: 1.5 }}>
+              <strong>Schritt 1:</strong> Wählen Sie das Krankheitsbild.
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 }}>
-              {FUSSTRACK_FLOWS.map(function(f, i) {
-                var active = selectedFlowIdx === i;
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
+              {FUSSTRACK_KRANKHEITSBILDER.map(function(kb, i) {
                 return (
                   <div key={i}
-                       onClick={function() { setSelectedFlowIdx(active ? null : i); setSelectedAufIdx(null); }}
+                       onClick={function() { setSelectedKbIdx(i); setSelectedOption(null); }}
                        style={{
-                         padding: "10px 12px",
-                         border: active ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
-                         background: active ? TEAL_BG : "#fff",
-                         borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4
-                       }}>
-                    <div style={{ fontWeight: 600, color: active ? TEAL : "#1A2A3A" }}>{f.label}</div>
-                    <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>{f.beschreibung}</div>
+                         padding: "20px 18px",
+                         border: "1px solid rgba(0,0,0,.12)",
+                         background: "#fff",
+                         borderRadius: 10,
+                         cursor: "pointer",
+                         transition: "all .15s"
+                       }}
+                       onMouseEnter={function(e) { e.currentTarget.style.border = "1px solid " + TEAL; e.currentTarget.style.background = TEAL_BG; }}
+                       onMouseLeave={function(e) { e.currentTarget.style.border = "1px solid rgba(0,0,0,.12)"; e.currentTarget.style.background = "#fff"; }}>
+                    <div style={{ fontSize: 32, marginBottom: 8 }}>{kb.emoji}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#1A2A3A", marginBottom: 4 }}>{kb.label}</div>
+                    <div style={{ fontSize: 11, color: "#718096", marginBottom: 8 }}>{kb.untertitel}</div>
+                    <div style={{ fontSize: 10, color: TEAL, fontWeight: 600 }}>
+                      ℹ️ Aufklärung · {kb.flows.length} Begleit-Variant{kb.flows.length === 1 ? "e" : "en"}
+                    </div>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </div>}
 
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: TEAL, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
-              Aufklärungs-Modus (vor OP-Entscheidung · Slideshow)
+          {/* Stufe 2: Krankheitsbild gewählt → Modus + Variante */}
+          {activeKb && <div>
+            {/* Breadcrumb mit Zurück-Knopf */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, paddingBottom: 10, borderBottom: "1px solid rgba(0,0,0,.06)" }}>
+              <div onClick={resetFlowSelection}
+                   style={{ cursor: "pointer", padding: "4px 10px", background: "rgba(0,0,0,.04)", borderRadius: 4, fontSize: 11, color: "#4A5568", fontWeight: 600 }}>
+                ← Krankheitsbild wechseln
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: TEAL }}>{activeKb.emoji} {activeKb.label}</div>
+              <div style={{ fontSize: 11, color: "#718096" }}>{activeKb.untertitel}</div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 }}>
-              {FUSSTRACK_AUFKLAERUNG.map(function(a, i) {
-                var active = selectedAufIdx === i;
-                return (
-                  <div key={i}
-                       onClick={function() { setSelectedAufIdx(active ? null : i); setSelectedFlowIdx(null); }}
-                       style={{
-                         padding: "10px 12px",
-                         border: active ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
-                         background: active ? TEAL_BG : "#fff",
-                         borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4
-                       }}>
-                    <div style={{ fontWeight: 600, color: active ? TEAL : "#1A2A3A" }}>{a.label}</div>
-                    <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>{a.hinweis}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
 
-          {activeFlow && <QrPanel url={flowUrl} title={activeFlow.label}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#4A5568", marginBottom: 6 }}>
-              Themen-Übersicht ({FT_SHARED_PRE.length + activeFlow.post.length} Phasen)
+            <div style={{ fontSize: 12, color: "#4A5568", marginBottom: 14, lineHeight: 1.5 }}>
+              <strong>Schritt 2:</strong> Wählen Sie Modus und Variante.
             </div>
-            <div style={{ maxHeight: 280, overflowY: "auto", background: "#fff", borderRadius: 4, border: "1px solid rgba(0,0,0,.08)", padding: 8 }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: "#718096", textTransform: "uppercase", marginBottom: 4, letterSpacing: 0.5 }}>Vor OP (gemeinsam)</div>
-              {FT_SHARED_PRE.map(function(p, i) {
-                return <div key={"pre" + i} style={{ fontSize: 11, padding: "3px 0", borderBottom: "1px dotted rgba(0,0,0,.05)", color: "#4A5568" }}>
-                  <span style={{ color: "#A0AEC0" }}>{p.label}</span> · {p.thema}
-                </div>;
-              })}
-              <div style={{ fontSize: 9, fontWeight: 700, color: "#718096", textTransform: "uppercase", marginTop: 8, marginBottom: 4, letterSpacing: 0.5 }}>Nach OP (eingriffsspezifisch)</div>
-              {activeFlow.post.map(function(p, i) {
-                return <div key={"post" + i} style={{ fontSize: 11, padding: "3px 0", borderBottom: "1px dotted rgba(0,0,0,.05)", color: "#1A2A3A" }}>
-                  <span style={{ marginRight: 4 }}>{p.emoji}</span><span style={{ color: "#A0AEC0" }}>{p.label}</span> · {p.thema}
-                </div>;
-              })}
-            </div>
-          </QrPanel>}
 
-          {activeAuf && <QrPanel url={aufUrl} title={activeAuf.label}>
-            <div style={{ fontSize: 12, color: "#4A5568", lineHeight: 1.5 }}>
-              Aufklärungs-Slideshow zum Krankheitsbild. Geeignet für die Erst-Sprechstunde, in der noch keine Variante festgelegt ist.
+            {/* Aufklärungs-Option */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
+                Aufklärungs-Modus (vor OP-Entscheidung)
+              </div>
+              <div onClick={function() { setSelectedOption({ typ: "aufklaerung" }); }}
+                   style={{
+                     padding: "10px 12px",
+                     border: (selectedOption && selectedOption.typ === "aufklaerung") ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
+                     background: (selectedOption && selectedOption.typ === "aufklaerung") ? TEAL_BG : "#fff",
+                     borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4
+                   }}>
+                <div style={{ fontWeight: 600, color: (selectedOption && selectedOption.typ === "aufklaerung") ? TEAL : "#1A2A3A" }}>
+                  ℹ️ Aufklärung zu {activeKb.label}
+                </div>
+                <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>{activeKb.aufklaerung.hinweis}</div>
+              </div>
             </div>
-            {activeAuf.key === "chevron" && <div style={{ marginTop: 8, padding: 8, background: "rgba(230,81,0,.08)", border: "1px solid rgba(230,81,0,.25)", borderRadius: 4, color: "#BF360C", fontSize: 11 }}>
-              ⚠ Die Chevron-Aufklärungs-Slides sind in aufklaerung.json aktuell noch leer. Der Patient sieht eine leere Slideshow, solange keine Slides ergänzt sind.
+
+            {/* Begleit-Flows */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
+                Begleit-Modus (nach OP-Entscheidung · Phasenkalender)
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 }}>
+                {activeKb.flows.map(function(f, i) {
+                  var active = selectedOption && selectedOption.typ === "flow" && selectedOption.idx === i;
+                  return (
+                    <div key={i}
+                         onClick={function() { setSelectedOption({ typ: "flow", idx: i }); }}
+                         style={{
+                           padding: "10px 12px",
+                           border: active ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
+                           background: active ? TEAL_BG : "#fff",
+                           borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4
+                         }}>
+                      <div style={{ fontWeight: 600, color: active ? TEAL : "#1A2A3A" }}>📅 {f.label}</div>
+                      <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>{f.beschreibung}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* QR-Panel mit Detail-Anzeige */}
+            {activeOption && selectedOption.typ === "aufklaerung" && <QrPanel url={activeUrl} title={activeTitle}>
+              <div style={{ fontSize: 12, color: "#4A5568", lineHeight: 1.5 }}>
+                Standalone-Aufklärungsseite zum Krankheitsbild. Geeignet für die Erst-Sprechstunde, wenn die Therapie-Variante noch nicht festgelegt ist. Dieselbe Seite ist im Sprechstundenbrief als QR-Code eingebaut.
+              </div>
+            </QrPanel>}
+
+            {activeOption && selectedOption.typ === "flow" && <QrPanel url={activeUrl} title={activeTitle}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#4A5568", marginBottom: 6 }}>
+                Themen-Übersicht ({FT_SHARED_PRE.length + activeOption.post.length} Phasen)
+              </div>
+              <div style={{ maxHeight: 280, overflowY: "auto", background: "#fff", borderRadius: 4, border: "1px solid rgba(0,0,0,.08)", padding: 8 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: "#718096", textTransform: "uppercase", marginBottom: 4, letterSpacing: 0.5 }}>Vor OP (gemeinsam)</div>
+                {FT_SHARED_PRE.map(function(p, i) {
+                  return <div key={"pre" + i} style={{ fontSize: 11, padding: "3px 0", borderBottom: "1px dotted rgba(0,0,0,.05)", color: "#4A5568" }}>
+                    <span style={{ color: "#A0AEC0" }}>{p.label}</span> · {p.thema}
+                  </div>;
+                })}
+                <div style={{ fontSize: 9, fontWeight: 700, color: "#718096", textTransform: "uppercase", marginTop: 8, marginBottom: 4, letterSpacing: 0.5 }}>Nach OP (eingriffsspezifisch)</div>
+                {activeOption.post.map(function(p, i) {
+                  return <div key={"post" + i} style={{ fontSize: 11, padding: "3px 0", borderBottom: "1px dotted rgba(0,0,0,.05)", color: "#1A2A3A" }}>
+                    <span style={{ marginRight: 4 }}>{p.emoji}</span><span style={{ color: "#A0AEC0" }}>{p.label}</span> · {p.thema}
+                  </div>;
+                })}
+              </div>
+            </QrPanel>}
+
+            {!activeOption && <div style={{ marginTop: 16, padding: 24, background: "rgba(0,0,0,.02)", borderRadius: 8, textAlign: "center", color: "#A0AEC0", fontSize: 12 }}>
+              Wählen Sie oben einen Modus, um QR-Code und Detail-Anzeige zu sehen.
             </div>}
-          </QrPanel>}
-
-          {!activeFlow && !activeAuf && <div style={{ marginTop: 16, padding: 24, background: "rgba(0,0,0,.02)", borderRadius: 8, textAlign: "center", color: "#A0AEC0", fontSize: 12 }}>
-            Wählen Sie oben einen Flow, um QR-Code und Themen-Übersicht zu sehen.
           </div>}
         </div>}
 
+        {/* =============================================== */}
+        {/* TAB 2: EINZELNES WISSENSTHEMA                     */}
+        {/* =============================================== */}
         {tab === "wissen" && <div>
           <div style={{ fontSize: 12, color: "#4A5568", marginBottom: 12, lineHeight: 1.5 }}>
-            Wählen Sie einen einzelnen Wissens-Eintrag. Der Patient sieht beim Scannen nur diesen einen Inhalt — geeignet für gezielte Informationen (z.B. Verbandwechsel-Anleitung im Entlassbrief).
+            Der Patient sieht beim Scannen <strong>nur diesen einen Inhalt</strong> — kein Flow, keine Phasen, keine Session. Geeignet für gezielte Hinweise im Entlassbrief (z.B. Verbandwechsel-Anleitung) oder bei der Sprechstunde.
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 }}>
-            {FUSSTRACK_WISSEN.map(function(w, i) {
-              var active = selectedWissenIdx === i;
-              var kat = FT_WISSEN_KATEGORIEN[w.kategorie] || { label: w.kategorie, emoji: "📖" };
-              var isPlatzhalter = w.status === "platzhalter";
-              return (
-                <div key={i}
-                     onClick={function() { setSelectedWissenIdx(active ? null : i); }}
-                     style={{
-                       padding: "10px 12px",
-                       border: active ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
-                       background: active ? TEAL_BG : (isPlatzhalter ? "rgba(0,0,0,.02)" : "#fff"),
-                       borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4,
-                       opacity: isPlatzhalter ? 0.6 : 1
-                     }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: "#718096", marginBottom: 2 }}>
-                    {kat.emoji} {kat.label}{isPlatzhalter ? " · ○ Platzhalter" : " · ✓ aktiv"}
+          {/* Suche + Kategorie-Filter */}
+          <div style={{ marginBottom: 14 }}>
+            <input
+              type="text"
+              placeholder="🔍 Wissens-Eintrag suchen..."
+              value={wissenSuche}
+              onChange={function(e) { setWissenSuche(e.target.value); }}
+              style={{
+                width: "100%", padding: "8px 12px",
+                border: "1px solid rgba(0,0,0,.12)", borderRadius: 6,
+                fontSize: 13, fontFamily: "inherit", boxSizing: "border-box",
+                marginBottom: 10
+              }}
+            />
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <div onClick={function() { setWissenKategorie("alle"); }}
+                   style={{
+                     padding: "5px 10px", borderRadius: 4, cursor: "pointer", fontSize: 11,
+                     background: wissenKategorie === "alle" ? TEAL : "rgba(0,0,0,.04)",
+                     color: wissenKategorie === "alle" ? "#fff" : "#4A5568",
+                     border: wissenKategorie === "alle" ? "1px solid " + TEAL : "1px solid rgba(0,0,0,.08)",
+                     fontWeight: 600
+                   }}>
+                Alle ({FUSSTRACK_WISSEN.length})
+              </div>
+              {kategorienMitCounts.map(function(k) {
+                var active = wissenKategorie === k.key;
+                return (
+                  <div key={k.key}
+                       onClick={function() { setWissenKategorie(k.key); }}
+                       style={{
+                         padding: "5px 10px", borderRadius: 4, cursor: "pointer", fontSize: 11,
+                         background: active ? TEAL : "rgba(0,0,0,.04)",
+                         color: active ? "#fff" : "#4A5568",
+                         border: active ? "1px solid " + TEAL : "1px solid rgba(0,0,0,.08)",
+                         fontWeight: 600
+                       }}>
+                    {k.emoji} {k.label} ({k.count})
                   </div>
-                  <div style={{ fontWeight: 600, color: active ? TEAL : "#1A2A3A" }}>{w.titel}</div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
+          {/* Liste */}
+          {gefilterteWissen.length === 0 ? (
+            <div style={{ padding: 24, background: "rgba(0,0,0,.02)", borderRadius: 8, textAlign: "center", color: "#A0AEC0", fontSize: 12 }}>
+              Keine Wissens-Einträge gefunden. Filter zurücksetzen?
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 8 }}>
+              {gefilterteWissen.map(function(w) {
+                var active = selectedWissenKey === w.key;
+                var kat = FT_WISSEN_KATEGORIEN[w.kategorie] || { label: w.kategorie, emoji: "📖" };
+                var isPlatzhalter = w.status === "platzhalter";
+                return (
+                  <div key={w.key}
+                       onClick={function() { setSelectedWissenKey(active ? null : w.key); }}
+                       style={{
+                         padding: "10px 12px",
+                         border: active ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
+                         background: active ? TEAL_BG : (isPlatzhalter ? "rgba(0,0,0,.02)" : "#fff"),
+                         borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4,
+                         opacity: isPlatzhalter ? 0.65 : 1
+                       }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: "#718096", marginBottom: 2 }}>
+                      {kat.emoji} {kat.label} · {isPlatzhalter ? "○ Platzhalter" : "✓ aktiv"}
+                    </div>
+                    <div style={{ fontWeight: 600, color: active ? TEAL : "#1A2A3A" }}>{w.titel}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* QR-Panel */}
           {activeWissen && <QrPanel url={wissenUrl} title={activeWissen.titel}>
             <div style={{ fontSize: 12, color: "#4A5568", lineHeight: 1.5 }}>
               Kategorie: {(FT_WISSEN_KATEGORIEN[activeWissen.kategorie] || {}).label}
@@ -10579,11 +10742,10 @@ function FussTrackQrApp() {
             {activeWissen.status === "platzhalter" && <div style={{ marginTop: 8, padding: 8, background: "rgba(230,81,0,.08)", border: "1px solid rgba(230,81,0,.25)", borderRadius: 4, color: "#BF360C", fontSize: 11 }}>
               ⚠ Dieser Eintrag ist in phasen.json aktuell noch ein Platzhalter — der Patient sieht den Hinweis „Inhalt folgt".
             </div>}
+            <div style={{ marginTop: 8, padding: 8, background: "rgba(0,107,111,.04)", borderRadius: 4, color: "#4A5568", fontSize: 11 }}>
+              💡 Beim Scannen sieht der Patient <strong>nur diesen Inhalt</strong> — keinen Flow, keine Phasen, keine Session.
+            </div>
           </QrPanel>}
-
-          {!activeWissen && <div style={{ marginTop: 16, padding: 24, background: "rgba(0,0,0,.02)", borderRadius: 8, textAlign: "center", color: "#A0AEC0", fontSize: 12 }}>
-            Wählen Sie oben einen Wissens-Eintrag, um den QR-Code zu sehen.
-          </div>}
         </div>}
 
       </div>
