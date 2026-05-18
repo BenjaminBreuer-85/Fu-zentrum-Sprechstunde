@@ -10211,6 +10211,391 @@ function MERechner(){
   </div>;
 }
 
+// ============================================================
+// FUSS-TRACK QR-GENERATOR
+// Datenstrukturen synchron zu fusstrack.html / phasen.json (Repo: Fuss-Track).
+// Bei Änderungen an Phasen/Wissen muss hier nachgepflegt werden.
+// Stand: 18.05.2026 — 9 aktive + 6 Platzhalter Wissens-Einträge.
+// ============================================================
+const FUSSTRACK_BASE_URL = "https://benjaminbreuer-85.github.io/Fuss-Track/fusstrack.html";
+
+// Gemeinsame Pre-OP-Phasen (für alle 6 Begleit-Flows identisch)
+const FT_SHARED_PRE = [
+  { label: "Bei Anlage",            thema: "Begrüßung" },
+  { label: "ca. 50 Tage vor OP",    thema: "Hintergrundinformation" },
+  { label: "ca. 45 Tage vor OP",    thema: "Risikoverminderung" },
+  { label: "ca. 45 Tage vor OP",    thema: "Diabetes mellitus" },
+  { label: "ca. 42 Tage vor OP",    thema: "Nikotinkonsum" },
+  { label: "ca. 42 Tage vor OP",    thema: "Ernährung" },
+  { label: "ca. 40 Tage vor OP",    thema: "Versorgung nach OP — Sozial" },
+  { label: "ca. 40 Tage vor OP",    thema: "Versorgung nach OP — Hilfsmittel" },
+  { label: "ca. 36 Tage vor OP",    thema: "Wadenmuskeldehnung & Gleichgewicht" },
+  { label: "ca. 32 Tage vor OP",    thema: "Bleiben Sie aktiv" },
+  { label: "ca. 30 Tage vor OP",    thema: "Entspannung & Achtsamkeit" },
+  { label: "ca. 28 Tage vor OP",    thema: "Medikamente prüfen" },
+  { label: "ca. 21 Tage vor OP",    thema: "Arbeitgeber informieren" },
+  { label: "ca. 18 Tage vor OP",    thema: "Termine nach OP planen" },
+  { label: "ca. 14 Tage vor OP",    thema: "Vorbereitung auf die Prämedikation" },
+  { label: "ca. 14 Tage vor OP",    thema: "Vorbereitung der Wohnung" },
+  { label: "ca. 7 Tage vor OP",     thema: "Planung der Fahrt" },
+  { label: "ca. 5 Tage vor OP",     thema: "Prämedikationstermin" },
+  { label: "ca. 4 Tage vor OP",     thema: "Packen Sie Ihre Tasche" },
+  { label: "2 Tage vor OP",         thema: "Blutverdünner pausieren" },
+  { label: "2 Tage vor OP",         thema: "Nüchternheit beachten" },
+  { label: "1 Tag vor OP",          thema: "Schmuck und Piercings ablegen" },
+  { label: "1 Tag vor OP",          thema: "Entspannung am Vorabend" }
+];
+
+const FT_CHEVRON_EINFACH_POST = [
+  { label: "OP-Tag",                emoji: "🏥", thema: "Am OP-Tag" },
+  { label: "OP-Tag",                emoji: "❄️", thema: "Abschwellung" },
+  { label: "Tag 1 nach OP",         emoji: "🏡", thema: "Zu Hause ankommen" },
+  { label: "Tag 1 nach OP",         emoji: "🚶", thema: "Mobilisierung und Thromboseschutz" },
+  { label: "Tag 1 nach OP",         emoji: "🚿", thema: "Körperhygiene" },
+  { label: "Tag 2 nach OP",         emoji: "🩹", thema: "Erster Verbandwechsel" },
+  { label: "1 Woche nach OP",       emoji: "🩹", thema: "Zweiter Verbandwechsel" },
+  { label: "2 Wochen nach OP",      emoji: "✂️", thema: "Fadenzug und dritter Verbandwechsel" },
+  { label: "3 Wochen nach OP",      emoji: "👟", thema: "Abnahme des Verbandes" },
+  { label: "3 Wochen nach OP",      emoji: "🦶", thema: "Bewegungsübungen Großzehengrundgelenk" },
+  { label: "ca. 6 Wochen nach OP",  emoji: "💆", thema: "Narbenpflege" },
+  { label: "ca. 6 Wochen nach OP",  emoji: "🚴", thema: "Sportliche Belastungssteigerung" },
+  { label: "3 Monate nach OP",      emoji: "✅", thema: "Kontrolle" }
+];
+
+const FT_CHEVRON_KOMPLEX_POST = [
+  { label: "OP-Tag",                emoji: "🏥", thema: "Am OP-Tag" },
+  { label: "OP-Tag",                emoji: "❄️", thema: "Abschwellung" },
+  { label: "Tag 1 nach OP",         emoji: "🏡", thema: "Zu Hause ankommen" },
+  { label: "Tag 1 nach OP",         emoji: "🚶", thema: "Mobilisierung und Thromboseschutz" },
+  { label: "Tag 1 nach OP",         emoji: "🚿", thema: "Körperhygiene" },
+  { label: "Tag 2 nach OP",         emoji: "🩹", thema: "Erster Verbandwechsel" },
+  { label: "1 Woche nach OP",       emoji: "🩹", thema: "Zweiter Verbandwechsel" },
+  { label: "2 Wochen nach OP",      emoji: "✂️", thema: "Fadenzug und dritter Verbandwechsel" },
+  { label: "3 Wochen nach OP",      emoji: "🩹", thema: "Vierter Verbandwechsel" },
+  { label: "4 Wochen nach OP",      emoji: "👟", thema: "Abnahme des Verbandes" },
+  { label: "4 Wochen nach OP",      emoji: "🦶", thema: "Bewegungsübungen Großzehengrundgelenk" },
+  { label: "ca. 6 Wochen nach OP",  emoji: "💆", thema: "Narbenpflege" },
+  { label: "ca. 6 Wochen nach OP",  emoji: "🚴", thema: "Sportliche Belastungssteigerung" },
+  { label: "3 Monate nach OP",      emoji: "✅", thema: "Kontrolle" }
+];
+
+const FT_OSG_ARTHRODESE_POST = [
+  { label: "OP-Tag",                emoji: "🏥", thema: "Am OP-Tag" },
+  { label: "OP-Tag",                emoji: "❄️", thema: "Abschwellung" },
+  { label: "Tag 1 nach OP",         emoji: "🚶", thema: "Mobilisierung und Thromboseschutz" },
+  { label: "Tag 1 nach OP",         emoji: "🚿", thema: "Körperhygiene" },
+  { label: "Tag 2 nach OP",         emoji: "🏡", thema: "Entlassung" },
+  { label: "Tag 2 nach OP",         emoji: "🩹", thema: "Erster Verbandwechsel" },
+  { label: "2 Wochen nach OP",      emoji: "✂️", thema: "Fadenzug" },
+  { label: "3 Wochen nach OP",      emoji: "👟", thema: "Erneuter Verbandwechsel" },
+  { label: "4 Wochen nach OP",      emoji: "🦶", thema: "Sanfte Bewegungsübungen" },
+  { label: "ca. 6 Wochen nach OP",  emoji: "💆", thema: "Narbenpflege" },
+  { label: "ca. 7 Wochen nach OP",  emoji: "🩻", thema: "Röntgenkontrolle und Belastungssteigerung" },
+  { label: "9 Wochen nach OP",      emoji: "🚴", thema: "Sportliche Belastungssteigerung" },
+  { label: "3 Monate nach OP",      emoji: "✅", thema: "Kontrolle" }
+];
+
+const FT_OSG_TEP_POST = [
+  { label: "OP-Tag",                emoji: "🏥", thema: "Am OP-Tag" },
+  { label: "OP-Tag",                emoji: "❄️", thema: "Abschwellung" },
+  { label: "Tag 1 nach OP",         emoji: "🚶", thema: "Mobilisierung und Thromboseschutz" },
+  { label: "Tag 1 nach OP",         emoji: "🚿", thema: "Körperhygiene" },
+  { label: "Tag 1 nach OP",         emoji: "💧", thema: "Lymphdrainage" },
+  { label: "Tag 2 nach OP",         emoji: "🏡", thema: "Entlassung" },
+  { label: "Tag 2 nach OP",         emoji: "🩹", thema: "Erster Verbandwechsel" },
+  { label: "2 Wochen nach OP",      emoji: "✂️", thema: "Fadenzug" },
+  { label: "3 Wochen nach OP",      emoji: "👟", thema: "Erneuter Verbandwechsel" },
+  { label: "4 Wochen nach OP",      emoji: "🦶", thema: "Sanfte Bewegungsübungen" },
+  { label: "ca. 6 Wochen nach OP",  emoji: "💆", thema: "Narbenpflege" },
+  { label: "6 Wochen nach OP",      emoji: "🩻", thema: "Röntgenkontrolle und Belastungssteigerung" },
+  { label: "9 Wochen nach OP",      emoji: "🚴", thema: "Sportliche Belastungssteigerung" },
+  { label: "3 Monate nach OP",      emoji: "✅", thema: "Kontrolle" }
+];
+
+const FUSSTRACK_FLOWS = [
+  { key: "chevron",        var: "einfach", label: "Großzehe (Chevron) — einfach",         beschreibung: "Operation an der Großzehe allein",                              post: FT_CHEVRON_EINFACH_POST },
+  { key: "chevron",        var: "komplex", label: "Großzehe (Chevron) — komplex",         beschreibung: "Großzehe plus Mittelfußosteotomie / Kleinzehenkorrektur",      post: FT_CHEVRON_KOMPLEX_POST },
+  { key: "osg_arthrodese", var: "einfach", label: "OSG-Versteifung — einfach",            beschreibung: "Mit Teilbelastung",                                              post: FT_OSG_ARTHRODESE_POST },
+  { key: "osg_arthrodese", var: "komplex", label: "OSG-Versteifung — komplex",            beschreibung: "Mit kompletter Entlastung",                                      post: FT_OSG_ARTHRODESE_POST },
+  { key: "osg_tep",        var: "einfach", label: "OSG-Prothese — einfach",                beschreibung: "Prothese allein",                                                post: FT_OSG_TEP_POST },
+  { key: "osg_tep",        var: "komplex", label: "OSG-Prothese — komplex",                beschreibung: "Mit knöcherner Korrektur / Stabilisierung",                      post: FT_OSG_TEP_POST }
+];
+
+const FUSSTRACK_AUFKLAERUNG = [
+  { key: "chevron",        label: "Aufklärung Hallux valgus / Chevron",     hinweis: "Slideshow (vor OP-Entscheidung) · ⚠ Chevron-Slides noch leer" },
+  { key: "osg_arthrose",   label: "Aufklärung OSG-Arthrose",                hinweis: "Slideshow (vor OP-Entscheidung) · 5 Slides verfügbar" }
+];
+
+const FT_WISSEN_KATEGORIEN = {
+  verband:        { label: "Verband & Wundpflege", emoji: "🩹" },
+  hilfsmittel:    { label: "Hilfsmittel",          emoji: "🦯" },
+  risiko:         { label: "Risikoverminderung",   emoji: "🛡️" },
+  bewegung:       { label: "Bewegung & Training",  emoji: "🧘" },
+  lebensfuehrung: { label: "Lebensführung",        emoji: "🏠" },
+  medikamente:    { label: "Medikamente",          emoji: "💊" },
+  aufklaerung:    { label: "Aufklärung",           emoji: "ℹ️" }
+};
+
+// 15 Einträge aus phasen.json: 9 aktiv (✓) + 6 Platzhalter (○)
+const FUSSTRACK_WISSEN = [
+  { key: "verbandwechsel_chevron",     titel: "Anleitung zum Verbandwechsel bei Chevron-Osteotomie",         kategorie: "verband",        status: "aktiv" },
+  { key: "keile_nachtschiene_chevron", titel: "Nutzung von Zwischenzehenkeilen und Nachtschiene",            kategorie: "hilfsmittel",    status: "platzhalter" },
+  { key: "gips_wasserdicht",           titel: "Wasserdichter Schutz für Verband und Gips",                   kategorie: "hilfsmittel",    status: "aktiv" },
+  { key: "rauchen_risiko",             titel: "Informationen zum Risikofaktor Rauchen",                      kategorie: "risiko",         status: "aktiv" },
+  { key: "diabetes_info",              titel: "Diabetes mellitus und Operationen",                           kategorie: "risiko",         status: "aktiv" },
+  { key: "adipositas_info",            titel: "Adipositas und Operationen",                                  kategorie: "risiko",         status: "aktiv" },
+  { key: "ernaehrung_knochen",         titel: "Ernährung bei Knochen-, Knorpel- und Sehneneingriffen",       kategorie: "risiko",         status: "platzhalter" },
+  { key: "vitamin_c",                  titel: "Vitamin C in der Heilung",                                    kategorie: "risiko",         status: "platzhalter" },
+  { key: "thromboseschutz_bewegung",   titel: "Thromboseschutz durch Bewegung",                              kategorie: "bewegung",       status: "aktiv" },
+  { key: "dehnung_achillessehne",      titel: "Dehnung der Achillessehne",                                   kategorie: "bewegung",       status: "platzhalter" },
+  { key: "propriozeption",             titel: "Propriozeptionsübungen",                                      kategorie: "bewegung",       status: "platzhalter" },
+  { key: "medikamente_rheuma",         titel: "Medikamente bei Rheuma vor Operationen",                      kategorie: "medikamente",    status: "aktiv" },
+  { key: "krankheitsbilder_suche",     titel: "Übersicht Krankheitsbilder",                                  kategorie: "aufklaerung",    status: "platzhalter" },
+  { key: "behandlerauswahl",           titel: "Auswahl des Behandlers",                                      kategorie: "aufklaerung",    status: "aktiv" },
+  { key: "komplikationsfaktoren",      titel: "Gängige Faktoren für erhöhte Komplikationswahrscheinlichkeit", kategorie: "aufklaerung",    status: "aktiv" }
+];
+
+// Toast-Helper
+function ftShowToast(text) {
+  var el = document.createElement("div");
+  el.textContent = text;
+  el.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:8px;z-index:10000;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.25);";
+  document.body.appendChild(el);
+  setTimeout(function() { el.remove(); }, 2000);
+}
+
+function FussTrackQrApp() {
+  const [tab, setTab] = useState("flow");
+  const [selectedFlowIdx, setSelectedFlowIdx] = useState(null);
+  const [selectedAufIdx, setSelectedAufIdx] = useState(null);
+  const [selectedWissenIdx, setSelectedWissenIdx] = useState(null);
+
+  const TEAL = "#006B6F";
+  const TEAL_BG = "rgba(0,107,111,.06)";
+  const TEAL_BORDER = "rgba(0,107,111,.2)";
+
+  function copyText(text, label) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() { ftShowToast("🔗 " + label + " kopiert!"); });
+    }
+  }
+
+  function copyQrImage(url, label) {
+    if (!url) return;
+    var dataUrl = getQrDataUrl(url, 600);
+    if (!dataUrl) return;
+    fetch(dataUrl).then(function(r) { return r.blob(); }).then(function(blob) {
+      if (typeof ClipboardItem !== "undefined" && navigator.clipboard && navigator.clipboard.write) {
+        var item = new ClipboardItem({ "image/png": blob });
+        navigator.clipboard.write([item]).then(function() { ftShowToast("📋 QR-Code " + label + " kopiert!"); });
+      }
+    });
+  }
+
+  var activeFlow = (selectedFlowIdx !== null && selectedFlowIdx >= 0) ? FUSSTRACK_FLOWS[selectedFlowIdx] : null;
+  var activeAuf = (selectedAufIdx !== null && selectedAufIdx >= 0) ? FUSSTRACK_AUFKLAERUNG[selectedAufIdx] : null;
+  var activeWissen = (selectedWissenIdx !== null && selectedWissenIdx >= 0) ? FUSSTRACK_WISSEN[selectedWissenIdx] : null;
+
+  var flowUrl = activeFlow ? (FUSSTRACK_BASE_URL + "?op=" + activeFlow.key + "&var=" + activeFlow.var) : "";
+  var aufUrl = activeAuf ? (FUSSTRACK_BASE_URL + "?op=" + activeAuf.key + "&modus=aufklaerung") : "";
+  var wissenUrl = activeWissen ? (FUSSTRACK_BASE_URL + "?wissen=" + activeWissen.key) : "";
+
+  var tabStyle = function(active) {
+    return {
+      padding: "10px 18px", borderRadius: "6px 6px 0 0", cursor: "pointer",
+      fontSize: 13, fontWeight: 600,
+      background: active ? "#fff" : "rgba(0,0,0,.04)",
+      color: active ? TEAL : "#718096",
+      border: "1px solid rgba(0,0,0,.08)",
+      borderBottom: active ? "1px solid #fff" : "1px solid rgba(0,0,0,.08)",
+      marginBottom: -1
+    };
+  };
+
+  function QrPanel({ url, title, children }) {
+    return (
+      <div style={{ marginTop: 16, padding: 16, background: TEAL_BG, border: "1px solid " + TEAL_BORDER, borderRadius: 8 }}>
+        <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+          <div style={{ flex: "0 0 auto" }}>
+            <QRCanvas text={url} size={160} />
+            <div style={{ marginTop: 8, display: "flex", gap: 6, flexDirection: "column" }}>
+              <div onClick={function() { copyQrImage(url, "Bild"); }}
+                   style={{ padding: "6px 10px", background: TEAL, color: "#fff", borderRadius: 5, cursor: "pointer", fontSize: 11, fontWeight: 600, textAlign: "center" }}>
+                📋 QR-Bild kopieren
+              </div>
+              <div onClick={function() { copyText(url, "Link"); }}
+                   style={{ padding: "6px 10px", background: "#fff", color: TEAL, border: "1px solid " + TEAL, borderRadius: 5, cursor: "pointer", fontSize: 11, fontWeight: 600, textAlign: "center" }}>
+                🔗 Link kopieren
+              </div>
+            </div>
+          </div>
+          <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: TEAL, marginBottom: 4 }}>{title}</div>
+            <div style={{ fontSize: 11, color: "#4A5568", marginBottom: 10, wordBreak: "break-all", fontFamily: "monospace", background: "#fff", padding: 6, borderRadius: 4, border: "1px solid rgba(0,0,0,.06)" }}>
+              {url}
+            </div>
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:1100,margin:"0 auto",padding:"60px 16px 40px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}>
+        <div style={{fontSize:22,fontWeight:700,color:TEAL,marginBottom:4}}>🗺️ Fuß-Track QR-Generator</div>
+        <div style={{fontSize:11,color:"#718096"}}>QR-Codes für den Patientenbegleiter — kompletter Flow oder einzelnes Wissensthema</div>
+        <div style={{fontSize:10,color:"#A0AEC0",marginTop:4}}>Stand: 18.05.2026 · 6 Flows · 2 Aufklärungen · 15 Wissensthemen (9 aktiv · 6 Platzhalter)</div>
+      </div>
+
+      <div style={{ display: "flex", gap: 4, borderBottom: "1px solid rgba(0,0,0,.08)" }}>
+        <div style={tabStyle(tab === "flow")} onClick={function() { setTab("flow"); }}>📅 Kompletter Flow</div>
+        <div style={tabStyle(tab === "wissen")} onClick={function() { setTab("wissen"); }}>💡 Einzelnes Wissensthema</div>
+      </div>
+
+      <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,.08)", borderTop: "none", borderRadius: "0 0 8px 8px", padding: 20, marginBottom: 24 }}>
+
+        {tab === "flow" && <div>
+          <div style={{ fontSize: 12, color: "#4A5568", marginBottom: 12, lineHeight: 1.5 }}>
+            Wählen Sie einen Begleit-Flow oder eine Aufklärungs-Slideshow. Der Patient bekommt nur den gewählten Inhalt angezeigt.
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: TEAL, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
+              Begleit-Modus (nach OP-Entscheidung · Phasenkalender)
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 }}>
+              {FUSSTRACK_FLOWS.map(function(f, i) {
+                var active = selectedFlowIdx === i;
+                return (
+                  <div key={i}
+                       onClick={function() { setSelectedFlowIdx(active ? null : i); setSelectedAufIdx(null); }}
+                       style={{
+                         padding: "10px 12px",
+                         border: active ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
+                         background: active ? TEAL_BG : "#fff",
+                         borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4
+                       }}>
+                    <div style={{ fontWeight: 600, color: active ? TEAL : "#1A2A3A" }}>{f.label}</div>
+                    <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>{f.beschreibung}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: TEAL, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
+              Aufklärungs-Modus (vor OP-Entscheidung · Slideshow)
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 }}>
+              {FUSSTRACK_AUFKLAERUNG.map(function(a, i) {
+                var active = selectedAufIdx === i;
+                return (
+                  <div key={i}
+                       onClick={function() { setSelectedAufIdx(active ? null : i); setSelectedFlowIdx(null); }}
+                       style={{
+                         padding: "10px 12px",
+                         border: active ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
+                         background: active ? TEAL_BG : "#fff",
+                         borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4
+                       }}>
+                    <div style={{ fontWeight: 600, color: active ? TEAL : "#1A2A3A" }}>{a.label}</div>
+                    <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>{a.hinweis}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {activeFlow && <QrPanel url={flowUrl} title={activeFlow.label}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#4A5568", marginBottom: 6 }}>
+              Themen-Übersicht ({FT_SHARED_PRE.length + activeFlow.post.length} Phasen)
+            </div>
+            <div style={{ maxHeight: 280, overflowY: "auto", background: "#fff", borderRadius: 4, border: "1px solid rgba(0,0,0,.08)", padding: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#718096", textTransform: "uppercase", marginBottom: 4, letterSpacing: 0.5 }}>Vor OP (gemeinsam)</div>
+              {FT_SHARED_PRE.map(function(p, i) {
+                return <div key={"pre" + i} style={{ fontSize: 11, padding: "3px 0", borderBottom: "1px dotted rgba(0,0,0,.05)", color: "#4A5568" }}>
+                  <span style={{ color: "#A0AEC0" }}>{p.label}</span> · {p.thema}
+                </div>;
+              })}
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#718096", textTransform: "uppercase", marginTop: 8, marginBottom: 4, letterSpacing: 0.5 }}>Nach OP (eingriffsspezifisch)</div>
+              {activeFlow.post.map(function(p, i) {
+                return <div key={"post" + i} style={{ fontSize: 11, padding: "3px 0", borderBottom: "1px dotted rgba(0,0,0,.05)", color: "#1A2A3A" }}>
+                  <span style={{ marginRight: 4 }}>{p.emoji}</span><span style={{ color: "#A0AEC0" }}>{p.label}</span> · {p.thema}
+                </div>;
+              })}
+            </div>
+          </QrPanel>}
+
+          {activeAuf && <QrPanel url={aufUrl} title={activeAuf.label}>
+            <div style={{ fontSize: 12, color: "#4A5568", lineHeight: 1.5 }}>
+              Aufklärungs-Slideshow zum Krankheitsbild. Geeignet für die Erst-Sprechstunde, in der noch keine Variante festgelegt ist.
+            </div>
+            {activeAuf.key === "chevron" && <div style={{ marginTop: 8, padding: 8, background: "rgba(230,81,0,.08)", border: "1px solid rgba(230,81,0,.25)", borderRadius: 4, color: "#BF360C", fontSize: 11 }}>
+              ⚠ Die Chevron-Aufklärungs-Slides sind in aufklaerung.json aktuell noch leer. Der Patient sieht eine leere Slideshow, solange keine Slides ergänzt sind.
+            </div>}
+          </QrPanel>}
+
+          {!activeFlow && !activeAuf && <div style={{ marginTop: 16, padding: 24, background: "rgba(0,0,0,.02)", borderRadius: 8, textAlign: "center", color: "#A0AEC0", fontSize: 12 }}>
+            Wählen Sie oben einen Flow, um QR-Code und Themen-Übersicht zu sehen.
+          </div>}
+        </div>}
+
+        {tab === "wissen" && <div>
+          <div style={{ fontSize: 12, color: "#4A5568", marginBottom: 12, lineHeight: 1.5 }}>
+            Wählen Sie einen einzelnen Wissens-Eintrag. Der Patient sieht beim Scannen nur diesen einen Inhalt — geeignet für gezielte Informationen (z.B. Verbandwechsel-Anleitung im Entlassbrief).
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 }}>
+            {FUSSTRACK_WISSEN.map(function(w, i) {
+              var active = selectedWissenIdx === i;
+              var kat = FT_WISSEN_KATEGORIEN[w.kategorie] || { label: w.kategorie, emoji: "📖" };
+              var isPlatzhalter = w.status === "platzhalter";
+              return (
+                <div key={i}
+                     onClick={function() { setSelectedWissenIdx(active ? null : i); }}
+                     style={{
+                       padding: "10px 12px",
+                       border: active ? "2px solid " + TEAL : "1px solid rgba(0,0,0,.12)",
+                       background: active ? TEAL_BG : (isPlatzhalter ? "rgba(0,0,0,.02)" : "#fff"),
+                       borderRadius: 6, cursor: "pointer", fontSize: 12, lineHeight: 1.4,
+                       opacity: isPlatzhalter ? 0.6 : 1
+                     }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: "#718096", marginBottom: 2 }}>
+                    {kat.emoji} {kat.label}{isPlatzhalter ? " · ○ Platzhalter" : " · ✓ aktiv"}
+                  </div>
+                  <div style={{ fontWeight: 600, color: active ? TEAL : "#1A2A3A" }}>{w.titel}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {activeWissen && <QrPanel url={wissenUrl} title={activeWissen.titel}>
+            <div style={{ fontSize: 12, color: "#4A5568", lineHeight: 1.5 }}>
+              Kategorie: {(FT_WISSEN_KATEGORIEN[activeWissen.kategorie] || {}).label}
+            </div>
+            {activeWissen.status === "platzhalter" && <div style={{ marginTop: 8, padding: 8, background: "rgba(230,81,0,.08)", border: "1px solid rgba(230,81,0,.25)", borderRadius: 4, color: "#BF360C", fontSize: 11 }}>
+              ⚠ Dieser Eintrag ist in phasen.json aktuell noch ein Platzhalter — der Patient sieht den Hinweis „Inhalt folgt".
+            </div>}
+          </QrPanel>}
+
+          {!activeWissen && <div style={{ marginTop: 16, padding: 24, background: "rgba(0,0,0,.02)", borderRadius: 8, textAlign: "center", color: "#A0AEC0", fontSize: 12 }}>
+            Wählen Sie oben einen Wissens-Eintrag, um den QR-Code zu sehen.
+          </div>}
+        </div>}
+
+      </div>
+
+      <div style={{ fontSize: 9, color: "#A0AEC0", textAlign: "center", lineHeight: 1.6 }}>
+        Patient erreicht die Inhalte unter: <code>{FUSSTRACK_BASE_URL}</code><br/>
+        Diese Ansicht ist ausschließlich für Behandler. Patient sieht beim Scannen nur den zugewiesenen Inhalt.
+      </div>
+    </div>
+  );
+}
+
 function LandingPage({onSelect}) {
   return (
     <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"40px 20px 20px"}}>
@@ -10258,6 +10643,14 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>OP-Manuale</div>
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Sortierte Sammlung von OP-Technik-Manualen und Implantatsystemen als PDF.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Infinity · Inbone II · Prophecy · konventionell</div>
+        </div>
+        <div onClick={()=>onSelect("fusstrack")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:12}}>🗺️</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Fuß-Track QR</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>QR-Codes für den Patientenbegleiter — kompletter Flow oder einzelnes Wissensthema.</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>6 Flows · 2 Aufklärungen · 15 Wissensthemen</div>
         </div>
       </div>
       <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.3 · April 2026</div>
@@ -10366,6 +10759,17 @@ function App() {
           <MERechner/>
         </div>
       </div>
+    </div>
+  );
+
+  if (tool === "fusstrack") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:11,fontWeight:600}}>
+          ← Toolbox
+        </div>
+      </div>
+      <FussTrackQrApp/>
     </div>
   );
 
