@@ -4472,6 +4472,38 @@ const AUFKLAERUNG_MAP = {
 // Wird im Sprechstundenbrief für die Ein-QR-Aufklärung verwendet.
 const FUSSTRACK_BASE_URL = "https://benjaminbreuer-85.github.io/Fuss-Track/fusstrack.html";
 
+// ============================================================
+// Mapping: Toolbox-OP-Key → Patient-App-Eingriff-Key.
+// Wichtig: Die Patient-App kennt nur Sammelnamen (chevron, osg_arthrodese, osg_tep),
+// während die Toolbox feingranulare Codes verwendet (chevron_akin, tep_infinity, ...).
+// ============================================================
+const PATIENT_EINGRIFF_MAP = {
+  chevron:        "chevron",
+  chevron_akin:   "chevron",
+  arthrodese_osg: "osg_arthrodese",
+  tep_infinity:   "osg_tep",
+  tep_inbone:     "osg_tep",
+};
+
+// ============================================================
+// Patient-App-Varianten pro Eingriff: Label + Info-Text für die Chip-Auswahl.
+// Wird in der UI neben dem QR-Code-Toggle angezeigt — der Behandler wählt manuell.
+// ============================================================
+const PATIENT_VARIANTEN = {
+  chevron: {
+    einfach: { label: "einfach", info: "Chevron/Akin-Osteotomie ohne Zusatzeingriff" },
+    komplex: { label: "komplex", info: "mit Zusatzeingriff an Metatarsale oder Zehen" },
+  },
+  osg_arthrodese: {
+    einfach: { label: "Teilbelastung", info: "Teilbelastung in der Nachbehandlung" },
+    komplex: { label: "Vollentlastung", info: "Vollständige Entlastung in der Nachbehandlung" },
+  },
+  osg_tep: {
+    einfach: { label: "einfach", info: "OSG-Prothese ohne Zusatzeingriff" },
+    komplex: { label: "komplex", info: "mit Stabilisierung oder knöcherner Korrektur" },
+  },
+};
+
 const KONSERV = ["Schonung", "Sportreduktion", "Anpassung des Schuhwerks", "Einlagenversorgung", "Infiltrationstherapie", "Schmerzmittel (NSAR)", "Stoßwellentherapie", "Physiotherapie", "Spiraldynamik", "Eigenübungen", "Bandage/Orthese"];
 const RISIKEN = ["Nikotinabusus", "Diabetes mellitus", "Rheumatische Erkrankung", "Eingeschränkte Mobilität", "Eingeschränkte häusliche Versorgung", "Z.n. fehlgeschlagener Voroperation", "Adipositas", "Immunsuppression"];
 // Endo-spezifische Risikofaktoren (zusätzlich zu RISIKEN bei pfad="endo")
@@ -5408,6 +5440,8 @@ var _s = useState, _m = useMemo;
   // Online-Aufklärung — QR-Code-Beigabe (Ein-QR-Modell, Migration 19.05.2026).
   // Die URL wird in aufUrl (siehe unten) aus FUSSTRACK_BASE_URL gebaut.
   var aups = _s(true), aufQrAktiv = aups[0], setAufQrAktiv = aups[1];
+  // Variante (einfach/komplex) für den Patient-Begleit-Flow. Wird vom Behandler manuell gewählt.
+  var avs = _s("einfach"), aufVariante = avs[0], setAufVariante = avs[1];
   // Aufklärungs-Eintrag aus AUFKLAERUNG_MAP für die aktuell gewählte OP-Methode
   var aufActive = _m(function() {
     if (!opMethode || opMethode.length === 0) return null;
@@ -5418,12 +5452,15 @@ var _s = useState, _m = useMemo;
   }, [opMethode]);
   // Vollständige URL für QR-Code (Ein-QR-Modell, Migration 19.05.2026).
   // Zeigt auf die Fuß-Track-Patient-App im Aufklärungs-Modus:
-  // FUSSTRACK_BASE_URL + "?op=<toolbox-key>&modus=aufklaerung"
-  // Das Mapping <toolbox-key> → Aufklärungs-Slides geschieht in fusstrack.html.
+  // FUSSTRACK_BASE_URL + "?op=<patient-eingriff>&var=<variante>&modus=aufklaerung"
+  // Der op-Parameter ist der Patient-App-Eingriff-Key (chevron, osg_arthrodese, osg_tep) —
+  // nicht der feingranulare Toolbox-Key. Mapping via PATIENT_EINGRIFF_MAP.
+  // Mit "var" kann der Patient nach der Aufklärung direkt in den Begleit-Flow wechseln.
   var aufUrl = _m(function() {
     if (!aufActive) return "";
-    return FUSSTRACK_BASE_URL + "?op=" + aufActive.key + "&modus=aufklaerung";
-  }, [aufActive]);
+    var patientOp = PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key;
+    return FUSSTRACK_BASE_URL + "?op=" + patientOp + "&var=" + aufVariante + "&modus=aufklaerung";
+  }, [aufActive, aufVariante]);
   // Soll der QR-Code im Brief erscheinen? Nur wenn: Aktiv UND OP-Methode passt UND URL vollständig
   var aufShowQr = aufQrAktiv && aufActive && aufUrl;
 
@@ -5523,7 +5560,7 @@ var _s = useState, _m = useMemo;
       lines.push("");
       lines.push("Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: Infektion, Nervenverletzung, Gefäßverletzung, Weichteilirritation über der Narbe, Implantatunvollständigkeit bei gebrochenen Schrauben, Rezidiv der Beschwerden).");
       lines.push("");
-      lines.push("Nach gründlicher Abwägung bieten wir " + dem + " den oben genannten Eingriff an. Der Eingriff ist elektiv.");
+      lines.push("Nach gründlicher Abwägung bieten wir den oben genannten Eingriff an. Der Eingriff ist elektiv.");
       lines.push("");
       lines.push("Mit freundlichen Grüßen,");
       return lines.join("\n");
@@ -5872,7 +5909,7 @@ var _s = useState, _m = useMemo;
     if (nurDiagnostik) {
       ab += "\n\nNach erfolgter Diagnostik erfolgt eine erneute Vorstellung in unserer Sprechstunde zur Therapie-Festlegung.";
     } else if (opEmpfohlen && ops.length > 0) {
-      ab += "\n\nNach gründlicher Abwägung bieten wir " + dem + " den oben genannten Eingriff an.";
+      ab += "\n\nNach gründlicher Abwägung bieten wir den oben genannten Eingriff an.";
       if (therapieversuch) {
         ab += " In Anbetracht der Befundkonstellation handelt es sich um einen Therapieversuch, inwiefern eine Befundbesserung erzielt werden kann, ist nicht klar in Aussicht zu stellen.";
         ab += " Es besteht ein erhöhtes Risiko persistenter Beschwerden oder eines unbefriedigenden Verlaufes.";
@@ -6264,6 +6301,25 @@ var _s = useState, _m = useMemo;
           <div style={row}>
             <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code beifügen</div>
           </div>
+          {aufQrAktiv && (function() {
+            var patientOp = PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key;
+            var varianten = PATIENT_VARIANTEN[patientOp];
+            if (!varianten) return null;
+            return <div style={{ marginTop: 6 }}>
+              <div style={{ fontSize: 9, color: "#718096", marginBottom: 2 }}>Variante für die Patient-Begleitung (Flow nach OP)</div>
+              <div style={row}>
+                {Object.keys(varianten).map(function(vk) {
+                  var v = varianten[vk];
+                  return <div key={vk} style={CB(aufVariante === vk)} onClick={function() { setAufVariante(vk); }} title={v.info}>
+                    {v.label}
+                  </div>;
+                })}
+              </div>
+              <div style={{ fontSize: 9, color: "#a0aec0", marginTop: 2, fontStyle: "italic" }}>
+                {varianten[aufVariante] ? varianten[aufVariante].info : ""}
+              </div>
+            </div>;
+          })()}
         </div>}
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
