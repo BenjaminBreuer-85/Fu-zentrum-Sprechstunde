@@ -10060,6 +10060,1056 @@ function OPManuale(){
 }
 
 // ==========================================================================
+// KLASSIFIKATIONEN
+// Sammlung relevanter Klassifikationen der Fußchirurgie zur schnellen Ansicht.
+// Datenstruktur pro Eintrag:
+//   { id, name, kurz, quelle, krankheitsbilder:[], regionen:[],
+//     tabelle:{ spalten:[], zeilen:[[...]] }, alternativen:[id,...] }
+// Inhalte werden ausschließlich nach Benjamins Vorgabe gepflegt.
+// ==========================================================================
+const KLASSIFIKATIONEN = [
+  {
+    id: "ddg_risikoklasse_versorgung",
+    name: "DDG Risikoklasse-Versorgung",
+    kurz: "Risikoklassen 0–VII zur Schuh- und Hilfsmittelversorgung beim diabetischen Fußsyndrom und bei analogen Neuro-Angio-Arthropathien. Abkürzungen: PNP = Polyneuropathie; pAVK = periphere arterielle Verschlusskrankheit; CNO = Charcot-Neuro-Osteo-Arthropathie; TCC = Total-Contact-Cast; DAF = diabetesadaptierte Fußbettung.",
+    quelle: "Morbach S et al. Diabetisches Fußsyndrom. Diabetologie und Stoffwechsel 2023; 18 (Suppl 2): S381–S392. © 2023 Thieme. Tab. 7 (Daten nach [16]).",
+    krankheitsbilder: ["Diabetisches Fußsyndrom", "Charcot-Neuro-Osteo-Arthropathie"],
+    regionen: ["Fuß gesamt"],
+    tabelle: {
+      spalten: ["Klasse", "Risikogruppe", "Erläuterung", "Regelversorgung"],
+      zeilen: [
+        ["0", "Diabetes mellitus ohne PNP/pAVK", "Aufklärung und Beratung", "fußgerechte Konfektionsschuhe"],
+        ["I", "wie 0, mit Fußdeformität", "höheres Risiko bei späterem Auftreten einer PNP/pAVK", "orthopädieschuhtechnische Versorgung aufgrund orthopädischer Indikation"],
+        ["II", "D. m. mit Sensibilitätsverlust infolge PNP/pAVK", "Sensibilitätsverlust nachgewiesen durch fehlende Erkennung des Semmes-Weinstein-Monofilaments", "Diabetesschutzschuh mit herausnehmbarer Weichpolstersohle, ggf. mit orth. Schuhzurichtung; Höherversorgung mit DAF oder orth. Maßschuhen bei Fußproportionen, die nach einem konfektionierten Leisten nicht zu versorgen sind/Fußdeformität, die zu lokaler Druckerhöhung führt/fehlgeschlagener adäquater Vorversorgung/orthopädischen Indikationen"],
+        ["III", "Z. n. plantarem Ulkus", "deutlich erhöhtes Ulkus-Rezidivrisiko gegenüber Grad II", "Diabetesschutzschuh i. d. R. mit diabetesadaptierter Fußbettung, ggf. mit orth. Schuhzurichtung; Höherversorgung mit orth. Maßschuhen bei Fußproportionen, die nach einem konfektionierten Leisten nicht zu versorgen sind/fehlgeschlagener adäquater Vorversorgung/orthopädischen Indikationen"],
+        ["IV", "wie II mit Deformitäten bzw. Dysproportionen", "nicht nach konfektioniertem Leisten zu versorgen", "orth. Maßschuhe mit DAF"],
+        ["V", "CNO (Levin III)", "Orthesen i. d. R. bei CNO-Typ IV–V (Sanders) oder bei starker Lotabweichung", "knöchelübergreifende orth. Maßschuhe mit DAF, Innenschuhe, Orthesen"],
+        ["VI", "wie II mit Fußteilamputation", "mindestens transmetatarsale Amputation, auch als innere Amputation", "Versorgung wie IV plus Prothesen"],
+        ["VII", "akute Läsion/floride CNO", "stets als temporäre Versorgung", "Entlastungsschuhe, Verbandsschuhe, Interimsschuhe, Orthesen, TCC ggf. mit DAF und orth. Zurichtungen"]
+      ]
+    },
+    alternativen: []
+  },
+  {
+    id: "tanaka_takakura",
+    name: "Tanaka / Takakura",
+    kurz: "Klassifikation der Varusarthrose des OSG im belasteten Bild des OSG a.p.",
+    quelle: "Tanaka Y, Takakura Y, Hayashi K et al. Low tibial osteotomy for varus-type osteoarthritis of the ankle. J Bone Joint Surg Br 2006;88(7):909–913.",
+    krankheitsbilder: ["OSG-Arthrose"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Grad", "Radiologische Zeichen"],
+      zeilen: [
+        ["1", "Diskrete subchondrale Sklerosezeichen und Osteophytenausbildung, keine Gelenkspaltverschmälerung"],
+        ["2", "mediale Gelenkspaltverschmälerung"],
+        ["3", "Aufhebung des Gelenkspalts mit subchondralem Knochenkontakt im Bereich des medialen Gelenkkompartiments"],
+        ["3a", "Kontakt am medialen Malleolus"],
+        ["3b", "Kontakt auch medial tibio-talar im Bereich des Talusdomes"],
+        ["4", "Aufhebung des Gelenkspalts mit komplettem Knochenkontakt tibiotalar"]
+      ]
+    },
+    alternativen: ["knupp"]
+  },
+  {
+    id: "icrs",
+    name: "ICRS",
+    kurz: "Beurteilung von Knorpelschaden/Arthrose. Vorgeschlagen 1997 von der International Cartilage Repair Society, ursprünglich für das Kniegelenk konzipiert.",
+    quelle: "International Cartilage Repair Society (ICRS). ICRS Cartilage Injury Evaluation Package, 2000.",
+    krankheitsbilder: ["Knorpelschaden"],
+    regionen: ["gelenkübergreifend"],
+    tabelle: {
+      spalten: ["Stadium", "Befund"],
+      zeilen: [
+        ["0", "normal"],
+        ["1", "Oberflächliche Risse oder Erweichungen"],
+        ["2", "Schaden von weniger als 50% der Knorpeldicke"],
+        ["3", "Schaden mit Ausdehnung von mehr als 50% der Dicke, bis in die kalzifizierende Schicht oder bis an den subchondralen Knochen"],
+        ["4", "Ausdehnung bis in den subchondralen Knochen oder Defekte nach Anbohrung"]
+      ]
+    },
+    alternativen: ["outerbridge", "kellgren_lawrence"]
+  },
+  {
+    id: "coughlin_shurnas",
+    name: "Coughlin & Shurnas (Hallux rigidus)",
+    kurz: "Coughlin- und Shurnas-Klassifikation des Hallux rigidus.",
+    quelle: "Coughlin MJ, Shurnas PS. Hallux rigidus. Grading and long-term results of operative treatment. J Bone Joint Surg Am 2003;85(11):2072–2088.",
+    krankheitsbilder: ["Hallux rigidus"],
+    regionen: ["Großzehe (MTP I)"],
+    tabelle: {
+      spalten: ["Stadium", "Beweglichkeit", "Röntgenbefund", "Klinik"],
+      zeilen: [
+        ["0", "Extension 40–60° oder 10–20% Verlust zur Gegenseite", "unauffällig", "kein Schmerz, limitierte Dorsal-Extension"],
+        ["1", "Extension 30–40° oder 20–50% Verlust zur Gegenseite", "dorsale Exostose, geringe Gelenkspaltverschmälerung, minimale Sklerose", "geringer oder seltener Schmerz, Schmerz bei starker Dorsal-Extension"],
+        ["2", "Extension 10–30° oder 50–75% Verlust zur Gegenseite", "dorsale/laterale/mediale Osteophyten, Abflachung MT-Kopf, Gelenkspaltverschmälerung, Sesambeine unauffällig", "moderater Schmerz und Steifheit, Schmerz bei Dorsalextension"],
+        ["3", "Extension kleiner 10° oder 75–100% zur Gegenseite, Verlust von Flexion", "wie Grad 2, aber deutliche Gelenkspaltverschmälerung, Geröllzysten, Sesambeinhypertrophie", "relevanter Schmerz, ggf. Dauerschmerz, Bewegungsschmerz in passiver Untersuchung, kein Mid-Range-Schmerz"],
+        ["4", "wie Grad 3", "wie Grad 3", "wie Grad 3, jedoch mit Schmerz im mittleren Bewegungsbereich (Mid-Range-Schmerz)"]
+      ]
+    },
+    alternativen: ["hattrup_johnson", "regnauld"]
+  },
+  {
+    id: "maceira",
+    name: "Maceira (Müller-Weiss-Syndrom)",
+    kurz: "Maceira-Klassifikation des Müller-Weiss-Syndroms (Stadien I–V des Os naviculare).",
+    quelle: "Maceira E, Rochera R. Müller-Weiss disease: clinical and biomechanical features. Foot Ankle Clin 2004;9(1):105–125.",
+    krankheitsbilder: ["Müller-Weiss-Syndrom"],
+    regionen: ["Mittelfuß (Os naviculare)"],
+    tabelle: {
+      spalten: ["Stadium", "Befund"],
+      zeilen: [
+        ["I", "Frühphase, oft unauffälliges Röntgenbild. Leichte Sklerosierung und erste Formveränderungen des Os naviculare. Beschwerden: meist belastungsabhängige Schmerzen."],
+        ["II", "Os naviculare beginnt lateral einzusinken und nach außen zu kippen. Erste Fragmentierungen sichtbar. Fußlängsgewölbe leicht abgeflacht."],
+        ["III", "Deutliche Fragmentierung und Verformung des Kahnbeins. Das Fußlängsgewölbe sinkt stärker ein → Beginn des Plattfußes. Schmerzen nehmen deutlich zu."],
+        ["IV", "Das Os naviculare verliert seine Form weitgehend. Starke Fehlstellung des Rückfußes (Valgus-Fehlstellung). Arthrotische Veränderungen in Nachbargelenken beginnen."],
+        ["V", "Endstadium: komplettes Kollabieren des Os naviculare. Schwere Fehlstellung und fortgeschrittene Arthrosen in den angrenzenden Gelenken (Talonaviculargelenk, Navikulokuneiformgelenke). Belastung kaum mehr möglich → operative Therapie fast immer erforderlich."]
+      ]
+    },
+    alternativen: []
+  },
+  {
+    id: "kellgren_lawrence",
+    name: "Kellgren & Lawrence",
+    kurz: "Beurteilung von Arthrose in einem konventionellen Röntgenbild in 2 Ebenen.",
+    quelle: "Kellgren JH, Lawrence JS. Radiological assessment of osteoarthrosis. Ann Rheum Dis 1957;16:494–502. · Kellgren JH, Jeffrey MR, Ball J. The epidemiology of chronic rheumatism. Atlas of standard radiographs of arthritis. Oxford: Blackwell Scientific Publications; 1963:1–13.",
+    krankheitsbilder: ["Arthrose"],
+    regionen: ["gelenkübergreifend"],
+    tabelle: {
+      spalten: ["Stadium", "Radiologischer Befund"],
+      zeilen: [
+        ["1", "angedeutete Verschmälerung des Gelenkspaltes, beginnende Osteophyten"],
+        ["2", "Osteophyten, geringe Verschmälerung Gelenkspalt"],
+        ["3", "Osteophyten, Verschmälerung Gelenkspalt, subchondrale Sklerose"],
+        ["4", "Osteophyten, Verschmälerung Gelenkspalt, schwere subchondrale Sklerose, Deformität"]
+      ]
+    },
+    alternativen: ["icrs", "outerbridge"]
+  },
+  {
+    id: "goutallier",
+    name: "Goutallier",
+    kurz: "Klassifikation der fettigen Muskelinfiltration/-atrophie.",
+    quelle: "Quellenvorschlag (zu prüfen): Goutallier D, Postel JM, Bernageau J, Lavau L, Voisin MC. Fatty muscle degeneration in cuff ruptures. Pre- and postoperative evaluation by CT scan. Clin Orthop Relat Res 1994;(304):78–83.",
+    krankheitsbilder: [],
+    regionen: [],
+    tabelle: {
+      spalten: ["Grad", "Befund"],
+      zeilen: [
+        ["0", "normaler Muskel"],
+        ["1", "einzelne Fettfasern"],
+        ["2", "weniger als 50% fettige Atrophie"],
+        ["3", "50% fettig atrophierter Muskel"],
+        ["4", "mehr als 50% fettig atrophierter Muskel"]
+      ]
+    },
+    alternativen: []
+  },
+  {
+    id: "berndt_harty",
+    name: "Berndt & Harty",
+    entwurf: true,
+    kurz: "Einteilung der osteochondralen Läsion (=Knorpel-Knochen-Schaden) des Talus im konventionellen Röntgen des Sprunggelenks a.p.",
+    quelle: "Berndt AL, Harty M. Transchondral fractures (osteochondritis dissecans) of the talus. J Bone Joint Surg Am 1959;41(7):1363.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Stadium", "Befund"],
+      zeilen: [
+        ["I", "kleine Zone subchondraler Kompression"],
+        ["II", "teilweise abgelöstes osteochondrales Fragment"],
+        ["III", "vollständig abgelöstes Fragment, nicht disloziert (verbleibt im Bett)"],
+        ["IV", "abgelöstes und disloziertes Fragment"]
+      ]
+    },
+    alternativen: ["cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
+  },
+  {
+    id: "cheng",
+    name: "Cheng / Ferkel (Arthroskopie)",
+    entwurf: true,
+    kurz: "Arthroskopische Stadieneinteilung der osteochondralen Läsion (=Knorpel-Knochen-Schaden) des Talus.",
+    quelle: "Cheng MS, Ferkel RD, Applegate GR. Osteochondral lesions of the talus: a radiologic and surgical comparison. Annual Meeting of the AAOS, New Orleans, LA, Feb 16–21, 1995.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Grad", "Arthroskopischer Befund"],
+      zeilen: [
+        ["A", "glatter, intakter, aber weicher/anschwellbarer Knorpel"],
+        ["B", "rauer Gelenkknorpel"],
+        ["C", "Fissuren und Fibrillationen"],
+        ["D", "Knorpellappen oder freiliegender subchondraler Knochen"],
+        ["E", "gelöstes, nicht verschobenes Fragment"],
+        ["F", "verschobenes Fragment"]
+      ]
+    },
+    alternativen: ["berndt_harty", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
+  },
+  {
+    id: "ferkel_ct",
+    name: "Ferkel (CT)",
+    entwurf: true,
+    kurz: "Stadieneinteilung der osteochondralen Läsion (=Knorpel-Knochen-Schaden) des Talus im CT.",
+    quelle: "Ferkel RD, Sgaglione NA, DelPizzo W. Arthroscopic treatment of osteochondral lesions of the talus: long-term results. Orthop Trans 1990;14:172–173.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Stadium", "CT-Befund"],
+      zeilen: [
+        ["I", "zystische Läsion innerhalb des Talus, Knorpeldach intakt"],
+        ["IIA", "zystische Läsion mit Kommunikation zur Gelenkoberfläche"],
+        ["IIB", "offene Gelenkoberfläche mit darüberliegendem, nicht disloziertem Fragment"],
+        ["III", "nicht disloziertes Fragment mit Aufhellungszeichen (Lockerung)"],
+        ["IV", "verschobenes (disloziertes) Fragment"]
+      ]
+    },
+    alternativen: ["berndt_harty", "cheng", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
+  },
+  {
+    id: "hepple",
+    name: "Hepple (MRT)",
+    entwurf: true,
+    kurz: "Überarbeitete Stadieneinteilung der osteochondralen Läsion (=Knorpel-Knochen-Schaden) des Talus im MRT.",
+    quelle: "Hepple S, Winson IG, Glew D. Osteochondral lesions of the talus: a revised classification. Foot Ankle Int 1999;20(12):789–793.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Stadium", "MRT-Befund"],
+      zeilen: [
+        ["1", "reiner Knorpelschaden"],
+        ["2a", "Knorpelschaden mit subchondraler Fraktur und umgebendem Knochenödem"],
+        ["2b", "wie 2a, jedoch ohne umgebendes Knochenödem"],
+        ["3", "abgelöstes, aber nicht disloziertes Fragment"],
+        ["4", "abgelöstes und disloziertes Fragment"],
+        ["5", "subchondrale Zystenbildung"]
+      ]
+    },
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
+  },
+  {
+    id: "ram",
+    name: "RAM",
+    entwurf: true,
+    kurz: "Systematische, segmentbezogene Einteilung des erworbenen Knick-Senk-Fußes (adult-acquired flatfoot) in drei anatomische Abschnitte: R = Rückfuß (Rearfoot), A = Sprunggelenk (Ankle), M = Mittelfuß (Midfoot). ENTWURF: Subgrad-Definitionen unsicher rekonstruiert — bitte besonders prüfen.",
+    quelle: "Raikin SM, Winters BS, Daniel JN. The RAM classification: a novel, systematic approach to the adult-acquired flatfoot. Foot Ankle Clin 2012;17(2):169–181.",
+    krankheitsbilder: ["Erworbener Knick-Senk-Fuß", "Tibialis-posterior-Dysfunktion"],
+    regionen: ["Rückfuß"],
+    tabelle: {
+      spalten: ["Segment", "Grad", "Befund (rekonstruiert)"],
+      zeilen: [
+        ["R – Rückfuß", "1", "flexible Rückfuß-Valgusfehlstellung"],
+        ["R – Rückfuß", "2", "rigide/fixierte Rückfuß-Valgusfehlstellung"],
+        ["R – Rückfuß", "3", "Rückfuß-Valgus mit subtalarer/talonavikularer Arthrose"],
+        ["A – Sprunggelenk", "1", "keine relevante Deformität/Arthrose"],
+        ["A – Sprunggelenk", "2", "flexible Valgus-Kippung des OSG (Deltabandinsuffizienz)"],
+        ["A – Sprunggelenk", "3", "rigide Valgus-Kippung mit OSG-Arthrose"],
+        ["M – Mittelfuß", "1", "flexible Vorfuß-Supination / mediale Säule, korrigierbar"],
+        ["M – Mittelfuß", "2", "fixierte Vorfuß-Supination"],
+        ["M – Mittelfuß", "3", "Instabilität/Arthrose der medialen Säule (Kollaps)"]
+      ]
+    },
+    alternativen: ["johnson_strom_myerson"]
+  },
+  {
+    id: "johnson_strom_myerson",
+    name: "Johnson & Strom (erw. Bluman/Myerson)",
+    entwurf: true,
+    kurz: "Stadieneinteilung der Tibialis-posterior-Dysfunktion (=Funktionsstörung der hinteren Schienbeinsehne) / des erworbenen Knick-Senk-Fußes. Johnson & Strom (Stadien I–III), erweitert durch Bluman/Myerson (Stadium IV, Subtypen). ENTWURF: Subtypen sinngemäß rekonstruiert — bitte prüfen.",
+    quelle: "Bluman EM, Myerson MS. Stage IV posterior tibial tendon rupture. Foot Ankle Clin 2007;12(2):341–362. (Erweiterung der Einteilung nach Johnson & Strom 1989.)",
+    krankheitsbilder: ["Tibialis-posterior-Dysfunktion", "Erworbener Knick-Senk-Fuß"],
+    regionen: ["Rückfuß"],
+    tabelle: {
+      spalten: ["Stadium", "Befund (rekonstruiert)"],
+      zeilen: [
+        ["I", "Tenosynovitis, Sehne intakt und normal lang, keine Deformität, Einbein-Zehenstand möglich, Schmerz/Schwellung entlang der Sehne"],
+        ["II", "Sehnenelongation/-insuffizienz, flexible Knick-Senk-Fuß-Deformität (Rückfuß-Valgus, Vorfuß-Abduktion), Einbein-Zehenstand erschwert/nicht möglich, „too many toes“-Zeichen"],
+        ["IIA", "flexibel, geringe Vorfuß-Abduktion"],
+        ["IIB", "flexibel, ausgeprägte Vorfuß-Abduktion (deutliche talonavikulare Unbedeckung)"],
+        ["III", "rigide/fixierte Rückfuß-Valgusdeformität mit subtalarer Arthrose"],
+        ["IV", "zusätzlich Valgus-Fehlstellung des OSG mit Deltabandinsuffizienz"],
+        ["IVA", "flexible OSG-Valgus-Kippung ohne wesentliche Arthrose"],
+        ["IVB", "rigide OSG-Valgus-Kippung mit Arthrose"]
+      ]
+    },
+    alternativen: ["ram"]
+  },
+  {
+    id: "round_sign",
+    name: "Round Sign",
+    entwurf: true,
+    kurz: "Form der lateralen Kante des Mittelfußköpfchens I (=Köpfchen des ersten Mittelfußknochens) im belasteten Röntgen a.p. als Hinweis auf Rotation/Pronation des ersten Strahls und als Risikofaktor für ein Rezidiv des Hallux valgus. ENTWURF: kein graduiertes Stadiensystem, sondern ein dichotomes Zeichen (positiv/negativ) — bitte prüfen, ob als eigener Eintrag gewünscht.",
+    quelle: "Okuda R, Kinoshita M, Yasuda T et al. The shape of the lateral edge of the first metatarsal head as a risk factor for recurrence of hallux valgus. J Bone Joint Surg Am 2007;89(10):2163–2172. · Yamaguchi S et al. J Orthop Sci 2015;20(5):868–874. · Wagner P et al. Foot Ankle Spec 2024;17(1):14–22.",
+    krankheitsbilder: ["Hallux valgus"],
+    regionen: ["Großzehe (MTP I)"],
+    tabelle: {
+      spalten: ["Befund", "Bedeutung (rekonstruiert)"],
+      zeilen: [
+        ["Round Sign negativ", "laterale Kante des MT-I-Köpfchens eckig/scharf abgegrenzt — kein Hinweis auf relevante Pronation, niedrigeres Rezidivrisiko"],
+        ["Round Sign positiv", "laterale Kante des MT-I-Köpfchens rundlich — Hinweis auf Pronation/Rotation des ersten Strahls, erhöhtes Rezidivrisiko nach Hallux-valgus-Korrektur"]
+      ]
+    },
+    alternativen: ["hva_ima", "manchester", "congruent_incongruent"]
+  },
+  {
+    id: "kuwada",
+    name: "Kuwada",
+    entwurf: true,
+    kurz: "Klassifikation der Achillessehnenruptur nach Defektgröße zur Therapiewahl.",
+    quelle: "Quellenvorschlag (zu prüfen): Kuwada GT. Classification of tendo Achillis rupture with consideration of surgical repair techniques. J Foot Surg 1990;29(4):361–365.",
+    krankheitsbilder: ["Achillessehnenruptur"],
+    regionen: ["Rückfuß"],
+    tabelle: {
+      spalten: ["Typ", "Befund / Therapie"],
+      zeilen: [
+        ["I", "Teilruptur — konservative Behandlung"],
+        ["II", "komplette Ruptur, Defekt ≤ 3 cm — End-zu-End-Naht"],
+        ["III", "komplette Ruptur, Defekt 3–6 cm — Sehnenlappenplastik (z. B. Gastrocnemius)"],
+        ["IV", "komplette Ruptur, Defekt > 6 cm — Gastrocnemius-Rückzug + Lappen-/Transplantatplastik"]
+      ]
+    },
+    alternativen: ["myerson_achilles"]
+  },
+  {
+    id: "myerson_achilles",
+    name: "Myerson (chronische Achillesruptur)",
+    entwurf: true,
+    kurz: "Defektgrößenbasierte Einteilung der chronischen/vernachlässigten Achillessehnenruptur.",
+    quelle: "Quellenvorschlag (zu prüfen): Myerson MS. Achilles tendon ruptures. Instr Course Lect 1999;48:219–230.",
+    krankheitsbilder: ["Achillessehnenruptur"],
+    regionen: ["Rückfuß"],
+    tabelle: {
+      spalten: ["Typ", "Defekt / Therapie"],
+      zeilen: [
+        ["I", "Defekt 1–2 cm — End-zu-End-Naht, ggf. Faszienerweiterung"],
+        ["II", "Defekt 2–5 cm — V-Y-Verlängerung ± Sehnentransfer"],
+        ["III", "Defekt > 5 cm — Sehnentransfer (z. B. FHL) ± V-Y-Plastik/Transplantat"]
+      ]
+    },
+    alternativen: ["kuwada"]
+  },
+  {
+    id: "eichenholtz",
+    name: "Eichenholtz",
+    entwurf: true,
+    kurz: "Radiologisch-klinische Stadieneinteilung der Charcot-Neuro-Osteo-Arthropathie (CNO). Stadium 0 später ergänzt.",
+    quelle: "Quellenvorschlag (zu prüfen): Eichenholtz SN. Charcot Joints. Springfield, IL: Charles C. Thomas; 1966. (Stadium 0 ergänzt: Sella EJ, Barrette C. J Foot Ankle Surg 1999;38(1):34–40.)",
+    krankheitsbilder: ["Charcot-Neuro-Osteo-Arthropathie"],
+    regionen: ["Fuß gesamt"],
+    tabelle: {
+      spalten: ["Stadium", "Befund"],
+      zeilen: [
+        ["0", "klinisch akut (Überwärmung, Schwellung, Rötung) ohne radiologische Veränderung"],
+        ["I", "Entwicklung/Fragmentation: ossäre Fragmentierung, Subluxation/Dislokation, Debris"],
+        ["II", "Koaleszenz: Resorption des Debris, beginnende Heilung, Sklerose, Fragmentverschmelzung"],
+        ["III", "Rekonstruktion: Konsolidierung, Remodeling, stabile (oft fehlgestellte) Endform"]
+      ]
+    },
+    alternativen: ["sanders_frykberg", "brodsky"]
+  },
+  {
+    id: "sanders_frykberg",
+    name: "Sanders & Frykberg",
+    entwurf: true,
+    kurz: "Anatomisches Befallsmuster der CNO nach Lokalisation (Muster I–V).",
+    quelle: "Quellenvorschlag (zu prüfen): Sanders LJ, Frykberg RG. Diabetic neuropathic osteoarthropathy: the Charcot foot. In: Frykberg RG, Hrsg. The High Risk Foot in Diabetes Mellitus. New York: Churchill Livingstone; 1991:297–338.",
+    krankheitsbilder: ["Charcot-Neuro-Osteo-Arthropathie"],
+    regionen: ["Fuß gesamt"],
+    tabelle: {
+      spalten: ["Muster", "Lokalisation"],
+      zeilen: [
+        ["I", "Vorfuß (MTP- und Interphalangealgelenke)"],
+        ["II", "Tarsometatarsal (Lisfranc)"],
+        ["III", "Naviculocuneiform, Talonavicular, Calcaneocuboid (Chopart/Mittelfuß)"],
+        ["IV", "Sprunggelenk und Subtalargelenk"],
+        ["V", "Calcaneus (posteriore Tuberositas)"]
+      ]
+    },
+    alternativen: ["eichenholtz", "brodsky"]
+  },
+  {
+    id: "brodsky",
+    name: "Brodsky",
+    entwurf: true,
+    kurz: "Anatomische Klassifikation der CNO nach betroffener Region.",
+    quelle: "Quellenvorschlag (zu prüfen): Brodsky JW. The diabetic foot. In: Coughlin MJ, Mann RA, Hrsg. Surgery of the Foot and Ankle. 7. Aufl. St. Louis: Mosby; 1999.",
+    krankheitsbilder: ["Charcot-Neuro-Osteo-Arthropathie"],
+    regionen: ["Fuß gesamt"],
+    tabelle: {
+      spalten: ["Typ", "Lokalisation"],
+      zeilen: [
+        ["1", "Mittelfuß (tarsometatarsal und naviculocuneiform) — häufigste Form"],
+        ["2", "Rückfuß (subtalar, talonavicular, calcaneocuboid)"],
+        ["3A", "Sprunggelenk"],
+        ["3B", "Calcaneus-Tuberositas (Abriss des posterioren Tuber)"]
+      ]
+    },
+    alternativen: ["eichenholtz", "sanders_frykberg"]
+  },
+  {
+    id: "wagner",
+    name: "Wagner",
+    entwurf: true,
+    kurz: "Wagner-(Meggitt-)Graduierung des diabetischen Fußulkus nach Tiefe und Gewebeschaden.",
+    quelle: "Quellenvorschlag (zu prüfen): Wagner FW Jr. The dysvascular foot: a system for diagnosis and treatment. Foot Ankle 1981;2(2):64–122.",
+    krankheitsbilder: ["Diabetisches Fußsyndrom"],
+    regionen: ["Fuß gesamt"],
+    tabelle: {
+      spalten: ["Grad", "Befund"],
+      zeilen: [
+        ["0", "keine offene Läsion; ggf. Deformität/Risikofuß (prä-/post-ulzerativ)"],
+        ["1", "oberflächliches Ulkus"],
+        ["2", "tieferes Ulkus bis Sehne, Kapsel oder Knochen (ohne Abszess/Osteomyelitis)"],
+        ["3", "tiefes Ulkus mit Abszess, Osteomyelitis oder Gelenkinfekt"],
+        ["4", "lokalisierte Gangrän (Vorfuß oder Ferse)"],
+        ["5", "Gangrän des gesamten Fußes"]
+      ]
+    },
+    alternativen: ["texas_armstrong", "wifi", "pedis"]
+  },
+  {
+    id: "texas_armstrong",
+    name: "University of Texas (Armstrong)",
+    entwurf: true,
+    kurz: "Zweidimensionale Einteilung des diabetischen Fußulkus: Tiefe (Grad 0–3) kombiniert mit Stadium (A–D).",
+    quelle: "Quellenvorschlag (zu prüfen): Armstrong DG, Lavery LA, Harkless LB. Validation of a diabetic wound classification system. Diabetes Care 1998;21(5):855–859.",
+    krankheitsbilder: ["Diabetisches Fußsyndrom"],
+    regionen: ["Fuß gesamt"],
+    tabelle: {
+      spalten: ["Achse", "Stufe", "Befund"],
+      zeilen: [
+        ["Grad (Tiefe)", "0", "prä-/post-ulzerativ, epithelisiert, keine offene Wunde"],
+        ["Grad (Tiefe)", "1", "oberflächliche Wunde, nicht bis Sehne/Kapsel/Knochen"],
+        ["Grad (Tiefe)", "2", "Wunde bis Sehne oder Kapsel"],
+        ["Grad (Tiefe)", "3", "Wunde bis Knochen oder Gelenk"],
+        ["Stadium", "A", "keine Infektion, keine Ischämie"],
+        ["Stadium", "B", "Infektion"],
+        ["Stadium", "C", "Ischämie"],
+        ["Stadium", "D", "Infektion und Ischämie"]
+      ]
+    },
+    alternativen: ["wagner", "wifi", "pedis"]
+  },
+  {
+    id: "wifi",
+    name: "WIfI",
+    entwurf: true,
+    kurz: "WIfI-Klassifikation (Society for Vascular Surgery): Wound, Ischemia, foot Infection, je Grad 0–3, zur Abschätzung von Amputationsrisiko und Revaskularisationsnutzen. ENTWURF: Ischämie-Grenzwerte (ABI/Zehendruck/TcPO2) bitte besonders prüfen.",
+    quelle: "Quellenvorschlag (zu prüfen): Mills JL Sr, Conte MS, Armstrong DG, et al. The Society for Vascular Surgery Lower Extremity Threatened Limb Classification System (WIfI). J Vasc Surg 2014;59(1):220–234.",
+    krankheitsbilder: ["Diabetisches Fußsyndrom"],
+    regionen: ["Fuß gesamt"],
+    tabelle: {
+      spalten: ["Komponente", "Grad", "Befund"],
+      zeilen: [
+        ["W – Wunde", "0", "kein Ulkus"],
+        ["W – Wunde", "1", "kleines, oberflächliches Ulkus, keine Gangrän"],
+        ["W – Wunde", "2", "tieferes Ulkus mit freiliegendem Knochen/Gelenk/Sehne oder Gangrän auf Zehen begrenzt"],
+        ["W – Wunde", "3", "ausgedehntes tiefes Ulkus, vollschichtiges Fersenulkus, ausgedehnte Gangrän"],
+        ["I – Ischämie", "0", "ABI ≥ 0,80 / Zehendruck ≥ 60 mmHg (keine relevante Ischämie)"],
+        ["I – Ischämie", "1", "ABI 0,6–0,79 / Zehendruck 40–59 mmHg"],
+        ["I – Ischämie", "2", "ABI 0,4–0,59 / Zehendruck 30–39 mmHg"],
+        ["I – Ischämie", "3", "ABI < 0,4 / Zehendruck < 30 mmHg"],
+        ["fI – Fußinfektion", "0", "keine Infektzeichen"],
+        ["fI – Fußinfektion", "1", "lokale Infektion Haut/Subkutis (mild)"],
+        ["fI – Fußinfektion", "2", "tiefere lokale Infektion (Abszess, Osteomyelitis; moderat)"],
+        ["fI – Fußinfektion", "3", "systemische Infektion / SIRS (schwer)"]
+      ]
+    },
+    alternativen: ["wagner", "texas_armstrong", "pedis"]
+  },
+  {
+    id: "pedis",
+    name: "PEDIS (IWGDF)",
+    entwurf: true,
+    kurz: "PEDIS-Klassifikation der IWGDF: Perfusion, Extent (Größe), Depth (Tiefe), Infection, Sensation.",
+    quelle: "Quellenvorschlag (zu prüfen): Schaper NC. Diabetic foot ulcer classification system for research purposes (PEDIS). Diabetes Metab Res Rev 2004;20(Suppl 1):S90–S95.",
+    krankheitsbilder: ["Diabetisches Fußsyndrom"],
+    regionen: ["Fuß gesamt"],
+    tabelle: {
+      spalten: ["Komponente", "Stufe", "Befund"],
+      zeilen: [
+        ["P – Perfusion", "1", "keine pAVK"],
+        ["P – Perfusion", "2", "pAVK ohne kritische Ischämie"],
+        ["P – Perfusion", "3", "kritische Extremitätenischämie"],
+        ["E – Größe", "–", "Wundfläche in cm²"],
+        ["D – Tiefe", "1", "oberflächlich (bis Dermis)"],
+        ["D – Tiefe", "2", "bis Faszie, Muskel oder Sehne"],
+        ["D – Tiefe", "3", "bis Knochen oder Gelenk"],
+        ["I – Infektion", "1", "keine Infektion"],
+        ["I – Infektion", "2", "mild (Haut/Subkutis)"],
+        ["I – Infektion", "3", "moderat (tiefer)"],
+        ["I – Infektion", "4", "schwer (SIRS)"],
+        ["S – Sensibilität", "1", "erhalten"],
+        ["S – Sensibilität", "2", "Verlust der Schutzsensibilität"]
+      ]
+    },
+    alternativen: ["wagner", "texas_armstrong", "wifi"]
+  },
+  {
+    id: "hattrup_johnson",
+    name: "Hattrup & Johnson",
+    entwurf: true,
+    kurz: "Radiologische Graduierung des Hallux rigidus (I–III).",
+    quelle: "Quellenvorschlag (zu prüfen): Hattrup SJ, Johnson KA. Subjective results of hallux rigidus following treatment with cheilectomy. Clin Orthop Relat Res 1988;(226):182–191.",
+    krankheitsbilder: ["Hallux rigidus"],
+    regionen: ["Großzehe (MTP I)"],
+    tabelle: {
+      spalten: ["Grad", "Röntgenbefund"],
+      zeilen: [
+        ["I", "milde Veränderungen: kleiner dorsaler Osteophyt, normaler Gelenkspalt"],
+        ["II", "moderate Veränderungen: Osteophyten, Gelenkspaltverschmälerung, subchondrale Sklerose"],
+        ["III", "schwere Veränderungen: ausgeprägte Osteophyten, Gelenkspaltaufhebung, subchondrale Zysten"]
+      ]
+    },
+    alternativen: ["coughlin_shurnas", "regnauld"]
+  },
+  {
+    id: "regnauld",
+    name: "Regnauld",
+    entwurf: true,
+    kurz: "Einteilung des Hallux rigidus (I–III). ENTWURF: genaue Kriterien je Grad bitte gegen Original prüfen.",
+    quelle: "Quellenvorschlag (zu prüfen): Regnauld B. Hallux rigidus. In: The Foot. Berlin: Springer; 1986:335–350.",
+    krankheitsbilder: ["Hallux rigidus"],
+    regionen: ["Großzehe (MTP I)"],
+    tabelle: {
+      spalten: ["Grad", "Befund (rekonstruiert)"],
+      zeilen: [
+        ["I", "funktioneller Limitus / leichte Einschränkung der Dorsalextension, minimale radiologische Veränderungen"],
+        ["II", "etablierter Hallux rigidus: Verbreiterung/Abflachung von MT-Kopf und Grundphalanxbasis, Osteophyten, Gelenkspaltverschmälerung"],
+        ["III", "schwer: ausgedehnte Degeneration, nahezu/komplette Ankylose, subchondrale Zysten/Erosionen"]
+      ]
+    },
+    alternativen: ["coughlin_shurnas", "hattrup_johnson"]
+  },
+  {
+    id: "hva_ima",
+    name: "Schweregrad HVA/IMA (S2e-Leitlinie 2025)",
+    entwurf: true,
+    kurz: "Radiologische Schweregradeinteilung des Hallux valgus nach HV-Winkel und IM-Winkel auf belasteter a.p.-Aufnahme im Stand. Die aktuelle S2e-Leitlinie (2025, Empfehlungsgrad B) klassifiziert in nur noch zwei Schweregrade: leicht/moderat vs. schwer. Die Grenzwerte sind eine Synopse aus Coughlin-Mann-, Robinson-Klassifikation und eigener systematischer Literaturrecherche.",
+    quelle: "S2e-Leitlinie Hallux valgus, DGOU / D.A.F., AWMF-Register Nr. 187-051, Version 5.1, Stand 05/2025, Abschnitt 7.1.1. Grenzwerte als Synopse aus Coughlin-Mann [6], Robinson [17] und Spindler et al. 2024 [19].",
+    krankheitsbilder: ["Hallux valgus"],
+    regionen: ["Großzehe (MTP I)"],
+    tabelle: {
+      spalten: ["Schweregrad", "HV-Winkel", "IM-Winkel"],
+      zeilen: [
+        ["leicht / moderat", "< 40°", "< 18°"],
+        ["schwer", "> 40°", "> 18°"]
+      ]
+    },
+    alternativen: ["manchester", "congruent_incongruent", "round_sign"]
+  },
+  {
+    id: "manchester",
+    name: "Manchester-Skala",
+    entwurf: true,
+    kurz: "Klinisch-fotografische Schweregradeinteilung des Hallux valgus anhand standardisierter Vergleichsbilder.",
+    quelle: "Quellenvorschlag (zu prüfen): Garrow AP, Papageorgiou A, Silman AJ, et al. The grading of hallux valgus. The Manchester Scale. J Am Podiatr Med Assoc 2001;91(2):74–78.",
+    krankheitsbilder: ["Hallux valgus"],
+    regionen: ["Großzehe (MTP I)"],
+    tabelle: {
+      spalten: ["Grad", "Befund"],
+      zeilen: [
+        ["1", "keine Deformität"],
+        ["2", "milde Deformität"],
+        ["3", "moderate Deformität"],
+        ["4", "schwere Deformität"]
+      ]
+    },
+    alternativen: ["hva_ima", "congruent_incongruent", "round_sign"]
+  },
+  {
+    id: "congruent_incongruent",
+    name: "Kongruenz MTP I (Piggott/Coughlin)",
+    entwurf: true,
+    kurz: "Beurteilung der Gelenkkongruenz des MTP-I-Gelenks beim Hallux valgus.",
+    quelle: "Quellenvorschlag (zu prüfen): Piggott H. The natural history of hallux valgus in adolescence and early adult life. J Bone Joint Surg Br 1960;42-B:749–760.",
+    krankheitsbilder: ["Hallux valgus"],
+    regionen: ["Großzehe (MTP I)"],
+    tabelle: {
+      spalten: ["Typ", "Befund"],
+      zeilen: [
+        ["kongruent", "Gelenkflächen parallel, keine Subluxation (oft nicht progredient)"],
+        ["deviiert", "Gelenkflächen nicht parallel, noch artikulierend, keine Subluxation"],
+        ["subluxiert (inkongruent)", "laterale Subluxation der Grundphalanx (progredient)"]
+      ]
+    },
+    alternativen: ["hva_ima", "manchester", "round_sign"]
+  },
+  {
+    id: "hammertoe",
+    name: "Hammer-/Krallenzehe (Flexibilität)",
+    entwurf: true,
+    kurz: "Einteilung der Kleinzehendeformität nach Korrigierbarkeit.",
+    quelle: "Quellenvorschlag (zu prüfen): Konventionelle Einteilung nach Korrigierbarkeit (Lehrbuch/Konsens, z. B. Coughlin MJ. Lesser-toe abnormalities. J Bone Joint Surg Am 2002;84(8):1446–1469). Kein singuläres Originalzitat.",
+    krankheitsbilder: ["Kleinzehendeformität"],
+    regionen: ["Kleinzehen"],
+    tabelle: {
+      spalten: ["Typ", "Befund"],
+      zeilen: [
+        ["flexibel", "passiv vollständig korrigierbar"],
+        ["semirigide", "passiv teilweise korrigierbar"],
+        ["rigide/fixiert", "nicht korrigierbar"]
+      ]
+    },
+    alternativen: []
+  },
+  {
+    id: "myerson_lisfranc",
+    name: "Myerson (Lisfranc)",
+    entwurf: true,
+    kurz: "Klassifikation der Lisfranc-Verletzung (nach Hardcastle/Myerson) nach Dislokationsmuster.",
+    quelle: "Quellenvorschlag (zu prüfen): Myerson MS, Fisher RT, Burgess AR, Kenzora JE. Fracture dislocations of the tarsometatarsal joints. Foot Ankle 1986;6(5):225–242. (basierend auf Hardcastle PH et al. J Bone Joint Surg Br 1982;64(3):349–356.)",
+    krankheitsbilder: ["Lisfranc-Verletzung"],
+    regionen: ["Mittelfuß"],
+    tabelle: {
+      spalten: ["Typ", "Befund"],
+      zeilen: [
+        ["A", "totale Inkongruenz: alle Mittelfußknochen in dieselbe Richtung disloziert"],
+        ["B1", "partielle Inkongruenz: mediale Dislokation (1. Strahl)"],
+        ["B2", "partielle Inkongruenz: laterale Dislokation (laterale Strahlen)"],
+        ["C1", "divergent, partiell"],
+        ["C2", "divergent, total"]
+      ]
+    },
+    alternativen: ["nunley_vertullo", "quenu_kuss"]
+  },
+  {
+    id: "nunley_vertullo",
+    name: "Nunley & Vertullo",
+    entwurf: true,
+    kurz: "Stadieneinteilung der subtilen/sportbedingten Lisfranc-Verletzung.",
+    quelle: "Quellenvorschlag (zu prüfen): Nunley JA, Vertullo CJ. Classification, investigation, and management of midfoot sprains: Lisfranc injuries in the athlete. Am J Sports Med 2002;30(6):871–878.",
+    krankheitsbilder: ["Lisfranc-Verletzung"],
+    regionen: ["Mittelfuß"],
+    tabelle: {
+      spalten: ["Stadium", "Befund"],
+      zeilen: [
+        ["I", "keine Diastase, kein Höhenverlust des Längsgewölbes; positives Knochenszintigramm, unauffälliges Belastungsröntgen"],
+        ["II", "Diastase 1–5 mm zwischen Basis MT I und II, kein Höhenverlust"],
+        ["III", "Diastase > 5 mm und Höhenverlust des Längsgewölbes (Mittelfußkollaps)"]
+      ]
+    },
+    alternativen: ["myerson_lisfranc", "quenu_kuss"]
+  },
+  {
+    id: "quenu_kuss",
+    name: "Quénu-Küss (historisch)",
+    entwurf: true,
+    kurz: "Historische Einteilung der Lisfranc-Verletzung nach Dislokationsmuster.",
+    quelle: "Quellenvorschlag (zu prüfen): Quénu E, Küss G. Étude sur les luxations du métatarse. Rev Chir 1909;39:281–336, 720–791, 1093–1134.",
+    krankheitsbilder: ["Lisfranc-Verletzung"],
+    regionen: ["Mittelfuß"],
+    tabelle: {
+      spalten: ["Typ", "Befund"],
+      zeilen: [
+        ["homolateral", "alle Mittelfußknochen in dieselbe Richtung disloziert"],
+        ["isoliert", "ein bis zwei Strahlen disloziert, Rest in Position"],
+        ["divergent", "Strahlen in unterschiedliche Richtungen disloziert"]
+      ]
+    },
+    alternativen: ["myerson_lisfranc", "nunley_vertullo"]
+  },
+  {
+    id: "mintz",
+    name: "Mintz (MRT)",
+    entwurf: true,
+    kurz: "MRT-Stadieneinteilung der osteochondralen Läsion des Talus (Korrelation zur Arthroskopie). ENTWURF: bitte gegen Original prüfen.",
+    quelle: "Quellenvorschlag (zu prüfen): Mintz DN, Tashjian GS, Connell DA, Deland JT, O'Malley M, Potter HG. Osteochondral lesions of the talus: a new MRI grading system with arthroscopic correlation. Arthroscopy 2003;19(4):353–359.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Grad", "MRT-Befund"],
+      zeilen: [
+        ["0", "normal"],
+        ["1", "Signalanhebung, Knorpeloberfläche morphologisch intakt"],
+        ["2", "Fibrillation/Fissuren, nicht bis zum Knochen reichend"],
+        ["3", "Knorpellappen oder freiliegender Knochen"],
+        ["4", "gelöstes, nicht verschobenes Fragment"],
+        ["5", "verschobenes Fragment"]
+      ]
+    },
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "dipaola_anderson", "loomer", "raikin_elias"]
+  },
+  {
+    id: "dipaola_anderson",
+    name: "Dipaola / Anderson (MRT)",
+    entwurf: true,
+    kurz: "MRT-Stadieneinteilung der osteochondralen Läsion des Talus. ENTWURF: Substadien bitte gegen Original prüfen.",
+    quelle: "Quellenvorschlag (zu prüfen): Anderson IF, Crichton KJ, Grattan-Smith T, Cooper RA, Brazier D. Osteochondral fractures of the dome of the talus. J Bone Joint Surg Am 1989;71(8):1143–1152. · Dipaola JD, Nelson DW, Colville MR. Characterizing osteochondral lesions by MRI. Arthroscopy 1991;7(1):101–104.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Stadium", "MRT-Befund"],
+      zeilen: [
+        ["I", "Verdickung des Gelenkknorpels, subchondrale Kompression, intakt"],
+        ["II", "Knorpel durchbrochen, niedriges Signal hinter dem Fragment (fibröse Anheftung)"],
+        ["IIA", "mit Zystenbildung"],
+        ["III", "Knorpel durchbrochen, hohes Signal (Flüssigkeit) hinter dem Fragment (gelöst, nicht verschoben)"],
+        ["IV", "freies / verschobenes Fragment"]
+      ]
+    },
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "loomer", "raikin_elias"]
+  },
+  {
+    id: "loomer",
+    name: "Loomer (CT)",
+    entwurf: true,
+    kurz: "CT-Stadieneinteilung der osteochondralen Läsion des Talus (modifiziert nach Berndt-Harty, mit Zysten-Stadium). ENTWURF: bitte gegen Original prüfen.",
+    quelle: "Quellenvorschlag (zu prüfen): Loomer R, Fisher C, Lloyd-Smith R, Sisler J, Cooney T. Osteochondral lesions of the talus. Am J Sports Med 1993;21(1):13–19.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Stadium", "CT-Befund"],
+      zeilen: [
+        ["I", "zystische Läsion, Dach intakt"],
+        ["II", "Zyste mit Kommunikation zur Oberfläche"],
+        ["III", "offene Läsion mit nicht verschobenem Fragment"],
+        ["IV", "verschobenes Fragment"],
+        ["V", "subchondrale Zyste (radioluzenter Defekt)"]
+      ]
+    },
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "raikin_elias"]
+  },
+  {
+    id: "raikin_elias",
+    name: "Raikin / Elias (9-Zonen-Lokalisation)",
+    entwurf: true,
+    kurz: "Anatomisches 9-Zonen-Raster der Talusschulter zur Lokalisationsangabe (kein Stadiensystem). ENTWURF: genaue Zonen-Nummerierung bitte prüfen.",
+    quelle: "Quellenvorschlag (zu prüfen): Elias I, Zoga AC, Morrison WB, Besser MP, Schweitzer ME, Raikin SM. Osteochondral lesions of the talus: localization and morphologic data from 424 patients using a novel anatomical grid scheme. Foot Ankle Int 2007;28(2):154–161.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Zone", "Lage (3×3-Raster der Talusrolle)"],
+      zeilen: [
+        ["1", "anteromedial"],
+        ["2", "anterozentral"],
+        ["3", "anterolateral"],
+        ["4", "medial-mittig (häufigste Lokalisation)"],
+        ["5", "zentral-mittig"],
+        ["6", "lateral-mittig (zweithäufigste)"],
+        ["7", "posteromedial"],
+        ["8", "posterozentral"],
+        ["9", "posterolateral"]
+      ]
+    },
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer"]
+  },
+  {
+    id: "outerbridge",
+    name: "Outerbridge",
+    entwurf: true,
+    kurz: "Klassifikation des Knorpelschadens (Grad 0–IV), Alternative zur ICRS.",
+    quelle: "Quellenvorschlag (zu prüfen): Outerbridge RE. The etiology of chondromalacia patellae. J Bone Joint Surg Br 1961;43-B:752–757.",
+    krankheitsbilder: ["Knorpelschaden"],
+    regionen: ["gelenkübergreifend"],
+    tabelle: {
+      spalten: ["Grad", "Befund"],
+      zeilen: [
+        ["0", "normaler Knorpel"],
+        ["I", "Erweichung und Schwellung"],
+        ["II", "Fragmentierung/Fissuren < 1,5 cm Durchmesser"],
+        ["III", "Fragmentierung/Fissuren > 1,5 cm, tiefer reichend"],
+        ["IV", "Erosion bis auf den subchondralen Knochen"]
+      ]
+    },
+    alternativen: ["icrs", "kellgren_lawrence"]
+  },
+  {
+    id: "van_dijk",
+    name: "van Dijk (anteriores Impingement)",
+    entwurf: true,
+    kurz: "Einteilung des anterioren knöchernen Sprunggelenk-Impingements nach Osteophytenbefall.",
+    quelle: "Quellenvorschlag (zu prüfen): van Dijk CN, Tol JL, Verheyen CC. A prospective study of prognostic factors concerning the outcome of arthroscopic surgery for anterior ankle impingement. Am J Sports Med 1997;25(6):737–745.",
+    krankheitsbilder: ["OSG-Impingement"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Grad", "Befund"],
+      zeilen: [
+        ["0", "normal"],
+        ["I", "synoviales Impingement/Entzündung, kein Osteophyt"],
+        ["II", "Osteophyt an der Tibia"],
+        ["III", "Osteophyt an Tibia und Talus (± Fragmentierung)"]
+      ]
+    },
+    alternativen: ["scranton_mcdermott"]
+  },
+  {
+    id: "scranton_mcdermott",
+    name: "Scranton & McDermott",
+    entwurf: true,
+    kurz: "Einteilung des anterioren Sprunggelenk-Impingements (I–IV).",
+    quelle: "Quellenvorschlag (zu prüfen): Scranton PE Jr, McDermott JE. Anterior tibiotalar spurs: a comparison of open versus arthroscopic debridement. Foot Ankle 1992;13(3):125–129.",
+    krankheitsbilder: ["OSG-Impingement"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Grad", "Befund"],
+      zeilen: [
+        ["I", "synoviales Impingement, Sporn bis 3 mm"],
+        ["II", "Osteophyt > 3 mm"],
+        ["III", "ausgeprägte Exostose mit Fragmentierung, sekundärer Sporn am dorsalen Talus"],
+        ["IV", "pantalokrurale arthrotische Veränderungen"]
+      ]
+    },
+    alternativen: ["van_dijk"]
+  },
+  {
+    id: "knupp",
+    name: "Knupp (Malalignment)",
+    entwurf: true,
+    kurz: "Klassifikation der asymmetrischen (Varus-/Valgus-)Sprunggelenkarthrose nach Malalignment. ENTWURF: Subtypen unsicher rekonstruiert — bitte gegen Original verifizieren oder Vorlage liefern.",
+    quelle: "Quellenvorschlag (zu prüfen): Knupp M, Stufkens SA, Bolliger L, Barg A, Hintermann B. Classification and treatment of supramalleolar deformities. Foot Ankle Int 2011;32(11):1023–1031.",
+    krankheitsbilder: ["OSG-Arthrose"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Typ", "Befund (rekonstruiert)"],
+      zeilen: [
+        ["I", "Talus innerhalb der Knöchelgabel gekippt, tibiale Gelenklinie normal orientiert"],
+        ["II", "tibiale Gelenklinie selbst in Varus-/Valgusfehlstellung (tibiale Deformität)"],
+        ["III", "kombinierte/komplexe Fehlstellung mit zusätzlicher Rückfußkomponente"]
+      ]
+    },
+    alternativen: ["tanaka_takakura"]
+  },
+  {
+    id: "sobel",
+    name: "Sobel (Peroneus-brevis-Längsruptur)",
+    entwurf: true,
+    kurz: "Graduierung der Peroneus-brevis-Längsruptur (I–IV). ENTWURF: Längen-/Größenangaben bitte prüfen.",
+    quelle: "Quellenvorschlag (zu prüfen): Sobel M, Geppert MJ, Olson EJ, Bohne WH, Arnoczky SP. The dynamics of peroneus brevis tendon splits: a proposed mechanism, technique of diagnosis, and classification of injury. Foot Ankle 1992;13(7):413–422.",
+    krankheitsbilder: ["Peronealsehnen-Läsion"],
+    regionen: ["Rückfuß"],
+    tabelle: {
+      spalten: ["Grad", "Befund (rekonstruiert)"],
+      zeilen: [
+        ["I", "Sehne abgeflacht/aufgespreizt"],
+        ["II", "partielle Längsspaltung < 1 cm"],
+        ["III", "Spaltung 1–2 cm"],
+        ["IV", "Spaltung > 2 cm"]
+      ]
+    },
+    alternativen: ["krause_brodsky"]
+  },
+  {
+    id: "krause_brodsky",
+    name: "Krause & Brodsky",
+    entwurf: true,
+    kurz: "Funktionsbasierte Einteilung der Peroneus-brevis-Ruptur nach betroffenem Querschnittsanteil.",
+    quelle: "Quellenvorschlag (zu prüfen): Krause JO, Brodsky JW. Peroneus brevis tendon tears: pathophysiology, surgical reconstruction, and clinical results. Foot Ankle Int 1998;19(5):271–279.",
+    krankheitsbilder: ["Peronealsehnen-Läsion"],
+    regionen: ["Rückfuß"],
+    tabelle: {
+      spalten: ["Grad", "Befund / Therapie"],
+      zeilen: [
+        ["I", "< 50% des Querschnitts betroffen — Tubularisierung/Naht"],
+        ["II", "> 50% betroffen — Resektion des geschädigten Anteils + Tenodese an Peroneus longus"]
+      ]
+    },
+    alternativen: ["sobel"]
+  },
+  {
+    id: "weber",
+    name: "Weber (AO / Danis-Weber)",
+    entwurf: true,
+    kurz: "Einteilung der Außenknöchelfraktur nach Höhe der Fibulafraktur relativ zur Syndesmose.",
+    quelle: "Quellenvorschlag (zu prüfen): Weber BG. Die Verletzungen des oberen Sprunggelenkes. 2. Aufl. Bern: Hans Huber; 1972. (nach Danis R, 1949; AO-Adaptation.)",
+    krankheitsbilder: ["OSG-Fraktur"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Typ", "Befund"],
+      zeilen: [
+        ["A", "Fibulafraktur unterhalb der Syndesmose (infrasyndesmal)"],
+        ["B", "Fibulafraktur auf Höhe der Syndesmose (transsyndesmal)"],
+        ["C", "Fibulafraktur oberhalb der Syndesmose (suprasyndesmal)"]
+      ]
+    },
+    alternativen: ["lauge_hansen"]
+  },
+  {
+    id: "lauge_hansen",
+    name: "Lauge-Hansen",
+    entwurf: true,
+    kurz: "Mechanismusbasierte Einteilung der Sprunggelenkfraktur nach Fußposition und Krafteinwirkung.",
+    quelle: "Quellenvorschlag (zu prüfen): Lauge-Hansen N. Fractures of the ankle. II. Combined experimental-surgical and experimental-roentgenologic investigations. Arch Surg 1950;60(5):957–985.",
+    krankheitsbilder: ["OSG-Fraktur"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Mechanismus", "Stadien"],
+      zeilen: [
+        ["Supination-Adduktion (SA)", "I laterale Bandruptur/Abrissfraktur Außenknöchel → II vertikale Innenknöchelfraktur"],
+        ["Supination-Außenrotation (SER)", "I Vorderkante Syndesmose → II spiralige Fibulafraktur → III hinteres Volkmann-Dreieck → IV Innenknöchel/Deltaband"],
+        ["Pronation-Abduktion (PA)", "I Innenknöchel/Deltaband → II Syndesmose → III hohe Fibulafraktur (Biegung)"],
+        ["Pronation-Außenrotation (PER)", "I Innenknöchel/Deltaband → II vordere Syndesmose → III hohe Fibulafraktur → IV hintere Syndesmose/Volkmann"]
+      ]
+    },
+    alternativen: ["weber"]
+  },
+  {
+    id: "sanders_calcaneus",
+    name: "Sanders (Calcaneus, CT)",
+    entwurf: true,
+    kurz: "CT-basierte Einteilung der intraartikulären Calcaneusfraktur anhand der Frakturlinien in der posterioren Facette (koronare Schicht).",
+    quelle: "Quellenvorschlag (zu prüfen): Sanders R, Fortin P, DiPasquale T, Walling A. Operative treatment in 120 displaced intraarticular calcaneal fractures. Clin Orthop Relat Res 1993;(290):87–95.",
+    krankheitsbilder: ["Calcaneusfraktur"],
+    regionen: ["Rückfuß"],
+    tabelle: {
+      spalten: ["Typ", "Befund"],
+      zeilen: [
+        ["I", "nicht/gering disloziert (unabhängig von der Zahl der Linien)"],
+        ["II", "eine Frakturlinie, 2 Fragmente (IIA/IIB/IIC je nach Lage lateral→medial)"],
+        ["III", "zwei Frakturlinien, 3 Fragmente mit zentral imprimiertem Fragment (IIIAB/IIIAC/IIIBC)"],
+        ["IV", "≥ 3 Frakturlinien, ≥ 4 Fragmente, Trümmerfraktur"]
+      ]
+    },
+    alternativen: []
+  },
+  {
+    id: "hawkins",
+    name: "Hawkins (Talushals)",
+    entwurf: true,
+    kurz: "Einteilung der Talushalsfraktur nach Dislokation (Typ IV ergänzt durch Canale & Kelly); korreliert mit dem Risiko der avaskulären Nekrose (AVN).",
+    quelle: "Quellenvorschlag (zu prüfen): Hawkins LG. Fractures of the neck of the talus. J Bone Joint Surg Am 1970;52(5):991–1002. (Typ IV: Canale ST, Kelly FB Jr. J Bone Joint Surg Am 1978;60(2):143–156.)",
+    krankheitsbilder: ["Talusfraktur"],
+    regionen: ["Rückfuß"],
+    tabelle: {
+      spalten: ["Typ", "Befund / AVN-Risiko"],
+      zeilen: [
+        ["I", "nicht dislozierte Talushalsfraktur — AVN ~0–15%"],
+        ["II", "disloziert mit subtalarer Subluxation/Luxation — AVN ~20–50%"],
+        ["III", "disloziert mit subtalarer + tibiotalarer Luxation — AVN ~80–100%"],
+        ["IV", "wie III plus talonavikulare Luxation/Subluxation (Canale & Kelly) — AVN ~100%"]
+      ]
+    },
+    alternativen: []
+  }
+];
+
+function KlassifikationenView(){
+  const [q,setQ] = useState("");
+  const [filterKB,setFilterKB] = useState(null);
+  const [filterReg,setFilterReg] = useState(null);
+  const [selectedId,setSelectedId] = useState(null);
+
+  const selected = selectedId ? KLASSIFIKATIONEN.find(function(k){return k.id===selectedId;}) : null;
+
+  // Alle vorhandenen Tags sammeln (für die Filter-Chips)
+  const allKB = Array.from(new Set(KLASSIFIKATIONEN.reduce(function(acc,k){return acc.concat(k.krankheitsbilder||[]);},[]))).sort(function(a,b){return a.localeCompare(b,"de");});
+  const allReg = Array.from(new Set(KLASSIFIKATIONEN.reduce(function(acc,k){return acc.concat(k.regionen||[]);},[]))).sort(function(a,b){return a.localeCompare(b,"de");});
+
+  // Liste filtern + sortieren
+  const filtered = KLASSIFIKATIONEN
+    .filter(function(k){return !q.trim() || (k.name||"").toLowerCase().includes(q.trim().toLowerCase());})
+    .filter(function(k){return !filterKB || (k.krankheitsbilder||[]).includes(filterKB);})
+    .filter(function(k){return !filterReg || (k.regionen||[]).includes(filterReg);})
+    .sort(function(a,b){return (a.name||"").localeCompare(b.name||"","de");});
+
+  // ----- DETAIL-ANSICHT -----
+  if (selected) {
+    const tagPill = function(label,bg,fg){return <span key={label} style={{fontSize:10,padding:"3px 10px",borderRadius:10,background:bg,color:fg}}>{label}</span>;};
+    const sectionLabel = function(text){return <div style={{fontSize:10,color:"#718096",fontWeight:700,textTransform:"uppercase",letterSpacing:".6px",marginBottom:8}}>{text}</div>;};
+    const cardStyle = {background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 22px",boxShadow:"0 1px 3px rgba(0,0,0,.06)",marginBottom:14};
+
+    return <div style={{padding:"4px 4px 20px"}}>
+      <div onClick={function(){setSelectedId(null);}} style={{cursor:"pointer",color:"#006B6F",fontSize:12,fontWeight:600,marginBottom:14,display:"inline-block"}}>← zurück zur Liste</div>
+      <div style={{fontSize:24,fontWeight:700,color:"#006B6F",marginBottom:8}}>{selected.name}</div>
+      {selected.entwurf && <div style={{display:"flex",gap:8,alignItems:"flex-start",background:"#FFF8E1",border:"1px solid #F0C36D",borderRadius:8,padding:"10px 12px",marginBottom:14,fontSize:12,color:"#8A6D1A",lineHeight:1.5}}>
+        <span style={{fontSize:15}}>⚠</span>
+        <span><b>Entwurf – noch nicht geprüft.</b> Inhalt aus der Standard-Definition dieser Klassifikation rekonstruiert. Vor klinischer Nutzung bitte gegen die Originalquelle verifizieren.</span>
+      </div>}
+      {((selected.krankheitsbilder||[]).length>0||(selected.regionen||[]).length>0) && <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:18}}>
+        {(selected.krankheitsbilder||[]).map(function(t){return tagPill(t,"#E0F2F1","#00838F");})}
+        {(selected.regionen||[]).map(function(t){return tagPill(t,"#FFF3E0","#E65100");})}
+      </div>}
+
+      {selected.kurz && <div style={cardStyle}>
+        {sectionLabel("Kurzbeschreibung")}
+        <div style={{fontSize:14,lineHeight:1.6,color:"#1A2A3A"}}>{selected.kurz}</div>
+      </div>}
+
+      {selected.quelle && <div style={cardStyle}>
+        {sectionLabel("Wissenschaftliche Quelle")}
+        <div style={{fontSize:12,lineHeight:1.5,color:"#4A5568",fontStyle:"italic",padding:"10px 12px",background:"#F7FAFC",borderLeft:"3px solid #006B6F",borderRadius:4}}>{selected.quelle}</div>
+      </div>}
+
+      {selected.tabelle && Array.isArray(selected.tabelle.spalten) && selected.tabelle.spalten.length>0 && <div style={cardStyle}>
+        {sectionLabel("Übersicht")}
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+            <thead><tr>{selected.tabelle.spalten.map(function(s,i){return <th key={i} style={{background:"#006B6F",color:"#fff",fontWeight:600,padding:"10px 12px",textAlign:"left",fontSize:12,borderTopLeftRadius:i===0?6:0,borderTopRightRadius:i===selected.tabelle.spalten.length-1?6:0}}>{s}</th>;})}</tr></thead>
+            <tbody>
+              {(selected.tabelle.zeilen||[]).map(function(row,ri){
+                return <tr key={ri}>{row.map(function(cell,ci){return <td key={ci} style={{padding:"10px 12px",borderBottom:ri===selected.tabelle.zeilen.length-1?"none":"1px solid rgba(0,0,0,.06)",verticalAlign:"top"}}>{cell}</td>;})}</tr>;
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>}
+
+      {Array.isArray(selected.alternativen) && selected.alternativen.length>0 && <div style={cardStyle}>
+        {sectionLabel("Alternative Klassifikationen für dieses Thema")}
+        {selected.alternativen.map(function(altId){
+          const alt = KLASSIFIKATIONEN.find(function(k){return k.id===altId;});
+          if (!alt) return null;
+          return <div key={altId} onClick={function(){setSelectedId(altId);}}
+            style={{padding:"10px 12px",border:"1px solid rgba(0,131,143,.2)",background:"#F0FBFC",borderRadius:8,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+            <span style={{fontSize:13,fontWeight:600,color:"#006B6F"}}>{alt.name}</span>
+            <span style={{color:"#006B6F",fontSize:14}}>→</span>
+          </div>;
+        })}
+      </div>}
+    </div>;
+  }
+
+  // ----- LISTEN-ANSICHT -----
+  const chipBase = {padding:"5px 11px",borderRadius:14,fontSize:11,cursor:"pointer",border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#4A5568"};
+  const chipActive = {padding:"5px 11px",borderRadius:14,fontSize:11,cursor:"pointer",border:"1px solid #006B6F",background:"#006B6F",color:"#fff"};
+
+  return <div style={{padding:16}}>
+    <input value={q} onChange={function(e){setQ(e.target.value);}} placeholder="🔍 Klassifikation suchen…" style={{width:"100%",padding:"10px 14px",borderRadius:8,border:"1px solid rgba(0,0,0,.12)",fontSize:13,boxSizing:"border-box",marginBottom:16}}/>
+
+    {(allKB.length>0||allReg.length>0) && <div style={{display:"flex",gap:16,marginBottom:18,flexWrap:"wrap"}}>
+      {allKB.length>0 && <div style={{flex:"1 1 240px"}}>
+        <div style={{fontSize:10,color:"#718096",fontWeight:600,textTransform:"uppercase",letterSpacing:".5px",marginBottom:6}}>Filter: Krankheitsbild</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          <span onClick={function(){setFilterKB(null);}} style={filterKB===null?chipActive:chipBase}>Alle</span>
+          {allKB.map(function(t){return <span key={t} onClick={function(){setFilterKB(t);}} style={filterKB===t?chipActive:chipBase}>{t}</span>;})}
+        </div>
+      </div>}
+      {allReg.length>0 && <div style={{flex:"1 1 240px"}}>
+        <div style={{fontSize:10,color:"#718096",fontWeight:600,textTransform:"uppercase",letterSpacing:".5px",marginBottom:6}}>Filter: Anatomische Region</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          <span onClick={function(){setFilterReg(null);}} style={filterReg===null?chipActive:chipBase}>Alle</span>
+          {allReg.map(function(t){return <span key={t} onClick={function(){setFilterReg(t);}} style={filterReg===t?chipActive:chipBase}>{t}</span>;})}
+        </div>
+      </div>}
+    </div>}
+
+    {KLASSIFIKATIONEN.length===0 && <div style={{padding:"40px 20px",textAlign:"center",color:"#A0AEC0",fontSize:12,lineHeight:1.7}}>
+      Hier werden Klassifikationen der Fußchirurgie gesammelt.<br/>Einträge folgen.
+    </div>}
+
+    {KLASSIFIKATIONEN.length>0 && filtered.length===0 && <div style={{padding:"30px 20px",textAlign:"center",color:"#A0AEC0",fontSize:12}}>
+      Keine Treffer mit den aktuellen Filtern.
+    </div>}
+
+    {filtered.length>0 && <div style={{display:"flex",flexDirection:"column",gap:8}}>
+      {filtered.map(function(k){
+        return <div key={k.id} onClick={function(){setSelectedId(k.id);}}
+          style={{padding:"12px 14px",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,cursor:"pointer",background:"#fff",transition:"all .15s"}}
+          onMouseEnter={function(e){e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.background="rgba(0,131,143,.03)";}}
+          onMouseLeave={function(e){e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.background="#fff";}}>
+          <div style={{fontSize:14,fontWeight:600,color:"#1A2A3A",marginBottom:4,display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span>{k.name}</span>
+            {k.entwurf && <span style={{fontSize:9,fontWeight:700,letterSpacing:".5px",padding:"2px 7px",borderRadius:8,background:"#FFF8E1",color:"#B8860B",border:"1px solid #F0C36D"}}>ENTWURF · UNGEPRÜFT</span>}
+          </div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {(k.krankheitsbilder||[]).map(function(t){return <span key={"kb-"+t} style={{fontSize:10,padding:"2px 8px",borderRadius:10,background:"#E0F2F1",color:"#00838F"}}>{t}</span>;})}
+            {(k.regionen||[]).map(function(t){return <span key={"reg-"+t} style={{fontSize:10,padding:"2px 8px",borderRadius:10,background:"#FFF3E0",color:"#E65100"}}>{t}</span>;})}
+          </div>
+        </div>;
+      })}
+    </div>}
+  </div>;
+}
+
+// ==========================================================================
 // CODE-ÜBERSICHT
 // Zeigt alle in OP_STEUERUNG verwendeten Codes mit Bezeichnung, Eingriff und Rolle.
 // Nutzt zentrale OPS_LABELS als Quelle. Eine einzige Stelle, um Inkonsistenzen zu finden.
@@ -10293,6 +11343,14 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Sortierte Sammlung von OP-Technik-Manualen und Implantatsystemen als PDF.</div>
           <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Infinity · Inbone II · Prophecy · konventionell</div>
         </div>
+        <div onClick={()=>onSelect("klassifikationen")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:12}}>📊</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#006B6F",marginBottom:6}}>Klassifikationen</div>
+          <div style={{fontSize:11,color:"#718096",lineHeight:1.6}}>Klassifikationen der Fußchirurgie zur schnellen Ansicht. Suche · Filter nach Krankheitsbild oder Region.</div>
+          <div style={{marginTop:14,fontSize:10,color:"#00838F",fontWeight:600}}>Alphabetisch · Tags · Detail-Tabelle</div>
+        </div>
         <a href={FUSSTRACK_BASE_URL} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none",cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,padding:"20px 18px",flex:"1 1 240px",maxWidth:280,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center",display:"block"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #2C4F7C";e.currentTarget.style.boxShadow="0 4px 12px rgba(44,79,124,.15)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
@@ -10368,6 +11426,25 @@ function App() {
         </div>
         <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
           <OPManuale/>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (tool === "klassifikationen") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:11,fontWeight:600}}>
+          ← Toolbox
+        </div>
+      </div>
+      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:900,margin:"0 auto",padding:"60px 16px 40px"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📊 Klassifikationen</div>
+          <div style={{fontSize:11,color:"#718096"}}>Alphabetisch · Suche · Filter nach Krankheitsbild oder Region</div>
+        </div>
+        <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
+          <KlassifikationenView/>
         </div>
       </div>
     </div>
