@@ -10960,14 +10960,21 @@ const ROENTGEN = [
     name: "Fuß seitlich im Stand",
     referenzbild: "",
     hinweis: "",
-    messungen: ["meary", "costa_bartani"]
+    messungen: ["meary","costa_bartani","calcaneal_pitch","talocalcaneal_lat","talohorizontal","hibbs","tls"]
   },
   {
     id: "fuss_dp_stand",
     name: "Fuß dorsoplantar im Stand",
     referenzbild: "",
     hinweis: "",
-    messungen: ["dmaa", "scarlato", "tn_uncoverage"]
+    messungen: ["dmaa","scarlato","tn_uncoverage","hva","ima","hia","tsp","pasa_dasa","metatarsal_index","talocalcaneal_dp","tmt1_dp","met_adductus"]
+  },
+  {
+    id: "osg_ap_stand",
+    name: "OSG a.p. im Stand",
+    referenzbild: "",
+    hinweis: "",
+    messungen: ["tas","talar_tilt","mdta"]
   },
   {
     id: "hindfoot_alignment",
@@ -11042,7 +11049,7 @@ const MESSMETHODEN = [
   {
     id: "saltzmann",
     name: "Saltzmann",
-    beschreibung: "Messung der Rückfußachse im Stand. Hinweis: anfällig für Fehlmessung bei schlechter technischer Einstellung des Fußes. Dieser sollte „neutral“ stehen mit parallel zueinander stehenden Fußinnenrändern. Jeder Fuß sollte einzeln geröntgt werden, sodass der Zentralstrahl direkt auf den Rückfuß fällt.",
+    beschreibung: "Messung der Rückfußachse im Stand.\n\nHinweis: anfällig für Fehlmessung bei schlechter technischer Einstellung des Fußes. Dieser sollte „neutral“ stehen mit parallel zueinander stehenden Fußinnenrändern. Jeder Fuß sollte einzeln geröntgt werden, sodass der Zentralstrahl direkt auf den Rückfuß fällt.",
     durchfuehrung: "",
     normwert: "5° Valgus ± 5°",
     pathologisch: "",
@@ -11050,6 +11057,227 @@ const MESSMETHODEN = [
     quelle: "Saltzman CL, el-Khoury GY. The hindfoot alignment view. Foot Ankle Int 1995;16(9):572–576. · Barg A, Amendola RL, Henninger HB, Kapron AL, Saltzman CL, Anderson AE. Foot Ankle Int 2015;36(11):1352–1361. · Cody EA, Williamson ER, Burket JC, Deland JT, Ellis SJ. Foot Ankle Int 2016;37:874–881.",
     roentgen: ["hindfoot_alignment"],
     krankheitsbilder: ["Rückfußfehlstellung", "Cavo-Varus"]
+  },
+  {
+    id: "hva",
+    name: "Hallux-valgus-Winkel (HVA)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Schaftachse des Metatarsale I und der Schaftachse der Grundphalanx der Großzehe im belasteten dorsoplantaren Bild. Grundmaß zur Quantifizierung der Hallux-valgus-Fehlstellung.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): < 15°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Coughlin MJ, Mann RA, Saltzman CL. Surgery of the Foot and Ankle. 8. Aufl. Mosby; 2007. · Robinson AHN, Limbers JP. Modern concepts in the treatment of hallux valgus. J Bone Joint Surg Br 2005;87-B(8):1038–1045.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Hallux valgus"]
+  },
+  {
+    id: "ima",
+    name: "Intermetatarsalwinkel (IMA 1–2)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen den Schaftachsen des Metatarsale I und II im belasteten dorsoplantaren Bild. Maß für den Metatarsus primus varus.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): < 9°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Coughlin MJ, Mann RA, Saltzman CL. Surgery of the Foot and Ankle. 8. Aufl. Mosby; 2007.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Hallux valgus"]
+  },
+  {
+    id: "hia",
+    name: "Hallux-interphalangeus-Winkel (HIA)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Schaftachse der Grund- und der Endphalanx der Großzehe im dorsoplantaren Bild.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): < 10°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Sorto LA Jr, Balding MG, Weil LS, Smith SD. Hallux abductus interphalangeus. Etiology, x-ray evaluation and treatment. J Am Podiatry Assoc 1976;66(6):384–396.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Hallux valgus"]
+  },
+  {
+    id: "tsp",
+    name: "Sesambein-Position (Tibial Sesamoid Position)",
+    entwurf: true,
+    beschreibung: "Beurteilung der Lage des medialen (tibialen) Sesambeins relativ zur Schaftachse bzw. zur Längskante des Metatarsale I im dorsoplantaren Bild. Indirektes Maß für die Pronation/Subluxation des ersten Strahls. Einteilung üblicherweise in Stufen (z. B. Grad 1–3 nach Hardy & Clapham bzw. 7-stufig).",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): Grad 1–3 (von 7); höhere Grade = zunehmende laterale Subluxation",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Hardy RH, Clapham JCR. Observations on hallux valgus. J Bone Joint Surg Br 1951;33-B(3):376–391.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Hallux valgus"]
+  },
+  {
+    id: "pasa_dasa",
+    name: "PASA / DASA",
+    entwurf: true,
+    beschreibung: "PASA (proximal articular set angle, = DMAA) beschreibt die Neigung der distalen Gelenkfläche des Metatarsale I gegenüber dessen Schaftachse; DASA (distal articular set angle) die Neigung der proximalen Gelenkfläche der Grundphalanx gegenüber deren Schaftachse. Beide im dorsoplantaren Bild.\n\nHinweis: insbesondere PASA mit hoher intra-/inter-Observer-Variabilität.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): PASA < 10° · DASA < 8°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Smith B, Coughlin M. Treatment of Hallux Valgus with Increased Distal Metatarsal Articular Angle. Foot Ankle Clin 2009;14(3):369–382.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Hallux valgus"]
+  },
+  {
+    id: "metatarsal_index",
+    name: "Metatarsalindex (Morton / Protrusion)",
+    entwurf: true,
+    beschreibung: "Beurteilung der relativen Länge des Metatarsale I gegenüber Metatarsale II im dorsoplantaren Bild (Index plus / minus / plus-minus). Hinweis auf Vorfußbelastungsmuster.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ausgeglichen (Index plus-minus); MT I ≈ MT II",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Hardy RH, Clapham JCR. Observations on hallux valgus. J Bone Joint Surg Br 1951;33-B(3):376–391.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Hallux valgus", "Metatarsalgie"]
+  },
+  {
+    id: "calcaneal_pitch",
+    name: "Calcaneal Pitch (Fersenneigungswinkel)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der plantaren Auflagelinie (Boden) und der Unterkante des Calcaneus im seitlichen belasteten Bild. Maß für die Höhe des Längsgewölbes.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 17–32° (erniedrigt beim Knick-Senk-Fuß, erhöht beim Hohlfuß)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Steel MW 3rd, Johnson KA, DeWitz MA, Ilstrup DM. Radiographic measurements of the normal adult foot. Foot Ankle 1980;1(3):151–158.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["Knick-Senk-Fuß", "Hohlfuß"]
+  },
+  {
+    id: "talocalcaneal_lat",
+    name: "Talocalcanearwinkel seitlich (Kite, lateral)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Längsachse des Talus und der Längsachse des Calcaneus im seitlichen belasteten Bild.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 25–50°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Kite JH. Principles involved in the treatment of congenital club-foot. J Bone Joint Surg Am 1939;21:595–606. · Steel MW 3rd et al. Foot Ankle 1980;1(3):151–158.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["Knick-Senk-Fuß", "Hohlfuß"]
+  },
+  {
+    id: "talocalcaneal_dp",
+    name: "Talocalcanearwinkel dorsoplantar (Kite, dp)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Längsachse von Talus und Calcaneus im dorsoplantaren belasteten Bild.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 15–30° (vergrößert bei Rückfuß-Valgus/Knick-Senk-Fuß, verkleinert bei Varus)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Kite JH. J Bone Joint Surg Am 1939;21:595–606. · Steel MW 3rd et al. Foot Ankle 1980;1(3):151–158.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Knick-Senk-Fuß", "Cavo-Varus"]
+  },
+  {
+    id: "tmt1_dp",
+    name: "Talo-Metatarsale-I-Winkel dorsoplantar",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Längsachse des Talus und der Schaftachse des Metatarsale I im dorsoplantaren belasteten Bild. Maß für die Abduktion des Vorfußes.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): 0° ± ca. 7°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Younger AS, Sawatzky B, Dryden P. Radiographic assessment of adult flatfoot. Foot Ankle Int 2005;26(10):820–825.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Knick-Senk-Fuß"]
+  },
+  {
+    id: "talohorizontal",
+    name: "Talohorizontalwinkel",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Längsachse des Talus und der horizontalen Auflagelinie im seitlichen belasteten Bild.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 20–30°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Steel MW 3rd, Johnson KA, DeWitz MA, Ilstrup DM. Radiographic measurements of the normal adult foot. Foot Ankle 1980;1(3):151–158.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["Knick-Senk-Fuß", "Hohlfuß"]
+  },
+  {
+    id: "hibbs",
+    name: "Hibbs-Winkel",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Längsachse des Calcaneus und der Schaftachse des Metatarsale I im seitlichen belasteten Bild. Maß zur Beurteilung des Hohlfußes.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 150–175°; kleinere Werte = ausgeprägterer Hohlfuß",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Hibbs RA. An operation for claw-foot. JAMA 1919;73(20):1583–1585.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["Hohlfuß"]
+  },
+  {
+    id: "tas",
+    name: "TAS-Winkel (tibial anterior surface angle)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Schaftachse der Tibia und der distalen tibialen Gelenkfläche im a.p.-Bild des OSG. Maß für die koronare Orientierung der distalen Tibiagelenkfläche (Varus/Valgus).",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 91–93° (medial offen)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Knupp M, Stufkens SA, Bolliger L, Barg A, Hintermann B. Classification and treatment of supramalleolar deformities. Foot Ankle Int 2011;32(11):1023–1031.",
+    roentgen: ["osg_ap_stand"],
+    krankheitsbilder: ["OSG-Arthrose", "Rückfußfehlstellung"]
+  },
+  {
+    id: "tls",
+    name: "TLS-Winkel (tibial lateral surface angle)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Schaftachse der Tibia und der distalen tibialen Gelenkfläche im seitlichen Bild des OSG. Maß für die sagittale Orientierung (anteriorer/posteriorer Slope).",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 80°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Knupp M, Stufkens SA, Bolliger L, Barg A, Hintermann B. Foot Ankle Int 2011;32(11):1023–1031.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["OSG-Arthrose"]
+  },
+  {
+    id: "talar_tilt",
+    name: "Talar Tilt (Taluskippung)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der distalen tibialen Gelenkfläche und der Gelenkfläche der Talusrolle im a.p.-Bild des OSG. Maß für die Kippung des Talus in der Knöchelgabel (Varus-/Valgus-Arthrose, laterale Instabilität).",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): < ca. 2–4° (seitengleich)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Knupp M, Stufkens SA, Bolliger L, Barg A, Hintermann B. Foot Ankle Int 2011;32(11):1023–1031.",
+    roentgen: ["osg_ap_stand"],
+    krankheitsbilder: ["OSG-Arthrose", "Rückfußfehlstellung"]
+  },
+  {
+    id: "mdta",
+    name: "Medialer distaler Tibiawinkel (mDTA)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der mechanischen/anatomischen Tibiaachse und der distalen tibialen Gelenkfläche, medial gemessen, im a.p.-Bild des OSG bzw. Ganzbein. Maß für die koronare Ausrichtung der distalen Tibia.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 88–93°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Paley D. Principles of Deformity Correction. Springer; 2002.",
+    roentgen: ["osg_ap_stand"],
+    krankheitsbilder: ["OSG-Arthrose", "Rückfußfehlstellung"]
+  },
+  {
+    id: "met_adductus",
+    name: "Metatarsus-adductus-Winkel (Sgarlato/Engel)",
+    entwurf: true,
+    beschreibung: "Winkel zwischen der Längsachse des Metatarsale II und der Längsachse des Mittelfußes (Lisfranc-Bezugslinie) im dorsoplantaren belasteten Bild. Maß zur Erhebung eines Metatarsus adductus.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): < 15° (15–20° mild, 20–25° moderat, > 25° schwer)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Sgarlato TE. A Compendium of Podiatric Biomechanics. California College of Podiatric Medicine; 1971. · Engel E, Erlick N, Krems I. A simplified metatarsus adductus angle. J Am Podiatry Assoc 1983;73(12):620–628.",
+    roentgen: ["fuss_dp_stand"],
+    krankheitsbilder: ["Hallux valgus", "Pes adductus"]
   }
 ];
 
@@ -11076,13 +11304,15 @@ function RoentgenView(){
     return <div style={{padding:"4px 4px 20px"}}>
       {backLink(function(){setSelMessung(null);}, "zurück")}
       <div style={{fontSize:24,fontWeight:700,color:"#006B6F",marginBottom:8}}>{m.name}</div>
+      {m.entwurf && <div style={{display:"flex",gap:8,alignItems:"flex-start",background:"#FFF8E1",border:"1px solid #F0C36D",borderRadius:8,padding:"10px 12px",marginBottom:14,fontSize:12,color:"#8A6D1A",lineHeight:1.5}}>
+        <span style={{fontSize:15}}>⚠</span><span><b>Entwurf – noch nicht geprüft.</b> Normwert und Quelle sind Vorschläge und vor klinischer Nutzung gegen die Originalquelle zu verifizieren.</span></div>}
       {((m.krankheitsbilder||[]).length>0||(m.roentgen||[]).length>0) && <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:18}}>
         {(m.roentgen||[]).map(function(rid){var r=findRoent(rid);return <span key={rid} style={{fontSize:10,padding:"3px 10px",borderRadius:10,background:"#E3F2FD",color:"#1565C0"}}>{r?r.name:rid}</span>;})}
         {(m.krankheitsbilder||[]).map(function(t){return <span key={t} style={{fontSize:10,padding:"3px 10px",borderRadius:10,background:"#E0F2F1",color:"#00838F"}}>{t}</span>;})}
       </div>}
       <div style={cardStyle}>{sectionLabel("Beispielbild")}{m.bild ? <img src={m.bild} alt={m.name} style={{maxWidth:"100%",borderRadius:8}}/> : placeholderBox(m.name)}</div>
-      {m.beschreibung && <div style={cardStyle}>{sectionLabel("Was wird gemessen?")}<div style={{fontSize:14,lineHeight:1.6}}>{m.beschreibung}</div></div>}
-      {m.durchfuehrung && <div style={cardStyle}>{sectionLabel("Wie wird gemessen?")}<div style={{fontSize:14,lineHeight:1.6}}>{m.durchfuehrung}</div></div>}
+      {m.beschreibung && <div style={cardStyle}>{sectionLabel("Was wird gemessen?")}<div style={{fontSize:14,lineHeight:1.6,whiteSpace:"pre-line"}}>{m.beschreibung}</div></div>}
+      {m.durchfuehrung && <div style={cardStyle}>{sectionLabel("Wie wird gemessen?")}<div style={{fontSize:14,lineHeight:1.6,whiteSpace:"pre-line"}}>{m.durchfuehrung}</div></div>}
       {(m.normwert||m.pathologisch) && <div style={cardStyle}>{sectionLabel("Werte")}
         {m.normwert && <div style={{fontSize:13,lineHeight:1.6,marginBottom:6}}><b style={{color:"#1E7E34"}}>Normwert:</b> {m.normwert}</div>}
         {m.pathologisch && <div style={{fontSize:13,lineHeight:1.6}}><b style={{color:"#C0392B"}}>Pathologisch:</b> {m.pathologisch}</div>}
@@ -11096,19 +11326,28 @@ function RoentgenView(){
     const r = findRoent(selAufnahme);
     if (!r) { setSelAufnahme(null); return null; }
     const messList = (r.messungen||[]).map(findMess).filter(Boolean);
+    const single = messList.length===1 ? messList[0] : null;
     return <div style={{padding:"4px 4px 20px"}}>
       {backLink(function(){setSelAufnahme(null);}, "zurück zu den Aufnahmen")}
       <div style={{fontSize:24,fontWeight:700,color:"#006B6F",marginBottom:12}}>{r.name}</div>
       <div style={cardStyle}>{sectionLabel("Referenzbild – korrekte Aufnahme")}{r.referenzbild ? <img src={r.referenzbild} alt={r.name} style={{maxWidth:"100%",borderRadius:8}}/> : placeholderBox(r.name)}</div>
-      {r.hinweis && <div style={cardStyle}>{sectionLabel("Worauf zu achten ist")}<div style={{fontSize:14,lineHeight:1.6}}>{r.hinweis}</div></div>}
-      <div style={cardStyle}>{sectionLabel("Mögliche Messmethoden auf dieser Aufnahme")}
+      {r.hinweis && <div style={cardStyle}>{sectionLabel("Worauf zu achten ist")}<div style={{fontSize:14,lineHeight:1.6,whiteSpace:"pre-line"}}>{r.hinweis}</div></div>}
+      {single ? <div>
+        {single.beschreibung && <div style={cardStyle}>{sectionLabel("Was wird gemessen?")}<div style={{fontSize:14,lineHeight:1.6,whiteSpace:"pre-line"}}>{single.beschreibung}</div></div>}
+        {single.durchfuehrung && <div style={cardStyle}>{sectionLabel("Wie wird gemessen?")}<div style={{fontSize:14,lineHeight:1.6,whiteSpace:"pre-line"}}>{single.durchfuehrung}</div></div>}
+        {(single.normwert||single.pathologisch) && <div style={cardStyle}>{sectionLabel("Werte")}
+          {single.normwert && <div style={{fontSize:13,lineHeight:1.6,marginBottom:6}}><b style={{color:"#1E7E34"}}>Normwert:</b> {single.normwert}</div>}
+          {single.pathologisch && <div style={{fontSize:13,lineHeight:1.6}}><b style={{color:"#C0392B"}}>Pathologisch:</b> {single.pathologisch}</div>}
+        </div>}
+        {single.quelle && <div style={cardStyle}>{sectionLabel("Wissenschaftliche Quelle")}<div style={{fontSize:11.5,lineHeight:1.5,color:"#4A5568",fontStyle:"italic",padding:"10px 12px",background:"#F7FAFC",borderLeft:"3px solid #006B6F",borderRadius:4}}>{single.quelle}</div></div>}
+      </div> : <div style={cardStyle}>{sectionLabel("Mögliche Messmethoden auf dieser Aufnahme")}
         {messList.length===0 ? <div style={{fontSize:12,color:"#A0AEC0"}}>Noch keine Messmethoden hinterlegt.</div> :
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {messList.map(function(m){return <div key={m.id} onClick={function(){setSelMessung(m.id);}}
               style={{padding:"10px 12px",border:"1px solid rgba(0,131,143,.2)",background:"#F0FBFC",borderRadius:8,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <span style={{fontSize:13,fontWeight:600,color:"#006B6F"}}>{m.name}</span><span style={{color:"#006B6F"}}>→</span></div>;})}
           </div>}
-      </div>
+      </div>}
     </div>;
   }
 
@@ -11176,7 +11415,10 @@ function RoentgenView(){
         {messFiltered.map(function(m){
           return <div key={m.id} onClick={function(){setSelMessung(m.id);}}
             style={{padding:"12px 14px",border:"1px solid rgba(0,0,0,.08)",borderRadius:8,cursor:"pointer",background:"#fff"}}>
-            <div style={{fontSize:14,fontWeight:600,color:"#1A2A3A",marginBottom:4}}>{m.name}</div>
+            <div style={{fontSize:14,fontWeight:600,color:"#1A2A3A",marginBottom:4,display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+              <span>{m.name}</span>
+              {m.entwurf && <span style={{fontSize:9,fontWeight:700,letterSpacing:".5px",padding:"2px 7px",borderRadius:8,background:"#FFF8E1",color:"#B8860B",border:"1px solid #F0C36D"}}>ENTWURF · UNGEPRÜFT</span>}
+            </div>
             <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
               {(m.roentgen||[]).map(function(rid){var r=findRoent(rid);return <span key={rid} style={{fontSize:10,padding:"2px 8px",borderRadius:10,background:"#E3F2FD",color:"#1565C0"}}>{r?r.name:rid}</span>;})}
               {(m.krankheitsbilder||[]).map(function(t){return <span key={t} style={{fontSize:10,padding:"2px 8px",borderRadius:10,background:"#E0F2F1",color:"#00838F"}}>{t}</span>;})}
