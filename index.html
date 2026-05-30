@@ -10220,7 +10220,7 @@ const KLASSIFIKATIONEN = [
         ["IV", "abgelöstes und disloziertes Fragment"]
       ]
     },
-    alternativen: ["cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
+    alternativen: ["cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias", "griffith"]
   },
   {
     id: "cheng",
@@ -10240,7 +10240,7 @@ const KLASSIFIKATIONEN = [
         ["F", "verschobenes Fragment"]
       ]
     },
-    alternativen: ["berndt_harty", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
+    alternativen: ["berndt_harty", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias", "griffith"]
   },
   {
     id: "ferkel_ct",
@@ -10259,7 +10259,7 @@ const KLASSIFIKATIONEN = [
         ["IV", "verschobenes (disloziertes) Fragment"]
       ]
     },
-    alternativen: ["berndt_harty", "cheng", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
+    alternativen: ["berndt_harty", "cheng", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias", "griffith"]
   },
   {
     id: "hepple",
@@ -10279,7 +10279,7 @@ const KLASSIFIKATIONEN = [
         ["5", "subchondrale Zystenbildung"]
       ]
     },
-    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "mintz", "dipaola_anderson", "loomer", "raikin_elias", "griffith"]
   },
   {
     id: "ram",
@@ -10703,7 +10703,7 @@ const KLASSIFIKATIONEN = [
         ["5", "verschobenes Fragment"]
       ]
     },
-    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "dipaola_anderson", "loomer", "raikin_elias"]
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "dipaola_anderson", "loomer", "raikin_elias", "griffith"]
   },
   {
     id: "dipaola_anderson",
@@ -10722,7 +10722,7 @@ const KLASSIFIKATIONEN = [
         ["IV", "freies / verschobenes Fragment"]
       ]
     },
-    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "loomer", "raikin_elias"]
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "loomer", "raikin_elias", "griffith"]
   },
   {
     id: "loomer",
@@ -10741,7 +10741,7 @@ const KLASSIFIKATIONEN = [
         ["V", "subchondrale Zyste (radioluzenter Defekt)"]
       ]
     },
-    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "raikin_elias"]
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "raikin_elias", "griffith"]
   },
   {
     id: "raikin_elias",
@@ -10764,7 +10764,7 @@ const KLASSIFIKATIONEN = [
         ["9", "posterolateral"]
       ]
     },
-    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer"]
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer", "griffith"]
   },
   {
     id: "outerbridge",
@@ -10942,6 +10942,30 @@ const KLASSIFIKATIONEN = [
       ]
     },
     alternativen: []
+  },
+  {
+    id: "griffith",
+    name: "Griffith (OLT-MRT)",
+    entwurf: true,
+    kurz: "Hochauflösende MRT-Klassifikation der osteochondralen Läsion (=Knorpel-Knochen-Schaden) des Talus. Berücksichtigt Knorpeldicke, osteochondrale Separation und Kollaps des subchondralen Knochens; jeder Grad zusätzlich mit/ohne Knorpelfraktur (a = ohne, b = mit).",
+    quelle: "Quellenvorschlag (zu prüfen): Griffith JF, Lau DT, Yeung DK, Wong MW. High-resolution MR imaging of talar osteochondral lesions with new classification. Skeletal Radiol 2012;41(4):387–399. · Darstellung nach: Panzer S, Bohndorf K. Nichtinvasive Diagnostik des Talus bei osteochondralen Läsionen. Arthroskopie 2019;32:118–124.",
+    krankheitsbilder: ["Osteochondrale Läsion (OCL)"],
+    regionen: ["OSG"],
+    tabelle: {
+      spalten: ["Grad", "Befund"],
+      zeilen: [
+        ["1a", "Knochenmarkveränderungen mit normaler Oberflächenkontur"],
+        ["1b", "wie 1a, zusätzlich Knorpelfraktur"],
+        ["2a", "partieller Kollaps des betroffenen Knochens mit osteochondraler Separation"],
+        ["2b", "wie 2a, zusätzlich Knorpelfraktur"],
+        ["3a", "partieller Kollaps des betroffenen Knochens mit Knorpelhypertrophie"],
+        ["3b", "wie 3a, zusätzlich Knorpelfraktur"],
+        ["4a", "Knochenseparation, Knorpel intakt"],
+        ["4b", "wie 4a, zusätzlich Knorpelfraktur"],
+        ["5", "komplette Knochen- und Knorpelseparation ± leerem Fragmentbett"]
+      ]
+    },
+    alternativen: ["berndt_harty", "cheng", "ferkel_ct", "hepple", "mintz", "dipaola_anderson", "loomer", "raikin_elias"]
   }
 ];
 
@@ -10960,28 +10984,98 @@ const ROENTGEN = [
     name: "Fuß seitlich im Stand",
     referenzbild: "",
     hinweis: "",
-    messungen: ["meary","costa_bartani","calcaneal_pitch","talocalcaneal_lat","talohorizontal","hibbs","tls"]
+    messungen: ["meary","costa_bartani","calcaneal_pitch","talocalcaneal_lat","talohorizontal","hibbs","tls","adtw","boehler","gissane","tch"]
   },
   {
     id: "fuss_dp_stand",
     name: "Fuß dorsoplantar im Stand",
     referenzbild: "",
     hinweis: "",
-    messungen: ["dmaa","scarlato","tn_uncoverage","hva","ima","hia","tsp","pasa_dasa","metatarsal_index","talocalcaneal_dp","tmt1_dp","met_adductus"]
+    messungen: ["dmaa","scarlato","tn_uncoverage","hva","ima","hia","tsp","pasa_dasa","metatarsal_index","talocalcaneal_dp","tmt1_dp","lisfranc_diastase"]
   },
   {
     id: "osg_ap_stand",
     name: "OSG a.p. im Stand",
     referenzbild: "",
     hinweis: "",
-    messungen: ["tas","talar_tilt","mdta"]
+    messungen: ["tas","talar_tilt","mdta","ligne_claire","tib_fib_overlap","medial_clear_space"]
   },
   {
     id: "hindfoot_alignment",
     name: "Hindfoot-Alignment-View (Saltzmann)",
     referenzbild: "",
     hinweis: "",
-    messungen: ["saltzmann"]
+    messungen: ["calc_hebelarm","rueckfuss_winkel","donovan_rosenberg"]
+  },
+  {
+    id: "osg_ap_echt",
+    name: "OSG a.p. (echt, neutral)",
+    referenzbild: "",
+    hinweis: "Echte a.p.-Aufnahme des oberen Sprunggelenks mit neutraler Ausrichtung von Fuß und Sprunggelenk in der Horizontalebene (ohne Innenrotation). Abzugrenzen von der Mortise-Aufnahme, die um 20° innenrotiert ist.",
+    messungen: []
+  },
+  {
+    id: "osg_schraeg",
+    name: "OSG 45°-Schrägaufnahme (intern/extern)",
+    referenzbild: "",
+    hinweis: "45°-interne bzw. -externe Schrägaufnahme des oberen Sprunggelenks zur besseren Beurteilung des tibialen Plafonds. Bei elektiven Fragestellungen (z. B. Impingement) unter Belastung, bei akuter Verletzung ohne Belastung.",
+    messungen: []
+  },
+  {
+    id: "fuss_schraeg45",
+    name: "Fuß 45°-Schrägaufnahme",
+    referenzbild: "",
+    hinweis: "45°-Schrägaufnahme des Fußes zur überlagerungsfreien Beurteilung von Mittelfuß, Tarsometatarsal- (Lisfranc) und Chopart-Region sowie der lateralen Strahlen.",
+    messungen: []
+  },
+  {
+    id: "osg_funktion",
+    name: "OSG-Funktionsaufnahme (Dorsalext./Plantarflex.)",
+    referenzbild: "",
+    hinweis: "Seitliche Funktionsaufnahmen des oberen Sprunggelenks unter Belastung in maximaler Dorsalextension und maximaler Plantarflexion. Indikationen: anteriores/posteriores Impingement, Dokumentation des Bewegungsausmaßes (auch bei OSG-Endoprothese).",
+    messungen: []
+  },
+  {
+    id: "broden",
+    name: "Brodén-Aufnahme",
+    referenzbild: "",
+    hinweis: "Darstellung der posterioren Facette des unteren Sprunggelenks. Ohne Belastung, OSG in Neutralposition, Fuß 30° innenrotiert, Zentralstrahl 30° (Serie 10–40°) kranio-kaudal auf den Malleolus lateralis. Indikationen: intraartikuläre Calcaneusfraktur, subtalare Arthrose/Coalitio, Processus-lateralis-Fraktur.",
+    messungen: []
+  },
+  {
+    id: "harris_beath",
+    name: "Harris-Beath-Aufnahme",
+    referenzbild: "",
+    hinweis: "Darstellung der hinteren und mittleren Facette des unteren Sprunggelenks. Im Stehen oder Sitzen, Zentralstrahl 45° kranio-kaudal in p.a.-Richtung auf die distale Ferse. Häufigste Indikation: Verdacht auf tarsale Coalitiones.",
+    messungen: []
+  },
+  {
+    id: "calcaneus_axial",
+    name: "Axiale Calcaneus-Aufnahme",
+    referenzbild: "",
+    hinweis: "Axiale Aufnahme des Calcaneus, ähnlich der Harris-Beath-Aufnahme, jedoch mehr auf den Tuber calcanei zentriert (subtalare Facetten nicht einsehbar). Wichtigste Indikation: Calcaneusfrakturen (prä-/postoperativ).",
+    messungen: []
+  },
+  {
+    id: "canale",
+    name: "Canale-Aufnahme",
+    referenzbild: "",
+    hinweis: "Darstellung des Talushalses. Ohne Belastung, Fuß in maximaler Equinusposition und 15° proniert, Zentralstrahl 15° kaudo-kranial auf den Talushals. Indikation: Varus-/Valgusfehlstellung des Talushalses, Talushalsfraktur (auch intraoperative Repositionskontrolle).",
+    messungen: []
+  },
+  {
+    id: "skyline_mfk",
+    name: "Metatarsalköpfchen-Aufnahme (Skyline)",
+    referenzbild: "",
+    hinweis: "Belastungsaufnahme der Metatarsaleköpfchen („skyline view“) mit abgehobener Ferse und Dorsalextension der Zehen. Beurteilung sagittaler Höhenunterschiede (Höher-/Tiefertreten einzelner Metatarsaleköpfchen). Aussagekraft bei Schmerzen/eingeschränkter Zehenbeweglichkeit limitiert.",
+    messungen: []
+  },
+  {
+    id: "orthoradiogramm",
+    name: "Orthoradiogramm der unteren Extremität",
+    referenzbild: "",
+    hinweis: "Ganzbeinaufnahme (Hüft-, Knie-, Sprunggelenk) zur Beurteilung der Beinachse. Ergänzend bei Deformitäten um das Kniegelenk; in modifizierter Form bis zum Tuber calcanei (Kombination mit Saltzmann-Aufnahme).",
+    messungen: []
   }
 ];
 
@@ -10989,7 +11083,7 @@ const MESSMETHODEN = [
   {
     id: "meary",
     name: "Meary-Winkel",
-    beschreibung: "Winkel zwischen der Achse des Talus und der Schaftachse des Metatarsale I im seitlichen belasteten Bild des Fußes.",
+    beschreibung: "Beurteilung des medialen Längsgewölbes (Knick-Senk-Fuß bzw. Hohlfuß).\n\nWinkel zwischen der Achse des Talus und der Schaftachse des Metatarsale I im seitlichen belasteten Bild des Fußes.",
     durchfuehrung: "",
     normwert: "0° ± 4° (beim Erwachsenen)",
     pathologisch: "",
@@ -11001,7 +11095,7 @@ const MESSMETHODEN = [
   {
     id: "costa_bartani",
     name: "Costa-Bartani-Winkel",
-    beschreibung: "Winkel zwischen jeweils einer Linie vom untersten Punkt des Tuber calcanei sowie vom Unterrand des MFK-V-Köpfchens zum untersten Punkt des TN-Gelenks.",
+    beschreibung: "Beurteilung des medialen Längsgewölbes.\n\nWinkel zwischen jeweils einer Linie vom untersten Punkt des Tuber calcanei sowie vom Unterrand des MFK-V-Köpfchens zum untersten Punkt des TN-Gelenks.",
     durchfuehrung: "",
     normwert: "120–125°",
     pathologisch: "",
@@ -11013,7 +11107,7 @@ const MESSMETHODEN = [
   {
     id: "dmaa",
     name: "DMAA-Winkel",
-    beschreibung: "Winkel zwischen einer Linie im rechten Winkel auf die Schaftachse des MT I und der distalen Gelenkfläche des MT I. Hinweis: Messung mit hoher intra- und inter-Observer-Variabilität, also mit hoher Gefahr von Abweichung.",
+    beschreibung: "Beurteilung der Ausrichtung der distalen Gelenkfläche des Metatarsale I beim Hallux valgus.\n\nWinkel zwischen einer Linie im rechten Winkel auf die Schaftachse des MT I und der distalen Gelenkfläche des MT I.\n\nHinweis: Messung mit hoher intra- und inter-Observer-Variabilität, also mit hoher Gefahr von Abweichung.",
     durchfuehrung: "",
     normwert: "< 10°",
     pathologisch: "",
@@ -11025,7 +11119,7 @@ const MESSMETHODEN = [
   {
     id: "scarlato",
     name: "Scarlato-Winkel",
-    beschreibung: "Winkel zur Erhebung eines Pes adductus. Eine Linie im rechten Winkel auf den Mittelpunkt der Strecke zwischen dem Mittelpunkt der Verbindung MT-V-Basis und lateralem Punkt des CC-Gelenks sowie dem medialen Punkt des TMT-I-Gelenks und dem medialen Punkt des TN-Gelenks. Gemessen wird der Winkel zwischen dieser Linie und der Schaftachse des MT II.",
+    beschreibung: "Messung des Schweregrads eines Pes adductus.\n\nEine Linie im rechten Winkel auf den Mittelpunkt der Strecke zwischen dem Mittelpunkt der Verbindung MT-V-Basis und lateralem Punkt des CC-Gelenks sowie dem medialen Punkt des TMT-I-Gelenks und dem medialen Punkt des TN-Gelenks. Gemessen wird der Winkel zwischen dieser Linie und der Schaftachse des MT II.",
     durchfuehrung: "",
     normwert: "< 15°",
     pathologisch: "",
@@ -11037,7 +11131,7 @@ const MESSMETHODEN = [
   {
     id: "tn_uncoverage",
     name: "TN-Uncoverage",
-    beschreibung: "Es gibt verschiedene Arten, dies zu messen. Aufgrund der Empfehlung in „Prozent“ im Consensus Statement 2020 wird diese Messmethode dargestellt und vom Autor verwendet. Die Angabe entspricht dem Anteil des knorpeltragenden Taluskopfes, der nicht in Kontakt mit der navikularen Gelenkfläche ist. Orientierung: eine Messung von 18° entspricht etwa 10% Uncoverage.",
+    beschreibung: "Beurteilung der talonavicularen Abdeckung als Maß für die Abduktion des Vorfußes beim Knick-Senk-Fuß.\n\nDie Angabe entspricht dem Anteil des knorpeltragenden Taluskopfes, der nicht in Kontakt mit der navikularen Gelenkfläche ist.\n\nHinweis: Es gibt verschiedene Arten, dies zu messen. Aufgrund der Empfehlung in „Prozent“ im Consensus Statement 2020 wird diese Messmethode dargestellt und vom Autor verwendet. Orientierung: eine Messung von 18° entspricht etwa 10% Uncoverage.",
     durchfuehrung: "",
     normwert: "10–30% Uncoverage",
     pathologisch: "",
@@ -11047,22 +11141,10 @@ const MESSMETHODEN = [
     krankheitsbilder: ["Knick-Senk-Fuß"]
   },
   {
-    id: "saltzmann",
-    name: "Saltzmann",
-    beschreibung: "Messung der Rückfußachse im Stand.\n\nHinweis: anfällig für Fehlmessung bei schlechter technischer Einstellung des Fußes. Dieser sollte „neutral“ stehen mit parallel zueinander stehenden Fußinnenrändern. Jeder Fuß sollte einzeln geröntgt werden, sodass der Zentralstrahl direkt auf den Rückfuß fällt.",
-    durchfuehrung: "",
-    normwert: "5° Valgus ± 5°",
-    pathologisch: "",
-    bild: "",
-    quelle: "Saltzman CL, el-Khoury GY. The hindfoot alignment view. Foot Ankle Int 1995;16(9):572–576. · Barg A, Amendola RL, Henninger HB, Kapron AL, Saltzman CL, Anderson AE. Foot Ankle Int 2015;36(11):1352–1361. · Cody EA, Williamson ER, Burket JC, Deland JT, Ellis SJ. Foot Ankle Int 2016;37:874–881.",
-    roentgen: ["hindfoot_alignment"],
-    krankheitsbilder: ["Rückfußfehlstellung", "Cavo-Varus"]
-  },
-  {
     id: "hva",
     name: "Hallux-valgus-Winkel (HVA)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Schaftachse des Metatarsale I und der Schaftachse der Grundphalanx der Großzehe im belasteten dorsoplantaren Bild. Grundmaß zur Quantifizierung der Hallux-valgus-Fehlstellung.",
+    beschreibung: "Quantifizierung der Hallux-valgus-Fehlstellung (Grundmaß).\n\nWinkel zwischen der Schaftachse des Metatarsale I und der Schaftachse der Grundphalanx der Großzehe im belasteten dorsoplantaren Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): < 15°",
     pathologisch: "",
@@ -11075,7 +11157,7 @@ const MESSMETHODEN = [
     id: "ima",
     name: "Intermetatarsalwinkel (IMA 1–2)",
     entwurf: true,
-    beschreibung: "Winkel zwischen den Schaftachsen des Metatarsale I und II im belasteten dorsoplantaren Bild. Maß für den Metatarsus primus varus.",
+    beschreibung: "Beurteilung des Metatarsus primus varus (Grundmaß).\n\nWinkel zwischen den Schaftachsen des Metatarsale I und II im belasteten dorsoplantaren Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): < 9°",
     pathologisch: "",
@@ -11088,7 +11170,7 @@ const MESSMETHODEN = [
     id: "hia",
     name: "Hallux-interphalangeus-Winkel (HIA)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Schaftachse der Grund- und der Endphalanx der Großzehe im dorsoplantaren Bild.",
+    beschreibung: "Beurteilung einer Achsabweichung innerhalb der Großzehe (Hallux interphalangeus).\n\nWinkel zwischen der Schaftachse der Grund- und der Endphalanx der Großzehe im dorsoplantaren Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): < 10°",
     pathologisch: "",
@@ -11101,7 +11183,7 @@ const MESSMETHODEN = [
     id: "tsp",
     name: "Sesambein-Position (Tibial Sesamoid Position)",
     entwurf: true,
-    beschreibung: "Beurteilung der Lage des medialen (tibialen) Sesambeins relativ zur Schaftachse bzw. zur Längskante des Metatarsale I im dorsoplantaren Bild. Indirektes Maß für die Pronation/Subluxation des ersten Strahls. Einteilung üblicherweise in Stufen (z. B. Grad 1–3 nach Hardy & Clapham bzw. 7-stufig).",
+    beschreibung: "Indirektes Maß für die Pronation bzw. Subluxation des ersten Strahls beim Hallux valgus.\n\nBeurteilung der Lage des medialen (tibialen) Sesambeins relativ zur Schaftachse bzw. zur Längskante des Metatarsale I im dorsoplantaren Bild. Einteilung üblicherweise in Stufen (z. B. Grad 1–3 nach Hardy & Clapham bzw. 7-stufig).",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): Grad 1–3 (von 7); höhere Grade = zunehmende laterale Subluxation",
     pathologisch: "",
@@ -11114,7 +11196,7 @@ const MESSMETHODEN = [
     id: "pasa_dasa",
     name: "PASA / DASA",
     entwurf: true,
-    beschreibung: "PASA (proximal articular set angle, = DMAA) beschreibt die Neigung der distalen Gelenkfläche des Metatarsale I gegenüber dessen Schaftachse; DASA (distal articular set angle) die Neigung der proximalen Gelenkfläche der Grundphalanx gegenüber deren Schaftachse. Beide im dorsoplantaren Bild.\n\nHinweis: insbesondere PASA mit hoher intra-/inter-Observer-Variabilität.",
+    beschreibung: "Beurteilung der Ausrichtung der Gelenkflächen am ersten Strahl beim Hallux valgus.\n\nPASA (proximal articular set angle, = DMAA) beschreibt die Neigung der distalen Gelenkfläche des Metatarsale I gegenüber dessen Schaftachse; DASA (distal articular set angle) die Neigung der proximalen Gelenkfläche der Grundphalanx gegenüber deren Schaftachse. Beide im dorsoplantaren Bild.\n\nHinweis: insbesondere PASA mit hoher intra-/inter-Observer-Variabilität.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): PASA < 10° · DASA < 8°",
     pathologisch: "",
@@ -11127,7 +11209,7 @@ const MESSMETHODEN = [
     id: "metatarsal_index",
     name: "Metatarsalindex (Morton / Protrusion)",
     entwurf: true,
-    beschreibung: "Beurteilung der relativen Länge des Metatarsale I gegenüber Metatarsale II im dorsoplantaren Bild (Index plus / minus / plus-minus). Hinweis auf Vorfußbelastungsmuster.",
+    beschreibung: "Beurteilung der relativen Mittelfußlänge (Vorfußbelastungsmuster).\n\nBeurteilung der relativen Länge des Metatarsale I gegenüber Metatarsale II im dorsoplantaren Bild (Index plus / minus / plus-minus).",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ausgeglichen (Index plus-minus); MT I ≈ MT II",
     pathologisch: "",
@@ -11140,7 +11222,7 @@ const MESSMETHODEN = [
     id: "calcaneal_pitch",
     name: "Calcaneal Pitch (Fersenneigungswinkel)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der plantaren Auflagelinie (Boden) und der Unterkante des Calcaneus im seitlichen belasteten Bild. Maß für die Höhe des Längsgewölbes.",
+    beschreibung: "Beurteilung der Höhe des medialen Längsgewölbes (Knick-Senk- bzw. Hohlfuß).\n\nWinkel zwischen der plantaren Auflagelinie (Boden) und der Unterkante des Calcaneus im seitlichen belasteten Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ca. 17–32° (erniedrigt beim Knick-Senk-Fuß, erhöht beim Hohlfuß)",
     pathologisch: "",
@@ -11153,7 +11235,7 @@ const MESSMETHODEN = [
     id: "talocalcaneal_lat",
     name: "Talocalcanearwinkel seitlich (Kite, lateral)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Längsachse des Talus und der Längsachse des Calcaneus im seitlichen belasteten Bild.",
+    beschreibung: "Beurteilung der Rückfußausrichtung im Längsgewölbe.\n\nWinkel zwischen der Längsachse des Talus und der Längsachse des Calcaneus im seitlichen belasteten Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ca. 25–50°",
     pathologisch: "",
@@ -11166,7 +11248,7 @@ const MESSMETHODEN = [
     id: "talocalcaneal_dp",
     name: "Talocalcanearwinkel dorsoplantar (Kite, dp)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Längsachse von Talus und Calcaneus im dorsoplantaren belasteten Bild.",
+    beschreibung: "Beurteilung der Rückfußausrichtung (Valgus/Varus) in der Transversalebene.\n\nWinkel zwischen der Längsachse von Talus und Calcaneus im dorsoplantaren belasteten Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ca. 15–30° (vergrößert bei Rückfuß-Valgus/Knick-Senk-Fuß, verkleinert bei Varus)",
     pathologisch: "",
@@ -11179,7 +11261,7 @@ const MESSMETHODEN = [
     id: "tmt1_dp",
     name: "Talo-Metatarsale-I-Winkel dorsoplantar",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Längsachse des Talus und der Schaftachse des Metatarsale I im dorsoplantaren belasteten Bild. Maß für die Abduktion des Vorfußes.",
+    beschreibung: "Beurteilung der Vorfuß-Abduktion beim Knick-Senk-Fuß.\n\nWinkel zwischen der Längsachse des Talus und der Schaftachse des Metatarsale I im dorsoplantaren belasteten Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): 0° ± ca. 7°",
     pathologisch: "",
@@ -11192,7 +11274,7 @@ const MESSMETHODEN = [
     id: "talohorizontal",
     name: "Talohorizontalwinkel",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Längsachse des Talus und der horizontalen Auflagelinie im seitlichen belasteten Bild.",
+    beschreibung: "Beurteilung der Talusstellung im Längsgewölbe.\n\nWinkel zwischen der Längsachse des Talus und der horizontalen Auflagelinie im seitlichen belasteten Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ca. 20–30°",
     pathologisch: "",
@@ -11205,7 +11287,7 @@ const MESSMETHODEN = [
     id: "hibbs",
     name: "Hibbs-Winkel",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Längsachse des Calcaneus und der Schaftachse des Metatarsale I im seitlichen belasteten Bild. Maß zur Beurteilung des Hohlfußes.",
+    beschreibung: "Beurteilung eines Hohlfußes.\n\nWinkel zwischen der Längsachse des Calcaneus und der Schaftachse des Metatarsale I im seitlichen belasteten Bild.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ca. 150–175°; kleinere Werte = ausgeprägterer Hohlfuß",
     pathologisch: "",
@@ -11218,7 +11300,7 @@ const MESSMETHODEN = [
     id: "tas",
     name: "TAS-Winkel (tibial anterior surface angle)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Schaftachse der Tibia und der distalen tibialen Gelenkfläche im a.p.-Bild des OSG. Maß für die koronare Orientierung der distalen Tibiagelenkfläche (Varus/Valgus).",
+    beschreibung: "Beurteilung der koronaren Orientierung der distalen Tibiagelenkfläche (Varus/Valgus).\n\nWinkel zwischen der Schaftachse der Tibia und der distalen tibialen Gelenkfläche im a.p.-Bild des OSG.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ca. 91–93° (medial offen)",
     pathologisch: "",
@@ -11231,7 +11313,7 @@ const MESSMETHODEN = [
     id: "tls",
     name: "TLS-Winkel (tibial lateral surface angle)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Schaftachse der Tibia und der distalen tibialen Gelenkfläche im seitlichen Bild des OSG. Maß für die sagittale Orientierung (anteriorer/posteriorer Slope).",
+    beschreibung: "Beurteilung der sagittalen Orientierung der distalen Tibiagelenkfläche (anteriorer/posteriorer Slope).\n\nWinkel zwischen der Schaftachse der Tibia und der distalen tibialen Gelenkfläche im seitlichen Bild des OSG.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ca. 80°",
     pathologisch: "",
@@ -11244,7 +11326,7 @@ const MESSMETHODEN = [
     id: "talar_tilt",
     name: "Talar Tilt (Taluskippung)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der distalen tibialen Gelenkfläche und der Gelenkfläche der Talusrolle im a.p.-Bild des OSG. Maß für die Kippung des Talus in der Knöchelgabel (Varus-/Valgus-Arthrose, laterale Instabilität).",
+    beschreibung: "Beurteilung einer Taluskippung in der Knöchelgabel (Varus-/Valgus-Arthrose, laterale Instabilität).\n\nWinkel zwischen der distalen tibialen Gelenkfläche und der Gelenkfläche der Talusrolle im a.p.-Bild des OSG.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): < ca. 2–4° (seitengleich)",
     pathologisch: "",
@@ -11257,7 +11339,7 @@ const MESSMETHODEN = [
     id: "mdta",
     name: "Medialer distaler Tibiawinkel (mDTA)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der mechanischen/anatomischen Tibiaachse und der distalen tibialen Gelenkfläche, medial gemessen, im a.p.-Bild des OSG bzw. Ganzbein. Maß für die koronare Ausrichtung der distalen Tibia.",
+    beschreibung: "Beurteilung der koronaren Ausrichtung der distalen Tibia.\n\nWinkel zwischen der mechanischen/anatomischen Tibiaachse und der distalen tibialen Gelenkfläche, medial gemessen, im a.p.-Bild des OSG bzw. Ganzbein.",
     durchfuehrung: "",
     normwert: "Vorschlag (zu prüfen): ca. 88–93°",
     pathologisch: "",
@@ -11267,17 +11349,147 @@ const MESSMETHODEN = [
     krankheitsbilder: ["OSG-Arthrose", "Rückfußfehlstellung"]
   },
   {
-    id: "met_adductus",
-    name: "Metatarsus-adductus-Winkel (Sgarlato/Engel)",
+    id: "adtw",
+    name: "ADTW (anteriorer distaler Tibiawinkel)",
     entwurf: true,
-    beschreibung: "Winkel zwischen der Längsachse des Metatarsale II und der Längsachse des Mittelfußes (Lisfranc-Bezugslinie) im dorsoplantaren belasteten Bild. Maß zur Erhebung eines Metatarsus adductus.",
+    beschreibung: "Beurteilung der supramalleolären Ausrichtung der distalen Tibia in der sagittalen Ebene.\n\nWinkel zwischen der Längsachse des Unterschenkels und der sagittalen Ausrichtung der distalen Tibia bzw. des Tibiaplafonds im seitlichen Bild.",
     durchfuehrung: "",
-    normwert: "Vorschlag (zu prüfen): < 15° (15–20° mild, 20–25° moderat, > 25° schwer)",
+    normwert: "Vorschlag (zu prüfen): ca. 83° (Literatur: 83° ± 3,6°; 84,9° ± 3,1°)",
     pathologisch: "",
     bild: "",
-    quelle: "Quellenvorschlag (zu prüfen): Sgarlato TE. A Compendium of Podiatric Biomechanics. California College of Podiatric Medicine; 1971. · Engel E, Erlick N, Krems I. A simplified metatarsus adductus angle. J Am Podiatry Assoc 1983;73(12):620–628.",
+    quelle: "Quellenvorschlag (zu prüfen): Barg A. Natives Röntgen vom Rückfuß und Saltzman-Aufnahme. Fuß & Sprunggelenk 2015;13:58–77.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["OSG-Arthrose"]
+  },
+  {
+    id: "calc_hebelarm",
+    name: "Calcaneus-Hebelarm (Saltzman)",
+    entwurf: true,
+    beschreibung: "Beurteilung der inframalleolären Rückfußausrichtung in der koronaren Ebene.\n\nDistanz zwischen dem tiefsten Punkt des Tuber calcanei und der Längsachse des Unterschenkels auf der Saltzmann-Aufnahme (Originalmaß nach Saltzman und el-Khoury).",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): −3,2 mm ± 7,2 mm (beschwerdefreie Personen)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Saltzman CL, el-Khoury GY. The hindfoot alignment view. Foot Ankle Int 1995;16(9):572–576.",
+    roentgen: ["hindfoot_alignment"],
+    krankheitsbilder: ["Rückfußfehlstellung", "Cavo-Varus"]
+  },
+  {
+    id: "rueckfuss_winkel",
+    name: "Rückfuß-Alignment-Winkel (Cobey/Reilingh)",
+    entwurf: true,
+    beschreibung: "Beurteilung der inframalleolären Rückfußausrichtung.\n\nWinkel zwischen der Längsachse des Unterschenkels und der Längsachse des Calcaneus auf der Saltzmann-Aufnahme.\n\nHinweis: Die Längsachse des Calcaneus ist mitunter schwer zu bestimmen, wenn die posteriore Facette des subtalaren Gelenks nicht einsehbar ist.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): Norm zu prüfen (geringe Varus-/Valgusabweichung)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Cobey JC. Posterior roentgenogram of the foot. Clin Orthop Relat Res 1976;(118):202–207. · Reilingh ML, Beimers L, Tuijthof GJ, Stufkens SA, Maas M, van Dijk CN. Skeletal Radiol 2010;39:1103–1108.",
+    roentgen: ["hindfoot_alignment"],
+    krankheitsbilder: ["Rückfußfehlstellung", "Cavo-Varus"]
+  },
+  {
+    id: "donovan_rosenberg",
+    name: "Donovan-Rosenberg (Rückfußkontur)",
+    entwurf: true,
+    beschreibung: "Beurteilung der inframalleolären Rückfußausrichtung anhand der Calcaneuskontur.\n\nMessung zweier Winkel zwischen der Längsachse des Unterschenkels und der medialen bzw. der lateralen Kontur des Calcaneus auf der Saltzmann-Aufnahme. Alternative, wenn die Längsachse des Calcaneus schwer bestimmbar ist.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): Norm zu prüfen",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Donovan A, Rosenberg ZS. Extraarticular lateral hindfoot impingement with posterior tibial tendon tear: MRI correlation. AJR Am J Roentgenol 2009;193:672–678.",
+    roentgen: ["hindfoot_alignment"],
+    krankheitsbilder: ["Rückfußfehlstellung", "Cavo-Varus"]
+  },
+  {
+    id: "ligne_claire",
+    name: "Ligne claire (tibiofibular clear space)",
+    entwurf: true,
+    beschreibung: "Beurteilung der Syndesmosenintegrität.\n\nWeite des fibulotibialen Abstandes auf Höhe der distalen tibiofibularen Gelenkverbindung im Mortise-/a.p.-Bild des OSG (nach Chaput).\n\nHinweis: aufgrund individueller Schwankungen sollte die Gegenseite zum Vergleich herangezogen werden; in Zweifelsfällen CT.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): < 5 mm (> 5 mm spricht für Syndesmoseninsuffizienz)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Rammelt S, Amlang M, Zwipp H. Standardröntgendiagnostik an Fuß und Sprunggelenk. Fuß & Sprunggelenk 2010;8:80–91.",
+    roentgen: ["osg_ap_stand"],
+    krankheitsbilder: ["OSG-Fraktur"]
+  },
+  {
+    id: "tib_fib_overlap",
+    name: "Tibiofibuläre Überlappung",
+    entwurf: true,
+    beschreibung: "Beurteilung der korrekten Stellung von distaler Tibia und Fibula zueinander.\n\nÜberlappung von Tibia und Fibula auf Höhe des Gelenkspalts im OSG-Bild.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ≥ 1 mm im Mortise-View bzw. ≥ 10 mm im a.p.-Strahlengang",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Rammelt S, Amlang M, Zwipp H. Standardröntgendiagnostik an Fuß und Sprunggelenk. Fuß & Sprunggelenk 2010;8:80–91.",
+    roentgen: ["osg_ap_stand"],
+    krankheitsbilder: ["OSG-Fraktur"]
+  },
+  {
+    id: "medial_clear_space",
+    name: "Medial clear space",
+    entwurf: true,
+    beschreibung: "Beurteilung der medialen Gelenkkongruenz und einer lateralen Talusverschiebung (mediale Gabel/Deltaband).\n\nMediale Gelenkspaltweite zwischen medialem Malleolus und Talus im Mortise-Bild des OSG.\n\nHinweis: im Seitenvergleich beurteilen.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): symmetrisch zu allen Kompartimenten; Verbreiterung pathologisch",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Rammelt S, Amlang M, Zwipp H. Standardröntgendiagnostik an Fuß und Sprunggelenk. Fuß & Sprunggelenk 2010;8:80–91.",
+    roentgen: ["osg_ap_stand"],
+    krankheitsbilder: ["OSG-Fraktur"]
+  },
+  {
+    id: "lisfranc_diastase",
+    name: "MT1–MT2-Basis-Diastase",
+    entwurf: true,
+    beschreibung: "Beurteilung einer Lisfranc-Bandverletzung.\n\nDistanz zwischen den Basen des Os metatarsale I und II im dorsoplantaren belasteten Bild.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ≤ 3 mm (> 3 mm spricht für Verletzung des Lisfranc-Ligaments)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Rammelt S, Amlang M, Zwipp H. Standardröntgendiagnostik an Fuß und Sprunggelenk. Fuß & Sprunggelenk 2010;8:80–91.",
     roentgen: ["fuss_dp_stand"],
-    krankheitsbilder: ["Hallux valgus", "Pes adductus"]
+    krankheitsbilder: ["Lisfranc-Verletzung"]
+  },
+  {
+    id: "boehler",
+    name: "Böhler-Winkel (Tuber-Gelenk-Winkel)",
+    entwurf: true,
+    beschreibung: "Beurteilung einer intraartikulären Calcaneusfraktur (Höhenverlust/Gelenkimpression).\n\nWinkel zwischen einer Linie vom höchsten Punkt des Tuber calcanei zum höchsten Punkt der posterioren Facette und einer Linie von dort zum höchsten Punkt des Processus anterior, im seitlichen Bild.\n\nHinweis: erhebliche individuelle Streubreite, Gegenseite zum Vergleich heranziehen.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 20–40° (verringert/negativ bei Impressionsfraktur)",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Rammelt S, Amlang M, Zwipp H. Standardröntgendiagnostik an Fuß und Sprunggelenk. Fuß & Sprunggelenk 2010;8:80–91.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["Calcaneusfraktur"]
+  },
+  {
+    id: "gissane",
+    name: "Gissane-Winkel (kritischer Winkel)",
+    entwurf: true,
+    beschreibung: "Beurteilung einer intraartikulären Calcaneusfraktur.\n\nWinkel zwischen der Linie entlang der lateralen Begrenzung des Processus anterior und der Linie entlang der posterioren Facette im seitlichen Bild.",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): ca. 120–145°",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Konventioneller radiologischer Parameter der Calcaneusfraktur (Lehrbuch/Konsens); kein singuläres Originalzitat.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["Calcaneusfraktur"]
+  },
+  {
+    id: "tch",
+    name: "Talocalcaneare Höhe (TCH)",
+    entwurf: true,
+    beschreibung: "Beurteilung der Höhe des Längsgewölbes/Rückfußes.\n\nHöhenmaß zwischen Talus und Calcaneus in der seitlichen Belastungsaufnahme (vgl. Abbildung Schade-Linie/Längsgewölbe-Parameter).",
+    durchfuehrung: "",
+    normwert: "Vorschlag (zu prüfen): Norm zu prüfen",
+    pathologisch: "",
+    bild: "",
+    quelle: "Quellenvorschlag (zu prüfen): Rammelt S, Amlang M, Zwipp H. Standardröntgendiagnostik an Fuß und Sprunggelenk. Fuß & Sprunggelenk 2010;8:80–91.",
+    roentgen: ["fuss_seitlich_stand"],
+    krankheitsbilder: ["Knick-Senk-Fuß", "Hohlfuß"]
   }
 ];
 
