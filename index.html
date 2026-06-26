@@ -4292,7 +4292,7 @@ const DIAG = {
       { id: "mtp_instab", pos: "Instabilität der Kleinzehen-MTP-Gelenke", neg: "MTP-Gelenke stabil" },
       { id: "schuhkonflikt_mt", pos: "Schuhkonflikt dorsal an den Kleinzehen", neg: "Kein Schuhkonflikt" },
     ],
-    opMethoden: ["dmmo", "kleinzehen_pip"],
+    opMethoden: ["dmmo", "kleinzehen_pip", "morton_neurom"],
     bildBefunde: "Metatarsalgie mit relativer Überlänge der MT-Köpfchen __ und Kleinzehendeformität",
     literatur: "Espinosa N et al. (2010) Metatarsalgia. J Am Acad Orthop Surg. https://doi.org/10.5435/00124635-201008000-00004",
   },
@@ -4438,6 +4438,7 @@ const OPS = {
   scarf: { k: "Scarf-Osteotomie", b: "eine Scarf-Osteotomie zur Korrektur der Hallux-valgus-Fehlstellung", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Pseudarthrose, Steifigkeit, Thrombose", t: "Scarf-Osteotomie, Weichteilkorrektur" },
   dmmo: { k: "DMMO (MT-Osteotomie)", b: "eine minimalinvasive distale Metatarsale-Osteotomie (DMMO) zur Korrektur der Metatarsalgie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Transfermetatarsalgie, Steifigkeit", t: "DMMO (minimalinvasive distale Metatarsale-Osteotomie)" },
   kleinzehen_pip: { k: "Kleinzehen/PIP", b: "eine Korrektur der Kleinzehenfehlstellung mit PIP-Arthrodese", r: "Infektion, Pseudarthrose, Rezidiv, Steifigkeit", t: "Kleinzehenkorrektur mit PIP-Arthrodese" },
+  morton_neurom: { k: "Morton-Neurom-Resektion", b: "eine Resektion des Morton-Neuroms", r: "Infektion, Empyem, Sensibilitätsstörung/Taubheit der Zehe, neuropathische Schmerzen, erneutes Neurinom, persistierende Beschwerden", t: "Morton-Neurom-Resektion" },
   haglund_mini: { k: "Haglund mini open", b: "eine Abtragung der Haglund-Exostose ohne Achillessehnenablösung", r: "Infektion, Kalzifikationsrezidiv, Nervenverletzung", t: "Haglund-Abtragung mini open" },
   fhl_transfer: { k: "FHL-Transfer", b: "einen FHL-Sehnentransfer zur Augmentation der insuffizienten Achillessehne", r: "Infektion, Reruptur, Schwäche der Großzehe, Nervenverletzung, Thrombose", t: "FHL-Sehnentransfer mit Tenodeseschraube" },
   as_naht: { k: "Achillessehnennaht (offen)", b: "eine offene Naht der Achillessehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose, Wundheilungsstörung", t: "Achillessehnennaht (offen)" },
@@ -5245,6 +5246,123 @@ const ME_REGIONEN={
       {code:"5-859.1a",name:"Totale Resektion Schleimbeutel Fuß"}
     ]
   }
+};
+
+const AUFKLAERUNG_RISIKEN = {
+  allgemein: ["Blutung", "Nachblutung", "Schmerz durch Blutsperre", "Infektion", "Wundheilungsstörung", "Sepsis", "Thrombose", "Embolie", "Verletzung von Nerven, Gewebe und Gefäßen", "Temporäre oder dauerhafte Taubheit oder Nervenschmerz", "Bluterguss", "Schwellung über Monate", "Schmerz", "Allergie", "komplexes regionales Schmerzsyndrom", "Fraktur", "Narbenwucherung", "bleibende Beschwerden oder Verschlimmerung der Beschwerden", "Bewegungseinschränkungen/Steife", "Lagerungsschaden", "Verlust der aktiven und passiven Beweglichkeit des Fußes oder der Zehen", "ggf. Anwesenheit eines Medizinprodukteberaters/-vertreters während der Operation", "intraoperative Entscheidung über Off-Label-Use von Medikamenten oder Präparaten", "ggf. Lokalanästhesie oder Tranexamsäure (erhöhte Thrombosegefahr) nach intraoperativer Entscheidung", "Vorgehen nach intraoperativem Befund", "Folgeeingriffe"],
+  elektiv: "Es handelt sich um einen elektiven Eingriff! Eine Zweitmeinung kann eingeholt werden.",
+  gruppen: {
+    vorfuss_hallux: ["Materialbruch", "Pseudarthrose/Fehlverheilung", "Arthrose", "erneute Fehlstellung ggf. mit Folgeoperation", "Köpfchendislokation", "Kopfnekrose/Absterben des Köpfchens des Mittelfußknochens I", "Versteifung des operierten Gelenkes", "Über- oder Unterkorrektur", "Transfermetatarsalgie/Schmerz unter dem Mittelfuß", "Arbeits- und Berufsunfähigkeit", "Verkürzung des 1. Strahles", "Verschleiß im MTP-I-Gelenk", "Auswahl minimal-invasives oder offenes Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Verbrennungen, Fistelbildung und lange anhaltender Schwellung über 6 Monate"],
+    cheilektomie: ["Rezidiv", "erneute Osteophyten", "Gelenksteife", "Versteifung des Gelenkes", "Schwellung und Schmerz", "ausbleibende Besserung oder Befundverschlechterung", "Gelenkinfekt", "Sport- und Berufsunfähigkeit", "minimal-invasives oder offenes Verfahren nach intraoperativer Entscheidung", "bei min-inv Verfahren besonderes Risiko der Fistelbildung oder Verbrennungen"],
+    kleinzehen: ["Materialbruch", "Über-/Unterkorrektur", "erneute Fehlstellung", "Drahtdislokation", "Pseudarthrose/Fehlverheilung", "Osteomyelitis", "Absterben der Zehe", "Zehenamputation", "Restfehlstellung", "Druckstellen", "Zehenkonflikt", "Nagelschäden", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen"],
+    dmmo: ["Materialbruch", "Schwellung mehr als 6 Monate", "Infekt", "Fistel", "floating toe/hochstehende störende Zehe", "Metatarsalgie/Schmerz unter dem Vorfuß", "Fehlverheilung", "Folgeoperationen", "Restbeschwerden", "Befundverschlechterung", "Absterben einer Zehe", "Amputation", "Nervenschmerzen", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen"],
+    morton: ["Sensibilitätsstörung/Taubheit der Zehe", "neuropathische Schmerzen", "persistierende Beschwerden", "Sport- und Berufsunfähigkeit", "erneutes Neurinom", "Bursitis", "ausbleibende Besserung oder Befundverschlechterung", "Infekt", "Empyem"],
+    arthrorise: ["Materialbruch", "Arthrose", "Osteomyelitis/Knocheninfekt am Fersenbein", "Peronealsehnenspasmus", "Über-/Unterkorrektur", "Rezidiv", "erneute Fehlstellung", "Folgeoperationen", "vorzeitige Metallentfernung", "Fersenbeinbruch", "schmerzhafte Schraube", "Korrekturverlust", "spätere Notwendigkeit zur Fersenbeinosteotomie", "Sehnenschäden mit dauerhafter Einschränkung der Beweglichkeit"],
+    mtp1_arthrodese: ["Materialbruch", "Arthrose angrenzender Gelenke", "Einschränkung bei der sportlichen Betätigung oder Berufsausübung", "Unvermögen, normales Schuhwerk zu tragen", "Über-/Unterkorrektur", "Irritation durch einliegendes Implantat", "Steilstellung", "Fehlstellung der Zehe", "Pseudarthrose/Fehlverheilung", "Restfehlstellung", "Folgeoperationen", "Metatarsalgie/Schmerz unter dem Mittelfuß", "Hautschäden", "intraoperative Entscheidung über weitere Maßnahmen (z. B. Transfixation mit Draht über die Großzehe bis in den 1. Mittelfußknochen, Transplantation von Knochenmark aus dem Innenknöchel oder Fersenbein oder Korrektur-Osteotomie der Großzehe/Akin-Osteotomie)", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen"],
+    lapidus: ["Materialbruch", "Arthrose angrenzender Gelenke", "Einschränkung bei der sportlichen Betätigung oder Berufsausübung", "Unvermögen, normales Schuhwerk zu tragen", "erneute Fehlstellung ggf. mit Folgeoperation", "Köpfchendislokation", "Kopfnekrose", "Versteifung des Gelenkes", "anhaltende Schmerzen", "Über- oder Unterkorrektur", "Transfermetatarsalgie/Schmerz unter dem Mittelfuß", "Gelenksteife", "Arbeits- und Berufsunfähigkeit", "Metallentfernung", "Fehlverheilung", "Verkürzung des 1. Strahles", "Verschleiß im MTP-I-Gelenk", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen"],
+    mittel_rueckfuss: ["Materialbruch", "Arthrose angrenzender Gelenke", "Einschränkung bei der sportlichen Betätigung oder Berufsausübung", "Unvermögen, normales Schuhwerk zu tragen", "erneute Fehlstellung ggf. mit Folgeoperation", "Versteifung von Anschlussgelenken", "anhaltende Schmerzen", "Über- oder Unterkorrektur", "Metatarsalgie/Schmerz unter dem Mittelfuß", "Gelenksteife", "Arbeits- und Berufsunfähigkeit", "Metallentfernung", "Fehlverheilung ggf. mit Notwendigkeit zur Folgeoperation", "Metalllockerung", "Osteomyelitis/Knochenentzündung", "Metallperforation", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen"],
+    osg_arthrodese: ["Materialbruch", "Arthrose angrenzender Gelenke", "Einschränkung bei der sportlichen Betätigung oder Berufsausübung", "Unvermögen, normales Schuhwerk zu tragen", "erneute Fehlstellung ggf. mit Folgeoperation", "Versteifung von Anschlussgelenken", "anhaltende Schmerzen", "Über- oder Unterkorrektur", "Gelenksteife", "Arbeits- und Berufsunfähigkeit", "Metallentfernung", "Fehlverheilung ggf. mit Notwendigkeit zur Folgeoperation", "Metalllockerung", "Osteomyelitis/Knochenentzündung", "Metallperforation", "Schmerz, Blutung oder Hämatom am Beckenkamm", "erneute OP am Beckenkamm bei Infekt oder Nachblutung mit Hämatom", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen"],
+    achilles_haglund: ["lange andauernde Nachbehandlung mit Einschränkungen bis zu einem Jahr oder länger", "Spitzfußfehlstellung", "Einschränkung bei der sportlichen Betätigung oder Berufsausübung", "Unvermögen, normales Schuhwerk zu tragen", "erneute Verknöcherungen", "Riss der Sehne", "verbleibende Beschwerden", "Verletzung des N. suralis", "Nervenschmerzen", "Arbeits- und Sportunfähigkeit", "Befundverschlechterung", "Osteomyelitis Fersenbein", "Wundheilungsstörung mit Defektsituation und weiteren Eingriffen", "plastische Deckung", "Verlust der Achillessehne", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen", "Erblindung bei Lagerung in Bauchlage"],
+    aussenband_peroneal: ["lange andauernde Nachbehandlung mit Einschränkungen bis zu einem Jahr oder länger", "Spitzfußfehlstellung", "Einschränkung bei der sportlichen Betätigung oder Berufsausübung", "Unvermögen, normales Schuhwerk zu tragen", "Riss oder Schäden der Peronealsehne", "Schäden am N. suralis mit Schmerz oder Taubheit an der Fußaußenseite", "Schäden am N. peroneus superficialis mit Schmerz oder Taubheit am Fußrücken/Fußaußenseite", "erneute Instabilität", "Arthrofibrose/Gelenksteife mit Folgeoperation", "erneute OP mit Sehnentransplantation", "Befundverschlechterung", "Arbeits- und Sportunfähigkeit", "Gelenkinfektion/Empyem", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen"],
+    ask_amic: ["Schäden am N. peroneus superficialis durch seitliches Portal", "Anlage von Zusatzportalen", "Schäden an der A. dorsalis pedis mit Blutung/offener Revision/Verlegung in die Gefäßchirurgie", "lange andauernde Nachbehandlung mit Einschränkungen bis zu einem Jahr oder länger", "Spitzfußfehlstellung", "Einschränkung bei der sportlichen Betätigung oder Berufsausübung", "Unvermögen, normales Schuhwerk zu tragen", "Arthrose/Gelenkverschleiß", "persistierende Beschwerden", "Befundverschlechterung", "Folgeoperation mit Prothese oder Versteifung", "Sensibilitätsstörungen", "Nervenschmerzen", "Sehnenschäden", "Sport- und Arbeitsunfähigkeit", "Gelenkinfekt/Empyem", "offenes Vorgehen", "Vernarbungen", "lange andauernde Schwellung und Schmerzen"],
+    osg_prothese: ["Schäden am N. tibialis mit Taubheit des Fußes und/oder Funktionsverlust des Fußes", "neuropathische Schmerzen", "Anlage von Zusatzinzisionen", "Schäden an der A. dorsalis pedis oder A. tibialis posterior mit Blutung/offener Revision/Verlegung in die Gefäßchirurgie", "lange andauernde Nachbehandlung mit Einschränkungen bis zu einem Jahr oder länger", "Korrekturverlust", "Achsabweichungen", "Folgeoperationen mit Füllung von Zysten, Inlaywechsel, Stabilisierung, Teil- oder Komplettwechsel, Impingementresektion", "Gefahr der Reaktion auf Nickelanteile der Prothese", "Spitzfußfehlstellung", "Einschränkung bei der sportlichen Betätigung oder Berufsausübung", "Unvermögen, normales Schuhwerk zu tragen", "Lockerung", "frühe Prothesenlockerung", "Bildung von Zysten", "Impingement/Anschlagen der Prothese", "ggf. Arthrodese im Verlauf mit erhöhtem Komplikationsrisiko und aufwendiger Knochentransplantation", "persistierende Beschwerden", "Anschlussarthrose", "periprothetische Fraktur", "Innenknöchelfraktur", "Infekt", "mehrzeitiger Ausbau", "Zementspacer", "Fixateurversteifung", "Gangbildstörung", "Instabilität", "Komponentenwechsel", "erhöhte Rate an Folgeoperationen", "im OP ist ggf. ein Medizinproduktevertreter anwesend", "additive operative Verfahren nach intraoperativer Entscheidung (z. B. Stabilisierung, Achillessehnenverlängerung, Hoke-Technik, Gastroc-Slide, Zusatzschnitte, Schnitte zum Schutz des N. tibialis hinter dem Innenknöchel, Fixation des Innenknöchels, Korrekturbruch des Fersenbeines)"],
+    calcaneus_ot: ["Schäden am N. tibialis mit Taubheit des Fußes und/oder Funktionsverlust des Fußes", "neuropathische Schmerzen", "Anlage von Zusatzinzisionen", "Schäden an der A. dorsalis pedis oder A. tibialis posterior mit Blutung/offener Revision/Verlegung in die Gefäßchirurgie", "lange andauernde Nachbehandlung mit Einschränkungen bis zu einem Jahr oder länger", "Korrekturverlust", "Achsabweichungen", "erneute Fehlstellung ggf. mit Folgeoperation", "Versteifung von Gelenken", "Schäden am unteren Sprunggelenk", "anhaltende Schmerzen", "Über- oder Unterkorrektur", "Gelenksteife", "Nervenschäden", "Überlastung des Fußaußenrandes", "Stressbruch", "Arbeits- und Berufsunfähigkeit", "Metallentfernung", "Fehlverheilung ggf. mit Notwendigkeit zur Folgeoperation", "Metalllockerung", "Osteomyelitis/Knochenentzündung", "Metallperforation", "Dislokation/Verschiebung von Fragmenten", "Tarsaltunnelsyndrom/Nervenschäden hinter dem Innenknöchel durch Verschiebung oder operative Maßnahmen", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung", "bei min-inv Vorgehen besonderes Risiko von Fistelbildung oder Verbrennungen"],
+    fasziotomie: ["Überlastung der Fußaußenseite/lateralen Säule (besonders bei Durchtrennung von mehr als der Hälfte der Faszie)", "schmerzhafter Plattfuß/Absenkung des Längsgewölbes", "lange Erholungsphase", "Rezidiv/erneute Fersenschmerzen", "anhaltende Beschwerden", "Nervenschäden (R. calcaneus/N. plantaris)", "Taubheit an der Ferse", "ausbleibende Besserung oder Befundverschlechterung"],
+    gastroc: ["Verletzung des N. suralis (Taubheit/Schmerz an der Fußaußenseite)", "Kraftminderung beim Zehenstand/Plantarflexionsschwäche", "Wadenhämatom", "verzögerte Wundheilung", "Wadenkrämpfe", "kosmetisch störende Narbe", "Rezidiv der Verkürzung", "ausbleibende Besserung", "bei proximalen/ausgedehnten Techniken (z. B. Strayer) erhöhtes Nervenverletzungsrisiko"],
+    supramalleolar: ["Bruch der Gegenkortikalis/Durchbrechen des Knochenscharniers (Hinge-Fraktur) mit Notwendigkeit einer zusätzlichen Osteosynthese der Tibia", "erforderliche zusätzliche Osteotomie des Wadenbeins (Fibula-Osteotomie)", "erforderliche zusätzliche Korrektur am Fersenbein (Calcaneus-Osteotomie) oder befundbezogene Bandstabilisierung zur Balancierung des Rückfußes", "Beinverkürzung", "verzögerte Knochenheilung oder ausbleibende knöcherne Durchbauung (Pseudarthrose) mit erhöhtem Risiko", "Über- oder Unterkorrektur", "Korrekturverlust", "Achsabweichung", "Materialbruch oder -lockerung", "Notwendigkeit der Metallentfernung (häufiger Folgeeingriff)", "Nervenschäden (N. peroneus, N. tibialis)", "Gefäßverletzung", "anhaltende Schmerzen", "Stressfraktur", "Fortschreiten des Gelenkverschleißes mit späterer Notwendigkeit einer Versteifung (Arthrodese) oder einer Sprunggelenkprothese", "offenes oder minimal-invasives Verfahren nach intraoperativer Entscheidung"],
+  },
+  eingriffe: {
+    chevron: {gruppe:"vorfuss_hallux", kontext:"hallux_valgus"},
+    chevron_akin: {gruppe:"vorfuss_hallux", kontext:"hallux_valgus"},
+    scarf: {gruppe:"vorfuss_hallux", kontext:"hallux_valgus"},
+    lapidus: {gruppe:"lapidus", kontext:"hallux_valgus"},
+    kleinzehen_pip: {gruppe:"kleinzehen", kontext:"hallux_valgus"},
+    dmmo: {gruppe:"dmmo", kontext:"metatarsalgie_morton"},
+    morton_neurom: {gruppe:"morton", kontext:"metatarsalgie_morton"},
+    cheilektomie: {gruppe:"cheilektomie", kontext:"hallux_rigidus"},
+    mtp1_arthrodese: {gruppe:"mtp1_arthrodese", kontext:"hallux_rigidus"},
+    arthrorise: {gruppe:"arthrorise", kontext:"plattfuss_rueckfuss"},
+    arthrodese_tmt: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
+    subtalar_arthrodese: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
+    coalition_exzision: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
+    calcaneus_ot: {gruppe:"calcaneus_ot", kontext:"plattfuss_rueckfuss"},
+    lcot: {gruppe:"calcaneus_ot", kontext:"plattfuss_rueckfuss"},
+    cotton: {gruppe:"calcaneus_ot", kontext:"plattfuss_rueckfuss"},
+    mdo_offen: {gruppe:"calcaneus_ot", kontext:"plattfuss_rueckfuss"},
+    mdo_mini: {gruppe:"calcaneus_ot", kontext:"plattfuss_rueckfuss"},
+    arthrodese_osg: {gruppe:"osg_arthrodese", kontext:"osg_arthrose"},
+    t2_nagel: {gruppe:"osg_arthrodese", kontext:"osg_arthrose"},
+    ask_osg: {gruppe:"ask_amic", kontext:"osg_arthrose"},
+    amic: {gruppe:"ask_amic", kontext:"osg_arthrose"},
+    oats: {gruppe:"ask_amic", kontext:"osg_arthrose"},
+    tep_infinity: {gruppe:"osg_prothese", kontext:"osg_arthrose"},
+    tep_inbone: {gruppe:"osg_prothese", kontext:"osg_arthrose"},
+    supramal_ot: {gruppe:"supramalleolar", kontext:"osg_arthrose"},
+    brostrom_gould: {gruppe:"aussenband_peroneal", kontext:"osg_instabil"},
+    brostrom_int_brace: {gruppe:"aussenband_peroneal", kontext:"osg_instabil"},
+    bandplastik_autolog: {gruppe:"aussenband_peroneal", kontext:"osg_instabil"},
+    peroneal_naht: {gruppe:"aussenband_peroneal", kontext:"osg_instabil"},
+    peroneal_rek: {gruppe:"aussenband_peroneal", kontext:"osg_instabil"},
+    peroneal_lux: {gruppe:"aussenband_peroneal", kontext:"osg_instabil"},
+    haglund_as_split: {gruppe:"achilles_haglund", kontext:"achilles_haglund"},
+    haglund_mini: {gruppe:"achilles_haglund", kontext:"achilles_haglund"},
+    as_naht: {gruppe:"achilles_haglund", kontext:"achilles_haglund"},
+    fhl_transfer: {gruppe:"achilles_haglund", kontext:"achilles_haglund"},
+    fasziotomie_offen: {gruppe:"fasziotomie", kontext:"plantarfasziitis"},
+    gastroc_pmgr: {gruppe:"gastroc", kontext:"plantarfasziitis"},
+    gastroc_strayer: {gruppe:"gastroc", kontext:"achilles_haglund"},
+  },
+  labels: {
+    chevron: "Chevron-Osteotomie",
+    chevron_akin: "Chevron + Akin",
+    lapidus: "Lapidus-Arthrodese",
+    cheilektomie: "Cheilektomie",
+    mtp1_arthrodese: "MTP-I-Arthrodese",
+    brostrom_gould: "Brostrom-Gould",
+    brostrom_int_brace: "Brostrom + Internal Brace",
+    bandplastik_autolog: "Bandplastik autolog",
+    ask_osg: "ASK OSG",
+    arthrodese_osg: "OSG-Arthrodese",
+    tep_infinity: "OSG-TEP (Infinity)",
+    tep_inbone: "OSG-TEP (Inbone II)",
+    amic: "AMIC",
+    oats: "OATS",
+    haglund_as_split: "Haglund + AS-Refix",
+    mdo_offen: "MDO offen",
+    mdo_mini: "MDO mini-invasiv",
+    lcot: "LCOT",
+    cotton: "Cotton-OT",
+    calcaneus_ot: "Calcaneus-OT",
+    coalition_exzision: "Coalition-Exzision",
+    subtalar_arthrodese: "USG-Arthrodese",
+    arthrodese_tmt: "TMT-Arthrodese",
+    arthrorise: "Arthrorise",
+    scarf: "Scarf-Osteotomie",
+    dmmo: "DMMO (MT-Osteotomie)",
+    kleinzehen_pip: "Kleinzehen/PIP",
+    haglund_mini: "Haglund mini open",
+    fhl_transfer: "FHL-Transfer",
+    as_naht: "Achillessehnennaht (offen)",
+    peroneal_naht: "Peronealsehnennaht",
+    peroneal_rek: "Peronealsehnenrekonstruktion",
+    peroneal_lux: "Peronealsehnen-Stabilisierung bei Luxation",
+    t2_nagel: "T2 Nagel (TTC)",
+    supramal_ot: "Supramalleolare OT",
+    fasziotomie_offen: "Offene plantare Fasziotomie",
+    gastroc_strayer: "Strayer-Verlängerung",
+    gastroc_pmgr: "PMGR (Baumann)",
+    morton_neurom: "Morton-Neurom-Resektion",
+  },
+  alternativen: {
+    hallux_valgus: {kons:["Schuhwerk-Anpassung", "Einlagen", "Physiotherapie", "Schmerztherapie"], op:["chevron", "chevron_akin", "scarf", "lapidus", "dmmo", "kleinzehen_pip"]},
+    hallux_rigidus: {kons:["Schuhwerk mit steifer/abrollender Sohle", "Einlagen", "Physiotherapie", "Schmerztherapie", "Infiltration"], op:["cheilektomie", "mtp1_arthrodese"]},
+    osg_arthrose: {kons:["Schuhzurichtung/Abrollhilfe", "Orthese", "Physiotherapie", "Schmerztherapie", "Infiltration"], op:["ask_osg", "amic", "oats", "supramal_ot", "arthrodese_osg", "tep_infinity", "tep_inbone"]},
+    osg_instabil: {kons:["Physiotherapie/propriozeptives Training", "Orthese/Bandage", "Schuhaußenranderhöhung"], op:["brostrom_gould", "brostrom_int_brace", "bandplastik_autolog"]},
+    metatarsalgie_morton: {kons:["Schuhwerk-Anpassung", "Einlagen mit Pelotte", "Physiotherapie", "Infiltration"], op:["dmmo", "kleinzehen_pip", "morton_neurom"]},
+    plattfuss_rueckfuss: {kons:["Einlagen/Orthese", "Physiotherapie", "Schuhzurichtung"], op:["calcaneus_ot", "lcot", "cotton", "arthrodese_tmt", "subtalar_arthrodese"]},
+    achilles_haglund: {kons:["exzentrisches Training/Physiotherapie", "Schuhzurichtung/Fersenkissen", "Stoßwellentherapie", "Schmerztherapie"], op:["haglund_as_split", "haglund_mini", "as_naht", "fhl_transfer", "gastroc_pmgr", "gastroc_strayer"]},
+    plantarfasziitis: {kons:["Dehnübungen/Physiotherapie", "Einlagen/Fersenkissen", "Nachtschiene", "Stoßwellentherapie", "Infiltration"], op:["fasziotomie_offen", "gastroc_pmgr"]},
+  },
 };
 
 const OP_STEUERUNG={
@@ -6972,6 +7090,7 @@ me_zusatz_782_1u:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund 
 me_zusatz_782_at:`\n\n⚠ PLATZHALTER-TEXT – manuell an tatsächlichen Befund anpassen:\nZusätzlich zeigte sich eine druckdolente Haglund-Exostose am dorsalen Kalkaneus. Nach Darstellung des Kalkaneus und Mobilisation der Achillessehne erfolgte die offene Resektion der Exostose mit oszillierender Säge und Luer unter Schonung der Achillessehnenansatzregion. Glättung der Resektionsfläche.`,
 me_stell:`Inzision im Verlauf der bestehenden Narbe über der distalen Fibula. Stumpfes Spreizen des Subcutangewebes unter Schonung der Weichteilstrukturen. Aufsuchen und Darstellen der Stellschraube. Entfernung der Stellschraube ohne Komplikationen. Kontrolle auf regelrechte knöcherne Verhältnisse. Spülung des Situs.`,
 cheilektomie:`Längsinzision medial des MTP I Gelenkes, Spalten des Subcutangewebes unter subtiler Blutstillung und Schonung des Nerven-Gefäßbündels. Längsinzision der Kapsel und Darstellung des MTP I Gelenkes. Es zeigt sich eine deutliche Osteophytenbildung dorsal und medial am Metatarsale-I-Köpfchen und an der Grundphalanxbasis. Synovialitis mit entzündlich veränderter Synovia, partielle Synovektomie. Abtragung der dorsalen und medialen Osteophyten mit der oszillierenden Säge und dem Luer. Die Gelenkfläche wird inspiziert, es zeigt sich ein umschriebener Knorpelschaden. Glättung der Resektionsflächen. Überprüfung der Dorsalextension, es besteht nun eine freie Beweglichkeit von ca. 60° Dorsalextension. Spülung des Gelenkes.`,
+morton_neurom:`Markierung der anatomischen Landmarken am Vorfuß. Längsverlaufende dorsale Hautinzision von ca. [3–4] cm im betroffenen [3.] Intermetatarsalraum, beginnend proximal der Schwimmhautfalte.\nSchichtweise scharfe Präparation des subkutanen Gewebes unter Schonung der dorsalen Hautnervenäste und der Gefäße. Stumpfes Spreizen bis auf das intermetatarsale Niveau. Einsetzen eines Weichteilspreizers zur Spreizung der Metatarsalköpfchen.\nDarstellung des Lig. metatarsale transversum profundum, dieses wird unter Sicht quer durchtrennt. Aufspreizen des Intermetatarsalraumes, dadurch Darstellung des Interdigitalnerven. Es zeigt sich die typische spindelförmige Auftreibung des Nerven (Pseudoneurom).\nVorsichtige Mobilisierung des Nerven nach proximal und distal. Distal Darstellung der Aufzweigung in die Digitalnervenäste. Absetzen des Nerven distal der Bifurkation. Nachverfolgung nach proximal, dort möglichst weit proximales Absetzen des Nervenstumpfes, sodass der Stumpf nicht im Belastungsbereich zu liegen kommt. Resektion des Neuroms in toto.\nDas Resektat wird zur histopathologischen Untersuchung asserviert. Kontrolle auf Bluttrockenheit. Ausgiebige Spülung des Situs.\nSchichtweiser Wundverschluss. Subkutane Adaptation. Hautnaht. Hautdesinfektion. Steriler Wundverband, Watteverband.`,
 exostose:`Längsinzision über der tastbaren Exostose, vorsichtiges Spalten des Subcutangewebes unter Schonung der umgebenden Strukturen, subtile Blutstillung. Darstellung der knöchernen Prominenz, Abschieben des Periostes. Abtragung der Exostose mittels oszillierender Säge und Luer. Glättung der Resektionsflächen. Spülung des Situs. Kontrolle auf regelrechte Kontur.`,
 scarf:`Zunächst manuelle Mobilisierung der plantar und dorsal verkürzten Strukturen des Großzehengrundgelenks. Incision lateral des MTP I Gelenkes streckseitig. Darstellen der Sehne des Muskulus add. hallucis. Die Sehne wird tenotomiert, die laterale Gelenkkapsel incidiert. Danach längsverlaufende Incision über der medialen Seite des Großzehengrundgelenks, Lösungen der Vernarbungen des Subkutangewebes im Bereich der Pseudoexostose, sorgfältige Blutstillung, unter Schonung des Nerven-Gefäßbündels L-förmige Incision der medialen Kapsel, es quillt entzündliche Synovialis hervor, partielle Synovektomie. Darstellen der Sehne des Muskulus abduktor hallucis, die Sehne wird distal mit einem kräftigen Faden armiert und tenotomiert, Darstellen der Pseudoexostose und Abtragung mit der oszillierenden Säge.\nNun Z-förmige Osteotomie (Scarf) des Metatarsale I mit der oszillierenden Säge. Die horizontale Osteotomie wird in Höhe der Schaftmitte durchgeführt, die proximale vertikale Osteotomie von dorsal nach plantar, die distale von plantar nach dorsal. Lateralverschiebung des plantaren Fragmentes um ca. 4-5 mm unter Korrektur des Intermetatarsalwinkels. Temporäre Fixation mittels K-Draht, radiologische Kontrolle, es zeigt sich eine gute Korrektur. Definitive Osteosynthese mittels zwei Doppelgewindeschrauben. Visuell wird das Gelenk überprüft, es besteht sicher kein Überstand der Schrauben. Abtragen des medialen Knochenüberhangs.`,
 ask_nano:`ASK + Nanofrakturierung (Text wird dynamisch generiert).`,
@@ -7357,7 +7476,7 @@ function OPBerichtApp(){
     // VORFUSS
     if(gz==="chevron")P("Fixos HKS 2,5","Stryker",EINZELPREISE.fixos_hks_2_5.preis);
     if(gz==="scarf"){P("2× Fixos HKS 2,5","Stryker",2*EINZELPREISE.fixos_hks_2_5.preis);}
-    if(gz==="lapidus"){P("Ortholoc Lapidus Platte",  "Stryker",318.80);P("4× Variax Locking 2,7","Stryker",4*EINZELPREISE.variax_locking_2_7.preis);P("Fixos HKS 4,0","Stryker",EINZELPREISE.fixos_hks_4_0.preis);}
+    if(gz==="lapidus"){P("Ortholoc Lapidus Platte",  "Stryker",EINZELPREISE.ortholoc_lapidus_platte.preis);P("4× Variax Locking 2,7","Stryker",4*EINZELPREISE.variax_locking_2_7.preis);P("Fixos HKS 4,0","Stryker",EINZELPREISE.fixos_hks_4_0.preis);}
     if(gz==="mtp1art"){P("Variax Curved Plate 4L","Stryker",EINZELPREISE.variax_curved_plate_4l.preis);P("4× Variax Locking 2,7","Stryker",4*EINZELPREISE.variax_locking_2_7.preis);P("Fixos HKS 4,0","Stryker",EINZELPREISE.fixos_hks_4_0.preis);}
     if(mitSubcap)P("Fixos HKS 2,5 (Subcap)","Stryker",EINZELPREISE.fixos_hks_2_5.preis);
     if(Object.values(zc).some(a=>a.includes("pip"))){var pipCount=Object.values(zc).flat().filter(x=>x==="pip").length;P(pipCount+"× K-Draht (PIP)","–",pipCount*16);}
@@ -7376,11 +7495,11 @@ function OPBerichtApp(){
     if(tepType==="primaer_inbone"||tepType==="wechsel_inbone"){P("Inbone Tibial Tray","Stryker",EINZELPREISE.inbone_tibial_tray.preis);P("Inbone Talar Dome","Stryker",EINZELPREISE.inbone_talar_dome.preis);P("Inbone Talar Stem","Stryker",EINZELPREISE.inbone_talar_stem.preis);P("Inbone Poly Insert","Stryker",EINZELPREISE.inbone_poly_insert.preis);P("Inbone Base Stem","Stryker",EINZELPREISE.inbone_base_stem.preis);P("Inbone Mid Stem","Stryker",EINZELPREISE.inbone_mid_top_stem.preis);P("Inbone Top Stem","Stryker",EINZELPREISE.inbone_mid_top_stem.preis);}
     // RÜCKFUSS
     rfOp.forEach(op=>{
-      if(op==="subtalar")P("2× Fixos HKS 7,0","Stryker",297.50);
-      if(op==="haglund")P("2× GII Quickanchor Ethibond","DePuy Mitek",391.84);
+      if(op==="subtalar")P("2× Fixos HKS 7,0","Stryker",2*EINZELPREISE.fixos_hks_7_0.preis);
+      if(op==="haglund")P("2× GII Quickanchor Ethibond","DePuy Mitek",2*EINZELPREISE.gii_quickanchor_ethibond.preis);
       if(op==="as_naht"){} // kein Implantat
-      if(op==="mdo_mini"||op==="mdo_offen")P("2× Fixos HKS 7,0","Stryker",297.50);
-      if(op==="mdo_mini")P("Shannon Recta Larga 2,2mm (Single-use)","Marquardt axomed",43);
+      if(op==="mdo_mini"||op==="mdo_offen")P("2× Fixos HKS 7,0","Stryker",2*EINZELPREISE.fixos_hks_7_0.preis);
+      if(op==="mdo_mini")P("Shannon Recta Larga 2,2mm (Single-use)","Marquardt axomed",EINZELPREISE.shannon_recta_larga_2_2mm.preis);
       if(op==="calc_ot_verl")P("Tutogene Block 20×10×10","Tutogene",EINZELPREISE.tutogene_block_20x10x10.preis);
       if(op==="peroneal"&&peronealTyp==="naht"){} // kein Implantat
       if(op==="peroneal"&&peronealTyp==="tenodese"){} // kein Implantat (korrigiert)
@@ -7406,7 +7525,7 @@ function OPBerichtApp(){
     // FRAKTUREN
     fxOp.forEach(op=>{
       if(op==="fibula_einf"){P("LCP 1/3 Rohr 6L","DePuy Synthes",EINZELPREISE.lcp_1_3_rohr_6l.preis);P("6× Cortex Screw Stardrive 3,5","DePuy Synthes",6*EINZELPREISE.kortikalis_3_5.preis);}
-      if(op==="fibula_mehr"){P("LCP 1/3 Rohr 6L","DePuy Synthes",28.55);P("6× Locking 3,5 + 1× Kortikalis 3,5","DePuy Synthes",82.88);}
+      if(op==="fibula_mehr"){P("LCP 1/3 Rohr 6L","DePuy Synthes",EINZELPREISE.lcp_1_3_rohr_6l.preis);P("6× Locking 3,5 + 1× Kortikalis 3,5","DePuy Synthes",82.88);}
     });
     if(fxSyndes)P("Stellschraube Kortikalis 3,5","DePuy Synthes",EINZELPREISE.kortikalis_3_5.preis);
     return items;
@@ -7423,6 +7542,7 @@ function OPBerichtApp(){
     if(gz==="lapidus")codes.push({hd:true,code:"M20.1"+s,desc:"Hallux valgus (acquisitus)"});
     if(gz==="mtp1art"){if(hoffTill){codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});}else{codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});}}
     if(gz==="cheilek")codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});
+    if(gz==="morton")codes.push({hd:true,code:"G57.6"+s,desc:"Läsion des N. plantaris (Morton-Metatarsalgie)"});
     if(gz==="exostose")codes.push({hd:true,code:"M89.75"+s,desc:"Exostose Fuß"});
     if(mitAkin&&!codes.find(c=>c.code.startsWith("M20.5")))codes.push({hd:false,code:"M20.5"+s,desc:"Sonstige Deformität der Zehe (Hallux interphalangeus)"});
     // Kleinzehen
@@ -7493,6 +7613,7 @@ function OPBerichtApp(){
     if(gz==="lapidus"){o.push("5-808.a4","5-788.40","5-93b.0","5-93b.e","5-783.0v","5-784.0u");if(mitSubcap)o.push("5-788.5c");o.push("5-854.2c");if(mitAkin)o.push("5-788.56");}
     if(gz==="mtp1art"){if(hoffTill){o.push("5-808.b0","5-93b.0","5-93b.e","5-788.60","5-788.60","5-788.60","5-788.60","5-808.b2","5-808.b2","5-808.b2","5-808.b2");}else{o.push("5-808.b0","5-93b.0","5-93b.e");if(mitAkin)o.push("5-788.56");}}
     if(gz==="cheilek")o.push("5-788.00");
+    if(gz==="morton")o.push("5-846.7");
     if(gz==="exostose")o.push("5-788.00");
     if(gz==="scarf")o.push("5-788.5e");
     const pipMap={1:"d",2:"e",3:"f",4:"g"};
@@ -8161,6 +8282,7 @@ const UC_TEXT_MAP={
     if(gz==="lapidus"){p.push("\n\n"+T.lapidus);if(mitSubcap)p.push("\n\n"+T.subcapitale);if(mitAkin)p.push("\n\n"+T.akin_lapidus);p.push("\n\n"+T.rebalancing);}
     if(gz==="mtp1art"){if(hoffTill){p.push("\n\n"+T.hoffmann_tillmann);}else{p.push("\n\n"+T.mtp1_arthrodese);if(mitAkin)p.push("\n\n"+T.akin);}}
     if(gz==="cheilek")p.push("\n\n"+T.cheilektomie);
+    if(gz==="morton")p.push("\n\n"+T.morton_neurom);
     if(gz==="exostose")p.push("\n\n"+T.exostose);
     if(gz==="scarf"){p.push("\n\n"+T.scarf);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
     let isFirstZ=true;[2,3,4,5].forEach(z=>{const e=zc[z]||[];if(e.length>0){p.push("\n\n"+buildZehe(z,e,isFirstZ));isFirstZ=false;}});
@@ -8552,7 +8674,7 @@ const UC_TEXT_MAP={
       <OBSec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF} onReset={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);}}>
         <div style={cat}>Großzehe (1. Strahl)</div>
         <div style={row}>
-          {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"]].map(([k,l])=>
+          {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"],["morton","Morton-Neurom"]].map(([k,l])=>
             <div key={k} style={chip(gz===k)} onClick={()=>{setGz(gz===k?"":k);setMitAkin(false);setHoffTill(false);setMitSubcap(false);}}>{l}</div>
           )}
         </div>
@@ -8560,6 +8682,7 @@ const UC_TEXT_MAP={
         {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div></div><div style={{fontSize:9,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-93b.0, 5-93b.e{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
         {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(hoffTill)} onClick={()=>setHoffTill(!hoffTill)}>Hoffmann-Tillmann</div><div style={{fontSize:9,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · Stat: +5-784.0v (Spongiosa) · Amb: 5-784.0v NICHT kodieren!</div></div>}
         {gz==="cheilek"&&<div style={sub}><div style={{fontSize:9,color:"#718096"}}>OPS: 5-788.00 (Exostosenabtragung MT I) · Amb: H-DRG I20O · Stat: 5-854.2c/0c erwägen → I20E</div></div>}
+        {gz==="morton"&&<div style={sub}><div style={{fontSize:9,color:"#718096"}}>OPS: 5-846.7 · ICD: G57.6 (zu bestätigen) · Intermetatarsalraum im Text anpassen</div></div>}
 
         <div style={cat}>Kleinzehen D2–D5</div>
         {[2,3,4,5].map(z=>{const sel=zc[z]||[];return <div key={z} style={{marginBottom:4,padding:sel.length?"6px 8px":"2px",borderRadius:6,background:sel.length?"rgba(0,131,143,.04)":"transparent"}}>
@@ -11928,6 +12051,165 @@ function MERechner(){
 }
 
 
+function AufklaerungstoolView() {
+  const D = AUFKLAERUNG_RISIKEN;
+  const [sel, setSel] = React.useState([]);
+  const [copied, setCopied] = React.useState(false);
+  const [such, setSuch] = React.useState("");
+
+  // Eingriffe nach Kontext gruppieren für die Auswahl
+  const kontextNamen = {
+    hallux_valgus: "Hallux valgus / Vorfuß",
+    hallux_rigidus: "Hallux rigidus",
+    metatarsalgie_morton: "Metatarsalgie / Morton",
+    osg_arthrose: "OSG-Arthrose / Knorpel",
+    osg_instabil: "OSG-Instabilität / Bandchirurgie",
+    plattfuss_rueckfuss: "Plattfuß / Rückfuß",
+    achilles_haglund: "Achillessehne / Haglund",
+    plantarfasziitis: "Plantarfasziitis"
+  };
+  const gruppiert = {};
+  Object.keys(D.eingriffe).forEach(function(k){
+    var kx = D.eingriffe[k].kontext;
+    if(!gruppiert[kx]) gruppiert[kx]=[];
+    gruppiert[kx].push(k);
+  });
+
+  function tog(k){
+    setCopied(false);
+    setSel(function(prev){
+      return prev.indexOf(k)>=0 ? prev.filter(function(x){return x!==k;}) : prev.concat([k]);
+    });
+  }
+
+  // Text generieren mit Dedupe
+  function buildText(){
+    if(sel.length===0) return "";
+    var out = [];
+    // 1. Allgemein-Block (einmal)
+    out.push("Allgemeine Risiken:");
+    out.push(D.allgemein.join(", ") + ".");
+    out.push("");
+    // 2. Spezifische Risiken (zusammengeführt, dedupliziert)
+    var spezSeen = {};
+    var spez = [];
+    sel.forEach(function(k){
+      var g = D.eingriffe[k].gruppe;
+      (D.gruppen[g]||[]).forEach(function(r){
+        var key = r.toLowerCase().replace(/\s+/g,"");
+        if(!spezSeen[key]){ spezSeen[key]=1; spez.push(r); }
+      });
+    });
+    var labels = sel.map(function(k){return D.labels[k]||k;}).join(", ");
+    out.push("Spezifische Risiken ("+labels+"):");
+    out.push(spez.join(", ") + ".");
+    out.push("");
+    // 3. Teil A - Elektiv
+    out.push(D.elektiv);
+    out.push("");
+    // 4. Teil B - Alternativen (Kontexte der gewählten Eingriffe, gewählte herausgefiltert)
+    var konsSeen={}, kons=[], opSeen={}, opAlt=[];
+    var kontexte = [];
+    sel.forEach(function(k){
+      var kx = D.eingriffe[k].kontext;
+      if(kontexte.indexOf(kx)<0) kontexte.push(kx);
+    });
+    kontexte.forEach(function(kx){
+      var pool = D.alternativen[kx];
+      if(!pool) return;
+      pool.kons.forEach(function(c){
+        var key=c.toLowerCase();
+        if(!konsSeen[key]){konsSeen[key]=1; kons.push(c);}
+      });
+      pool.op.forEach(function(opk){
+        if(sel.indexOf(opk)>=0) return; // gewählten Eingriff herausfiltern
+        if(!opSeen[opk]){opSeen[opk]=1; opAlt.push(D.labels[opk]||opk);}
+      });
+    });
+    out.push("Konservative Alternativen: " + (kons.length? kons.join(", ")+"." : "—"));
+    out.push("Operative Alternativen: " + (opAlt.length? opAlt.join(", ")+"." : "—"));
+    out.push("");
+    // 5. Abschluss
+    out.push("Es bestehen keine weiteren Fragen.");
+    return out.join("\n");
+  }
+
+  var text = buildText();
+
+  function copy(){
+    if(!text) return;
+    navigator.clipboard.writeText(text).then(function(){
+      setCopied(true);
+      setTimeout(function(){setCopied(false);},1800);
+    });
+  }
+
+  var CB = function(active){return {cursor:"pointer",padding:"6px 10px",borderRadius:6,fontSize:11,fontWeight:600,border:active?"1px solid #00838F":"1px solid rgba(0,0,0,.12)",background:active?"rgba(0,131,143,.08)":"#fff",color:active?"#006B6F":"#4A5568",transition:"all .15s",display:"inline-block",margin:"0 6px 6px 0"};};
+
+  return (
+    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:760,margin:"0 auto",padding:"60px 16px 40px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}>
+        <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📋 Aufklärungstexte</div>
+        <div style={{fontSize:11,color:"#718096"}}>Eingriff(e) wählen · Risikoliste mit Alternativen · für das Freitextfeld der Aufklärung</div>
+      </div>
+
+      <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)",padding:"16px 18px",marginBottom:16}}>
+        <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:10}}>Eingriff(e) auswählen <span style={{fontWeight:400,color:"#718096"}}>– Mehrfachauswahl für Kombinationseingriffe</span></div>
+        <div style={{position:"relative",marginBottom:14}}>
+          <input value={such} onChange={function(e){setSuch(e.target.value);}} placeholder="Eingriff suchen …"
+            style={{width:"100%",boxSizing:"border-box",padding:"8px 30px 8px 12px",fontSize:12,border:"1px solid rgba(0,0,0,.15)",borderRadius:8,outline:"none",color:"#2D3748",fontFamily:"inherit"}}/>
+          {such && <span onClick={function(){setSuch("");}} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",cursor:"pointer",fontSize:14,color:"#A0AEC0"}}>✕</span>}
+        </div>
+        {(function(){
+          var q = such.trim().toLowerCase();
+          var anyHit = false;
+          var bloecke = Object.keys(kontextNamen).map(function(kx){
+            if(!gruppiert[kx]) return null;
+            var treffer = gruppiert[kx].filter(function(k){
+              if(!q) return true;
+              if(sel.indexOf(k)>=0) return true;
+              return (D.labels[k]||k).toLowerCase().indexOf(q)>=0 || kontextNamen[kx].toLowerCase().indexOf(q)>=0;
+            });
+            if(treffer.length===0) return null;
+            anyHit = true;
+            return (
+              <div key={kx} style={{marginBottom:12}}>
+                <div style={{fontSize:10,fontWeight:700,color:"#00838F",textTransform:"uppercase",letterSpacing:.4,marginBottom:5}}>{kontextNamen[kx]}</div>
+                <div>
+                  {treffer.map(function(k){
+                    return <span key={k} style={CB(sel.indexOf(k)>=0)} onClick={function(){tog(k);}}>{D.labels[k]||k}</span>;
+                  })}
+                </div>
+              </div>
+            );
+          });
+          if(!anyHit) return <div style={{fontSize:11,color:"#A0AEC0",padding:"4px 0 8px"}}>Kein Eingriff gefunden für „{such}".</div>;
+          return bloecke;
+        })()}
+        {sel.length>0 && <div onClick={function(){setSel([]);setCopied(false);}} style={{marginTop:4,cursor:"pointer",fontSize:10,color:"#C62828",fontWeight:600}}>✕ Auswahl zurücksetzen</div>}
+      </div>
+
+      {sel.length>0 && (
+        <div style={{background:"#fff",border:"1px solid rgba(0,131,143,.3)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)",overflow:"hidden"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"rgba(0,131,143,.06)",borderBottom:"1px solid rgba(0,131,143,.2)"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#006B6F"}}>Risikotext für die Aufklärung</div>
+            <div onClick={copy} style={{cursor:"pointer",padding:"5px 14px",borderRadius:6,background:copied?"#2E7D32":"#00838F",color:"#fff",fontSize:11,fontWeight:600,boxShadow:"0 1px 3px rgba(0,0,0,.12)"}}>
+              {copied? "✓ Kopiert" : "⧉ Kopie"}
+            </div>
+          </div>
+          <textarea readOnly value={text} style={{width:"100%",minHeight:300,border:"none",outline:"none",padding:"14px",fontSize:12,lineHeight:1.6,color:"#2D3748",fontFamily:"'IBM Plex Sans',system-ui,sans-serif",resize:"vertical",boxSizing:"border-box"}}/>
+        </div>
+      )}
+
+      <div style={{marginTop:16,fontSize:9,color:"#A0AEC0",textAlign:"center",lineHeight:1.5}}>
+        Allgemeine Risiken werden bei Kombinationen nur einmal aufgeführt · doppelte spezifische Risiken automatisch entfernt · gewählte Eingriffe werden aus den Alternativen herausgefiltert.<br/>
+        Ersetzt nicht die individuelle, handschriftlich ergänzte Aufklärung.
+      </div>
+    </div>
+  );
+}
+
+
 function LandingPage({onSelect}) {
   return (
     <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 16px 16px"}}>
@@ -11986,6 +12268,13 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Röntgen & Messmethoden</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Aufnahmen mit Messmethoden</div>
         </div>
+        <div onClick={()=>onSelect("aufklaerung")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #00838F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,131,143,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:6}}>📋</div>
+          <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Aufklärungstexte</div>
+          <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Risikolisten je Eingriff · Kopie-Funktion</div>
+        </div>
         <a href={FUSSTRACK_BASE_URL} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none",cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 14px",flex:"1 1 100%",maxWidth:410,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",display:"flex",alignItems:"center",gap:12}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #2C4F7C";e.currentTarget.style.boxShadow="0 4px 12px rgba(44,79,124,.15)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
@@ -11996,7 +12285,7 @@ function LandingPage({onSelect}) {
           </div>
         </a>
       </div>
-      <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.5 · Juni 2026</div>
+      <div style={{marginTop:20,fontSize:9,color:"#A0AEC0"}}>v2.6 · Juni 2026</div>
     </div>
   );
 }
@@ -12027,6 +12316,17 @@ function App() {
   );
   
   
+  if (tool === "aufklaerung") return (
+    <div>
+      <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
+        <div onClick={()=>setTool(null)} style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,.12)",color:"#006B6F",fontSize:10,fontWeight:600,display:"flex",alignItems:"center",gap:4,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>
+          ← Toolbox
+        </div>
+      </div>
+      <AufklaerungstoolView />
+    </div>
+  );
+
   if (tool === "hdrg") return (
     <div>
       <div style={{position:"fixed",top:8,right:12,zIndex:999}}>
