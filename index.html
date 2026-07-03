@@ -6964,15 +6964,7 @@ var _s = useState, _m = useMemo;
                     <div>├─ Anästhesie:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{drgData.fallAnaesth.toLocaleString("de-DE")} € ({pct(drgData.fallAnaesth)}%)</div>
                     <div>└─ Diagnostik/Sonst.:&nbsp;{drgData.fallRest.toLocaleString("de-DE")} € ({pct(drgData.fallRest)}%)</div>
                   </div>}
-                  {/* DB II – Wirtschaftlichkeit */}
-                  {hasFK && (function(){
-                    var dbII = erloes - drgData.fallTotal;
-                    var dbColor = dbII >= 0 ? "#00897B" : "#C62828";
-                    return <div style={{ marginTop: 6, padding: "6px 8px", background: dbII >= 0 ? "rgba(0,137,123,.08)" : "rgba(198,40,40,.08)", border: "1px solid " + (dbII >= 0 ? "rgba(0,137,123,.3)" : "rgba(198,40,40,.3)"), borderRadius: 4, fontSize: 11, color: dbColor, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                      <span>💰</span>
-                      <span>DB II: {erloes.toLocaleString("de-DE")} € − {drgData.fallTotal.toLocaleString("de-DE")} € = <span style={{ fontSize: 12 }}>{dbII >= 0 ? "+" : ""}{dbII.toLocaleString("de-DE")} €</span></span>
-                    </div>;
-                  })()}
+                  {/* DB II bewusst nicht je Konstellation (InEK-Durchschnitt, nicht unsere Kosten) — reale DB-II-Betrachtung im Implantatvergleich oben */}
                   {/* Zusatzentgelte (nur bei Wechsel-Konstellationen) */}
                   {k.zeFaehig && k.zeFaehig.length > 0 && drgData && <div style={{ marginTop: 6, padding: "6px 8px", background: "rgba(101,76,162,.06)", border: "1px solid rgba(101,76,162,.25)", borderRadius: 4 }}>
                     <div style={{ fontSize: 9, color: "#5E35B1", fontWeight: 700, marginBottom: 4 }}>💉 ZUSATZENTGELTE</div>
@@ -9299,7 +9291,7 @@ const UC_TEXT_MAP={
             })()}
           </OBSec>
           <OBSec title="💪 Ellenbogen" open={ucSec.ell} onToggle={()=>setUcSec(p=>({...p,ell:!p.ell}))} active={ucOp&&(ucOp.startsWith("olekranon")||ucOp.startsWith("radius_prox"))} onReset={()=>{setUcOp("");setOlekOSE("wsp");}}>
-            <div style={row}>{["olekranon_einf","olekranon_mehr","radius_prox_einf_schr","radius_prox_mehr_schr"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
+            <div style={row}>{["olekranon_einf","olekranon_mehr","radius_prox_einf_schr","radius_prox_mehr_schr"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);if(k==="olekranon_mehr"&&olekOSE==="schr")setOlekOSE("wsp");}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
             {ucOp&&ucOp.startsWith("olekranon")&&<div style={{marginTop:8,padding:"6px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
               <div style={{fontSize:9,fontWeight:700,color:"#718096",marginBottom:4}}>OSTEOSYNTHESE-VERFAHREN</div>
               <div style={row}>
@@ -9569,10 +9561,7 @@ const UC_TEXT_MAP={
           <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Schaft (CCA)</div><select value={dkShaft} onChange={e=>setDkShaft(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["7.5","10","11.25","12.5"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
           <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Kopfgröße</div><select value={dkHead} onChange={e=>setDkHead(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}><option value="">—</option>{["S","M","L"].map(v=><option key={v} value={v}>{v}</option>)}</select></div>
         </div>}
-        {(ucOp==="olekranon_einf"||ucOp==="olekranon_mehr")&&<div style={{marginTop:12,display:"flex",gap:6,flexWrap:"wrap"}}>
-          <div style={{fontSize:9,color:"#718096",marginBottom:2}}>Osteosynthese:</div>
-          {[["schr","Schraube"],["zugg","Zuggurtung"],["wsp","WSP"]].map(function(x){return <div key={x[0]} style={chip(olekOSE===x[0])} onClick={function(){setOlekOSE(x[0]);}}>{x[1]}</div>;})}
-        </div>}
+        {/* Osteosynthese-Auswahl erfolgt oben im Fraktur-Block (Ellenbogen) — hier bewusst kein zweiter Selektor */}
         {ucOp==="tfna"&&<div style={{marginTop:12,display:"flex",gap:12,flexWrap:"wrap"}}>
           <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Winkel</div><select value={tfnaAngle} onChange={e=>setTfnaAngle(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}>{["125","130"].map(v=><option key={v} value={v}>{v}°</option>)}</select></div>
           <div><div style={{fontSize:9,color:"#718096",marginBottom:2}}>Nagellänge</div><select value={tfnaLength} onChange={e=>setTfnaLength(e.target.value)} style={{padding:"4px 8px",borderRadius:4,background:"rgba(0,0,0,.1)",color:"#2D3748",border:"1px solid rgba(0,0,0,.12)",fontSize:11}}>{["235","340"].map(v=><option key={v} value={v}>{v} mm</option>)}</select></div>
@@ -12100,8 +12089,7 @@ function AufklaerungstoolView() {
         if(!spezSeen[key]){ spezSeen[key]=1; spez.push(r); }
       });
     });
-    var labels = sel.map(function(k){return D.labels[k]||k;}).join(", ");
-    out.push("Spezifische Risiken ("+labels+"):");
+    out.push("Spezifische Risiken:");
     out.push(spez.join(", ") + ".");
     out.push("");
     // 3. Teil A - Elektiv
