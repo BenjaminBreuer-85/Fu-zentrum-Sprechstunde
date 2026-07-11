@@ -7372,7 +7372,7 @@ function OPBerichtApp(){
       if(op==="amic")P("Chondro-Gide Membran","Geistlich",EINZELPREISE.chondro_gide_membran.preis);
       if(op==="arthrodese_osg"){P("2× Fixos HKS 7,0","Stryker",2*EINZELPREISE.fixos_hks_7_0.preis);if(osgArtPlatte){P("Mini Platte","Arthrex",EINZELPREISE.mini_platte.preis);P("2× Arthrex 4,5 Locking","Arthrex",2*EINZELPREISE.arthrex_4_5_locking.preis);}}
       if(op==="t2_nagel")P("T2 Nagel + 5× Querschraube + Verschlussschraube","Stryker",EINZELPREISE.t2_nagel_kit.preis);
-      if(op==="arthrorise")P("Kanül. Schraube 7,0","Königsee",EINZELPREISE.kanuel_schraube_7_0.preis);
+      if(op==="arthrorise")P("Kanül. Schraube 7,0","Königsee",EINZELPREISE.kanuel_schraube_7_0_koenigsee.preis);
     });
     // TEP
     if(tepType==="primaer_infinity"||tepType==="wechsel_infinity"){P("Infinity Tibial Tray","Stryker",EINZELPREISE.infinity_tibial_tray.preis);P("Infinity Talar Dome","Stryker",EINZELPREISE.infinity_talar_dome.preis);P("Infinity Poly Insert","Stryker",EINZELPREISE.infinity_poly_insert.preis);}
@@ -7398,7 +7398,7 @@ function OPBerichtApp(){
     if(mdoCotton==="allogen")P("Tutogene Block 20×10×10 (Cotton via MDO)","Tutogene",EINZELPREISE.tutogene_block_20x10x10.preis);
     // Hohlfuß
     if(hohlfussTyp==="dwyer")P("2× Fixos HKS 7,0 (Dwyer)","Stryker",2*EINZELPREISE.fixos_hks_7_0.preis);
-    if(hohlfussTyp==="lambrinudi")P("3× Kanül. Schraube 7,0 (Triple)","Königsee",3*EINZELPREISE.kanuel_schraube_7_0.preis);
+    if(hohlfussTyp==="lambrinudi")P("3× Kanül. Schraube 7,0 (Triple)","Königsee",3*EINZELPREISE.kanuel_schraube_7_0_koenigsee.preis);
     // Supramal
     if(rfOp.includes("supramal_ot")&&(supramalTyp==="wedge"))P("Tutogene Block (Keil)","Tutogene",EINZELPREISE.tutogene_block_20x10x10.preis);
     if(supramalBrostrom)P("2× GII Quickanchor Ethibond (Brostrom)","DePuy Mitek",2*EINZELPREISE.gii_quickanchor_ethibond.preis);
