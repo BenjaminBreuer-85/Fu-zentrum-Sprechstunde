@@ -4408,37 +4408,94 @@ const ENDO_DRG = {
 // CM, mVD aus LINK 2023 abgeleitet aus FUSS_EINGRIFFE; InEK-Impl aus INEK_IMPL.
 // fallTotal/fallOp/fallNormal/fallAnaesth/fallRest/fallStdAbw/pflegeProTag = TODO_VERIFY (Excel-Daten ausstehend)
 // ============================================================
-const FUSS_DRG = {
-  // Vorfuß-Schiene I20A–F (CM aus LINK 2023, Bezugsbasisfallwert NRW 4.562 €)
-  "I20F": { bwr: 0.684, mvd: 2.9, label: "Vorfuß-OP einfach (DMMO/PIP/Cheilek)", inekImpl: 71.63,  pflegeProTag: 216.83, fallTotal: 2912, fallOp: 1120, fallNormal: 993, fallAnaesth: 532, fallRest: 268, fallStdAbw: 752, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I20E": { bwr: 0.860, mvd: 3.2, label: "Vorfuß mit Hebel (Chevron/Scarf/MTP1-Arthrodese)", inekImpl: 248.00, pflegeProTag: 243.08, fallTotal: 3665, fallOp: 1562, fallNormal: 1126, fallAnaesth: 631, fallRest: 346, fallStdAbw: 1230, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I20D": { bwr: 1.033, mvd: 3.4, label: "Vorfuß komplex (Lapidus, mit DMMO ≥3×)", inekImpl: 404.23, pflegeProTag: 213.41, fallTotal: 4409, fallOp: 2096, fallNormal: 1141, fallAnaesth: 750, fallRest: 421, fallStdAbw: 1304, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I20C": { bwr: 1.111, mvd: 5.2, label: "Vorfuß sehr komplex (mit DMMO 4× / TMT 3 Gel.)", inekImpl: 302.41, pflegeProTag: 187.56, fallTotal: 4738, fallOp: 1928, fallNormal: 1567, fallAnaesth: 748, fallRest: 494, fallStdAbw: 1839, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I20B": { bwr: 1.494, mvd: 6.5, label: "Vorfuß höchste Stufe", inekImpl: 508.42, pflegeProTag: 181.46, fallTotal: 6370, fallOp: 2789, fallNormal: 2014, fallAnaesth: 1002, fallRest: 565, fallStdAbw: 2424, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I20A": { bwr: 1.963, mvd: 9.1, label: "Vorfuß PCCL 4 / aufwendigster Eingriff (z.B. T2-Nagel)", inekImpl: 780.56, pflegeProTag: 181.51, fallTotal: 8374, fallOp: 3747, fallNormal: 2596, fallAnaesth: 1232, fallRest: 799, fallStdAbw: 3016, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  // H-DRGs (Hybrid-Pauschalen, keine InEK-Detailkosten)
-  "I20O": { bwr: null, mvd: null, label: "H-DRG Vorfuß einfach (Hybrid)", inekImpl: null, pflegeProTag: null, fallTotal: null, fallOp: null, fallNormal: null, fallAnaesth: null, fallRest: null, fallStdAbw: null, hdrgE: 1007, _quelle: "Hybrid-DRG Pauschale" },
-  "I20N": { bwr: null, mvd: null, label: "H-DRG Vorfuß mit Aufwertung", inekImpl: null, pflegeProTag: null, fallTotal: null, fallOp: null, fallNormal: null, fallAnaesth: null, fallRest: null, fallStdAbw: null, hdrgE: 2085, _quelle: "Hybrid-DRG Pauschale" },
-  "I20M": { bwr: null, mvd: null, label: "H-DRG Lapidus (Hybrid)", inekImpl: null, pflegeProTag: null, fallTotal: null, fallOp: null, fallNormal: null, fallAnaesth: null, fallRest: null, fallStdAbw: null, hdrgE: 3280, _quelle: "Hybrid-DRG Pauschale" },
-  // Rückfuß / OSG
-  "I13D": { bwr: 1.552, mvd: 6.6, label: "Rückfuß-/OSG-Eingriff hoch", inekImpl: 627.87, pflegeProTag: 176.60, fallTotal: 6619, fallOp: 2983, fallNormal: 1840, fallAnaesth: 1053, fallRest: 744, fallStdAbw: 2212, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I13E": { bwr: 1.278, mvd: 5.2, label: "Rückfuß-/OSG-Eingriff mittel", inekImpl: 579.63, pflegeProTag: 187.03, fallTotal: 5454, fallOp: 2475, fallNormal: 1496, fallAnaesth: 891, fallRest: 591, fallStdAbw: 1751, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I13G": { bwr: 0.995, mvd: 4.1, label: "Rückfuß-/OSG-Eingriff basis", inekImpl: 255.55, pflegeProTag: 199.38, fallTotal: 4239, fallOp: 1767, fallNormal: 1294, fallAnaesth: 733, fallRest: 445, fallStdAbw: 1449, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  // Weichteil/Sehne
-  "I27D": { bwr: 0.95, mvd: 3.6, label: "Sehnen-/Weichteilrekonstruktion", inekImpl: 134.95, pflegeProTag: 201.18, fallTotal: 4049, fallOp: 1657, fallNormal: 1250, fallAnaesth: 712, fallRest: 430, fallStdAbw: 1522, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I27E": { bwr: 0.743, mvd: 3.4, label: "Sehnen-/Weichteilrekonstruktion einfach", inekImpl: 42.78, pflegeProTag: 211.30, fallTotal: 3166, fallOp: 1111, fallNormal: 1133, fallAnaesth: 538, fallRest: 385, fallStdAbw: 1097, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  // Implantatentfernung
-  "I31A": { bwr: 2.132, mvd: 8.2, label: "Implantatentfernung umfangreich", inekImpl: 950.38, pflegeProTag: 175.43, fallTotal: 9096, fallOp: 4212, fallNormal: 2289, fallAnaesth: 1562, fallRest: 1033, fallStdAbw: 3640, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I31B": { bwr: 1.363, mvd: 4.8, label: "Implantatentfernung mittel", inekImpl: 629.53, pflegeProTag: 184.69, fallTotal: 5816, fallOp: 2807, fallNormal: 1369, fallAnaesth: 1010, fallRest: 631, fallStdAbw: 2047, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I31C": { bwr: 1.208, mvd: 4.3, label: "Implantatentfernung einfach", inekImpl: 461.53, pflegeProTag: 197.90, fallTotal: 5152, fallOp: 2352, fallNormal: 1295, fallAnaesth: 917, fallRest: 587, fallStdAbw: 1648, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  // OSG-Spezial / Großeingriffe
-  "I05B": { bwr: 1.923, mvd: 6.2, label: "TTC-Arthrodese / Großeingriff Sprunggelenk", inekImpl: 2643.61, pflegeProTag: 195.82, fallTotal: 8240, fallOp: 4826, fallNormal: 1780, fallAnaesth: 939, fallRest: 695, fallStdAbw: 2126, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I08F": { bwr: 1.511, mvd: 8.2, label: "OSG mit Knochenersatz", inekImpl: 572.22, pflegeProTag: 214.45, fallTotal: 6444, fallOp: 2175, fallNormal: 2205, fallAnaesth: 822, fallRest: 1241, fallStdAbw: 2145, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I21Z": { bwr: 0.938, mvd: 3.4, label: "Z-DRG Sprunggelenk/Sehne", inekImpl: 283.87, pflegeProTag: 209.65, fallTotal: 3997, fallOp: 1697, fallNormal: 1108, fallAnaesth: 726, fallRest: 466, fallStdAbw: 1248, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  "I59Z": { bwr: 0.707, mvd: 2.4, label: "Diverse OSG/Fuß", inekImpl: 74.43, pflegeProTag: 264.96, fallTotal: 3011, fallOp: 1142, fallNormal: 960, fallAnaesth: 585, fallRest: 324, fallStdAbw: 936, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" },
-  // UC / Trauma (Schulter)
-  "I29B": { bwr: 0.972, mvd: 2.6, label: "Komplexe Eingriffe Schulter / Klavikula-OS", inekImpl: 343.39, pflegeProTag: 224.20, fallTotal: 4151, fallOp: 2145, fallNormal: 956, fallAnaesth: 752, fallRest: 298, fallStdAbw: 1176, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026" }
+
+// ===== BEGIN ERLÖSDATEN 2026 — NICHT VON HAND EDITIEREN =====
+// Single Source: Erloesdaten_2026_MASTER.xlsx · Jahres-Update: kompletten Block ersetzen, nie mischen.
+// Alle Erlöse werden zur Laufzeit berechnet (Rundung: ganze Euro). Zahl-Literale in OP_STEUERUNG
+// und €-Beträge in Hinweis-/Workflow-Texten werden beim Laden aus diesem Block überschrieben.
+window._ERLOES_META = {jahr:2026, lbfw:4562, rundung:"ganze Euro (kaufmännisch)",
+  quelleDRG:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, Abruf 05/2026",
+  quelleHDRG:"Hybrid-DRG Katalog 2026", festgelegt:"B. Breuer 07/2026"};
+window._DRG = {
+  I05B:{label:"TTC-Arthrodese / Großeingriff Sprunggelenk",bwr:1.923,ugvd:1,mvwd:6.2,mvd:6.2,inekImpl:2643.61,pflegeProTag:195.82,fallTotal:8240,fallOp:4826,fallNormal:1780,fallAnaesth:939,fallRest:695,fallStdAbw:2126,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I08F:{label:"OSG mit Knochenersatz",bwr:1.511,ugvd:null,mvwd:null,mvd:8.2,inekImpl:572.22,pflegeProTag:214.45,fallTotal:6444,fallOp:2175,fallNormal:2205,fallAnaesth:822,fallRest:1241,fallStdAbw:2145,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I13D:{label:"Rückfuß-/OSG-Eingriff hoch",bwr:1.552,ugvd:1,mvwd:6.6,mvd:6.6,inekImpl:627.87,pflegeProTag:176.6,fallTotal:6619,fallOp:2983,fallNormal:1840,fallAnaesth:1053,fallRest:744,fallStdAbw:2212,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I13E:{label:"Rückfuß-/OSG-Eingriff mittel",bwr:1.278,ugvd:1,mvwd:5.2,mvd:5.2,inekImpl:579.63,pflegeProTag:187.03,fallTotal:5454,fallOp:2475,fallNormal:1496,fallAnaesth:891,fallRest:591,fallStdAbw:1751,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I13G:{label:"Rückfuß-/OSG-Eingriff basis",bwr:0.995,ugvd:1,mvwd:4.1,mvd:4.1,inekImpl:255.55,pflegeProTag:199.38,fallTotal:4239,fallOp:1767,fallNormal:1294,fallAnaesth:733,fallRest:445,fallStdAbw:1449,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I20A:{label:"Vorfuß PCCL 4 / aufwendigster Eingriff (z.B. T2-Nagel)",bwr:1.963,ugvd:2,mvwd:9.1,mvd:9.1,inekImpl:780.56,pflegeProTag:181.51,fallTotal:8374,fallOp:3747,fallNormal:2596,fallAnaesth:1232,fallRest:799,fallStdAbw:3016,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I20B:{label:"Vorfuß höchste Stufe",bwr:1.494,ugvd:null,mvwd:null,mvd:6.5,inekImpl:508.42,pflegeProTag:181.46,fallTotal:6370,fallOp:2789,fallNormal:2014,fallAnaesth:1002,fallRest:565,fallStdAbw:2424,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I20C:{label:"Vorfuß sehr komplex (mit DMMO 4× / TMT 3 Gel.)",bwr:1.111,ugvd:1,mvwd:5.2,mvd:5.2,inekImpl:302.41,pflegeProTag:187.56,fallTotal:4738,fallOp:1928,fallNormal:1567,fallAnaesth:748,fallRest:494,fallStdAbw:1839,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I20D:{label:"Vorfuß komplex (Lapidus, mit DMMO ≥3×)",bwr:1.033,ugvd:1,mvwd:3.4,mvd:3.4,inekImpl:404.23,pflegeProTag:213.41,fallTotal:4409,fallOp:2096,fallNormal:1141,fallAnaesth:750,fallRest:421,fallStdAbw:1304,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I20E:{label:"Vorfuß mit Hebel (Chevron/Scarf/MTP1-Arthrodese)",bwr:0.86,ugvd:1,mvwd:3.2,mvd:3.2,inekImpl:248,pflegeProTag:243.08,fallTotal:3665,fallOp:1562,fallNormal:1126,fallAnaesth:631,fallRest:346,fallStdAbw:1230,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I20F:{label:"Vorfuß-OP einfach (DMMO/PIP/Cheilek)",bwr:0.684,ugvd:1,mvwd:2.9,mvd:2.9,inekImpl:71.63,pflegeProTag:216.83,fallTotal:2912,fallOp:1120,fallNormal:993,fallAnaesth:532,fallRest:268,fallStdAbw:752,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I21Z:{label:"Z-DRG Sprunggelenk/Sehne",bwr:0.938,ugvd:null,mvwd:null,mvd:3.4,inekImpl:283.87,pflegeProTag:209.65,fallTotal:3997,fallOp:1697,fallNormal:1108,fallAnaesth:726,fallRest:466,fallStdAbw:1248,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I27D:{label:"Sehnen-/Weichteilrekonstruktion",bwr:0.95,ugvd:1,mvwd:3.6,mvd:3.6,inekImpl:134.95,pflegeProTag:201.18,fallTotal:4049,fallOp:1657,fallNormal:1250,fallAnaesth:712,fallRest:430,fallStdAbw:1522,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I27E:{label:"Sehnen-/Weichteilrekonstruktion einfach",bwr:0.743,ugvd:1,mvwd:3.4,mvd:3.4,inekImpl:42.78,pflegeProTag:211.3,fallTotal:3166,fallOp:1111,fallNormal:1133,fallAnaesth:538,fallRest:385,fallStdAbw:1097,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I29B:{label:"Komplexe Eingriffe Schulter / Klavikula-OS",bwr:0.972,ugvd:null,mvwd:null,mvd:2.6,inekImpl:343.39,pflegeProTag:224.2,fallTotal:4151,fallOp:2145,fallNormal:956,fallAnaesth:752,fallRest:298,fallStdAbw:1176,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I31A:{label:"Implantatentfernung umfangreich",bwr:2.132,ugvd:null,mvwd:null,mvd:8.2,inekImpl:950.38,pflegeProTag:175.43,fallTotal:9096,fallOp:4212,fallNormal:2289,fallAnaesth:1562,fallRest:1033,fallStdAbw:3640,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I31B:{label:"Implantatentfernung mittel",bwr:1.363,ugvd:null,mvwd:null,mvd:4.8,inekImpl:629.53,pflegeProTag:184.69,fallTotal:5816,fallOp:2807,fallNormal:1369,fallAnaesth:1010,fallRest:631,fallStdAbw:2047,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I31C:{label:"Implantatentfernung einfach",bwr:1.208,ugvd:null,mvwd:null,mvd:4.3,inekImpl:461.53,pflegeProTag:197.9,fallTotal:5152,fallOp:2352,fallNormal:1295,fallAnaesth:917,fallRest:587,fallStdAbw:1648,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I59Z:{label:"Diverse OSG/Fuß",bwr:0.707,ugvd:1,mvwd:2.4,mvd:2.4,inekImpl:74.43,pflegeProTag:264.96,fallTotal:3011,fallOp:1142,fallNormal:960,fallAnaesth:585,fallRest:324,fallStdAbw:936,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I43B:{label:"Endoprothese/Wechsel (UC-Modul)",bwr:2.372,ugvd:2,mvwd:null,mvd:null,inekImpl:2710.12,pflegeProTag:null,fallTotal:null,fallOp:null,fallNormal:null,fallAnaesth:null,fallRest:null,fallStdAbw:null,quelle:"Bestandsübernahme aus Code 07/2026 (CM aus Hinweistext, InEK-Impl aus INEK_IMPL)"},
+  I47B:{label:"Endoprothese (UC-Modul)",bwr:null,ugvd:null,mvwd:null,mvd:null,inekImpl:931.71,pflegeProTag:null,fallTotal:null,fallOp:null,fallNormal:null,fallAnaesth:null,fallRest:null,fallStdAbw:null,quelle:"Bestandsübernahme aus Code 07/2026 (nur InEK-Implantatreferenz)"}
 };
+window._HDRG = {
+  I20O:{pauschale:1007,label:"H-DRG Vorfuß einfach (Hybrid)",quelle:"Hybrid-DRG Pauschale"},
+  I20N:{pauschale:2085,label:"H-DRG Vorfuß mit Aufwertung",quelle:"Hybrid-DRG Pauschale"},
+  I20M:{pauschale:3280,label:"H-DRG Lapidus (Hybrid)",quelle:"Hybrid-DRG Pauschale"},
+  I13N:{pauschale:3091,label:"H-DRG (UC-Modul)",quelle:"Bestandsübernahme aus Code 07/2026"},
+  I21M:{pauschale:3184,label:"H-DRG (UC-Modul)",quelle:"Bestandsübernahme aus Code 07/2026"},
+  I29M:{pauschale:3652,label:"H-DRG (UC-Modul)",quelle:"Bestandsübernahme aus Code 07/2026"},
+  I31N:{pauschale:3739,label:"H-DRG (UC-Modul)",quelle:"Bestandsübernahme aus Code 07/2026"}
+};
+window._KURZ = {I20F:2000,I20E:2800,I20D:3700,I20C:4000,I13E:4600,I13D:5600,I13G:3600,I27D:3400,I27E:2700,I59Z:2600}; // Kurzwerte "gekürzte DRG bei VWD 1" — bewusste Schätzungen, Pflege nur B. Breuer
+window._E = function(code){ var d=window._DRG[code]; return (d&&d.bwr!=null)?Math.round(d.bwr*window._ERLOES_META.lbfw):null; };
+window._EF = function(code){ var v=window._E(code); return v==null?"—":v.toLocaleString("de-DE"); };
+window._fx = function(t){
+  if(typeof t!=="string") return t;
+  var M=window._ERLOES_META, D=window._DRG, H=window._HDRG, K=window._KURZ;
+  var f=function(n){ return n.toLocaleString("de-DE"); };
+  // R1: "CM x,y = [+~]Betrag €" → Betrag aus CM
+  t=t.replace(/(CM\s*\+?\s*)(\d+,\d+)(\s*=\s*)(\+?~?)([\d.]+)(\s*€)/g,function(_m,a,cm,b,pfx,amt,eur){
+    return a+cm+b+pfx+f(Math.round(parseFloat(cm.replace(",","."))*M.lbfw))+eur; });
+  // R1b: "x,y CM … = [+~]Betrag €" (CM nach der Zahl)
+  t=t.replace(/(\d+,\d+)(\s*CM[^=€]{0,24}=\s*)(\+?~?)([\d.]+)(\s*€)/g,function(_m,cm,b,pfx,amt,eur){
+    return cm+b+pfx+f(Math.round(parseFloat(cm.replace(",","."))*M.lbfw))+eur; });
+  // R3: "A (X €) statt B (Y €) → +Z €" → alles berechnen
+  t=t.replace(/([A-Z]\d{2}[A-Z]) \(([\d.]+) €\) statt ([A-Z]\d{2}[A-Z]) \(([\d.]+) €\)( → \+)([\d.]+)( €)/g,function(m0,a,x,b,y,arr,z,eur){
+    var ea=H[a]?H[a].pauschale:window._E(a), eb=H[b]?H[b].pauschale:window._E(b);
+    if(ea==null||eb==null) return m0;
+    return a+" ("+f(ea)+" €) statt "+b+" ("+f(eb)+" €)"+arr+f(ea-eb)+eur; });
+  // R2a: "XnnX ~Betrag €" → Kurzwert, sonst H-DRG/DRG
+  t=t.replace(/([A-Z]\d{2}[A-Z])(\s*\(?\s*~)([\d.]+)(\s*€)/g,function(m0,code,mid,amt,eur){
+    var v=(K[code]!=null)?K[code]:(H[code]?H[code].pauschale:window._E(code));
+    return v==null?m0:code+mid+f(v)+eur; });
+  // R2b: "XnnX [(|·] Betrag €" → H-DRG-Pauschale bzw. voller DRG-Erlös
+  t=t.replace(/([A-Z]\d{2}[A-Z])(\s*[(·]?\s*)([\d.]{4,6})(\s*€)/g,function(m0,code,mid,amt,eur){
+    var v=H[code]?H[code].pauschale:window._E(code);
+    return v==null?m0:code+mid+f(v)+eur; });
+  return t;
+};
+// ===== END ERLÖSDATEN =====
+
+const FUSS_DRG = (function(){
+  // Abgeleitet aus window._DRG / window._HDRG (Single Source: Erlösdaten-Block)
+  var o = {};
+  Object.keys(window._DRG).forEach(function(k){
+    if(k==="I43B"||k==="I47B") return; // reine InEK-Implantatreferenzen (UC/Endo) — nur in INEK_IMPL
+    var d = window._DRG[k];
+    o[k] = { bwr:d.bwr, mvd:d.mvd, label:d.label, inekImpl:d.inekImpl, pflegeProTag:d.pflegeProTag,
+      fallTotal:d.fallTotal, fallOp:d.fallOp, fallNormal:d.fallNormal, fallAnaesth:d.fallAnaesth,
+      fallRest:d.fallRest, fallStdAbw:d.fallStdAbw, _quelle:d.quelle };
+  });
+  ["I20O","I20N","I20M"].forEach(function(k){
+    var h = window._HDRG[k];
+    o[k] = { bwr:null, mvd:null, label:h.label, inekImpl:null, pflegeProTag:null, fallTotal:null,
+      fallOp:null, fallNormal:null, fallAnaesth:null, fallRest:null, fallStdAbw:null,
+      hdrgE:h.pauschale, _quelle:h.quelle };
+  });
+  return o;
+})();
 
 // Konstellationen pro Endo-Diagnose: Liste möglicher OPS+ICD+DRG-Pfade
 const ENDO_KONSTELLATIONEN = {
@@ -4453,7 +4510,7 @@ const ENDO_KONSTELLATIONEN = {
     { id: "asept_schaft", label: "Aseptisch: Schaftwechsel zementfrei", icd: "T84.04", ops: ["5-821.40"], drg03: "I46C", drg4: "I46A", zeFaehig: ["ze2023_25"] },
     { id: "asept_pfanne", label: "Aseptisch: Pfannenwechsel", icd: "T84.04", ops: ["5-821.20"], drg03: "I47A", drg4: "I46A", hebel: "Pfannenwechsel seit 2019 in I47A (statt I46C)" },
     { id: "asept_total", label: "Aseptisch: TEP-Wechsel komplett", icd: "T84.04", ops: ["5-821.40"], drg03: "I46C", drg4: "I46A", zeFaehig: ["ze2023_25"] },
-    { id: "periprothet_fraktur", label: "Periprothetische Fraktur (S72.3) + TEP-Wechsel", icd: "S72.3 + T84.04", ops: ["5-821.53", "5-791.*g od. 5-792.*g"], drg03: "I46B", drg4: "I46A", hebel: "S72.3 als HD (statt T84.04) hebt I46C → I46B (CM +0,942 = +4.297 € pro Fall)", zeFaehig: ["ze2023_25"] },
+    { id: "periprothet_fraktur", label: "Periprothetische Fraktur (S72.3) + TEP-Wechsel", icd: "S72.3 + T84.04", ops: ["5-821.53", "5-791.*g od. 5-792.*g"], drg03: "I46B", drg4: "I46A", hebel: window._fx("S72.3 als HD (statt T84.04) hebt I46C → I46B (CM +0,942 = +4.297 € pro Fall)"), zeFaehig: ["ze2023_25"] },
     { id: "sept_ausbau_arthritis", label: "Septisch: Ausbau + Spacer (M00.85 als HD)", icd: "M00.85 + T84.5", ops: ["5-821.7", "5-829.9"], drg03: "I03B", drg4: "I03A", hebel: "Arthritis-Codierung als HD hebt von I47B → I03B" },
     { id: "sept_ausbau_osteo", label: "Septisch: Ausbau + Spacer (M86.15 als HD)", icd: "M86.15 + T84.5", ops: ["5-821.7", "5-829.9"], drg03: "I03B", drg4: "I03A", hebel: "Osteomyelitis-Codierung als HD hebt von I47B → I03B" },
     { id: "sept_reimpl", label: "Septisch: Reimplantation (2. OP)", icd: "T84.5", ops: ["5-820.01", "5-829.n"], drg03: "I04Z", drg4: "I03A", zeFaehig: ["ze2023_25"] },
@@ -4529,10 +4586,11 @@ const EINZELPREISE = {
   infinity_tibial_tray: { name: "Infinity Tibial Tray", artikel: "Infinity TIBIAL TRAY SZ3 STD", lieferant: "Stryker", preis: 1902.81 },
   infinity_talar_dome: { name: "Infinity Talar Dome", artikel: "Infinity TALAR DOME SZ 3", lieferant: "Stryker", preis: 1783.81 },
   infinity_poly_insert: { name: "Infinity Poly Insert", artikel: "Infinity POLY INSERT SZ3 8MM", lieferant: "Stryker", preis: 672.35 },
-  vantage_tibial_component: { name: "Vantage Tibial Component", artikel: "Vantage MB Tibia (Preis folgt)", lieferant: "Advita", preis: 0 },
-  vantage_talar_standard: { name: "Vantage Talar Component (kurviert)", artikel: "Vantage MB Talus Standard (Preis folgt)", lieferant: "Advita", preis: 0 },
-  vantage_talar_flatcut: { name: "Vantage Flat Cut Talar Component", artikel: "Vantage MB Talus Flat Cut (Preis folgt)", lieferant: "Advita", preis: 0 },
-  vantage_poly_insert: { name: "Vantage Poly Insert", artikel: "Vantage MB Poly Insert (Preis folgt)", lieferant: "Advita", preis: 0 },
+  vantage_tibial_component: { name: "Vantage Tibial Component", artikel: "Vantage MB Tibia (CoCrMo, Titan-Plasma-Spray)", lieferant: "Advita", preis: 1194.44 },
+  vantage_talar_standard: { name: "Vantage Talar Component (kurviert)", artikel: "Vantage MB Talus Standard (CoCrMo)", lieferant: "Advita", preis: 1025.15 },
+  vantage_talar_flatcut: { name: "Vantage Flat Cut Talar Component", artikel: "Vantage MB Talus Flat Cut (CoCrMo)", lieferant: "Advita", preis: 1166.22 },
+  vantage_poly_insert: { name: "Vantage Poly Insert", artikel: "Vantage MB Poly Insert (UHMWPE, Ti-Röntgenmarker)", lieferant: "Advita", preis: 366.80 },
+  vantage_fixierschraube: { name: "Vantage Talus-Fixierschraube", artikel: "Vantage MB Talus-Fixierschraube", lieferant: "Advita", preis: 124.00 },
   inbone_talar_stem: { name: "Inbone Talar Stem", artikel: "Inbone Talar Stem 10", lieferant: "Stryker", preis: 699.95 },
   inbone_tibial_tray: { name: "Inbone Tibial Tray", artikel: "Inbone Tibial Tray", lieferant: "Stryker", preis: 1499.45 },
   inbone_poly_insert: { name: "Inbone Poly Insert", artikel: "Inbone Poly Insert 10mm", lieferant: "Stryker", preis: 569.95 },
@@ -5016,14 +5074,11 @@ function codeLabel(c){return OPS_LABELS[c]||c;}
 // InEK-Sachkostenreferenzwerte pro DRG (Kostenstelle 5, InEK 2026)
 // Benchmark-Wert für Implantat-/Materialkosten-Ampel.
 // ==========================================================================
-const INEK_IMPL={
-  // Fuß/OSG
-  "I20F":71.63,"I20E":248.00,"I20D":404.23,"I20C":302.41,"I20B":508.42,"I20A":780.56,
-  "I13E":579.63,"I13D":627.87,"I13G":255.55,"I27D":134.95,"I27E":42.78,"I59Z":74.43,
-  "I05B":2643.61,"I43B":2710.12,
-  // UC/Trauma
-  "I21Z":283.87,"I47B":931.71,"I31A":950.38,"I31B":629.53,"I31C":461.53,"I29B":343.39,"I08F":572.22
-};
+const INEK_IMPL=(function(){
+  // Abgeleitet aus window._DRG (Single Source)
+  var o={}; Object.keys(window._DRG).forEach(function(k){ if(window._DRG[k].inekImpl!=null) o[k]=window._DRG[k].inekImpl; });
+  return o;
+})();
 // Ampel-Stufen: ≤120% InEK = grün · 120–150% = gelb · >150% = rot
 function implAmpel(ist,drg){
   var soll=INEK_IMPL[drg];
@@ -5205,16 +5260,16 @@ const AUFKLAERUNG_RISIKEN = {
 };
 
 const OP_STEUERUNG={
-  chevron:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3923,cm:0.860,ugvd:1,mvwd:3.2,impl:96.00,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
-  chevron_akin:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3923,cm:0.860,ugvd:1,mvwd:3.2,impl:96.00,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
-  scarf:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3923,cm:0.860,ugvd:1,mvwd:3.2,impl:192.00,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:"I20N (2.085 €)",delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
+  chevron:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3923,cm:0.860,ugvd:1,mvwd:3.2,impl:96.00,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:window._fx("I20N (2.085 €)"),delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
+  chevron_akin:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3923,cm:0.860,ugvd:1,mvwd:3.2,impl:96.00,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:window._fx("I20N (2.085 €)"),delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
+  scarf:{hdrg:"I20O",hdrgE:1007,drg:"I20E",drgE:3923,cm:0.860,ugvd:1,mvwd:3.2,impl:192.00,empf:"both",hebel:"5-854.2c",hebelName:"Sehnentransfer",kontext:[{code:"5-854.2c",name:"Sehnentransfer"}],aufwertung:{ziel:window._fx("I20N (2.085 €)"),delta:"+1.078 €",triggers:[{code:"5-788.52/53",name:"1–2× DMMO MT II–V"},{code:"5-788.68",name:"3× Arthroplastik IP Kleinzehen"},{code:"5-808.be/bf/bg",name:"2–4× Arthrodese IP Kleinzehen"}]},ausschluss:{ziel:"keine H-DRG → nur stationär",triggers:[{code:"5-788.54/55",name:"3–4× DMMO MT II–V"},{code:"5-788.60",name:"Arthroplastik MTP I"},{code:"5-788.59/5a/5b",name:"3–5× Osteotomie Dig II–V"},{code:"5-788.62/63/64",name:"2–4× Arthroplastik MTP II–V"},{code:"5-788.69/6a",name:"4–5× Arthroplastik IP, II–V"}]}},
   lapidus:{hdrg:"I20M",hdrgE:3280,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,impl:513.76,empf:"both",hebel:"5-783.0v + 5-784.0u",hebelName:"Spongiosa MT → Tarsale",hdrgTrigger:[{code:"5-788.5c",name:"distale OT MT I"},{code:"5-788.56",name:"Akin-Osteotomie"},{code:"5-788.40",name:"Arthroplastik MT-Basis"}],kontext:[{code:"5-783.0v",name:"Spongiosaentnahme Metatarsale"},{code:"5-784.0u",name:"Spongiosatransplantation Tarsale"}],hinweise:[
     {typ:"warn",txt:"Bei diesem Eingriff praktisch obligate Codes 5-854.1c, 5-788.60, 5-854.2c sind bei I20M KEINE Kontextprozedur — sie verhindern den Sprung in die volle DRG nicht."}
   ]},
   cheilektomie:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3121,cm:0.684,ugvd:1,mvwd:2.9,impl:0,empf:"both",hebel:null,hebelName:null},
   mtp1_arthrodese:{hdrg:"I20N",hdrgE:2085,drg:"I20E",drgE:3923,cm:0.860,ugvd:1,mvwd:3.2,impl:367.21,empf:"both",hebel:"5-784.0v",hebelName:"Spongiosa MTP I",kontext:[{code:"5-784.0v",name:"Spongiosa MTP I"}],hinweise:[
-    {typ:"erloes",txt:"Stationär mit Kontextprozedur + 3× DMMO MT II–V (5-788.54) → I20D (4.710 €), +982 € gegenüber I20E."},
-    {typ:"erloes",txt:"Stationär mit Kontextprozedur + 4× DMMO MT II–V (5-788.55) → I20C (5.068 €), +1.340 € gegenüber I20E."}
+    {typ:"erloes",txt:window._fx("Stationär mit Kontextprozedur + 3× DMMO MT II–V (5-788.54) → I20D (4.710 €), +787 € gegenüber I20E.")},
+    {typ:"erloes",txt:window._fx("Stationär mit Kontextprozedur + 4× DMMO MT II–V (5-788.55) → I20C (5.068 €), +1.145 € gegenüber I20E.")}
   ]},
   brostrom_gould:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:391.84,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null},
   brostrom_int_brace:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:787,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null},
@@ -5222,15 +5277,13 @@ const OP_STEUERUNG={
   ask_osg:{hdrg:"I20O",hdrgE:1007,drg:"I20F",drgE:3121,cm:0.684,ugvd:1,mvwd:2.9,impl:0,empf:"both",hebel:null,hebelName:null},
   arthrodese_osg:{hdrg:null,hdrgE:0,drg:"I13D",drgE:7079,cm:1.552,ugvd:1,mvwd:6.6,impl:582.00,empf:"stat",hebel:"5-783.0d + 5-784.0n",hebelName:"Spongiosa Beckenkamm → Tibia",kontext:[{code:"5-783.0d",name:"Spongiosaentnahme Beckenkamm"},{code:"5-784.0n",name:"Spongiosatransplantation Tibia"}],hinweise:[
     {typ:"warn",txt:"Spongiosaplastik ist bei diesem Eingriff zur Erreichung der DRG I13D erforderlich — Beckenkammentnahme (5-783.0d) und Tibia-Transplantation (5-784.0n) müssen zwingend kodiert UND im OP-Bericht dokumentiert sein."},
-    {typ:"alert",txt:"Ohne Spongiosa-Kodierung fällt der Erlös auf I13E (5.829 €) — Verlust von 1.250 € gegenüber I13D."}
+    {typ:"alert",txt:window._fx("Ohne Spongiosa-Kodierung fällt der Erlös auf I13E (5.829 €) — Verlust von 1.250 € gegenüber I13D.")}
   ]},
   tep_infinity:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,ugvd:1,mvwd:6.2,impl:4358.97,empf:"stat",hebel:null,hebelName:null},
-  tep_vantage:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,ugvd:1,mvwd:6.2,impl:0,empf:"stat",hebel:null,hebelName:null,hinweise:[
-    {typ:"warn",txt:"Implantatpreise Vantage (Advita) noch nicht hinterlegt — Sachkosten und DB-Berechnung unvollständig, Preise folgen."}
-  ]},
+  tep_vantage:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,ugvd:1,mvwd:6.2,impl:2710.39,empf:"stat",hebel:null,hebelName:null},
   tep_inbone:{hdrg:null,hdrgE:0,drg:"I05B",drgE:8773,cm:1.923,ugvd:1,mvwd:6.2,impl:4419.35,empf:"stat",hebel:null,hebelName:null},
   amic:{hdrg:null,hdrgE:0,drg:"I13G",drgE:4539,cm:0.995,ugvd:1,mvwd:4.1,impl:950,empf:"stat",hebel:null,hebelName:null,hinweise:[
-    {typ:"erloes",txt:"Bei zusätzlicher Innenknöchelosteotomie (5-781.an) Aufwertung zur I13E (5.829 €) — +1.290 €."}
+    {typ:"erloes",txt:window._fx("Bei zusätzlicher Innenknöchelosteotomie (5-781.an) Aufwertung zur I13E (5.829 €) — +1.290 €.")}
   ]},
   oats:{hdrg:null,hdrgE:0,drg:"I13G",drgE:4539,cm:0.995,ugvd:1,mvwd:4.1,impl:0,empf:"stat",hebel:null,hebelName:null},
   mdo_offen:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:192.00,empf:"stat",hebel:null,hebelName:null},
@@ -5241,11 +5294,11 @@ const OP_STEUERUNG={
   cotton:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:333,empf:"stat",hebel:null,hebelName:null},
   calcaneus_ot:{hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,impl:192.00,empf:"stat",hebel:null,hebelName:null},
   coalition_exzision:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:0,empf:"stat",hebel:null,hebelName:null,hinweise:[
-    {typ:"erloes",txt:"In Kombination mit LCOT (5-781.4t) Aufwertung zur I20C (5.068 €) — bei Patienten <12 Jahre sogar I20B (6.815 €)."}
+    {typ:"erloes",txt:window._fx("In Kombination mit LCOT (5-781.4t) Aufwertung zur I20C (5.068 €) — bei Patienten <12 Jahre sogar I20B (6.815 €).")}
   ]},
   subtalar_arthrodese:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,ugvd:1,mvwd:5.2,impl:192.00,empf:"stat",hebel:null,hebelName:null},
   arthrodese_tmt:{hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,impl:271.21,empf:"stat",hebel:null,hebelName:null,hinweise:[
-    {typ:"erloes",txt:"TMT-Arthrodese 3 Gelenke (5-808.a6) → I20C (5.068 €). 4–5 Gelenke (5-808.a7/a8) → I20B (6.815 €)."}
+    {typ:"erloes",txt:window._fx("TMT-Arthrodese 3 Gelenke (5-808.a6) → I20C (5.068 €). 4–5 Gelenke (5-808.a7/a8) → I20B (6.815 €).")}
   ]},
   haglund_as_split:{hdrg:null,hdrgE:0,drg:"I27D",drgE:4333,cm:0.95,ugvd:1,mvwd:3.6,impl:391.84,empf:"stat",hebel:"5-854.29",hebelName:"Sehnentransposition Unterschenkel",kontext:[{code:"5-854.29",name:"Sehnentransposition Unterschenkel"}]},
   supramal_ot:{hdrg:null,hdrgE:0,drg:"I13E",drgE:5829,cm:1.278,ugvd:1,mvwd:5.2,impl:333,empf:"stat",hebel:null,hebelName:null,hinweise:[
@@ -5267,7 +5320,7 @@ const OP_STEUERUNG={
     {typ:"warn",txt:"Mindestens 3 Übernachtungen einplanen."}
   ]},
   fasziotomie_offen:{hdrg:"I20O",hdrgE:1007,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:0,empf:"amb",hebel:null,hebelName:null,opsCodes:[{code:"5-841.10",name:"Inzision an Sehnen und Faszien, Fuß"}],hinweise:[
-    {typ:"info",txt:"Standard-Weg: ambulant als H-DRG I20O (1.007 €). Bei beidseitigem Vorgehen oder anderen Ausnahmefällen kurzstationär als I59Z (3.225 € abzgl. UGVD-Abschlag bei 1 Tag)."}
+    {typ:"info",txt:window._fx("Standard-Weg: ambulant als H-DRG I20O (1.007 €). Bei beidseitigem Vorgehen oder anderen Ausnahmefällen kurzstationär als I59Z (3.225 € abzgl. UGVD-Abschlag bei 1 Tag).")}
   ]},
   gastroc_strayer:{hdrg:null,hdrgE:0,drg:"I59Z",drgE:3225,cm:0.707,ugvd:1,mvwd:2.4,impl:0,empf:"stat",ambStatus:"ebm",hebel:null,hebelName:null,opsCodes:[{code:"5-859.0",name:"Sehnenverlängerung untere Extremität"}],hinweise:[
     {typ:"info",txt:"Ambulant per EBM (AOP-fähig) oder kurzstationär als I59Z möglich. Bei stationärer Führung UGVD = 1 Tag — volle DRG erst ab 2 Belegungstagen."}
@@ -5276,6 +5329,26 @@ const OP_STEUERUNG={
     {typ:"info",txt:"Ambulant per EBM (AOP-fähig) oder kurzstationär als I59Z möglich. Bei stationärer Führung UGVD = 1 Tag — volle DRG erst ab 2 Belegungstagen."}
   ]},
 };
+// Hydration (Single Source): Zahl-Literale in OP_STEUERUNG werden aus dem Erlösdaten-Block überschrieben,
+// €-Beträge in allen Texten (hinweise/ziel/…) über window._fx neu berechnet. Beim Jahres-Update nichts hier anfassen.
+(function(){
+  var walk=function(v){
+    if(typeof v==="string") return window._fx(v);
+    if(Array.isArray(v)) return v.map(walk);
+    if(v&&typeof v==="object"){ Object.keys(v).forEach(function(k){ v[k]=walk(v[k]); }); return v; }
+    return v;
+  };
+  Object.keys(OP_STEUERUNG).forEach(function(k){
+    var e=OP_STEUERUNG[k];
+    if(e.drg&&window._DRG[e.drg]&&window._DRG[e.drg].bwr!=null){
+      e.drgE=window._E(e.drg); e.cm=window._DRG[e.drg].bwr;
+      if(window._DRG[e.drg].ugvd!=null) e.ugvd=window._DRG[e.drg].ugvd;
+      if(window._DRG[e.drg].mvwd!=null) e.mvwd=window._DRG[e.drg].mvwd;
+    }
+    if(e.hdrg&&window._HDRG[e.hdrg]) e.hdrgE=window._HDRG[e.hdrg].pauschale;
+    walk(e);
+  });
+})();
 
 // QR-Code-Komponente: rendert einen QR-Code als Canvas. Nutzt die globale QrCreator-Library (im <head> embedded).
 function QRCanvas(props) {
@@ -5737,6 +5810,11 @@ var _s = useState, _m = useMemo;
         return OPS[m].t;
       });
       p.push("\n\nElektive operative Option: " + opTexte.join(", ") + (seite ? " " + seite : "") + ", befundbezogenes Vorgehen");
+      // Knöcherne Korrekturen (Osteotomien/Arthrodesen): Zusatzempfehlung als eigener Absatz (B. Breuer 07/2026)
+      var KNOECHERNE_KORREKTUR = ["chevron","chevron_akin","scarf","lapidus","mtp1_arthrodese","kleinzehen_pip","dmmo","arthrodese_tmt","mdo_offen","mdo_mini","lcot","cotton","calcaneus_ot","subtalar_arthrodese","arthrodese_osg","t2_nagel","supramal_ot"];
+      if (ops.some(function(m) { return KNOECHERNE_KORREKTUR.indexOf(m) >= 0; })) {
+        p.push("\n\nVitamin D3 Substitution und Kalzium reiche Ernährung");
+      }
     }
     p.push("\n\n");
 
@@ -5877,16 +5955,6 @@ var _s = useState, _m = useMemo;
       ab += "\n\nGerne kann sich auch eine weitere Meinung eingeholt werden (beispielsweise in einem anderen zertifizierten Fußzentrum, Sie finden die Einrichtung in Ihrer Nähe auf www.clarmap.de). Der Eingriff ist elektiv.";
     } else {
       ab += "\n\nNach gründlicher Abwägung raten wir zu konservativer weiterer Therapie.";
-    }
-    // Literaturempfehlungen
-    var litArr = [];
-    diagnosen.forEach(function(d) {
-      var diag = DIAG[d];
-      if (diag && diag.literatur) litArr.push(diag.literatur);
-      if (diag && diag.literaturTEP && ops.some(function(o) { return o.indexOf("tep") >= 0; })) litArr.push(diag.literaturTEP);
-    });
-    if (litArr.length > 0) {
-      ab += "\n\nZur weiteren Information empfehlen wir folgende wissenschaftliche Quelle:\n" + litArr.join("\n");
     }
     // Online-Information: Hinweis im Brief, wenn QR-Code beigefügt wird
     if (aufShowQr) {
@@ -6333,14 +6401,14 @@ var _s = useState, _m = useMemo;
               else if(isChevGroup&&opMethode.indexOf("dmmo")>=0&&dmmoBig)override={hdrg:null,hdrgE:0,empf:"stat",note:" + "+(dmmo4?"4":"3")+"× DMMO → KEINE H-DRG möglich → nur stationär"};
               else if(bestKey==="lapidus"&&lapidusRezidiv)override={hdrg:null,hdrgE:0,empf:"stat",note:" (Rezidiv-OP → nicht als Hybrid-OP abrechenbar → nur stationär)"};
               // MTP-I + 3× DMMO → I20D; + 4× DMMO → I20C (beide nur stationär, keine Kontextprozedur nötig)
-              else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo3)override={hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,empf:"stat",hideKontext:true,note:" + 3× DMMO (5-788.54) → KEINE H-DRG mehr → I20D (4.710 €) stationär",altHinweise:[
+              else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo3)override={hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,empf:"stat",hideKontext:true,note:window._fx(" + 3× DMMO (5-788.54) → KEINE H-DRG mehr → I20D (4.710 €) stationär"),altHinweise:[
                 {typ:"warn",txt:"Ab 3× DMMO MT II–V (5-788.54) entfällt die H-DRG-Fähigkeit komplett."},
-                {typ:"erloes",txt:"Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20D (4.710 €) statt I20E (3.728 €) → +982 €."},
+                {typ:"erloes",txt:window._fx("Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20D (4.710 €) statt I20E (3.923 €) → +787 €.")},
                 {typ:"info",txt:"Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."}
               ]};
-              else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo4)override={hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,empf:"stat",hideKontext:true,note:" + 4× DMMO (5-788.55) → KEINE H-DRG mehr → I20C (5.068 €) stationär",altHinweise:[
+              else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo4)override={hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,empf:"stat",hideKontext:true,note:window._fx(" + 4× DMMO (5-788.55) → KEINE H-DRG mehr → I20C (5.068 €) stationär"),altHinweise:[
                 {typ:"warn",txt:"Ab 4× DMMO MT II–V (5-788.55) entfällt die H-DRG-Fähigkeit komplett."},
-                {typ:"erloes",txt:"Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20C (5.068 €) statt I20E (3.728 €) → +1.340 €."},
+                {typ:"erloes",txt:window._fx("Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20C (5.068 €) statt I20E (3.923 €) → +1.145 €.")},
                 {typ:"info",txt:"Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."}
               ]};
               // Konstruktiv: Chevron/Scarf + ≤2 DMMO oder + ≥3 PIP → I20N
@@ -6687,7 +6755,7 @@ var _s = useState, _m = useMemo;
           </div>
           {endoErlOpen && <div style={{ padding: "10px 12px", background: "rgba(0,107,111,.04)", fontSize: 11 }}>
             <div style={{ padding: "6px 10px", background: "rgba(0,107,111,.06)", border: "1px solid rgba(0,107,111,.25)", borderRadius: 6, fontSize: 10, color: "#006B6F", marginBottom: 10, lineHeight: 1.5 }}>
-              ℹ <strong>InEK-Werte Datenjahr 2024</strong> (gruppiert nach 2026, abgerufen 04/2026). Erlös-Berechnung: CM-Wert × LBFW NRW 2026 (4.562 €) – DRG-Anteil ohne Pflege.
+              ℹ <strong>InEK-Werte Datenjahr 2024</strong> (gruppiert nach 2026, abgerufen 04/2026). Erlös-Berechnung: CM-Wert × LBFW NRW {window._ERLOES_META.jahr} ({window._ERLOES_META.lbfw.toLocaleString("de-DE")} €) – DRG-Anteil ohne Pflege.
             </div>
             {/* PCCL-Toggle */}
             <div style={{ marginBottom: 10 }}>
@@ -6713,7 +6781,7 @@ var _s = useState, _m = useMemo;
                 var refDrgKey = endoPccl === "4" ? refKonst.drg4 : refKonst.drg03;
                 var refDrg = ENDO_DRG[refDrgKey];
                 var inekRef = refDrg ? refDrg.inekImpl : null;
-                var refErloes = refDrg ? Math.round(refDrg.bwr * 4562) : null;
+                var refErloes = refDrg ? Math.round(refDrg.bwr * window._ERLOES_META.lbfw) : null;
                 var dbIIInek = (refErloes !== null && refDrg && refDrg.fallTotal) ? (refErloes - refDrg.fallTotal) : null;
                 return <div>
                   <div style={{ fontSize: 10, color: "#718096", marginBottom: 4 }}>
@@ -6778,7 +6846,7 @@ var _s = useState, _m = useMemo;
               {ENDO_KONSTELLATIONEN[endoDiag].map(function(k) {
                 var drgKey = endoPccl === "4" ? k.drg4 : k.drg03;
                 var drgData = ENDO_DRG[drgKey];
-                var erloes = drgData ? Math.round(drgData.bwr * 4562) : null;
+                var erloes = drgData ? Math.round(drgData.bwr * window._ERLOES_META.lbfw) : null;
                 var inekImpl = drgData ? drgData.inekImpl : null;
                 var hasFK = drgData && drgData.fallTotal;
                 var pct = function(v) { return hasFK ? Math.round(v / drgData.fallTotal * 100) : 0; };
@@ -6827,7 +6895,7 @@ var _s = useState, _m = useMemo;
             </div>
             <div style={{ marginTop: 10, padding: "6px 10px", background: "rgba(0,107,111,.06)", borderRadius: 6, fontSize: 10, color: "#2D3748", lineHeight: 1.5 }}>
               <strong>Hinweise:</strong>
-              <div style={{ marginTop: 2 }}>• DRG-Erlös = CM-Wert × LBFW NRW 2026 (4.562 €). Pflege-Erlös separat (BWR-Pflege × Tage × PEW).</div>
+              <div style={{ marginTop: 2 }}>• DRG-Erlös = CM-Wert × LBFW NRW {window._ERLOES_META.jahr} ({window._ERLOES_META.lbfw.toLocaleString("de-DE")} €). Pflege-Erlös separat (BWR-Pflege × Tage × PEW).</div>
               <div>• ZE2023-25 (krankenhausindiv.) bei modularen Sonderprothesen / MP-Rekonstruktion / patientenindiv. Implantaten zusätzlich erlöswirksam.</div>
               <div>• Spongiosaplastik (5-784.0/7 ff.) und alloplast. Knochenersatz (5-785 ff.) sind eigene erlösrelevante OPS-Zusätze.</div>
             </div>
@@ -7308,7 +7376,7 @@ function OPBerichtApp(){
     });
     // TEP
     if(tepType==="primaer_infinity"||tepType==="wechsel_infinity"){P("Infinity Tibial Tray","Stryker",EINZELPREISE.infinity_tibial_tray.preis);P("Infinity Talar Dome","Stryker",EINZELPREISE.infinity_talar_dome.preis);P("Infinity Poly Insert","Stryker",EINZELPREISE.infinity_poly_insert.preis);}
-    if(tepType==="primaer_vantage"||tepType==="wechsel_vantage"){P("Vantage Tibial Component — Preis folgt","Advita",EINZELPREISE.vantage_tibial_component.preis);P(tepTalCut==="flat"?"Vantage Flat Cut Talar Component — Preis folgt":"Vantage Talar Component (kurviert) — Preis folgt","Advita",tepTalCut==="flat"?EINZELPREISE.vantage_talar_flatcut.preis:EINZELPREISE.vantage_talar_standard.preis);P("Vantage Poly Insert — Preis folgt","Advita",EINZELPREISE.vantage_poly_insert.preis);}
+    if(tepType==="primaer_vantage"||tepType==="wechsel_vantage"){P("Vantage Tibial Component","Advita",EINZELPREISE.vantage_tibial_component.preis);P(tepTalCut==="flat"?"Vantage Flat Cut Talar Component":"Vantage Talar Component (kurviert)","Advita",tepTalCut==="flat"?EINZELPREISE.vantage_talar_flatcut.preis:EINZELPREISE.vantage_talar_standard.preis);P("Vantage Poly Insert","Advita",EINZELPREISE.vantage_poly_insert.preis);P("Vantage Talus-Fixierschraube","Advita",EINZELPREISE.vantage_fixierschraube.preis);}
     if(tepType==="primaer_inbone"||tepType==="wechsel_inbone"){P("Inbone Tibial Tray","Stryker",EINZELPREISE.inbone_tibial_tray.preis);P("Inbone Talar Dome","Stryker",EINZELPREISE.inbone_talar_dome.preis);P("Inbone Talar Stem","Stryker",EINZELPREISE.inbone_talar_stem.preis);P("Inbone Poly Insert","Stryker",EINZELPREISE.inbone_poly_insert.preis);P("Inbone Base Stem","Stryker",EINZELPREISE.inbone_base_stem.preis);P("Inbone Mid Stem","Stryker",EINZELPREISE.inbone_mid_top_stem.preis);P("Inbone Top Stem","Stryker",EINZELPREISE.inbone_mid_top_stem.preis);}
     // RÜCKFUSS
     rfOp.forEach(op=>{
@@ -7554,24 +7622,24 @@ function OPBerichtApp(){
 
     // Lapidus
     if(gz==="lapidus"&&_prio==="lapidus") return [o,{label:"Lapidus",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I20D ~3.700 €",drg:"I20D 4.710 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Keine H-DRG (5-808.a4 nicht auf Positivliste) → stationär, mind. 2 Nächte → volle DRG I20D (CM 1,033 = 4.710 €).",
+      hdrg:"—",ebm:"—",kurz:window._fx("I20D ~3.700 €"),drg:window._fx("I20D 4.710 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Keine H-DRG (5-808.a4 nicht auf Positivliste) → stationär, mind. 2 Nächte → volle DRG I20D (CM 1,033 = 4.710 €)."),
       kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-783.0v (Entnahme MT) + 5-784.0u (Transplantation Tarsale).\n5-854.2c (Sehnentransfer) IMMER mitkodieren.\n⚠ 5-808.a4 NICHT auf H-DRG-Positivliste UND NICHT im AOP-Katalog!\n→ Nur stationär möglich. Mind. 2 Nächte für volle DRG.\n⚠ Häufiger Fehler: Lapidus als ambulant geplant → nicht abrechenbar!"}];
 
     // MTP-I-Arthrodese
     if(gz==="mtp1art"&&_prio==="mtp1art") {
       const dmmoCnt=dmmo.length;
       if(dmmoCnt>=3) return [o,{label:"MTP-I-Arthrodese + ≥3 DMMO",ops:o,
-        hdrg:"—",ebm:"—",kurz:"I20D ~3.700 €",drg:"I20D 4.710 €",hdrg_n1:"—",empf:"n2",
-        ziel:"≥3 DMMO → keine H-DRG. Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €).\n5-784.0v (Spongiosa) IMMER mitkodieren.",
+        hdrg:"—",ebm:"—",kurz:window._fx("I20D ~3.700 €"),drg:window._fx("I20D 4.710 €"),hdrg_n1:"—",empf:"n2",
+        ziel:window._fx("≥3 DMMO → keine H-DRG. Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €).\n5-784.0v (Spongiosa) IMMER mitkodieren."),
         kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.54/55.\n5-784.0v (Spongiosa) IMMER mitkodieren → I20D. ⚠ Im OP-Bericht erwähnen!"}];
       if(dmmoCnt>=1) return [o,{label:"MTP-I-Arthrodese + DMMO",ops:o,
-        hdrg:"I20N 2.085 €",ebm:"—",kurz:"I20E ~2.800 €",drg:"I20E 3.728 €",hdrg_n1:"I20N 2.085 €",empf:"amb",
-        ziel:"Ambulant → H-DRG I20N (2.085 €). ❌ 5-784.0v NICHT kodieren!\n1 Nacht: gekürzte DRG I20E (~2.800 €).\nAb 2 Nächte: 5-784.0v mitkodieren → volle DRG I20E (3.728 €).",
+        hdrg:window._fx("I20N 2.085 €"),ebm:"—",kurz:window._fx("I20E ~2.800 €"),drg:window._fx("I20E 3.923 €"),hdrg_n1:window._fx("I20N 2.085 €"),empf:"amb",
+        ziel:window._fx("Ambulant → H-DRG I20N (2.085 €). ❌ 5-784.0v NICHT kodieren!\n1 Nacht: gekürzte DRG I20E (~2.800 €).\nAb 2 Nächte: 5-784.0v mitkodieren → volle DRG I20E (3.923 €)."),
         kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.52/53.\n⚠ Ambulant: 5-784.0v NICHT kodieren → H-DRG I20N!\n⚠ Stationär: 5-784.0v IMMER → Kontextprozedur → I20E.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0v (Spongiosa MTP I) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."}];
       return [o,{label:"MTP-I-Arthrodese",ops:o,
-        hdrg:"I20N 2.085 €",ebm:"—",kurz:"I20E ~2.800 €",drg:"I20E 3.728 €",hdrg_n1:"I20N 2.085 €",empf:"amb",
-        ziel:"Ambulant → H-DRG I20N (2.085 €). ❌ 5-784.0v NICHT kodieren!\nAb 2 Nächte: 5-784.0v mitkodieren → I20E (3.728 €).",
+        hdrg:window._fx("I20N 2.085 €"),ebm:"—",kurz:window._fx("I20E ~2.800 €"),drg:window._fx("I20E 3.923 €"),hdrg_n1:window._fx("I20N 2.085 €"),empf:"amb",
+        ziel:window._fx("Ambulant → H-DRG I20N (2.085 €). ❌ 5-784.0v NICHT kodieren!\nAb 2 Nächte: 5-784.0v mitkodieren → I20E (3.923 €)."),
         kodier:"5-808.b0 + 5-93b.0 + 5-93b.e.\n⚠ Ambulant: 5-784.0v NICHT kodieren!\n⚠ Stationär ≥2N: 5-784.0v IMMER → I20E.\n\n⚠ DMMO-REGEL: Bei Kombination mit ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0v (Spongiosa MTP I) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN."}];
     }
 
@@ -7580,57 +7648,57 @@ function OPBerichtApp(){
       const lbl=gz==="chevron"?"Chevron":gz==="cheilek"?"Cheilektomie":gz==="scarf"?"Scarf":"Exostose";
       const isOT=gz==="chevron"||gz==="scarf";
       if(true) return [o,{label:lbl+(mitAkin?" + Akin":"")+(dmmo.length>0?" + DMMO":""),ops:o,
-        hdrg:"I20O 1.007 €",ebm:"EBM ~300 €",kurz:isOT?"I20E ~2.800 €":"I20F ~2.000 €",drg:isOT?"I20E 3.728 €":"I20F 3.040 €",hdrg_n1:"I20O 1.007 €",empf:"amb",
-        ziel:"Ambulant → H-DRG I20O (1.007 €). ❌ 5-854.2c NICHT kodieren!"+(isOT?"\nStationär ≥2N: 5-854.2c IMMER mitkodieren → I20E (3.728 €).":""),
+        hdrg:window._fx("I20O 1.007 €"),ebm:"EBM ~300 €",kurz:isOT?window._fx("I20E ~2.800 €"):window._fx("I20F ~2.000 €"),drg:isOT?window._fx("I20E 3.923 €"):window._fx("I20F 3.040 €"),hdrg_n1:window._fx("I20O 1.007 €"),empf:"amb",
+        ziel:window._fx("Ambulant → H-DRG I20O (1.007 €). ❌ 5-854.2c NICHT kodieren!")+(isOT?window._fx("\nStationär ≥2N: 5-854.2c IMMER mitkodieren → I20E (3.923 €)."):""),
         kodier:isOT?"⚠ HEBEL-CODE: 5-854.2c (Sehnentransfer/Rebalancing).\nAmbulant: NICHT kodieren → H-DRG I20O.\nStationär: IMMER mitkodieren → Kontextprozedur → I20E.\n⚠ Sehnentransfer muss im OP-Bericht dokumentiert sein!\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein. Bei MDK-Kürzung: Rückfall in H-DRG!\n② Kontextprozedur 5-854.2c mitkodieren → volle DRG bereits ab 2 Nächten. ✅ EMPFOHLEN: 1 Tag weniger zu rechtfertigen. Bei Kürzung: gekürzte DRG (besser als H-DRG).":"OPS: 5-788.00 (Cheilektomie/Exostose) → I20O ambulant.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG."}];
     }
 
     // Kleinzehen/DMMO ≤2
     if((Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)&&!hasDMMOover2&&_prio==="dmmo") return [o,{label:"Kleinzehen/DMMO",ops:o,
-      hdrg:"I20O 1.007 €",ebm:"EBM ~300 €",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"I20O 1.007 €",empf:"amb",
-      ziel:"Ambulant → H-DRG I20O (1.007 €).",
+      hdrg:window._fx("I20O 1.007 €"),ebm:"EBM ~300 €",kurz:window._fx("I20F ~2.000 €"),drg:window._fx("I20F 3.040 €"),hdrg_n1:window._fx("I20O 1.007 €"),empf:"amb",
+      ziel:window._fx("Ambulant → H-DRG I20O (1.007 €)."),
       kodier:"DMMO max. 2× (5-788.52/53) für H-DRG! >2× = keine H-DRG.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\nVWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG."}];
 
     // DMMO >2
     if(hasDMMOover2&&_prio==="dmmo") return [o,{label:"DMMO ≥3 MT",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"—",empf:"n2",
-      ziel:"5-788.54/55 nicht auf Positivliste → keine H-DRG. Stationär ≥2 Nächte → I20F (3.040 €).",
+      hdrg:"—",ebm:"—",kurz:window._fx("I20F ~2.000 €"),drg:window._fx("I20F 3.040 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("5-788.54/55 nicht auf Positivliste → keine H-DRG. Stationär ≥2 Nächte → I20F (3.040 €)."),
       kodier:"5-788.54/55 = DMMO 3–4 MT. Ambulant: H-DRG-Code dazukodieren erwägen."}];
 
 
     // OSG-TEP → I05B (primär) / I43B (Wechsel)
     if(tepType&&tepType.startsWith("primaer")) return [o,{label:"OSG-TEP primär ("+(tepType.includes("inbone")?"Inbone II":tepType.includes("vantage")?"Vantage":"Infinity")+")",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I05B gekürzt (VWD 1: Abschlag)",drg:"I05B 8.773 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Immer stationär. Volle DRG I05B (CM 1,923 = 8.773 €) ab 2 Belegungstagen (= 2 Übernachtungen).\nMVWD 6,2 Tage.",
+      hdrg:"—",ebm:"—",kurz:"I05B gekürzt (VWD 1: Abschlag)",drg:window._fx("I05B 8.773 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Immer stationär. Volle DRG I05B (CM 1,923 = 8.773 €) ab 2 Belegungstagen (= 2 Übernachtungen).\nMVWD 6,2 Tage."),
       kodier:"5-826.00 (Implantation Endoprothese OSG).\n⚠ Nicht im AOP-Katalog, nicht auf H-DRG-Positivliste → nur stationär.\n⚠ Häufiger Fehler: VWD zu kurz → Abschlag! Mind. 2 Belegungstage für volle DRG.\n💡 MVWD 6,2 Tage — Belegungstage sorgfältig dokumentieren."}];
     if(tepType&&tepType.startsWith("wechsel")) return [o,{label:"OSG-TEP Wechsel ("+(tepType.includes("inbone")?"Inbone II":tepType.includes("vantage")?"Vantage":"Infinity")+")",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I43B gekürzt (VWD 1–2: Abschlag!)",drg:"I43B 10.819 €",hdrg_n1:"—",empf:"n3",
-      ziel:"⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen.",
+      hdrg:"—",ebm:"—",kurz:"I43B gekürzt (VWD 1–2: Abschlag!)",drg:window._fx("I43B 10.819 €"),hdrg_n1:"—",empf:"n3",
+      ziel:window._fx("⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen."),
       kodier:"5-827.10 (Wechsel Endoprothese OSG).\n⚠ Patient muss mindestens 3 Tage bleiben! Am 1. und 2. Tag nach OP gibt es bei Entlassung Erlöskürzungen."}];
 
     // T2 Nagel TTC → I20A
     if(osgOp.includes("t2_nagel")) return [o,{label:"T2 Nagel (TTC-Arthrodese)",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I20A gekürzt (VWD 1–2: Abschlag!)",drg:"I20A 8.954 €",hdrg_n1:"—",empf:"n3",
-      ziel:"⚠ UGVD = 2 Tage! Volle DRG I20A (8.954 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag von je 0,265 CM pro Tag = ~1.209 € Kürzung pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen.",
+      hdrg:"—",ebm:"—",kurz:"I20A gekürzt (VWD 1–2: Abschlag!)",drg:window._fx("I20A 8.954 €"),hdrg_n1:"—",empf:"n3",
+      ziel:window._fx("⚠ UGVD = 2 Tage! Volle DRG I20A (8.954 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag von je 0,265 CM pro Tag = ~1.209 € Kürzung pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen."),
       kodier:"5-808.71 (TTC-Arthrodese).\n⚠ Häufiger Fehler: Entlassung nach 2 Nächten → 1.209 € Abschlag! Mind. 3 Nächte einplanen."+(t2Becken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
 
     // OSG-Arthrodese → I13E / I13D
     if(osgOp.includes("arthrodese_osg")) return [o,{label:"OSG-Arthrodese"+(osgArtSpongiosa?" + Spongiosa":""),ops:o,
-      hdrg:"—",ebm:"—",kurz:osgArtSpongiosa?"I13D ~5.600 €":"I13E ~4.600 €",drg:osgArtSpongiosa?"I13D 7.079 €":"I13E 5.829 €",hdrg_n1:"—",empf:"n2",
-      ziel:osgArtSpongiosa?"Mit Spongiosa → I13D (CM 1,552 = 7.079 €). ⚠ ERLÖSRELEVANT! +1.250 € gegenüber ohne Spongiosa.":"Ohne Spongiosa → I13E (CM 1,278 = 5.829 €).\n💡 Mit Spongiosa (5-784.0n + 5-783.0d) → I13D (7.079 €)!",
-      kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?"\n⚠ HEBEL-CODE: 5-784.0n + 5-783.0d (Spongiosa Tibia) → I13E → I13D (+1.250 €)!\n⚠ Spongiosa muss im OP-Bericht dokumentiert sein!\n⚠ Häufiger Fehler: Spongiosa entnommen aber nicht kodiert → 1.250 € Erlösverlust!":"\n💡 Toggle: + Spongiosa → I13D (7.079 € statt 5.829 €)\n⚠ Häufiger Fehler: Spongiosa vergessen zu kodieren → 1.250 € verschenkt!")}];
+      hdrg:"—",ebm:"—",kurz:osgArtSpongiosa?window._fx("I13D ~5.600 €"):window._fx("I13E ~4.600 €"),drg:osgArtSpongiosa?window._fx("I13D 7.079 €"):window._fx("I13E 5.829 €"),hdrg_n1:"—",empf:"n2",
+      ziel:osgArtSpongiosa?window._fx("Mit Spongiosa → I13D (CM 1,552 = 7.079 €). ⚠ ERLÖSRELEVANT! +1.250 € gegenüber ohne Spongiosa."):window._fx("Ohne Spongiosa → I13E (CM 1,278 = 5.829 €).\n💡 Mit Spongiosa (5-784.0n + 5-783.0d) → I13D (7.079 €)!"),
+      kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?window._fx("\n⚠ HEBEL-CODE: 5-784.0n + 5-783.0d (Spongiosa Tibia) → I13E → I13D (+1.250 €)!\n⚠ Spongiosa muss im OP-Bericht dokumentiert sein!\n⚠ Häufiger Fehler: Spongiosa entnommen aber nicht kodiert → 1.250 € Erlösverlust!"):window._fx("\n💡 Toggle: + Spongiosa → I13D (7.079 € statt 5.829 €)\n⚠ Häufiger Fehler: Spongiosa vergessen zu kodieren → 1.250 € verschenkt!"))}];
 
     // AMIC → I13G / I13E
     if(osgOp.includes("amic")&&_prio==="amic") return [o,{label:amicIKO?"AMIC + Innenknöchelosteotomie":"AMIC offen",ops:o,
-      hdrg:"—",ebm:"—",kurz:amicIKO?"I13E ~4.600 €":"I13G ~3.600 €",drg:amicIKO?"I13E 5.829 €":"I13G 4.539 €",hdrg_n1:"—",empf:"n2",
-      ziel:amicIKO?"AMIC + IKO → I13E (CM 1,278 = 5.829 €). Immer stationär.":"AMIC offen → I13G (CM 0,995 = 4.539 €). Mit Spongiosa gleiche DRG.\nKeine H-DRG (5-801.nk nicht auf Positivliste).",
+      hdrg:"—",ebm:"—",kurz:amicIKO?window._fx("I13E ~4.600 €"):window._fx("I13G ~3.600 €"),drg:amicIKO?window._fx("I13E 5.829 €"):window._fx("I13G 4.539 €"),hdrg_n1:"—",empf:"n2",
+      ziel:amicIKO?window._fx("AMIC + IKO → I13E (CM 1,278 = 5.829 €). Immer stationär."):window._fx("AMIC offen → I13G (CM 0,995 = 4.539 €). Mit Spongiosa gleiche DRG.\nKeine H-DRG (5-801.nk nicht auf Positivliste)."),
       kodier:amicIKO?"5-801.nk + 5-781.an + 5-784.0s + 5-93b.0 (Schraubenosteosynthese IKO).":"5-801.nk (AMIC offen)."+(askVorher?" + 5-812.ek (ASK vorher).":"")}];
 
     // Brostrom → I59Z
     if(osgOp.includes("brostrom")&&_prio==="brostrom") return [o,{label:"Brostrom-Gould"+(brostromIB?" + Internal Brace":""),ops:o,
-      hdrg:"—",ebm:"EBM ~300 €",kurz:"I59Z ~2.627 €",drg:"I59Z 3.225 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Kein H-DRG! Auch mit ASK kein H-DRG.\n1 Nacht: gekürzte DRG I59Z (CM 0,576 = ~2.627 €).\nAb 2 Nächte → I59Z (CM 0,707 = 3.225 €).",
-      kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+" → I59Z.\n⚠ KEIN H-DRG möglich — auch nicht mit zusätzlicher ASK!\n⚠ Häufiger Fehler: Brostrom als H-DRG-fähig eingestuft → Erlösverlust bei ambulanter Planung.\n→ Stationär planen, mind. 2 Nächte für volle DRG I59Z (3.225 €)."}];
+      hdrg:"—",ebm:"EBM ~300 €",kurz:window._fx("I59Z ~2.627 €"),drg:window._fx("I59Z 3.225 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Kein H-DRG! Auch mit ASK kein H-DRG.\n1 Nacht: gekürzte DRG I59Z (CM 0,576 = ~2.627 €).\nAb 2 Nächte → I59Z (CM 0,707 = 3.225 €)."),
+      kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+window._fx(" → I59Z.\n⚠ KEIN H-DRG möglich — auch nicht mit zusätzlicher ASK!\n⚠ Häufiger Fehler: Brostrom als H-DRG-fähig eingestuft → Erlösverlust bei ambulanter Planung.\n→ Stationär planen, mind. 2 Nächte für volle DRG I59Z (3.225 €).")}];
 
 
     // Arthrorise → kein H-DRG (Klientel <18)
@@ -7641,14 +7709,14 @@ function OPBerichtApp(){
 
     // Achillessehnennaht → I27E
     if(hasASnaht&&_prio==="as_naht") return [o,{label:"Achillessehnennaht (offen)",ops:o,
-      hdrg:"—",ebm:"Möglich, da auch AOP-Liste. Für Kliniken meist unattraktiv",kurz:"I27E ~2.700 €",drg:"I27E 3.389 €",hdrg_n1:"—",empf:"n2",aopMoeglich:true,
-      ziel:"Kein H-DRG (seit 2025 entfernt). Stationär ≥2 Nächte → I27E (CM 0,743 = 3.389 €).",
+      hdrg:"—",ebm:"Möglich, da auch AOP-Liste. Für Kliniken meist unattraktiv",kurz:window._fx("I27E ~2.700 €"),drg:window._fx("I27E 3.389 €"),hdrg_n1:"—",empf:"n2",aopMoeglich:true,
+      ziel:window._fx("Kein H-DRG (seit 2025 entfernt). Stationär ≥2 Nächte → I27E (CM 0,743 = 3.389 €)."),
       kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ ZWINGEND BEIDE OPS-CODES KODIEREN: Wird nur 5-855.19 kodiert, fällt der Fall in I20F → Erlösverlust 268 € bei voller DRG, 328 € bei UGVD-Abschlag (1 Tag).\n⚠ Naht der Sehnenscheide/Paratenon MUSS im OP-Bericht stehen!"}];
 
     // FHL Transfer → I27D
     if(rfOp.includes("fhl_transfer")&&_prio==="fhl_transfer") return [o,{label:"FHL Transfer",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I27D ~3.400 €",drg:"I27D 4.333 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Nur stationär. Stationär ≥2 Nächte → I27D (CM 0,95 = 4.333 €).",
+      hdrg:"—",ebm:"—",kurz:window._fx("I27D ~3.400 €"),drg:window._fx("I27D 4.333 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Nur stationär. Stationär ≥2 Nächte → I27D (CM 0,95 = 4.333 €)."),
       kodier:"5-854.49 (Sehnentransfer FHL) + 5-869.2 (Ankerfixation) + 5-855.39 (Naht Sehnenscheide) + 5-855.19 (Sehnennaht).\n⚠ Nur stationär möglich. Alle 4 Codes kodieren.\n⚠ Im OP-Bericht: FHL-Ernte, Transfer, Tenodese und Sehnenscheidenverschluss dokumentieren."}];
 
     // Rückfuß-Arthrodesen differenziert
@@ -7664,37 +7732,37 @@ function OPBerichtApp(){
 
     // Calcaneus-OT (MDO/LCOT/Dwyer) → I20C
     if((hasCalcOT||rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen"))&&_prio==="mdo") return [o,{label:"Calcaneus-OT",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I20C ~4.000 €",drg:"I20C 5.067 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Keine H-DRG → stationär ≥2 Nächte → I20C (CM 1,111 = 5.067 €).\nMDO, LCOT und Dwyer alle gleiche DRG.",
+      hdrg:"—",ebm:"—",kurz:window._fx("I20C ~4.000 €"),drg:window._fx("I20C 5.067 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Keine H-DRG → stationär ≥2 Nächte → I20C (CM 1,111 = 5.067 €).\nMDO, LCOT und Dwyer alle gleiche DRG."),
       kodier:"MDO: 5-781.1t + 5-93b.0. LCOT: 5-781.8t. Dwyer: 5-781.1t + 5-93b.0."}];
 
     // Haglund mini open → H-DRG I20O
     if(rfOp.includes("haglund_mini")&&_prio==="haglund_mini") return [o,{label:"Haglund mini open",ops:o,
-      hdrg:"I20O 1.007 €",ebm:"EBM ~300 €",kurz:"I20F ~2.000 €",drg:"I20F 3.040 €",hdrg_n1:"I20O 1.007 €",empf:"amb",
-      ziel:"Ambulant → H-DRG I20O (1.007 €).",
+      hdrg:window._fx("I20O 1.007 €"),ebm:"EBM ~300 €",kurz:window._fx("I20F ~2.000 €"),drg:window._fx("I20F 3.040 €"),hdrg_n1:window._fx("I20O 1.007 €"),empf:"amb",
+      ziel:window._fx("Ambulant → H-DRG I20O (1.007 €)."),
       kodier:"5-782.at + 5-855.39 + 5-859.1a."}];
 
     // Haglund + AS-Split → I27D
     if(rfOp.includes("haglund")&&_prio==="haglund") return [o,{label:"Haglund + AS-Split",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I27D ~3.400 €",drg:"I27D 4.333 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Keine H-DRG (5-854.29 = Kontextprozedur). Stationär ≥2N → I27D (CM 0,95 = 4.333 €).",
+      hdrg:"—",ebm:"—",kurz:window._fx("I27D ~3.400 €"),drg:window._fx("I27D 4.333 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Keine H-DRG (5-854.29 = Kontextprozedur). Stationär ≥2N → I27D (CM 0,95 = 4.333 €)."),
       kodier:"5-782.at + 5-855.39 + 5-855.19 + 5-854.29 + 5-859.19."}];
 
     // Os Tib Ext → I59Z / mit MDO → I20C
     if(rfOp.includes("os_tib_ext")&&_prio==="os_tib") return [o,{label:"Os Tib Ext"+(osTibMDO?" + MDO":""),ops:o,
-      hdrg:"—",ebm:"—",kurz:osTibMDO?"I20C ~4.000 €":"I59Z ~2.600 €",drg:osTibMDO?"I20C 5.067 €":"I59Z 3.225 €",hdrg_n1:"—",empf:"n2",
-      ziel:osTibMDO?"Mit MDO → I20C (CM 1,111 = 5.067 €).":"Ohne MDO → I59Z (CM 0,707 = 3.225 €).\n💡 Mit MDO Kombination → I20C (5.067 €)!",
+      hdrg:"—",ebm:"—",kurz:osTibMDO?window._fx("I20C ~4.000 €"):window._fx("I59Z ~2.600 €"),drg:osTibMDO?window._fx("I20C 5.067 €"):window._fx("I59Z 3.225 €"),hdrg_n1:"—",empf:"n2",
+      ziel:osTibMDO?window._fx("Mit MDO → I20C (CM 1,111 = 5.067 €)."):window._fx("Ohne MDO → I59Z (CM 0,707 = 3.225 €).\n💡 Mit MDO Kombination → I20C (5.067 €)!"),
       kodier:"5-854.2b + 5-782.1u + 5-869.2."+(osTibMDO?" + 5-781.1t + 5-93b.0 (MDO).":"")}];
 
     // Peronealsehnen → I27E / Luxation → I59Z
     if(rfOp.includes("peroneal")&&_prio==="peroneal") {
       if(peronealTyp==="luxation") return [o,{label:"Peronealsehnenluxation",ops:o,
-        hdrg:"—",ebm:"—",kurz:"I59Z ~2.600 €",drg:"I59Z 3.225 €",hdrg_n1:"—",empf:"n2",
-        ziel:"Kein H-DRG → stationär ≥2N → I59Z (CM 0,707 = 3.225 €).",
+        hdrg:"—",ebm:"—",kurz:window._fx("I59Z ~2.600 €"),drg:window._fx("I59Z 3.225 €"),hdrg_n1:"—",empf:"n2",
+        ziel:window._fx("Kein H-DRG → stationär ≥2N → I59Z (CM 0,707 = 3.225 €)."),
         kodier:"5-806.7 + 5-782.ar + 5-850.b9."}];
       return [o,{label:"Peronealsehnen "+(peronealTyp==="tenodese"?"Tenodese":"Naht"),ops:o,
-        hdrg:"—",ebm:"—",kurz:"I27E ~2.700 €",drg:"I27E 3.389 €",hdrg_n1:"—",empf:"n2",
-        ziel:"Kein H-DRG → stationär ≥2N → I27E (CM 0,743 = 3.389 €).",
+        hdrg:"—",ebm:"—",kurz:window._fx("I27E ~2.700 €"),drg:window._fx("I27E 3.389 €"),hdrg_n1:"—",empf:"n2",
+        ziel:window._fx("Kein H-DRG → stationär ≥2N → I27E (CM 0,743 = 3.389 €)."),
         kodier:"5-855.29 + 5-855.39 + 5-852.29"+(peronealTyp==="tenodese"?" + 5-855.89 (Tenodese)":"")+"."}];
     }
 
@@ -7702,15 +7770,15 @@ function OPBerichtApp(){
     if(coalTyp) {
       const hasOT=coalLCOT;
       return [o,{label:"Coalitio "+(coalTyp==="tc"?"TC":"CN")+(coalFascie?" + Faszienflap":"")+(coalLCOT?" + LCOT":""),ops:o,
-      hdrg:"—",ebm:"—",kurz:hasOT?"I20C ~4.000 €":"I27D ~3.400 €",drg:hasOT?"I20C 5.067 €":"I27D 4.333 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Keine H-DRG."+(hasOT?"\nMit LCOT → I20C (CM 1,111 = 5.067 €).\n⚠ Bei Patienten <12 J. + LCOT → I20B (CM 1,494 = 6.815 €)!":"\nOhne LCOT → I27D (CM 0,95 = 4.333 €).\n💡 Mit LCOT → I20C (5.067 €)!"),
+      hdrg:"—",ebm:"—",kurz:hasOT?window._fx("I20C ~4.000 €"):window._fx("I27D ~3.400 €"),drg:hasOT?window._fx("I20C 5.067 €"):window._fx("I27D 4.333 €"),hdrg_n1:"—",empf:"n2",
+      ziel:"Keine H-DRG."+(hasOT?window._fx("\nMit LCOT → I20C (CM 1,111 = 5.067 €).\n⚠ Bei Patienten <12 J. + LCOT → I20B (CM 1,494 = 6.815 €)!"):window._fx("\nOhne LCOT → I27D (CM 0,95 = 4.333 €).\n💡 Mit LCOT → I20C (5.067 €)!")),
       kodier:"5-781.at + 5-856.4a + 5-852.g9."+(coalLCOT?" + 5-781.4t + 5-784.7t (LCOT).\n⚠ <12 Jahre: I20B statt I20C!":"")}];
     }
 
     // Cotton-OT → I20C
     if(mfCotton&&!mfTmt.length&&_prio==="cotton") return [o,{label:"Cotton-Osteotomie",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I20C ~4.000 €",drg:"I20C 5.067 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Stationär ≥2 Nächte → I20C (CM 1,111 = 5.067 €).",
+      hdrg:"—",ebm:"—",kurz:window._fx("I20C ~4.000 €"),drg:window._fx("I20C 5.067 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Stationär ≥2 Nächte → I20C (CM 1,111 = 5.067 €)."),
       kodier:"5-781.4u + 5-784.7u (Spongiosa immer dabei)."}];
 
     // TMT-Arthrodese → I20D
@@ -7720,19 +7788,19 @@ function OPBerichtApp(){
       const hasTmt23=mfTmt.includes("tmt2_3");
       const hasTmt2=mfTmt.includes("tmt2");
       if(hasTmt13) return [o,{label:"TMT-Arthrodese 1–3",ops:o,
-        hdrg:"—",ebm:"—",empf:"n2",kurz:"I20C ~4.000 €",drg:"I20C–B variabel",hdrg_n1:"—",
+        hdrg:"—",ebm:"—",empf:"n2",kurz:window._fx("I20C ~4.000 €"),drg:"I20C–B variabel",hdrg_n1:"—",
         ziel:"Stationär ≥2N. 3 Gelenke → I20C. 4+ Gelenke → I20B.\n💡 Intercuneiforme Gelenke → höhere DRG!",
         kodier:"5-808.a6 = 3 Gelenke → I20C. 5-808.a7/a8 = 4–5 Gelenke → I20B."}];
       return [o,{label:"TMT-Arthrodese"+(hasTmt23?" 2–3":"")+(hasTmt2?" TMT 2":"")+(hasTmt1?" TMT 1":""),ops:o,
-        hdrg:"—",ebm:"—",empf:"n2",kurz:"I20D ~3.700 €",drg:"I20D 4.710 €",hdrg_n1:"—",
-        ziel:"Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €).",
+        hdrg:"—",ebm:"—",empf:"n2",kurz:window._fx("I20D ~3.700 €"),drg:window._fx("I20D 4.710 €"),hdrg_n1:"—",
+        ziel:window._fx("Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €)."),
         kodier:"5-808.a4 + 5-93b.e + 5-93b.0. TMT 2: + 5-784.0v (Spongiosa immer dabei)."}];
     }
 
     // Supramalleolare OT → I13E
     if(rfOp.includes("supramal_ot")) return [o,{label:"Supramalleolare OT",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I13E ~4.600 €",drg:"I13E 5.829 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Keine H-DRG → stationär ≥2 Nächte → I13E (CM 1,278 = 5.829 €).\nGleiche DRG für Dome, Open Wedge und Closed Wedge.",
+      hdrg:"—",ebm:"—",kurz:window._fx("I13E ~4.600 €"),drg:window._fx("I13E 5.829 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Keine H-DRG → stationär ≥2 Nächte → I13E (CM 1,278 = 5.829 €).\nGleiche DRG für Dome, Open Wedge und Closed Wedge."),
       kodier:"Valgisierend: 5-781.0n. Varisierend: 5-781.1n. Immer + 5-93b.e.\nFibula-OT: + 5-781.0r (valg.) / 5-781.1r (var.).\nSpongiosa Open Wedge: 5-784.7n (allogen) oder 5-784.1n (autolog) – nicht erlösrelevant."}];
 
     // Weber B Fraktur → I13N / mit Spongiosa → I13G/F/E
@@ -7741,26 +7809,26 @@ function OPBerichtApp(){
       var fxWSP=fxOp.includes("fibula_mehr")?"WSP":"Platte/WSP";
       if(fxSyndes){
         return [o,{label:fxLabel+" + Syndesmose",ops:o,
-          hdrg:"I13N 3.091 €",ebm:"—",kurz:"I13E ~4.600 €",drg:"I13E 5.829 €",hdrg_n1:"I13N 3.091 €",empf:"amb",
-          ziel:"Ambulant/1N → H-DRG I13N (3.091 €). ❌ 5-784.0r NICHT kodieren!\nAb 2N: 5-784.0r mitkodieren → I13E (CM 1,278 = 5.829 €).",
+          hdrg:window._fx("I13N 3.091 €"),ebm:"—",kurz:window._fx("I13E ~4.600 €"),drg:window._fx("I13E 5.829 €"),hdrg_n1:window._fx("I13N 3.091 €"),empf:"amb",
+          ziel:window._fx("Ambulant/1N → H-DRG I13N (3.091 €). ❌ 5-784.0r NICHT kodieren!\nAb 2N: 5-784.0r mitkodieren → I13E (CM 1,278 = 5.829 €)."),
           kodier:"⚠ HEBEL-CODE: 5-784.0r (Spongiosa Fibula).\nAmbulant: NICHT kodieren → H-DRG I13N.\nStationär ≥2N: IMMER mitkodieren.\n+ 5-795.kr (Stellschraube Syndesmose).\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0r (Spongiosa) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."}];
       }
       return [o,{label:fxLabel,ops:o,
-        hdrg:"I13N 3.091 €",ebm:"—",kurz:fxOp.includes("fibula_mehr")?"I13E ~4.600 €":"I13G ~3.600 €",drg:fxOp.includes("fibula_mehr")?(fxOp.includes("fibula_mehr")?"I13E 5.829 €":"I13F 4.671 €"):"I13G 4.539 €",hdrg_n1:"I13N 3.091 €",empf:"amb",
-        ziel:"Ambulant/1N → H-DRG I13N (3.091 €). ❌ 5-784.0r NICHT kodieren!\nAb 2N: 5-784.0r mitkodieren → volle DRG (höher als H-DRG).",
+        hdrg:window._fx("I13N 3.091 €"),ebm:"—",kurz:fxOp.includes("fibula_mehr")?window._fx("I13E ~4.600 €"):window._fx("I13G ~3.600 €"),drg:fxOp.includes("fibula_mehr")?(fxOp.includes("fibula_mehr")?window._fx("I13E 5.829 €"):window._fx("I13F 4.671 €")):window._fx("I13G 4.539 €"),hdrg_n1:window._fx("I13N 3.091 €"),empf:"amb",
+        ziel:window._fx("Ambulant/1N → H-DRG I13N (3.091 €). ❌ 5-784.0r NICHT kodieren!\nAb 2N: 5-784.0r mitkodieren → volle DRG (höher als H-DRG)."),
         kodier:"⚠ HEBEL-CODE: 5-784.0r (Spongiosa Fibula).\nAmbulant: NICHT kodieren → H-DRG I13N.\nStationär ≥2N: IMMER mitkodieren.\nEinfach Platte: 5-793.3r → I13G. Einfach WSP: 5-793.kr → I13G.\nMehrfragment Platte: 5-794.2r → I13F. Mehrfragment WSP: 5-794.kr → I13E.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0r (Spongiosa) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."}];
     }
 
     // Hohlfuß/Dwyer (ohne Arthrodese) → I20C
     if(rfOp.includes("hohlfuss")&&hohlfussTyp==="dwyer") return [o,{label:"Hohlfuß/Dwyer",ops:o,
-      hdrg:"—",ebm:"—",kurz:"I20C ~4.000 €",drg:"I20C 5.067 €",hdrg_n1:"—",empf:"n2",
-      ziel:"Keine H-DRG → stationär ≥2N → I20C (CM 1,111 = 5.067 €).",
+      hdrg:"—",ebm:"—",kurz:window._fx("I20C ~4.000 €"),drg:window._fx("I20C 5.067 €"),hdrg_n1:"—",empf:"n2",
+      ziel:window._fx("Keine H-DRG → stationär ≥2N → I20C (CM 1,111 = 5.067 €)."),
       kodier:"5-781.1t + 5-93b.0."+(dwyerSteindler?" + 5-850.59 (Steindler).":"")+(dwyerElevMT1?" + 5-781.ae (Elev. MT I).":"")+(dwyerJones?" + 5-854.2c (Jones).":"")+(dwyerPeroneal?" + 5-854.29 (Peroneal-Transfer).":"")}];
 
     // ME (generisch – keine fixe Zuordnung, manuelle Kodierung)
     if(hasME) return [o,{label:"Metallentfernung (generisch)",ops:o,
       hdrg:"—",ebm:"EBM je nach Region",kurz:"—",drg:"—",hdrg_n1:"—",empf:"amb",
-      ziel:"ME allein triggert keine H-DRG und meist keine attraktive DRG.\nAmbulant in LA möglich → EBM-Abrechnung (niedrig vergütet).\n\n💡 H-DRG-TRIGGER (I20O ~1.007 €): Wenn klinisch indiziert, Zusatzeingriff derselben Region kombinieren:",
+      ziel:window._fx("ME allein triggert keine H-DRG und meist keine attraktive DRG.\nAmbulant in LA möglich → EBM-Abrechnung (niedrig vergütet).\n\n💡 H-DRG-TRIGGER (I20O ~1.007 €): Wenn klinisch indiziert, Zusatzeingriff derselben Region kombinieren:"),
       kodier:"⚠ Keine automatische Codierung – manuell setzen:\n\n• OPS: 5-787.x nach Lokalisation + Materialart (Schraube/Draht/Platte/winkelstab. Platte/Nagel/Fixateur)\n• ICD-HD: Z47.0 (Entfernung einer Metallplatte/Fixationsvorrichtung)\n• ND bei Komplikation: T84.6 (Infektion), M84.1 (Pseudarthrose)\n\n💡 H-DRG-TRIGGER I20O (Zusatzeingriff, nur wenn klinisch gerechtfertigt und im OP-Bericht dokumentiert):\n\n▸ Exostosenabtragung:\n  5-788.00 (MT I) · 5-788.06–09 (MT II–V, 1–4 Knochen)\n  5-788.0a (Dig I) · 5-788.0b–0f (Dig II–V, 1–5 Phalangen)\n\n▸ Bursektomie Fuß:\n  5-859.1a (totale Resektion Schleimbeutel Fuß)\n  5-859.0a (Inzision Schleimbeutel Fuß)\n\n▸ Tenolyse/Tenotomie Fuß:\n  5-851.1a (Tenotomie offen chir.) · 5-851.2a (perkutan)\n  5-852.2a (Exzision Sehnenscheide, partiell)\n\n▸ Revision/Wechsel OSE:\n  Wird als 5-78a.* kodiert (höher bewertet, NICHT als reine ME einstufen)"}];
     return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,mdoFDL,mdoCotton,t2Length,t2Width,t2Becken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,hohlfussTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa]);
 
@@ -7806,15 +7874,15 @@ function OPBerichtApp(){
   const UC_EINGRIFFE={
     radius_einf_pl:{l:"Radius distal einfach (Platte)",ops:["5-793.36"],kontextOps:["5-784.06"],
       hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"4.279",pct:"74%",
-      hint:"H-DRG I21M (3.184 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €). Jeder Belegungstag dokumentieren!",
+      hint:window._fx("H-DRG I21M (3.184 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €). Jeder Belegungstag dokumentieren!"),
       kodier:"5-793.36. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.06) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     radius_einf_wsp:{l:"Radius distal einfach (winkelstab. Platte)",ops:["5-793.k6"],kontextOps:["5-784.06"],
       hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"4.279",pct:"74%",
-      hint:"H-DRG I21M (3.184 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €). Jeder Belegungstag dokumentieren!",
+      hint:window._fx("H-DRG I21M (3.184 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €). Jeder Belegungstag dokumentieren!"),
       kodier:"5-793.k6. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.06) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     radius_mehr_wsp:{l:"Radius distal Mehrfragment (winkelstab. Platte)",ops:["5-794.k6"],kontextOps:["5-784.06"],
       hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"4.279",pct:"74%",
-      hint:"H-DRG I21M (3.184 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €). Jeder Belegungstag dokumentieren!",
+      hint:window._fx("H-DRG I21M (3.184 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €). Jeder Belegungstag dokumentieren!"),
       kodier:"5-794.k6. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.06) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     fibula_einf_schr:{l:"Fibula distal einfach (Schraube)",ops:["5-793.1r"],kontextOps:["5-784.0r"],
       hdrg:"I13N",hdrgE:"3.091",basis:"I13G",basisE:"4.539",pct:"68%",
@@ -7842,43 +7910,43 @@ function OPBerichtApp(){
       kodier:"5-794.kr (Mehrfragment winkelstab. Platte). Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0r (Spongiosa Fibula) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN."},
     duokopf:{l:"Duokopf (prox. Femur)",ops:["5-820.41"],
       hdrg:"—",hdrgE:"—",basis:"I47B",basisE:"7.977",pct:"—",
-      hint:"Keine H-DRG. Immer stationär → I47B (CM 1,749 = 7.977 €).",
+      hint:window._fx("Keine H-DRG. Immer stationär → I47B (CM 1,749 = 7.977 €)."),
       kodier:"5-820.41 (Implantation Duokopfprothese). Keine H-DRG."},
     tfna:{l:"TFNA (prox. Femur)",ops:["5-790.5f"],
       hdrg:"—",hdrgE:"—",basis:"I08F",basisE:"6.892",pct:"—",
-      hint:"Keine H-DRG. Immer stationär → I08F (CM 1,511 = 6.892 €).",
+      hint:window._fx("Keine H-DRG. Immer stationär → I08F (CM 1,511 = 6.892 €)."),
       kodier:"5-790.5f (TFNA prox. Femur). Keine H-DRG."},
     olekranon_einf:{l:"Olekranon einfach",ops:["5-793.k7"],kontextOps:["5-784.07"],
       hdrg:"I31N",hdrgE:"3.739",basis:"I31C",basisE:"5.510",pct:"68%",
-      hint:"WSP (5-793.k7): H-DRG I31N (3.739 €) / DRG I31C (CM 1,208 = 5.510 €).\nSchraube (5-793.17): H-DRG I21M (3.184 €) / DRG I21Z (CM 0,938 = 4.279 €).\nZuggurtung (5-793.27): H-DRG I21M (3.184 €) / DRG I21Z (CM 0,938 = 4.279 €).",
+      hint:window._fx("WSP (5-793.k7): H-DRG I31N (3.739 €) / DRG I31C (CM 1,208 = 5.510 €).\nSchraube (5-793.17): H-DRG I21M (3.184 €) / DRG I21Z (CM 0,938 = 4.279 €).\nZuggurtung (5-793.27): H-DRG I21M (3.184 €) / DRG I21Z (CM 0,938 = 4.279 €)."),
       kodier:"WSP: 5-793.k7. Schraube: 5-793.17. Zuggurtung: 5-793.27. Alle auf Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.07) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     olekranon_mehr:{l:"Olekranon Mehrfragment",ops:["5-794.k7"],kontextOps:["5-784.07"],
       hdrg:"I31N",hdrgE:"3.739",basis:"I31C",basisE:"5.510",pct:"68%",
-      hint:"WSP (5-794.k7): H-DRG I31N (3.739 €) / DRG I31C (CM 1,208 = 5.510 €).\nZuggurtung (5-794.17): H-DRG I31N (3.739 €) / DRG I31C (CM 1,208 = 5.510 €).",
+      hint:window._fx("WSP (5-794.k7): H-DRG I31N (3.739 €) / DRG I31C (CM 1,208 = 5.510 €).\nZuggurtung (5-794.17): H-DRG I31N (3.739 €) / DRG I31C (CM 1,208 = 5.510 €)."),
       kodier:"WSP: 5-794.k7. Zuggurtung: 5-794.17. Beide auf Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.07) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     radius_prox_einf_schr:{l:"Radius proximal einfach (Schraube)",ops:["5-793.14"],kontextOps:["5-784.04"],
       hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"4.279",pct:"74%",
-      hint:"H-DRG I21M (3.184 €). Ambulant bevorzugt.\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €).\n⚠ Bei Mehrfragment + WSP (5-794.k4): I21Z CM 0,908, KEIN Hybrid!",
+      hint:window._fx("H-DRG I21M (3.184 €). Ambulant bevorzugt.\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €).\n⚠ Bei Mehrfragment + WSP (5-794.k4): I21Z CM 0,908, KEIN Hybrid!"),
       kodier:"5-793.14. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.04) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     radius_prox_mehr_schr:{l:"Radius proximal Mehrfragment (Schraube)",ops:["5-794.04"],kontextOps:["5-784.04"],
       hdrg:"I21M",hdrgE:"3.184",basis:"I21Z",basisE:"4.279",pct:"74%",
-      hint:"H-DRG I21M (3.184 €). Ambulant bevorzugt.\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €).\n⚠ Bei WSP (5-794.k4): I21Z CM 0,908, KEIN Hybrid!",
+      hint:window._fx("H-DRG I21M (3.184 €). Ambulant bevorzugt.\nStationär ≥2N → I21Z (CM 0,938 = 4.279 €).\n⚠ Bei WSP (5-794.k4): I21Z CM 0,908, KEIN Hybrid!"),
       kodier:"5-794.04. Positivliste. ⚠ WSP (5-794.k4) = kein H-DRG!\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.04) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     klav_einf_pl:{l:"Klavikula einfach (Platte)",ops:["5-795.30"],kontextOps:["5-784.00"],
       hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.432",pct:"82%",
-      hint:"H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!",
+      hint:window._fx("H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!"),
       kodier:"5-795.30. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.00) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     klav_einf_wsp:{l:"Klavikula einfach (winkelstab. Platte)",ops:["5-795.k0"],kontextOps:["5-784.00"],
       hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.432",pct:"82%",
-      hint:"H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!",
+      hint:window._fx("H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!"),
       kodier:"5-795.k0. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.00) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     klav_mehr_pl:{l:"Klavikula Mehrfragment (Platte)",ops:["5-796.20"],kontextOps:["5-784.00"],
       hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.432",pct:"82%",
-      hint:"H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!",
+      hint:window._fx("H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!"),
       kodier:"5-796.20. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.00) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     klav_mehr_wsp:{l:"Klavikula Mehrfragment (winkelstab. Platte)",ops:["5-796.k0"],kontextOps:["5-784.00"],
       hdrg:"I29M",hdrgE:"3.652",basis:"I29B",basisE:"4.432",pct:"82%",
-      hint:"H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!",
+      hint:window._fx("H-DRG I29M (3.652 €). Ambulant bevorzugt (Pauschale, kein Prüfrisiko).\nStationär ≥2N → I29B (CM 0,972 = 4.432 €). Jeder Belegungstag dokumentieren!"),
       kodier:"5-796.k0. Positivliste.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur (Spongiosa 5-784.00) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."},
     humerus_subcap_wsp:{l:"Humerus subcapital (winkelstab. Platte)",ops:["___"],
       hdrg:"—",hdrgE:"—",basis:"___",basisE:"___",pct:"—",
@@ -8856,7 +8924,7 @@ const UC_TEXT_MAP={
         {function(){
           var drgCode = erloesData.drg ? erloesData.drg.split(" ")[0] : "";
           var d = drgCode ? (FUSS_DRG[drgCode] || ENDO_DRG[drgCode] || null) : null;
-          // Erlös aus erloesData.drg parsen ("I27E 3.389 €" → 3389)
+          // Erlös aus erloesData.drg parsen (window._fx("I27E 3.389 €") → 3389)
           var drgErloesNum = (function(){
             if(!erloesData.drg) return null;
             var parts = erloesData.drg.split(" ");
@@ -9413,7 +9481,7 @@ const UC_TEXT_MAP={
 
       {sektion==="endo"&&<div>
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,padding:"6px 10px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.25)",borderRadius:6,fontSize:10,color:"#006B6F"}}>
-          ℹ <span><strong>Endo-Modul</strong> – DRG-Werte aus InEK-Datenbrowser 2024 (gruppiert nach 2026). Erlös: CM × LBFW NRW 4.562 €.</span>
+          ℹ <span><strong>Endo-Modul</strong> – DRG-Werte aus InEK-Datenbrowser 2024 (gruppiert nach 2026). Erlös: CM × LBFW NRW {window._ERLOES_META.lbfw.toLocaleString("de-DE")} €.</span>
         </div>
 
         <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>KNIE</div>
@@ -9492,7 +9560,7 @@ const UC_TEXT_MAP={
           var konstEntry = konst ? ENDO_KONSTELLATIONEN[konst.diag].find(function(c){return c.id===konst.id;}) : null;
           var drgKey = konstEntry ? (endoObPccl==="4" ? konstEntry.drg4 : konstEntry.drg03) : null;
           var drgData = drgKey ? ENDO_DRG[drgKey] : null;
-          var erloes = drgData ? Math.round(drgData.bwr * 4562) : null;
+          var erloes = drgData ? Math.round(drgData.bwr * window._ERLOES_META.lbfw) : null;
           return <div style={card}>
             <div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {eingriff.l}{endoOpSystem&&eingriff.opSysteme?" ("+eingriff.opSysteme[endoOpSystem]+")":""}</div>
 
