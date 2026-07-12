@@ -4275,7 +4275,7 @@ const OPS = {
   as_naht: { k: "Achillessehnennaht (offen)", b: "eine offene Naht der Achillessehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose, Wundheilungsstörung", t: "Achillessehnennaht (offen)" },
   peroneal_naht: { k: "Peronealsehnennaht", b: "eine Naht/Rekonstruktion der Peronealsehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose", t: "Peronealsehnennaht/-rekonstruktion" },
   peroneal_rek: { k: "Peronealsehnenrekonstruktion", b: "eine Rekonstruktion der Peronealsehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose, Sehnenverkürzung", t: "Peronealsehnenrekonstruktion (ggf. mit Sehnentransfer)" },
-  peroneal_lux: { k: "Peronealsehnen-Stabilisierung bei Luxation", b: "eine Stabilisierung der Peronealsehnen mit Vertiefung der retromalleolären Rinne und Retinaculum-Rekonstruktion", r: "Infektion, Re-Luxation, Nervenverletzung, Thrombose", t: "Peronealsehnen-Stabilisierung mit Rinnenvertiefung und Retinaculum-Rekonstruktion" },
+  peroneal_lux: { k: "Peronealsehnen-Stabilisierung bei Luxation", b: "eine Stabilisierung der Peronealsehnen mit Vertiefung der retromalleolären Rinne und Retinaculum-Rekonstruktion", r: "Fraktur der Fibula, Rezidiv der Luxation, Stenose der Peronealsehnen, Infektion, Nervenverletzung (insb. N. suralis), Reruptur, Thrombose", t: "Peronealsehnen-Stabilisierung mit Rinnenvertiefung und Retinaculum-Rekonstruktion" },
   t2_nagel: { k: "T2 Nagel (TTC)", b: "eine tibio-talo-calcaneare Arthrodese mit retrogradem Marknagel", r: "Infektion, Pseudarthrose, Materialversagen, Beinlängendifferenz, Thrombose", t: "TTC-Arthrodese mit T2 retrogradem Marknagel" },
   supramal_ot: { k: "Supramalleolare OT", b: "eine supramalleolare Korrekturosteotomie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Materialversagen, Thrombose", t: "Supramalleolare Umstellungsosteotomie" },
   fasziotomie_offen: { k: "Offene plantare Fasziotomie", b: "eine offene plantare Fasziotomie zur Entlastung der chronisch entzündeten Plantarfaszie", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung (R. calcaneus N. tibialis), Rezidiv, Schwächung des Längsgewölbes, Thrombose", t: "offene plantare Fasziotomie" },
@@ -5811,7 +5811,7 @@ var _s = useState, _m = useMemo;
       });
       p.push("\n\nElektive operative Option: " + opTexte.join(", ") + (seite ? " " + seite : "") + ", befundbezogenes Vorgehen");
       // Knöcherne Korrekturen (Osteotomien/Arthrodesen): Zusatzempfehlung als eigener Absatz (B. Breuer 07/2026)
-      var KNOECHERNE_KORREKTUR = ["chevron","chevron_akin","scarf","lapidus","mtp1_arthrodese","kleinzehen_pip","dmmo","arthrodese_tmt","mdo_offen","mdo_mini","lcot","cotton","calcaneus_ot","subtalar_arthrodese","arthrodese_osg","t2_nagel","supramal_ot"];
+      var KNOECHERNE_KORREKTUR = ["chevron","chevron_akin","scarf","lapidus","mtp1_arthrodese","kleinzehen_pip","dmmo","arthrodese_tmt","mdo_offen","mdo_mini","lcot","cotton","calcaneus_ot","subtalar_arthrodese","arthrodese_osg","t2_nagel","supramal_ot","tep_infinity","tep_vantage","tep_inbone","amic","oats"];
       if (ops.some(function(m) { return KNOECHERNE_KORREKTUR.indexOf(m) >= 0; })) {
         p.push("\n\nVitamin D3 Substitution und Kalzium reiche Ernährung");
       }
@@ -7019,7 +7019,13 @@ dwyer_peroneal:`Inzision über den Peronealsehnen, diese werden dargestellt, akr
 lambrinudi:`Inzision längs unter dem Außenknöchel. Subtile stumpfe Präparation in die Tiefe nach Sondierung des Sinus Tarsi, Darstellung der Peronealsehnen und des LCF, Beiseitehalten dieser mit einem Lidhaken. Nach dorsal Schonung des Astes des Per. Superficialis.\nNun Ausräumung des Sinus Tarsi, Entfernung der Kapsel vom CC Gelenk und Resektion des Proc. Ant Calcanei mit dem Flachmeißel, ebenfalls Entknorpelung am CC Gelenk. Aus dem Fragment des Proc. Ant Calcanei wird autologe Spongiosa gewonnen. Insgesamt ausgeprägte Verwachsungen, der Sinus Tarsi ist mit tamponierender Tenosynovialitis gefüllt, die aufwendig entfernt werden muss. Stillung kleinerer Blutungen aus varikös veränderten Gefäßen.\nNun mit dem Meißel korrigierende Resektion des Subtalargelenkes zur Korrektur der Rückfußvarusstellung. Nach Entnahme der Knochenscheiben Resektion der plantaren Anteile des Talushalses sowie der knorpeltragenden Anteile des Taluskopfes. Nun kann über den lateralen Zugang ebenfalls das Os Naviculare entknorpelt werden, ebenfalls Setzen multipler Anbohrungen unter Wasserkühlung.\nInsgesamt auch hier erschwerte Präparation bei kontrakter Fehlstellung.\nEinsetzen eines Arthrodesespreizers, Sicherstellung der kompletten Entknorpelung aller Flächen. Spülung. Nun Einbringen der entsprechenden Spongiosa an das Os Naviculare.\nNun kann der Fuß schrittweise in die Korrekturstellung gebracht werden, dafür noch Nachresektion am Calcaneus. Bei guter Korrektur Transfixation mittels K-Drähten und BV Kontrolle.\nUnter BV Kontrolle werden nach Hautinzision, stumpfem Spreizen des Gewebes und manueller Korrektur des Rückfußes unter Schutz mit einer Gewebeschutzhülse zwei Drähte von plantar über den Calcaneus über das Subtalargelenk gebracht. Nach entsprechender Messung Einbringen von 7,0 Schrauben, diese sitzen fest. Ebenfalls Einbringen von Drähten über das TN Gelenk nach Korrektur der Fehlstellung und BV Kontrolle, insgesamt gute Korrektur, das CC Gelenk schließt sich.\nNach Stichinzision und unter Einsetzen von stumpfen Haken erfolgt die Längenmessung und das Einbringen von Schrauben. Abschließende Arthrodese mit Kompression des CC Gelenkes.\nAbschlusskontrolle, alle Implantate zeigen in 2 Ebenen unter BV eine gute Lage. Klinisch weist der Fuß eine gute Korrekturstellung auf.`,
 os_tib_ext:`Zuwenden zum medialen Fußrand. Hier Anlage einer ca. 5 cm langen Hautinzision im Bereich des TN-Gelenkes und des deutlich prominenten akzessorischen Knochens. Nach Spalten des Subcutangewebes Eingehen in die Tiefe. Darstellen der Tib Post Sehne, hier deutliche Adhäsionen. Lösung dieser und Entfernung von entzündlich verändertem Sehnengleitgewebe, kleinschrittige Darstellung des großen akzessorischen Knochens und Entfernung in toto.\nAnfrischen des Os naviculare, unter BV Kontrolle Einbringen eines Mitek Ankers, darüber transponierende Refixierung der Tib Post Sehne. Diese ist stabil fixiert. Kontrolle auf Bluttrockenheit. Spülung des Situs.`,
 peroneal_naht:`Sichelförmige Inzision um den Außenknöchel und Präparation bis auf das Retinaculum Peroneale. Spalten dieses und Eröffnen der Sehnenscheide nach distal und proximal, die Sehnen können hervorluxiert werden, vor allem an der als Brevis Sehne identifizierten Struktur zeigt sich eine Tenosynovialitis mit entzündlicher Zeichnung im Bereich einer Horizontalruptur korrelierend zur Umlenkstelle um den Außenknöchel. Die Longus Sehne zeigt eine Abflachung des Kalibers ohne Rupturzeichen, im klinischen Befund und bei Durchbewegung kommt es zu keiner Luxation der Sehnen. Nun Tenosynovektomie, Exzision der Rupturzone und tubulierende PDS 2-0 Naht der Sehne.`,
-peroneal_luxation:`Sichelförmige Inzision um den Außenknöchel und Präparation bis auf das Retinaculum. Ausgeprägte Luxationstasche, die weit ventral um die Fibula reicht. Massiv elongiertes insuffizientes Gewebe.\nAbsetzen der Tasche direkt am fibularen Ansatz und Wegklappen nach dorsal. Nun Eingehen auf die Peronealsehnen und Inspektion des Gleitlagers sowie nach Lokalisierung und Schutz des Nervus suralis. Die Sehnen sind intakt, keine Ruptur, Tenosynovialitis und tief inserierender Muskelbauch des Per. Brevis, dieser zieht sich deutlich in das Gleitlager und führt hier zu Fülle.\nResektion der entzündlich veränderten Synovia und des distalen Anteiles des Muskelbauches, kein Peroneus Quartus erkennbar. Das Gleitlager weist eine deutlich verminderte Tiefe bei Rinnendysplasie auf.\nNun wird von der Fibulaspitze aus und unter BV-Kontrolle mit einem 4,5er Bohrer in die distale Fibula intramedullär eingebohrt und vorsichtig unter BV-Kontrolle die Spongiosa unterhalb der Gleitrinne geschwächt.\nNun Impaktierung der retromalleolären Gleitrinne mit stumpfem Meißel und vorsichtigen Schlägen, es kann hier eine gute Vertiefung erreicht werden. Die Rinne kann so unter Erhalt des Gleitlagers gut vertieft werden.\nNun Setzen von 8 K-Draht Bohrungen an der distalen dorsalen Fibula und Vorlegen von 2-0 PDS Nähten, über diese Raffung des Retinaculums an die Fibula.\nZusätzlich Hebung eines Periostflaps von der distalen Fibula und Augmentation des Retinaculums, dieses ist stabil. Bewegungsprüfung, keine Luxationstendenz der Sehnen.`,
+peroneal_luxation:`Eingehen auf die Peronealsehnen retromalleolär. Es zeigt sich das Retinaculum superius vom fibularen Ansatz abgelöst und insuffizient, die Sehnen des M. peroneus longus und brevis luxieren bei Dorsalextension und Eversion nach ventral über die distale Fibula. Darstellung und Anschlingen beider Sehnen.`,
+peroneal_lux_naht_ja:`Inspektion der Sehnen, es zeigt sich eine Ruptur. Die Rupturzone wird angefrischt und tubularisierend genäht.`,
+peroneal_lux_naht_nein:`Inspektion der Sehnen, es zeigt sich keine Ruptur.`,
+peroneal_lux_rinne_ja:`Beurteilung der retrofibulären Nut. Diese ist physiologisch geformt (konvex), daher Vertiefung der fibularen Gleitrinne. Einbohren unter BV-Kontrolle mit einem 5 mm Bohrer über die Fibulaspitze. Monokortikale Osteotomie der distalen Fibula von dorsal, dann Eindrücken der Gleitrinne zur Vertiefung, sodass eine ausreichend tiefe, konkave Gleitrinne entsteht.`,
+peroneal_lux_rinne_nein:`Beurteilung der retrofibulären Nut. Diese ist ausreichend konkav geformt, eine Vertiefung ist nicht erforderlich.`,
+peroneal_lux_quartus:`Es besteht ein akzessorischer M. peroneus quartus, der zu Fülle in der Rinne führt. Dieser wird entfernt.`,
+peroneal_lux_retinaculum:`Rekonstruktion des Retinaculum superius: Refixation am fibularen Ansatz mittels transossärer Naht, die Peronealsehnen werden dabei sicher in der vertieften Nut gehalten. Prüfung der Sehnenführung unter Dorsalextension/Eversion: kein Reluxieren, freie Gleitfähigkeit.`,
 peroneal_tenodese:`Sichelförmige Inzision um den §SIDE_ADJ§ Außenknöchel und Präparation bis auf das Retinaculum Peroneale. Spalten dieses und Eröffnen der Sehnenscheide nach distal und proximal, die Sehnen können hervorluxiert werden. Der Nervus Suralis wird lokalisiert und konsequent geschont. Es zeigt sich eine langstreckige Ruptur der §PERONEAL_SEHNE§-Sehne mit Tenosynovialitis. Massive degenerative Veränderung, eine End-zu-End-Naht ist nicht möglich. Die zweite Sehne ist intakt. Es erfolgt nun ein Debridement der geschädigten Sehne bis in das Vitale und Entfernung des Tuberculum Peroneale, da dieses hypertroph wirkt. Proximal und distal werden die Sehnen mittels Durchflechtungsnaht gekoppelt und mit PDS Faden stabil genäht. Es wird dabei darauf geachtet, dass es am Cuboid und hinter dem Außenknöchel nicht zu einem Overstuffing durch die Naht kommt. Spülung.`,
 duokopf:`Scharfe Inzision ca. 15 cm über dem Trochanter an der §DK_SEITE§ Hüfte, Durchtrennung des Subcutangewebes, subtile Blutstillung und Präparation bis auf die Muskelfaszie. Längsspaltung dieser mit der Schere und weitere Präparation ventral auf den Schenkelhals zwischen Musc. tensor fascia lata und Glutealmuskulatur.\nEinsetzen von entsprechenden Hohmann-Haken direkt unter sowie auf den Schenkelhals. T-förmige Inzision der Kapsel und anschließende Resektion zur Darstellung der Fraktur.\nNachresektion des Schenkelhalses unter Bildung einer Knochenscheibe, diese wird zunächst extrahiert, anschließend der Hüftkopf mit dem Korkenzieher. Es wird eine §DK_SHELL§ mm Kopfschale bemessen.\nUmlagerung des Beines und Zuwendung zum Schaft. Eröffnung mit dem kleinen scharfen Löffel.\nAnschließend schrittweises Aufraspeln, diesmal bis auf §DK_SHAFT§ mm. Wahl des §DK_SHAFT§ mm CCA-Schaftes, Vorbereitung des Refobacin-Palacos und Einbringen eines Zementstoppers. Bei richtiger Konsistenz des Zementes Einbringen des Zementes, Einbringen der §DK_SHAFT§ mm CCA-Schaftprothese. Eintreiben auf die richtige Höhe und Warten auf Aushärtung des Zementes. Überschüssiger Zement wird direkt abgetragen. Anschließend Reposition mit §DK_HEAD§-32 mm Probekopf, ein Querfinger kann zwischen Kopf und Pfanne gebracht werden. Wahl des §DK_HEAD§-28 mm Metallkopfes, Luxation, Wechsel von Probekopf auf 28 mm Kopf und §DK_SHELL§ mm Kopfschale. Reposition. Überprüfung der Gelenkführung, keine Luxationstendenz, kein Teleskopphänomen.\nAusgiebige Spülung und Blutstillung. Einlage einer Redondrainage.`,
 tfna:`Zunächst geschlossene Reposition der Fraktur mit Hilfe des Repositionstisches unter BV-Kontrolle in 2E.\nNun ausgiebige Hautdesinfektion und sterile Abdeckung des OP-Gebietes entsprechend den aktuellen Hygienestandards.\nScharfe Hautinzision proximal der Trochanterspitze ca. 5 cm längs verlaufend. Durchtrennung des subkutanen Fettgewebes, Längsinzision der Oberschenkelfaszie und subtile Blutstillung.\nEingehen auf die Trochanterspitze und Einbringen eines Führungsdrahtes und BV-Kontrolle. Nach regelrechter Lage des eingebrachten Führungsdrahtes in beiden Ebenen mit Auffädeln des distalen Frakturfragmentes Überbohren desselben mit dem dafür vorgesehenen Spiralbohrer. Nun dann Einbringen eines §TFNA_ANGLE§°x §TFNA_LENGTH§x§TFNA_DIAM§ mm TFN-A, der problemlos über die Fraktur nach distal vorgeschoben wird. Der Nagel wird soweit nach distal vorgeschoben, dass die Schenkelhalsklinge zentral im Schenkelhals zu liegen kommen kann.\nNun dann mit Hilfe des Zielbügels und der dafür vorgesehenen Zielbohrbuchsen über eine Stichinzision Einbringen des Führungsdrahtes für die Schenkelhalsklinge. Nach Kontrolle der regelrechten Lage Aufbohren mit Hilfe des Stufenbohrers bis §TFNA_BLADE§ mm. Nun Einbringen der entsprechend langen Schenkelhalsklinge, die nach regelrechter Lokalisation arretiert wird. Es kommt zu einer guten Annäherung der Frakturfragmente bei regelrechten achsengerechten Stellungsverhältnissen. Anschließend Stichinzision und Einbringen der dafür vorgesehenen Zielbohrbuchsen über den Zielbügel für die distale statische Verrieglung. Vorbohren und Einbringen der Corticalisschraube. Entfernung des Zielbügels und Einbringen einer proximalen Verriegelungskappe. Die anschließende radiologische Kontrolle zeigt weitgehend achsengerechte Stellungsverhältnisse bei regelrechter Lage des eingebrachten Osteosynthesematerials.`,
@@ -7267,6 +7273,9 @@ function OPBerichtApp(){
   const [supramalBrostrom,setSupramalBrostrom]=useState(false);
   const [peronealTyp,setPeronealTyp]=useState("");
   const [peronealLongus,setPeronealLongus]=useState(false);
+  const [luxNaht,setLuxNaht]=useState(false);
+  const [luxRinne,setLuxRinne]=useState(false);
+  const [luxQuartus,setLuxQuartus]=useState(false);
   const [hohlfussTyp,setHohlfussTyp]=useState("");
   const [dwyerSteindler,setDwyerSteindler]=useState(false);
   const [dwyerElevMT1,setDwyerElevMT1]=useState(false);
@@ -7561,7 +7570,7 @@ function OPBerichtApp(){
       }
 
       if(op==="os_tib_ext"){o.push("5-854.2b","5-782.1u","5-869.2");if(osTibMDO){o.push("5-781.1t","5-93b.0");}}
-      if(op==="peroneal"){if(peronealTyp==="naht")o.push("5-855.29","5-855.39","5-852.29");if(peronealTyp==="tenodese")o.push("5-855.29","5-855.39","5-852.29","5-855.89");if(peronealTyp==="luxation")o.push("5-806.7","5-782.ar","5-850.b9");}
+      if(op==="peroneal"){if(peronealTyp==="naht")o.push("5-855.29","5-855.39","5-852.29");if(peronealTyp==="tenodese")o.push("5-855.29","5-855.39","5-852.29","5-855.89");if(peronealTyp==="luxation"){o.push("5-806.7","5-850.b9");if(luxRinne)o.push("5-781.ar");if(luxNaht)o.push("5-855.19","5-855.39");}}
       if(op==="as_naht")o.push("5-855.19","5-855.39");
       if(op==="fhl_transfer")o.push("5-854.49","5-869.2","5-855.39","5-855.19");
     })
@@ -7601,7 +7610,7 @@ function OPBerichtApp(){
     if(rfOp.includes("subtalar"))_candidates.push({p:"subtalar",cm:1.278});
     if(rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen"))_candidates.push({p:"mdo",cm:1.111});
     if(rfOp.includes("os_tib_ext"))_candidates.push({p:"os_tib",cm:0.707});
-    if(rfOp.includes("peroneal"))_candidates.push({p:"peroneal",cm:peronealTyp==="luxation"?0.707:0.743});
+    if(rfOp.includes("peroneal"))_candidates.push({p:"peroneal",cm:peronealTyp==="luxation"?(luxRinne?0.995:(luxNaht?0.743:0.707)):0.743});
     if(rfOp.includes("fhl_transfer"))_candidates.push({p:"fhl_transfer",cm:0.95});
     if(mfCotton)_candidates.push({p:"cotton",cm:1.111});
     if(mfTmt.length>0){var _tmtCm=mfTmt.includes("tmt1_3")?1.111:1.033;_candidates.push({p:"tmt",cm:_tmtCm});}
@@ -7756,10 +7765,15 @@ function OPBerichtApp(){
 
     // Peronealsehnen → I27E / Luxation → I59Z
     if(rfOp.includes("peroneal")&&_prio==="peroneal") {
-      if(peronealTyp==="luxation") return [o,{label:"Peronealsehnenluxation",ops:o,
-        hdrg:"—",ebm:"—",kurz:window._fx("I59Z ~2.600 €"),drg:window._fx("I59Z 3.225 €"),hdrg_n1:"—",empf:"n2",
-        ziel:window._fx("Kein H-DRG → stationär ≥2N → I59Z (CM 0,707 = 3.225 €)."),
-        kodier:"5-806.7 + 5-782.ar + 5-850.b9."}];
+      if(peronealTyp==="luxation"){
+        var luxDrg=luxRinne?"I13G":(luxNaht?"I27E":"I59Z");
+        var luxCm=luxRinne?"0,995":(luxNaht?"0,743":"0,707");
+        var luxOpsTxt="5-806.7 + 5-850.b9"+(luxRinne?" + 5-781.ar":"")+(luxNaht?" + 5-855.19 + 5-855.39":"");
+        return [o,{label:"Peronealsehnenluxation"+(luxRinne?" (Rinnenvertiefung)":luxNaht?" (mit Naht)":""),ops:o,
+        hdrg:"—",ebm:"—",kurz:window._fx(luxDrg+" ~2.600 €"),drg:window._fx(luxDrg+" 3.225 €"),hdrg_n1:"—",empf:"n2",
+        ziel:window._fx("Kein H-DRG → stationär ≥2N → "+luxDrg+" (CM "+luxCm+" = "+luxDrg+" 3.225 €). Höchstbewertete zutreffende DRG."),
+        kodier:luxOpsTxt+"."}];
+      }
       return [o,{label:"Peronealsehnen "+(peronealTyp==="tenodese"?"Tenodese":"Naht"),ops:o,
         hdrg:"—",ebm:"—",kurz:window._fx("I27E ~2.700 €"),drg:window._fx("I27E 3.389 €"),hdrg_n1:"—",empf:"n2",
         ziel:window._fx("Kein H-DRG → stationär ≥2N → I27E (CM 0,743 = 3.389 €)."),
@@ -8367,7 +8381,12 @@ const UC_TEXT_MAP={
           tenText=tenText.replace(/§SIDE_ADJ§/g,side==="rechts"?"rechten":"linken");
           p.push("\n\n"+tenText);
         }
-        if(peronealTyp==="luxation")p.push("\n\n"+T.peroneal_luxation);
+        if(peronealTyp==="luxation"){
+          var luxParts=[T.peroneal_luxation, luxNaht?T.peroneal_lux_naht_ja:T.peroneal_lux_naht_nein, luxRinne?T.peroneal_lux_rinne_ja:T.peroneal_lux_rinne_nein];
+          if(luxQuartus)luxParts.push(T.peroneal_lux_quartus);
+          luxParts.push(T.peroneal_lux_retinaculum);
+          p.push("\n\n"+luxParts.join("\n"));
+        }
       }
       else if(op==="calc_ot_verl")p.push("\n\nZuwendung zur verlängernden Calcaneus-Osteotomie.\n"+T.coal_lcot);
       else p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
@@ -8717,7 +8736,7 @@ const UC_TEXT_MAP={
       </OBSec>
 
       {/* RÜCKFUSS */}
-      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);}}>
+      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);}}>
         <div style={row}>
           {[["haglund_mini","Haglund mini open"],["haglund","Haglund + AS-Split"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
@@ -8760,7 +8779,12 @@ const UC_TEXT_MAP={
           {peronealTyp==="tenodese"&&<div style={{marginTop:4}}>
             <div style={tog(peronealLongus)} onClick={()=>setPeronealLongus(!peronealLongus)}>Longus (statt Brevis)</div>
           </div>}
-          <div style={{fontSize:10,color:"#718096",marginTop:2}}>{peronealTyp==="naht"?"Naht Peroneus Brevis":peronealTyp==="tenodese"?"Tenodese Per. "+(peronealLongus?"Longus":"Brevis"):peronealTyp==="luxation"?"Luxation":"Variante wählen"}</div>
+          {peronealTyp==="luxation"&&<div style={{marginTop:4,display:"flex",gap:4,flexWrap:"wrap"}}>
+            <div style={tog(luxNaht)} onClick={()=>setLuxNaht(!luxNaht)}>+ Naht der Sehne</div>
+            <div style={tog(luxRinne)} onClick={()=>setLuxRinne(!luxRinne)}>+ Rinnenvertiefung</div>
+            <div style={tog(luxQuartus)} onClick={()=>setLuxQuartus(!luxQuartus)}>+ Peroneus quartus</div>
+          </div>}
+          <div style={{fontSize:10,color:"#718096",marginTop:2}}>{peronealTyp==="naht"?"Naht Peroneus Brevis":peronealTyp==="tenodese"?"Tenodese Per. "+(peronealLongus?"Longus":"Brevis"):peronealTyp==="luxation"?"Luxation"+(luxRinne?" + Rinnenvertiefung (5-781.ar → I13G)":luxNaht?" + Naht (→ I27E)":" (→ I59Z)")+(luxQuartus?" + Peroneus quartus":""):"Variante wählen"}</div>
         </div>}
         {rfOp.includes("os_tib_ext")&&<div style={{marginTop:4,marginBottom:4}}>
           <div style={tog(osTibMDO)} onClick={()=>setOsTibMDO(!osTibMDO)}>+ MDO (Calcaneusosteotomie)</div>
