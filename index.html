@@ -4380,7 +4380,7 @@ const ENDO_BEF_TEP_SCHMERZ = [
 const ENDO_DRG = {
   // Primäre Hüfte
   "I47C": { bwr: 1.396, mvdPflege: 0, mvd: 6.1, label: "Hüft-TEP, ohne kompl. Eingriff, ohne CC", inekImpl: 1242, pflegeProTag: 180.37, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 6064, fallOp: 2947, fallNormal: 1830, fallAnaesth: 720, fallRest: 567 },
-  "I47B": { bwr: 1.749, mvdPflege: 0, mvd: 9.0, label: "Hüft-TEP, mit kompl. Eingriff", inekImpl: 932, pflegeProTag: 217.20, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 7465, fallOp: 2848, fallNormal: 2340, fallAnaesth: 899, fallRest: 1378, fallStdAbw: 2048 },
+  "I47B": { bwr: 1.749, mvdPflege: 0, mvd: 9.0, label: "Hüft-TEP, mit kompl. Eingriff", inekImpl: 930.53, pflegeProTag: 217.20, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 7465, fallOp: 2848, fallNormal: 2340, fallAnaesth: 899, fallRest: 1378, fallStdAbw: 2048 },
   // Aseptischer Pfannenwechsel hat eigenes I47A
   "I47A": { bwr: 2.113, mvdPflege: 0, mvd: 10.0, label: "Pfannenwechsel / Revision Hüfte mit kompl. Eingriff", inekImpl: 1363, pflegeProTag: 207.06, _quelle: "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026" , fallTotal: 9024, fallOp: 4041, fallNormal: 2605, fallAnaesth: 1098, fallRest: 1280 },
   // Schaftwechsel
@@ -4436,8 +4436,8 @@ window._DRG = {
   I31B:{label:"Implantatentfernung mittel",bwr:1.363,ugvd:null,mvwd:null,mvd:4.8,inekImpl:629.53,pflegeProTag:184.69,fallTotal:5816,fallOp:2807,fallNormal:1369,fallAnaesth:1010,fallRest:631,fallStdAbw:2047,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
   I31C:{label:"Implantatentfernung einfach",bwr:1.208,ugvd:null,mvwd:null,mvd:4.3,inekImpl:461.53,pflegeProTag:197.9,fallTotal:5152,fallOp:2352,fallNormal:1295,fallAnaesth:917,fallRest:587,fallStdAbw:1648,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
   I59Z:{label:"Diverse OSG/Fuß",bwr:0.707,ugvd:1,mvwd:2.4,mvd:2.4,inekImpl:74.43,pflegeProTag:264.96,fallTotal:3011,fallOp:1142,fallNormal:960,fallAnaesth:585,fallRest:324,fallStdAbw:936,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
-  I43B:{label:"Endoprothese/Wechsel (UC-Modul)",bwr:2.372,ugvd:2,mvwd:null,mvd:null,inekImpl:2710.12,pflegeProTag:null,fallTotal:null,fallOp:null,fallNormal:null,fallAnaesth:null,fallRest:null,fallStdAbw:null,quelle:"Bestandsübernahme aus Code 07/2026 (CM aus Hinweistext, InEK-Impl aus INEK_IMPL)"},
-  I47B:{label:"Endoprothese (UC-Modul)",bwr:null,ugvd:null,mvwd:null,mvd:null,inekImpl:931.71,pflegeProTag:null,fallTotal:null,fallOp:null,fallNormal:null,fallAnaesth:null,fallRest:null,fallStdAbw:null,quelle:"Bestandsübernahme aus Code 07/2026 (nur InEK-Implantatreferenz)"}
+  I43B:{label:"Endoprothese/Wechsel (UC-Modul)",bwr:2.372,ugvd:2,mvwd:null,mvd:null,inekImpl:2710.12,pflegeProTag:null,fallTotal:10159,fallOp:5704,fallNormal:2310,fallAnaesth:1151,fallRest:994,fallStdAbw:null,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 07/2026 (Fallkosten); CM aus G-DRG-Katalog"},
+  I47B:{label:"Endoprothese (UC-Modul)",bwr:1.749,ugvd:2,mvwd:9.0,mvd:9.0,inekImpl:930.53,pflegeProTag:217.20,fallTotal:7465,fallOp:2848,fallNormal:2340,fallAnaesth:899,fallRest:1378,fallStdAbw:null,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 07/2026"}
 };
 window._HDRG = {
   I20O:{pauschale:1007,label:"H-DRG Vorfuß einfach (Hybrid)",quelle:"Hybrid-DRG Pauschale"},
