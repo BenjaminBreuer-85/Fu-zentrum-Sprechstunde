@@ -8,14 +8,11 @@
 <style id="rmob-p2">
 /* P2 Mobile-Layout: responsive Grids (inline-Styles per !important überschrieben) */
 @media (max-width:640px){
-  /* P2.1 UC-Fallsteuerung: 110px+4 Spalten -> Label volle Breite, Werte 2x2 */
   .rmob5{grid-template-columns:1fr 1fr !important;}
   .rmob5>*:first-child{grid-column:1 / -1 !important;text-align:left !important;margin-bottom:3px;}
 }
 @media (max-width:480px){
-  /* P2.2 Belegungstage-Grid: 4 Karten -> 2x2 */
   .rmob4{grid-template-columns:1fr 1fr !important;}
-  /* P2.3 Messwert-Label: schmalere Mindestbreite auf Mobile */
   .rmob-lbl{min-width:110px !important;}
 }
 </style>
