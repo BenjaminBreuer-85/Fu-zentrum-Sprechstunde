@@ -8063,20 +8063,24 @@ const UC_TEXT_MAP={
   const ucErloesData=useMemo(()=>{
     if(!ucOp||!UC_EINGRIFFE[ucOp])return null;
     var e=UC_EINGRIFFE[ucOp];
+    // Single Source: Voll-DRG- und H-DRG-Erlöse aus window._DRG/_HDRG ableiten (keine Doppelpflege).
+    // Literale (e.basisE/e.hdrgE) dienen nur als Fallback, wenn der Code nicht im Block steht (z.B. Platzhalter "___").
+    var _bE=(e.basis&&window._E(e.basis)!=null)?window._EF(e.basis):e.basisE;
+    var _hE=(e.hdrg&&window._HDRG[e.hdrg])?window._HDRG[e.hdrg].pauschale.toLocaleString("de-DE"):e.hdrgE;
     var hasHDRG=e.hdrg!=="—"&&!ucHdrgAusgeschlossen;
     var parseEU=function(s){if(!s||s==="—")return 0;return Number(String(s).replace(/\./g,"").replace(",","."))||0;};
     var fmt=function(n){return n.toLocaleString("de-DE");};
-    var basisNum=parseEU(e.basisE);
+    var basisNum=parseEU(_bE);
     var abschlagPerDay=UGVD_ABSCHLAG[e.basis]||null;
     var t1abschlag=abschlagPerDay!==null?fmt(basisNum-abschlagPerDay):null;
     var t1abschlagPerDay=abschlagPerDay!==null?fmt(abschlagPerDay):null;
     return {label:e.l,ops:e.ops,kontextOps:e.kontextOps||[],
-      amb:hasHDRG?"H-DRG "+e.hdrg+" "+e.hdrgE+" €":"KEINE H-DRG",
-      n1:hasHDRG?"Kurzlieger ≈ H-DRG":"Kurzlieger "+e.basis+" ~"+e.basisE+" €",
-      n2:e.basis+" "+e.basisE+" €",
-      n3:e.basis+" "+e.basisE+" €",
+      amb:hasHDRG?"H-DRG "+e.hdrg+" "+_hE+" €":"KEINE H-DRG",
+      n1:hasHDRG?"Kurzlieger ≈ H-DRG":"Kurzlieger "+e.basis+" ~"+_bE+" €",
+      n2:e.basis+" "+_bE+" €",
+      n3:e.basis+" "+_bE+" €",
       empf:hasHDRG?"amb":"n2",hint:e.hint,kodier:e.kodier,
-      pct:e.pct,hdrg:hasHDRG?e.hdrg:"—",hdrgE:hasHDRG?e.hdrgE:"—",basis:e.basis,basisE:e.basisE,
+      pct:e.pct,hdrg:hasHDRG?e.hdrg:"—",hdrgE:hasHDRG?_hE:"—",basis:e.basis,basisE:_bE,
       hasHDRG:hasHDRG,
       t1abschlag:t1abschlag,
       t1abschlagPerDay:t1abschlagPerDay,
