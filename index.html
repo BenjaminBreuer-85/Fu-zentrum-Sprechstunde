@@ -4021,6 +4021,23 @@ const DIAG = {
     literatur: "Anderson DD et al. (2024) Ankle osteoarthritis: Toward new understanding and opportunities for prevention and intervention. J Orthop Res. https://doi.org/10.1002/jor.25973",
     literaturTEP: "Colò G et al. (2025) Five decades of total ankle replacement: from early failures to fourth-generation innovations. Eur J Orthop Surg Traumatol. https://doi.org/10.1007/s00590-025-04634-5",
   },
+  usg_arthrose: {
+    label: "USG-Arthrose",
+    diagnoseText: "Arthrose des unteren Sprunggelenkes (Subtalargelenk)",
+    lokBeschwerden: "im Bereich des Rückfußes / unteren Sprunggelenkes, belastungsabhängig",
+    konservativ: ["Belassen des Befundes", "Schonung", "Belastungsreduktion", "Einlagenversorgung", "Schuhzurichtung mit Abrollhilfe", "Nutzung eines Schuhes mit Sohlenversteifung und Abrollhilfe", "Schmerztherapie", "Infiltrationstherapie", "Physiotherapie"],
+    befunde: [
+      { id: "haut_usg", pos: "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt", neg: "Es zeigen sich Hautveränderungen" },
+      { id: "ds_sinus_usg", pos: "Druckschmerz auf Höhe des Sinus Tarsi / über dem Subtalargelenk", neg: "Kein Druckschmerz Sinus Tarsi" },
+      { id: "schwellung_rf", pos: "Schwellung am Rückfuß", neg: "Keine Schwellung" },
+      { id: "bew_usg", input: true, label: "Beweglichkeit USG", placeholder: "frei / eingeschränkt / aufgehoben" },
+      { id: "inv_ev", pos: "Schmerzhafte/eingeschränkte Inversion/Eversion", neg: "Inversion/Eversion frei und schmerzarm" },
+      { id: "rf_achse_usg", input: true, label: "Rückfußachse", placeholder: "5° valgus" },
+    ],
+    opMethoden: ["subtalar_arthrodese","tn_arthrodese","double_arthrodese","triple_arthrodese"],
+    bildBefunde: "Arthrose des unteren Sprunggelenkes (Subtalargelenk) Grad __",
+    literatur: "Jennison T et al. Subtalar arthrodesis union rates with and without adjacent ankle arthrodesis. · Röhm J et al. Double versus triple arthrodesis for adult-acquired flatfoot deformity (Stage III PTTD).",
+  },
   ocl: {
     label: "OCL / Knorpelschaden",
     diagnoseText: "Osteochondrale Läsion des Talus",
@@ -4284,6 +4301,9 @@ const OPS = {
   calcaneus_ot: { k: "Calcaneus-OT", b: "eine Calcaneus-Osteotomie zur Achskorrektur", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Thrombose", t: "Calcaneus-Korrekturosteotomie" },
   coalition_exzision: { k: "Coalition-Exzision", b: "eine Exzision der Koalition mit Interposition eines autologen Faszien-Fett-Flaps vom Unterschenkel", r: "Infekt, fehlende zufriedenstellende Korrektur, Belastungsschmerz, Peronealsehnenspasmus, Folgeeingriffe, Versteifung im Verlauf", t: "Exzision der Koalition mit Faszien-Fett-Interponat und Calcaneus-Korrekturosteotomie" },
   subtalar_arthrodese: { k: "USG-Arthrodese", b: "eine primäre Versteifung des unteren Sprunggelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) des unteren Sprunggelenkes, Augmentation durch autologe Beckenkammspongiosa" },
+  tn_arthrodese: { k: "TN-Arthrodese", b: "eine isolierte Versteifung des Talonavikulargelenkes in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) des Talonavikulargelenkes, Augmentation durch autologe Beckenkammspongiosa" },
+  double_arthrodese: { k: "Double-Arthrodese", b: "eine Versteifung von Subtalar- und Talonavikulargelenk in Korrekturposition", r: "Infektion, Pseudarthrose (v. a. talonavikulär), Anschlussarthrose (OSG), Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) des Subtalar- und Talonavikulargelenkes, Augmentation durch autologen Beckenkammspan" },
+  triple_arthrodese: { k: "Triple-Arthrodese", b: "eine Versteifung von Subtalar-, Talonavikular- und Kalkaneokuboidgelenk in Korrekturposition", r: "Infektion, Pseudarthrose, Anschlussarthrose (OSG), Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) der drei Rückfußgelenke (Subtalar-, Talonavikular-, Kalkaneokuboidgelenk), Augmentation durch autologen Beckenkammspan" },
   arthrodese_tmt: { k: "TMT-Arthrodese", b: "eine Versteifung der Tarsometatarsalgelenke", r: "Infektion, Pseudarthrose, Anschlussarthrose, Fehlstellung, Materialversagen, Thrombose", t: "Arthrodese (=Versteifung) der Tarsometatarsalgelenke, Augmentation durch autologe Beckenkammspongiosa" },
   arthrorise: { k: "Arthrorise", b: "eine Arthrorise (subtalare Schraubenarthrorise) zur Korrektur des kindlichen/juvenilen Knick-Senkfußes", r: "Infektion, Implantatlockerung, Überkorrektur mit Supinationsfehlstellung, Schmerzen im Sinus Tarsi, Implantatentfernung erforderlich, unzureichende Korrektur", t: "Subtalare Arthrorise" },
   scarf: { k: "Scarf-Osteotomie", b: "eine Scarf-Osteotomie zur Korrektur der Hallux-valgus-Fehlstellung", r: "Infektion, Wundheilungsstörung, Nerven-/Gefäßverletzung, Rezidiv, Pseudarthrose, Steifigkeit, Thrombose", t: "Scarf-Osteotomie, Weichteilkorrektur" },
@@ -4443,7 +4463,7 @@ window._DRG = {
   I13E:{label:"Rückfuß-/OSG-Eingriff mittel",bwr:1.278,ugvd:1,mvwd:5.2,mvd:5.2,inekImpl:579.63,pflegeProTag:187.03,fallTotal:5454,fallOp:2475,fallNormal:1496,fallAnaesth:891,fallRest:591,fallStdAbw:1751,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
   I13G:{label:"Rückfuß-/OSG-Eingriff basis",bwr:0.995,ugvd:1,mvwd:4.1,mvd:4.1,inekImpl:255.55,pflegeProTag:199.38,fallTotal:4239,fallOp:1767,fallNormal:1294,fallAnaesth:733,fallRest:445,fallStdAbw:1449,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
   I20A:{label:"Vorfuß PCCL 4 / aufwendigster Eingriff (z.B. T2-Nagel)",bwr:1.963,ugvd:2,mvwd:9.1,mvd:9.1,inekImpl:780.56,pflegeProTag:181.51,fallTotal:8374,fallOp:3747,fallNormal:2596,fallAnaesth:1232,fallRest:799,fallStdAbw:3016,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
-  I20B:{label:"Vorfuß höchste Stufe",bwr:1.494,ugvd:null,mvwd:null,mvd:6.5,inekImpl:508.42,pflegeProTag:181.46,fallTotal:6370,fallOp:2789,fallNormal:2014,fallAnaesth:1002,fallRest:565,fallStdAbw:2424,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
+  I20B:{label:"Vorfuß höchste Stufe",bwr:1.494,ugvd:1,mvwd:6.5,mvd:6.5,inekImpl:508.42,pflegeProTag:181.46,fallTotal:6370,fallOp:2789,fallNormal:2014,fallAnaesth:1002,fallRest:565,fallStdAbw:2424,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
   I20C:{label:"Vorfuß sehr komplex (mit DMMO 4× / TMT 3 Gel.)",bwr:1.111,ugvd:1,mvwd:5.2,mvd:5.2,inekImpl:302.41,pflegeProTag:187.56,fallTotal:4738,fallOp:1928,fallNormal:1567,fallAnaesth:748,fallRest:494,fallStdAbw:1839,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
   I20D:{label:"Vorfuß komplex (Lapidus, mit DMMO ≥3×)",bwr:1.033,ugvd:1,mvwd:3.4,mvd:3.4,inekImpl:404.23,pflegeProTag:213.41,fallTotal:4409,fallOp:2096,fallNormal:1141,fallAnaesth:750,fallRest:421,fallStdAbw:1304,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
   I20E:{label:"Vorfuß mit Hebel (Chevron/Scarf/MTP1-Arthrodese)",bwr:0.86,ugvd:1,mvwd:3.2,mvd:3.2,inekImpl:248,pflegeProTag:243.08,fallTotal:3665,fallOp:1562,fallNormal:1126,fallAnaesth:631,fallRest:346,fallStdAbw:1230,quelle:"InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"},
@@ -5196,6 +5216,9 @@ const AUFKLAERUNG_RISIKEN = {
     arthrorise: {gruppe:"arthrorise", kontext:"plattfuss_rueckfuss"},
     arthrodese_tmt: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
     subtalar_arthrodese: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
+    tn_arthrodese: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
+    double_arthrodese: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
+    triple_arthrodese: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
     coalition_exzision: {gruppe:"mittel_rueckfuss", kontext:"plattfuss_rueckfuss"},
     calcaneus_ot: {gruppe:"calcaneus_ot", kontext:"plattfuss_rueckfuss"},
     lcot: {gruppe:"calcaneus_ot", kontext:"plattfuss_rueckfuss"},
@@ -5249,6 +5272,9 @@ const AUFKLAERUNG_RISIKEN = {
     calcaneus_ot: "Calcaneus-OT",
     coalition_exzision: "Coalition-Exzision",
     subtalar_arthrodese: "USG-Arthrodese",
+    tn_arthrodese: "TN-Arthrodese",
+    double_arthrodese: "Double-Arthrodese",
+    triple_arthrodese: "Triple-Arthrodese",
     arthrodese_tmt: "TMT-Arthrodese",
     arthrorise: "Arthrorise",
     scarf: "Scarf-Osteotomie",
@@ -5317,6 +5343,9 @@ const OP_STEUERUNG={
     {typ:"erloes",txt:window._fx("In Kombination mit LCOT (5-781.4t) Aufwertung zur I20C (5.068 €) — bei Patienten <12 Jahre sogar I20B (6.815 €).")}
   ]},
   subtalar_arthrodese:{hdrg:null,drg:"I13E",impl:192.00,empf:"stat",hebel:null,hebelName:null},
+  tn_arthrodese:{hdrg:null,drg:"I13E",impl:367.21,empf:"stat",hebel:null,hebelName:null},
+  double_arthrodese:{hdrg:null,drg:"I13E",impl:559.21,empf:"stat",hebel:null,hebelName:null},
+  triple_arthrodese:{hdrg:null,drg:"I20B",impl:559.21,empf:"stat",hebel:null,hebelName:null},
   arthrodese_tmt:{hdrg:null,drg:"I20D",impl:271.21,empf:"stat",hebel:null,hebelName:null,hinweise:[
     {typ:"erloes",txt:window._fx("TMT-Arthrodese 3 Gelenke (5-808.a6) → I20C (5.068 €). 4–5 Gelenke (5-808.a7/a8) → I20B (6.815 €).")}
   ]},
@@ -7037,6 +7066,9 @@ dwyer_elev_mt1:`Längsverlaufende Inzision über dem medialen Fußrand auf Höhe
 dwyer_jones:`Inzision dorsal des IP Gelenkes, Quertenotomie der EHL Sehne, Resektion des IP Gelenkes mit Anfrischen der Knochenenden, Anbohren und Vorlegen eines Drahtes nach Reposition des Gelenkes. Dann BV Kontrolle und Arthrodese in physiologischer Position mittels 4,0 Schraube. Mobilisierung der EHL Sehne. Inzision medial des MTP I Gelenkes, schrittweise Präparation und Darstellung des Gelenkes nach dorsaler Arthrolyse bei Kontraktur. Die Großzehe kann nun orthograd ausgerichtet eingestellt werden. Nun Mobilisierung um den distalen MT I, Querbohrung und Einziehen der Sehne mittels Shuttlefaden, Einstellung der Vorspannung, dann Einbringen einer 4,75 Tenodeseschraube und zusätzlich Seit-zu-Seit-Naht der Sehne mit sicherem Halt. Stabile Fixation mit guter Spannung.`,
 dwyer_peroneal:`Inzision über den Peronealsehnen, diese werden dargestellt, akribischer Schutz des dargestellten Nervus suralis. Tenosynovektomie und Adhäsiolyse bei deutlichen Verwachsungen. Distale Tenotomie und Transfer der an der Umlenkstelle degenerativ aufgefaserten Peroneus Longus Sehne, welche den 1. Metatarsale in der Flexion hält. Einflechtung und PDS Naht auf die Brevis Sehne ansatznah.`,
 lambrinudi:`Inzision längs unter dem Außenknöchel. Subtile stumpfe Präparation in die Tiefe nach Sondierung des Sinus Tarsi, Darstellung der Peronealsehnen und des LCF, Beiseitehalten dieser mit einem Lidhaken. Nach dorsal Schonung des Astes des Per. Superficialis.\nNun Ausräumung des Sinus Tarsi, Entfernung der Kapsel vom CC Gelenk und Resektion des Proc. Ant Calcanei mit dem Flachmeißel, ebenfalls Entknorpelung am CC Gelenk. Aus dem Fragment des Proc. Ant Calcanei wird autologe Spongiosa gewonnen. Insgesamt ausgeprägte Verwachsungen, der Sinus Tarsi ist mit tamponierender Tenosynovialitis gefüllt, die aufwendig entfernt werden muss. Stillung kleinerer Blutungen aus varikös veränderten Gefäßen.\nNun mit dem Meißel korrigierende Resektion des Subtalargelenkes zur Korrektur der Rückfußvarusstellung. Nach Entnahme der Knochenscheiben Resektion der plantaren Anteile des Talushalses sowie der knorpeltragenden Anteile des Taluskopfes. Nun kann über den lateralen Zugang ebenfalls das Os Naviculare entknorpelt werden, ebenfalls Setzen multipler Anbohrungen unter Wasserkühlung.\nInsgesamt auch hier erschwerte Präparation bei kontrakter Fehlstellung.\nEinsetzen eines Arthrodesespreizers, Sicherstellung der kompletten Entknorpelung aller Flächen. Spülung. Nun Einbringen der entsprechenden Spongiosa an das Os Naviculare.\nNun kann der Fuß schrittweise in die Korrekturstellung gebracht werden, dafür noch Nachresektion am Calcaneus. Bei guter Korrektur Transfixation mittels K-Drähten und BV Kontrolle.\nUnter BV Kontrolle werden nach Hautinzision, stumpfem Spreizen des Gewebes und manueller Korrektur des Rückfußes unter Schutz mit einer Gewebeschutzhülse zwei Drähte von plantar über den Calcaneus über das Subtalargelenk gebracht. Nach entsprechender Messung Einbringen von 7,0 Schrauben, diese sitzen fest. Ebenfalls Einbringen von Drähten über das TN Gelenk nach Korrektur der Fehlstellung und BV Kontrolle, insgesamt gute Korrektur, das CC Gelenk schließt sich.\nNach Stichinzision und unter Einsetzen von stumpfen Haken erfolgt die Längenmessung und das Einbringen von Schrauben. Abschließende Arthrodese mit Kompression des CC Gelenkes.\nAbschlusskontrolle, alle Implantate zeigen in 2 Ebenen unter BV eine gute Lage. Klinisch weist der Fuß eine gute Korrekturstellung auf.`,
+tn_arthrodese:`Mediale Hautinzision über dem Talonavikulargelenk. Schichtweise Präparation in die Tiefe unter Schonung der Sehne des M. tibialis posterior und des neurovaskulären Bündels. Darstellung und Eröffnung des Talonavikulargelenkes. Schrittweise Entknorpelung der gelenkbildenden Flächen von Taluskopf und Os naviculare mit Meißel, scharfem Löffel und Kürette. Einsetzen eines Arthrodesespreizers, Sicherstellung der kompletten Entknorpelung. Spülung, schachbrettartiges Eröffnen der knöchernen Flächen mit dem Meißel, Setzen multipler Anbohrungen unter Wasserkühlung. Einbringen der autologen Spongiosa.\nManuelle Reposition und Korrektur der Fußachse (Aufhebung von Abduktion und Pronation im Rückfuß), temporäre Transfixation mittels K-Draht unter BV-Kontrolle. Nach Längenmessung Einbringen einer 7,0er kanülierten Kompressionsschraube mit guter Kompression im Gelenk. Zusätzliche Abstützung durch eine dorsomedial angelegte winkelstabile Variax-Platte mit vier winkelstabilen Schrauben, korrekte Implantatlage.\nAbschlusskontrolle in 4 Ebenen (Fuß ap, seitlich, OSG ap und Rückfuß axial); alle Implantate zeigen unter BV eine gute Lage, klinisch gute Korrekturstellung des Fußes.`,
+double_arthrodese:`Double-Arthrodese des Rückfußes (Subtalar- und Talonavikulargelenk).\nLateraler Zugang: Horizontalverlaufende Hautinzision lateral von der Spitze des Außenknöchels nach vorne gezogen. Subtile stumpfe Präparation in die Tiefe nach Sondierung des Sinus Tarsi, Darstellung und Schutz der Peronealsehnen sowie des LFC, Beiseitehalten mit einem Lidhaken. Ausräumung des Sinus Tarsi und schrittweise Entknorpelung der medialen und hinteren Facette des Subtalargelenkes mit Meißel, scharfem Löffel und Kürette.\nMedialer Zugang: Hautinzision über dem Talonavikulargelenk unter Schonung der Tibialis-posterior-Sehne und des neurovaskulären Bündels, Eröffnung und schrittweise Entknorpelung von Taluskopf und Os naviculare.\nNach Sicherstellung der kompletten Entknorpelung beider Gelenke Spülung, schachbrettartiges Eröffnen der knöchernen Flächen. Über einen separaten Zugang am vorderen Beckenkamm Entnahme eines autologen kortikospongiösen Beckenkammspans, schichtweiser Verschluss der Entnahmestelle. Einbringen des zubereiteten Beckenkammspans in die Arthrodesezonen. Manuelle Reposition und Korrektur der Rückfußachse, temporäre Transfixation mittels K-Drähten unter BV-Kontrolle.\nFixierung: Subtalar Einbringen von zwei 7,0er kanülierten Kompressionsschrauben von plantar über das Tuber calcanei über das Subtalargelenk in den Talus. Talonavikular Fixierung mit einer 7,0er kanülierten Kompressionsschraube und einer dorsomedialen winkelstabilen Variax-Platte mit vier Schrauben. Gute Kompression, korrekte Implantatlage.\nAbschlusskontrolle in 4 Ebenen (Fuß ap, seitlich, OSG ap und Rückfuß axial); klinisch gute Korrekturstellung des Fußes.`,
+triple_arthrodese:`Triple-Arthrodese des Rückfußes (Subtalar-, Talonavikular- und Kalkaneokuboidgelenk).\nLateraler Zugang: Inzision lateral vom Außenknöchel nach vorne gezogen. Subtile stumpfe Präparation nach Sondierung des Sinus Tarsi, Darstellung und Schutz der Peronealsehnen und des LFC, nach dorsal Schonung des Astes des N. peroneus superficialis. Ausräumung des Sinus Tarsi, Entfernung der Kapsel vom Kalkaneokuboidgelenk und schrittweise Entknorpelung von Subtalar- und Kalkaneokuboidgelenk mit Meißel, scharfem Löffel und Kürette.\nMedialer Zugang: Hautinzision über dem Talonavikulargelenk unter Schonung der Tibialis-posterior-Sehne und des neurovaskulären Bündels, Eröffnung und Entknorpelung von Taluskopf und Os naviculare, Setzen multipler Anbohrungen unter Wasserkühlung.\nEinsetzen eines Arthrodesespreizers, Sicherstellung der kompletten Entknorpelung aller drei Gelenke. Spülung. Über einen separaten Zugang am vorderen Beckenkamm Entnahme eines autologen kortikospongiösen Beckenkammspans, schichtweiser Verschluss der Entnahmestelle. Einbringen des zubereiteten Beckenkammspans in die Arthrodesezonen. Der Fuß wird schrittweise in dreidimensionale Korrekturstellung gebracht, temporäre Transfixation mittels K-Drähten und BV-Kontrolle.\nFixierung: je eine 7,0er kanülierte Kompressionsschraube (Fixos) pro Gelenk — Subtalar-, Talonavikular- und Kalkaneokuboidgelenk — sowie eine winkelstabile Variax-Platte über dem Talonavikulargelenk mit vier Schrauben. Alle Implantate zeigen in 2 Ebenen unter BV eine gute Lage.\nAbschlusskontrolle in 4 Ebenen (Fuß ap, seitlich, OSG ap und Rückfuß axial); klinisch gute Korrekturstellung des Fußes.`,
 os_tib_ext:`Zuwenden zum medialen Fußrand. Hier Anlage einer ca. 5 cm langen Hautinzision im Bereich des TN-Gelenkes und des deutlich prominenten akzessorischen Knochens. Nach Spalten des Subcutangewebes Eingehen in die Tiefe. Darstellen der Tib Post Sehne, hier deutliche Adhäsionen. Lösung dieser und Entfernung von entzündlich verändertem Sehnengleitgewebe, kleinschrittige Darstellung des großen akzessorischen Knochens und Entfernung in toto.\nAnfrischen des Os naviculare, unter BV Kontrolle Einbringen eines Mitek Ankers, darüber transponierende Refixierung der Tib Post Sehne. Diese ist stabil fixiert. Kontrolle auf Bluttrockenheit. Spülung des Situs.`,
 peroneal_naht:`Sichelförmige Inzision um den Außenknöchel und Präparation bis auf das Retinaculum Peroneale. Spalten dieses und Eröffnen der Sehnenscheide nach distal und proximal, die Sehnen können hervorluxiert werden, vor allem an der als Brevis Sehne identifizierten Struktur zeigt sich eine Tenosynovialitis mit entzündlicher Zeichnung im Bereich einer Horizontalruptur korrelierend zur Umlenkstelle um den Außenknöchel. Die Longus Sehne zeigt eine Abflachung des Kalibers ohne Rupturzeichen, im klinischen Befund und bei Durchbewegung kommt es zu keiner Luxation der Sehnen. Nun Tenosynovektomie, Exzision der Rupturzone und tubulierende PDS 2-0 Naht der Sehne.`,
 peroneal_luxation:`Eingehen auf die Peronealsehnen retromalleolär. Es zeigt sich das Retinaculum superius vom fibularen Ansatz abgelöst und insuffizient, die Sehnen des M. peroneus longus und brevis luxieren bei Dorsalextension und Eversion nach ventral über die distale Fibula. Darstellung und Anschlingen beider Sehnen.`,
@@ -7352,7 +7384,7 @@ function OPBerichtApp(){
   const hasUM=umOp.length>0;
   const hasFX=fxOp.length>0;
   const hasASnaht=rfOp.includes("as_naht");
-  const hasRFarthrodese=rfOp.includes("subtalar")||(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi");
+  const hasRFarthrodese=rfOp.includes("subtalar")||rfOp.includes("tn_arthrodese")||rfOp.includes("double_arthrodese")||rfOp.includes("triple_arthrodese")||(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi");
   const hasCalcOT=rfOp.includes("calc_ot_verl");
   const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||Object.values(zc).some(a=>a.length>0));
   const hasDMMOover2=dmmo.length>2;
@@ -7410,6 +7442,9 @@ function OPBerichtApp(){
     // RÜCKFUSS
     rfOp.forEach(op=>{
       if(op==="subtalar")P("2× Fixos HKS 7,0","Stryker",2*EINZELPREISE.fixos_hks_7_0.preis);
+      if(op==="tn_arthrodese"){P("1× Fixos HKS 7,0","Stryker",EINZELPREISE.fixos_hks_7_0.preis);P("Variax Curved Plate 4L","Stryker",EINZELPREISE.variax_curved_plate_4l.preis);P("4× Variax Locking 2,7","Stryker",4*EINZELPREISE.variax_locking_2_7.preis);}
+      if(op==="double_arthrodese"){P("3× Fixos HKS 7,0","Stryker",3*EINZELPREISE.fixos_hks_7_0.preis);P("Variax Curved Plate 4L","Stryker",EINZELPREISE.variax_curved_plate_4l.preis);P("4× Variax Locking 2,7","Stryker",4*EINZELPREISE.variax_locking_2_7.preis);}
+      if(op==="triple_arthrodese"){P("3× Fixos HKS 7,0","Stryker",3*EINZELPREISE.fixos_hks_7_0.preis);P("Variax Curved Plate 4L","Stryker",EINZELPREISE.variax_curved_plate_4l.preis);P("4× Variax Locking 2,7","Stryker",4*EINZELPREISE.variax_locking_2_7.preis);}
       if(op==="haglund")P("2× GII Quickanchor Ethibond","DePuy Mitek",2*EINZELPREISE.gii_quickanchor_ethibond.preis);
       if(op==="as_naht"){} // kein Implantat
       if(op==="mdo_mini"||op==="mdo_offen")P("2× Fixos HKS 7,0","Stryker",2*EINZELPREISE.fixos_hks_7_0.preis);
@@ -7479,7 +7514,10 @@ function OPBerichtApp(){
     rfOp.forEach(op=>{
       if(op==="haglund_mini"||op==="haglund")codes.push({hd:codes.length===0,code:"M76.6"+s,desc:"Achillessehnenenthesiopathie (Haglund)"});
       if(op==="as_naht")codes.push({hd:codes.length===0,code:"S86.0"+s,desc:"Verletzung der Achillessehne"});
-      if(op==="subtalar")codes.push({hd:codes.length===0,code:"M19.17"+s,desc:"Posttraumatische Arthrose USG"});
+      if(op==="subtalar")codes.push({hd:codes.length===0,code:"M19.07"+s,desc:"Arthrose USG"});
+      if(op==="tn_arthrodese")codes.push({hd:codes.length===0,code:"M19.07"+s,desc:"Arthrose Talonavikulargelenk"});
+      if(op==="double_arthrodese")codes.push({hd:codes.length===0,code:"M19.07"+s,desc:"Arthrose Subtalar-/Talonavikulargelenk"});
+      if(op==="triple_arthrodese")codes.push({hd:codes.length===0,code:"M19.07"+s,desc:"Arthrose/Fehlstellung Rückfuß"});
       if(op==="mdo_mini"||op==="mdo_offen")codes.push({hd:codes.length===0,code:"M21.4"+s,desc:"Plattfuß (Pes planus)"});
       if(op==="calc_ot_verl")codes.push({hd:codes.length===0,code:"M21.4"+s,desc:"Plattfuß (Pes planus)"});
       if(op==="peroneal"){
@@ -7578,6 +7616,9 @@ function OPBerichtApp(){
       if(op==="haglund_mini")o.push("5-782.at","5-855.39","5-859.19");
       if(op==="haglund")o.push("5-782.at","5-855.39","5-855.19","5-854.29","5-859.19");
       if(op==="subtalar")o.push("5-808.80","5-93b.0");
+      if(op==="tn_arthrodese")o.push("5-808.80","5-93b.0","5-784.0s","5-783.0d");
+      if(op==="double_arthrodese")o.push("5-808.81","5-93b.0","5-784.1t","5-783.2d");
+      if(op==="triple_arthrodese")o.push("5-808.82","5-93b.0","5-784.1t","5-783.2d");
                         if(op==="calc_ot_verl")o.push("5-781.8t","5-93b.e");
       if(op==="hohlfuss"){
         if(hohlfussTyp==="lambrinudi")o.push("5-808.82","5-93b.0");
@@ -7628,6 +7669,9 @@ function OPBerichtApp(){
     if(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi")_candidates.push({p:"lambrinudi",cm:1.494});
     if(rfOp.includes("hohlfuss")&&hohlfussTyp==="dwyer")_candidates.push({p:"dwyer",cm:1.111});
     if(rfOp.includes("subtalar"))_candidates.push({p:"subtalar",cm:1.278});
+    if(rfOp.includes("tn_arthrodese"))_candidates.push({p:"tn_arthrodese",cm:1.278});
+    if(rfOp.includes("double_arthrodese"))_candidates.push({p:"double_arthrodese",cm:1.278});
+    if(rfOp.includes("triple_arthrodese"))_candidates.push({p:"triple_arthrodese",cm:1.494});
     if(rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen"))_candidates.push({p:"mdo",cm:1.111});
     if(rfOp.includes("os_tib_ext"))_candidates.push({p:"os_tib",cm:0.707});
     if(rfOp.includes("peroneal"))_candidates.push({p:"peroneal",cm:peronealTyp==="luxation"?(luxRinne?0.995:(luxNaht?0.743:0.707)):0.743});
@@ -7752,6 +7796,9 @@ function OPBerichtApp(){
     if(hasRFarthrodese) {
       var rfLabel="Rückfuß-Arthrodese";
       var rfDRG="I13E";var rfCM="1,278";var rfErloes="5.829 €";
+      if(rfOp.includes("tn_arthrodese"))rfLabel="TN-Arthrodese";
+      if(rfOp.includes("double_arthrodese"))rfLabel="Double-Arthrodese";
+      if(rfOp.includes("triple_arthrodese")){rfLabel="Triple-Arthrodese";rfDRG="I20B";rfCM="1,494";rfErloes="6.815 €";}
       if(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi"){rfLabel="Triple-Arthrodese (Lambrinudi)";rfDRG="I20B";rfCM="1,494";rfErloes="6.815 €";}
       return [o,{label:rfLabel,ops:o,
         hdrg:"—",ebm:"—",kurz:rfDRG+" ~"+(rfDRG==="I20B"?"5.400":"4.600")+" €",drg:rfDRG+" "+rfErloes,hdrg_n1:"—",empf:"n2",
@@ -8373,6 +8420,9 @@ const UC_TEXT_MAP={
       else if(op==="as_naht")p.push("\n\nZuwendung zur Achillessehnennaht.\n"+T.as_naht_offen);
       else if(op==="fhl_transfer")p.push("\n\nZuwendung zum FHL-Transfer.\n"+T.fhl_transfer);
       else if(op==="subtalar")p.push("\n\n"+T.subtalar);
+      else if(op==="tn_arthrodese")p.push("\n\n"+T.tn_arthrodese);
+      else if(op==="double_arthrodese")p.push("\n\n"+T.double_arthrodese);
+      else if(op==="triple_arthrodese")p.push("\n\n"+T.triple_arthrodese);
       if(op==="hohlfuss"){
         if(hohlfussTyp==="lambrinudi")p.push("\n\n"+T.lambrinudi);
         if(hohlfussTyp==="dwyer"){
@@ -8413,7 +8463,7 @@ const UC_TEXT_MAP={
         }
       }
       else if(op==="calc_ot_verl")p.push("\n\nZuwendung zur verlängernden Calcaneus-Osteotomie.\n"+T.coal_lcot);
-      else p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
+      else if(!["arthrorise","haglund_mini","haglund","as_naht","fhl_transfer","subtalar","tn_arthrodese","double_arthrodese","triple_arthrodese","hohlfuss","os_tib_ext","supramal_ot"].includes(op)) p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
     });
     // Mittelfuß
     if(mfCotton){
@@ -8762,7 +8812,7 @@ const UC_TEXT_MAP={
       {/* RÜCKFUSS */}
       <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);}}>
         <div style={row}>
-          {[["haglund_mini","Haglund mini open"],["haglund","Haglund + AS-Split"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
+          {[["haglund_mini","Haglund mini open"],["haglund","Haglund + AS-Split"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
           )}
         </div>
