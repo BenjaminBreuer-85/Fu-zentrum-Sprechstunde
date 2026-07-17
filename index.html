@@ -4293,7 +4293,7 @@ const OPS = {
   tep_inbone: { k: "OSG-TEP (Inbone II, achsgeführt)", b: "die Implantation einer Sprunggelenksprothese (Inbone II)", r: "Infektion, Prothesenlockerung, Implantatversagen, Inlay-Verschleiß, Fraktur des Innenknöchels/periimplantäre Fraktur mit Osteosynthese, Instabilität, unbefriedigende Standzeit, aufwendigerer Wechsel auf Versteifung, Thrombose", t: "Implantation einer OSG-Totalendoprothese (Inbone II)" },
   amic: { k: "AMIC", b: "eine Knorpelrekonstruktion mittels AMIC-Membran und autologer Spongiosa", r: "Infektion, Transplantatversagen, unvollständige Knorpelregeneration, Thrombose", t: "AMIC-Knorpelrekonstruktion" },
   oats: { k: "OATS", b: "eine autologe Knorpel-Knochen-Transplantation", r: "Infektion, Entnahmestellenmorbidität, Transplantatversagen, Thrombose", t: "Autologe Knorpel-Knochen-Transplantation (OATS)" },
-  haglund_as_split: { k: "Haglund + AS-Refix", b: "eine Abtragung der Haglund-Exostose mit Achillessehnen-Refixierung", r: "Infektion, Achillessehnenruptur, Reruptur, Nervenverletzung, Kalzifikationsrezidiv, Thrombose", t: "Haglund-Abtragung mit AS-Split und Refixierung" },
+  haglund_as_split: { k: "Haglund + AS-Split/Refix", b: "eine Abtragung der Haglund-Exostose mit Achillessehnen-Refixierung", r: "Infektion, Achillessehnenruptur, Reruptur, Nervenverletzung, Kalzifikationsrezidiv, Thrombose", t: "Haglund-Abtragung mit Achillessehnen-Split und Refixation" },
   mdo_offen: { k: "MDO offen", b: "eine offen durchgeführte medialisierende Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Über-/Unterkorrektur, Thrombose", t: "Medialisierende Calcaneus-Osteotomie (offen)" },
   mdo_mini: { k: "MDO mini-invasiv", b: "eine minimal-invasiv durchgeführte medialisierende Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Nerven-/Gefäßverletzung, Über-/Unterkorrektur, Thrombose", t: "Medialisierende Calcaneus-Osteotomie (minimal-invasiv)" },
   lcot: { k: "LCOT", b: "eine verlängernde laterale Calcaneus-Osteotomie", r: "Infektion, Pseudarthrose, Calcaneocuboid-Impingement, Thrombose", t: "Verlängernde Calcaneus-Osteotomie, Augmentation durch autologe oder allogene Spongiosa" },
@@ -4310,7 +4310,7 @@ const OPS = {
   dmmo: { k: "DMMO (MT-Osteotomie)", b: "eine minimalinvasive distale Metatarsale-Osteotomie (DMMO) zur Korrektur der Metatarsalgie", r: "Infektion, Pseudarthrose, Über-/Unterkorrektur, Transfermetatarsalgie, Steifigkeit", t: "DMMO (minimalinvasive distale Metatarsale-Osteotomie)" },
   kleinzehen_pip: { k: "Kleinzehen/PIP", b: "eine Korrektur der Kleinzehenfehlstellung mit PIP-Arthrodese", r: "Infektion, Pseudarthrose, Rezidiv, Steifigkeit", t: "Kleinzehenkorrektur mit PIP-Arthrodese" },
   morton_neurom: { k: "Morton-Neurom-Resektion", b: "eine Resektion des Morton-Neuroms", r: "Infektion, Empyem, Sensibilitätsstörung/Taubheit der Zehe, neuropathische Schmerzen, erneutes Neurinom, persistierende Beschwerden", t: "Morton-Neurom-Resektion" },
-  haglund_mini: { k: "Haglund mini open", b: "eine Abtragung der Haglund-Exostose ohne Achillessehnenablösung", r: "Infektion, Kalzifikationsrezidiv, Nervenverletzung", t: "Haglund-Abtragung mini open" },
+  haglund_mini: { k: "Calcaneoplastie", b: "eine Abtragung der Haglund-Exostose ohne Achillessehnenablösung (endoskopisch oder mini-open)", r: "Infektion, Kalzifikationsrezidiv, Nervenverletzung", t: "Calcaneoplastie (endoskopisch oder mini-open)" },
   fhl_transfer: { k: "FHL-Transfer", b: "einen FHL-Sehnentransfer zur Augmentation der insuffizienten Achillessehne", r: "Infektion, Reruptur, Schwäche der Großzehe, Nervenverletzung, Thrombose", t: "FHL-Sehnentransfer mit Tenodeseschraube" },
   as_naht: { k: "Achillessehnennaht (offen)", b: "eine offene Naht der Achillessehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose, Wundheilungsstörung", t: "Achillessehnennaht (offen)" },
   peroneal_naht: { k: "Peronealsehnennaht", b: "eine Naht/Rekonstruktion der Peronealsehne", r: "Infektion, Reruptur, Nervenverletzung, Thrombose", t: "Peronealsehnennaht/-rekonstruktion" },
@@ -5264,7 +5264,7 @@ const AUFKLAERUNG_RISIKEN = {
     tep_inbone: "OSG-TEP (Inbone II, achsgeführt)",
     amic: "AMIC",
     oats: "OATS",
-    haglund_as_split: "Haglund + AS-Refix",
+    haglund_as_split: "Haglund + AS-Split/Refix",
     mdo_offen: "MDO offen",
     mdo_mini: "MDO mini-invasiv",
     lcot: "LCOT",
@@ -5280,7 +5280,7 @@ const AUFKLAERUNG_RISIKEN = {
     scarf: "Scarf-Osteotomie",
     dmmo: "DMMO (MT-Osteotomie)",
     kleinzehen_pip: "Kleinzehen/PIP",
-    haglund_mini: "Haglund mini open",
+    haglund_mini: "Calcaneoplastie",
     fhl_transfer: "FHL-Transfer",
     as_naht: "Achillessehnennaht (offen)",
     peroneal_naht: "Peronealsehnennaht",
@@ -7787,7 +7787,7 @@ function OPBerichtApp(){
       kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ ZWINGEND BEIDE OPS-CODES KODIEREN: Wird nur 5-855.19 kodiert, fällt der Fall in I20F → Erlösverlust 268 € bei voller DRG, 328 € bei UGVD-Abschlag (1 Tag).\n⚠ Naht der Sehnenscheide/Paratenon MUSS im OP-Bericht stehen!"}];
 
     // FHL Transfer → I27D
-    if(rfOp.includes("fhl_transfer")&&_prio==="fhl_transfer") return [o,{label:"FHL Transfer",ops:o,
+    if(rfOp.includes("fhl_transfer")&&_prio==="fhl_transfer") return [o,{label:"FHL-Transfer",ops:o,
       hdrg:"—",ebm:"—",kurz:window._fx("I27D ~3.400 €"),drg:window._fx("I27D 4.333 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Nur stationär. Stationär ≥2 Nächte → I27D (CM 0,95 = 4.333 €)."),
       kodier:"5-854.49 (Sehnentransfer FHL) + 5-869.2 (Ankerfixation) + 5-855.39 (Naht Sehnenscheide) + 5-855.19 (Sehnennaht).\n⚠ Nur stationär möglich. Alle 4 Codes kodieren.\n⚠ Im OP-Bericht: FHL-Ernte, Transfer, Tenodese und Sehnenscheidenverschluss dokumentieren."}];
@@ -7813,13 +7813,13 @@ function OPBerichtApp(){
       kodier:"MDO: 5-781.1t + 5-93b.0. LCOT: 5-781.8t. Dwyer: 5-781.1t + 5-93b.0."}];
 
     // Haglund mini open → H-DRG I20O
-    if(rfOp.includes("haglund_mini")&&_prio==="haglund_mini") return [o,{label:"Haglund mini open",ops:o,
+    if(rfOp.includes("haglund_mini")&&_prio==="haglund_mini") return [o,{label:"Calcaneoplastie",ops:o,
       hdrg:window._fx("I20O 1.007 €"),ebm:"EBM ~300 €",kurz:window._fx("I20F ~2.000 €"),drg:window._fx("I20F 3.040 €"),hdrg_n1:window._fx("I20O 1.007 €"),empf:"amb",
       ziel:window._fx("Ambulant → H-DRG I20O (1.007 €)."),
       kodier:"5-782.at + 5-855.39 + 5-859.1a."}];
 
     // Haglund + AS-Split → I27D
-    if(rfOp.includes("haglund")&&_prio==="haglund") return [o,{label:"Haglund + AS-Split",ops:o,
+    if(rfOp.includes("haglund")&&_prio==="haglund") return [o,{label:"Haglund + AS-Split/Refix",ops:o,
       hdrg:"—",ebm:"—",kurz:window._fx("I27D ~3.400 €"),drg:window._fx("I27D 4.333 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Keine H-DRG (5-854.29 = Kontextprozedur). Stationär ≥2N → I27D (CM 0,95 = 4.333 €)."),
       kodier:"5-782.at + 5-855.39 + 5-855.19 + 5-854.29 + 5-859.19."}];
@@ -8812,7 +8812,7 @@ const UC_TEXT_MAP={
       {/* RÜCKFUSS */}
       <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);}}>
         <div style={row}>
-          {[["haglund_mini","Haglund mini open"],["haglund","Haglund + AS-Split"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
+          {[["haglund_mini","Calcaneoplastie"],["haglund","Haglund + AS-Split/Refix"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL-Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
           )}
         </div>
