@@ -59,6 +59,7 @@ Zeilennummern verschieben sich bei Edits — Konstanten immer per Namen greppen.
 
 ## Wichtige Regeln
 
+- **UNVERÄNDERLICHKEIT DER ABRECHNUNGSDATEN (oberste Regel):** Alle Abrechnungs- und Katalogdaten — OPS-Codes, ICD-Codes, DRG-Zuordnungen, Bewertungsrelationen, Pauschalen, Preise, Verweildauern (uGVD/mGVD/oGVD), InEK-Kostenwerte — sind behördlich bzw. vertraglich festgelegt und folgen KEINER inneren Logik. Sie dürfen niemals korrigiert, vereinheitlicht, ergänzt, umformatiert oder aus Mustern abgeleitet werden. Scheinbare Inkonsistenzen (Lücken in Code-Reihen, uneinheitliche Suffixe, „unplausible" Beträge) sind kein Fehler, sondern Katalogrealität. Beim Verschieben/Auslagern solcher Daten werden alle Werte exakt 1:1 übernommen und anschließend Wert für Wert gegen den alten Stand verglichen.
 - **Kodierung ist deutsch:** ICD-10-GM und G-DRG/Hybrid-DRG. Der verbundene ICD-10-Connector (MCP) liefert US-ICD-10-CM/PCS und passt NICHT 1:1 — nur als grobe Orientierung, nie ungeprüft übernehmen.
 - Die zwei „NICHT VON HAND EDITIEREN"-Blöcke (Katalogdaten, Erlösdaten) nur als Ganzes aus den Master-Excel-Dateien ersetzen.
 - Medizinische Textänderungen: erst recherchieren (PubMed, mit PMID/DOI), dann Vorschlag zur Freigabe — nie stillschweigend genehmigte Texte überschreiben.
