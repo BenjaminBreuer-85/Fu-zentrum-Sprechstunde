@@ -1,0 +1,515 @@
+{
+ "_kommentar": ["ERLÖSDATEN 2026 — NICHT VON HAND EDITIEREN. Single Source: Erloesdaten_2026_MASTER.xlsx.", "Jahres-Update: Datei komplett ersetzen, nie mischen. Alle Erlöse werden zur Laufzeit berechnet.", "Behördlich/vertraglich festgelegte Werte — niemals korrigieren, vereinheitlichen oder ergänzen."],
+ "GVD": {
+  "I13A": {
+   "mvwd": 14.4,
+   "ugvd": 4,
+   "ogvd": 26
+  },
+  "I13C": {
+   "mvwd": 8.3,
+   "ugvd": 2,
+   "ogvd": 19
+  },
+  "I13D": {
+   "mvwd": 6.6,
+   "ugvd": 1,
+   "ogvd": 15
+  },
+  "I13E": {
+   "mvwd": 5.2,
+   "ugvd": 1,
+   "ogvd": 12
+  },
+  "I13F": {
+   "mvwd": 4.1,
+   "ugvd": 1,
+   "ogvd": 10
+  },
+  "I13G": {
+   "mvwd": 4.1,
+   "ugvd": 1,
+   "ogvd": 10
+  },
+  "I20A": {
+   "mvwd": 9.1,
+   "ugvd": 2,
+   "ogvd": 20
+  },
+  "I20B": {
+   "mvwd": 6.5,
+   "ugvd": 1,
+   "ogvd": 16
+  },
+  "I20C": {
+   "mvwd": 5.2,
+   "ugvd": 1,
+   "ogvd": 13
+  },
+  "I20D": {
+   "mvwd": 3.4,
+   "ugvd": 1,
+   "ogvd": 7
+  },
+  "I20E": {
+   "mvwd": 3.2,
+   "ugvd": 1,
+   "ogvd": 7
+  },
+  "I20F": {
+   "mvwd": 2.9,
+   "ugvd": 1,
+   "ogvd": 6
+  },
+  "I21Z": {
+   "mvwd": 3.4,
+   "ugvd": 1,
+   "ogvd": 8
+  },
+  "I27D": {
+   "mvwd": 3.6,
+   "ugvd": 1,
+   "ogvd": 9
+  },
+  "I27E": {
+   "mvwd": 3.4,
+   "ugvd": 1,
+   "ogvd": 8
+  },
+  "I31A": {
+   "mvwd": 8.2,
+   "ugvd": 2,
+   "ogvd": 17
+  },
+  "I31B": {
+   "mvwd": 4.8,
+   "ugvd": 1,
+   "ogvd": 11
+  },
+  "I31C": {
+   "mvwd": 4.3,
+   "ugvd": 1,
+   "ogvd": 10
+  },
+  "I59Z": {
+   "mvwd": 2.4,
+   "ugvd": 1,
+   "ogvd": 5
+  },
+  "I05B": {
+   "mvwd": 6.2,
+   "ugvd": 1,
+   "ogvd": 13
+  },
+  "I05C": {
+   "mvwd": 5.1,
+   "ugvd": 1,
+   "ogvd": 10
+  },
+  "I43A": {
+   "mvwd": 30.1,
+   "ugvd": 9,
+   "ogvd": 48
+  },
+  "I43B": {
+   "mvwd": 8.2,
+   "ugvd": 2,
+   "ogvd": 16
+  }
+ },
+ "_ERLOES_META": {
+  "jahr": 2026,
+  "lbfw": 4562,
+  "rundung": "ganze Euro (kaufmännisch)",
+  "quelleDRG": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, Abruf 05/2026",
+  "quelleHDRG": "Hybrid-DRG Katalog 2026",
+  "festgelegt": "B. Breuer 07/2026"
+ },
+ "_DRG": {
+  "I05B": {
+   "label": "TTC-Arthrodese / Großeingriff Sprunggelenk",
+   "bwr": 1.923,
+   "ugvd": 1,
+   "mvwd": 6.2,
+   "mvd": 6.2,
+   "inekImpl": 2643.61,
+   "pflegeProTag": 195.82,
+   "fallTotal": 8240,
+   "fallOp": 4826,
+   "fallNormal": 1780,
+   "fallAnaesth": 939,
+   "fallRest": 695,
+   "fallStdAbw": 2126,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I08F": {
+   "label": "OSG mit Knochenersatz",
+   "bwr": 1.511,
+   "ugvd": null,
+   "mvwd": null,
+   "mvd": 8.2,
+   "inekImpl": 572.22,
+   "pflegeProTag": 214.45,
+   "fallTotal": 6444,
+   "fallOp": 2175,
+   "fallNormal": 2205,
+   "fallAnaesth": 822,
+   "fallRest": 1241,
+   "fallStdAbw": 2145,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I13D": {
+   "label": "Rückfuß-/OSG-Eingriff hoch",
+   "bwr": 1.552,
+   "ugvd": 1,
+   "mvwd": 6.6,
+   "mvd": 6.6,
+   "inekImpl": 627.87,
+   "pflegeProTag": 176.6,
+   "fallTotal": 6619,
+   "fallOp": 2983,
+   "fallNormal": 1840,
+   "fallAnaesth": 1053,
+   "fallRest": 744,
+   "fallStdAbw": 2212,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I13E": {
+   "label": "Rückfuß-/OSG-Eingriff mittel",
+   "bwr": 1.278,
+   "ugvd": 1,
+   "mvwd": 5.2,
+   "mvd": 5.2,
+   "inekImpl": 579.63,
+   "pflegeProTag": 187.03,
+   "fallTotal": 5454,
+   "fallOp": 2475,
+   "fallNormal": 1496,
+   "fallAnaesth": 891,
+   "fallRest": 591,
+   "fallStdAbw": 1751,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I13G": {
+   "label": "Rückfuß-/OSG-Eingriff basis",
+   "bwr": 0.995,
+   "ugvd": 1,
+   "mvwd": 4.1,
+   "mvd": 4.1,
+   "inekImpl": 255.55,
+   "pflegeProTag": 199.38,
+   "fallTotal": 4239,
+   "fallOp": 1767,
+   "fallNormal": 1294,
+   "fallAnaesth": 733,
+   "fallRest": 445,
+   "fallStdAbw": 1449,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I20A": {
+   "label": "Vorfuß PCCL 4 / aufwendigster Eingriff (z.B. T2-Nagel)",
+   "bwr": 1.963,
+   "ugvd": 2,
+   "mvwd": 9.1,
+   "mvd": 9.1,
+   "inekImpl": 780.56,
+   "pflegeProTag": 181.51,
+   "fallTotal": 8374,
+   "fallOp": 3747,
+   "fallNormal": 2596,
+   "fallAnaesth": 1232,
+   "fallRest": 799,
+   "fallStdAbw": 3016,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I20B": {
+   "label": "Vorfuß höchste Stufe",
+   "bwr": 1.494,
+   "ugvd": 1,
+   "mvwd": 6.5,
+   "mvd": 6.5,
+   "inekImpl": 508.42,
+   "pflegeProTag": 181.46,
+   "fallTotal": 6370,
+   "fallOp": 2789,
+   "fallNormal": 2014,
+   "fallAnaesth": 1002,
+   "fallRest": 565,
+   "fallStdAbw": 2424,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I20C": {
+   "label": "Vorfuß sehr komplex (mit DMMO 4× / TMT 3 Gel.)",
+   "bwr": 1.111,
+   "ugvd": 1,
+   "mvwd": 5.2,
+   "mvd": 5.2,
+   "inekImpl": 302.41,
+   "pflegeProTag": 187.56,
+   "fallTotal": 4738,
+   "fallOp": 1928,
+   "fallNormal": 1567,
+   "fallAnaesth": 748,
+   "fallRest": 494,
+   "fallStdAbw": 1839,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I20D": {
+   "label": "Vorfuß komplex (Lapidus, mit DMMO ≥3×)",
+   "bwr": 1.033,
+   "ugvd": 1,
+   "mvwd": 3.4,
+   "mvd": 3.4,
+   "inekImpl": 404.23,
+   "pflegeProTag": 213.41,
+   "fallTotal": 4409,
+   "fallOp": 2096,
+   "fallNormal": 1141,
+   "fallAnaesth": 750,
+   "fallRest": 421,
+   "fallStdAbw": 1304,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I20E": {
+   "label": "Vorfuß mit Hebel (Chevron/Scarf/MTP1-Arthrodese)",
+   "bwr": 0.86,
+   "ugvd": 1,
+   "mvwd": 3.2,
+   "mvd": 3.2,
+   "inekImpl": 248,
+   "pflegeProTag": 243.08,
+   "fallTotal": 3665,
+   "fallOp": 1562,
+   "fallNormal": 1126,
+   "fallAnaesth": 631,
+   "fallRest": 346,
+   "fallStdAbw": 1230,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I20F": {
+   "label": "Vorfuß-OP einfach (DMMO/PIP/Cheilek)",
+   "bwr": 0.684,
+   "ugvd": 1,
+   "mvwd": 2.9,
+   "mvd": 2.9,
+   "inekImpl": 71.63,
+   "pflegeProTag": 216.83,
+   "fallTotal": 2912,
+   "fallOp": 1120,
+   "fallNormal": 993,
+   "fallAnaesth": 532,
+   "fallRest": 268,
+   "fallStdAbw": 752,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I21Z": {
+   "label": "Z-DRG Sprunggelenk/Sehne",
+   "bwr": 0.938,
+   "ugvd": null,
+   "mvwd": null,
+   "mvd": 3.4,
+   "inekImpl": 283.87,
+   "pflegeProTag": 209.65,
+   "fallTotal": 3997,
+   "fallOp": 1697,
+   "fallNormal": 1108,
+   "fallAnaesth": 726,
+   "fallRest": 466,
+   "fallStdAbw": 1248,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I27D": {
+   "label": "Sehnen-/Weichteilrekonstruktion",
+   "bwr": 0.95,
+   "ugvd": 1,
+   "mvwd": 3.6,
+   "mvd": 3.6,
+   "inekImpl": 134.95,
+   "pflegeProTag": 201.18,
+   "fallTotal": 4049,
+   "fallOp": 1657,
+   "fallNormal": 1250,
+   "fallAnaesth": 712,
+   "fallRest": 430,
+   "fallStdAbw": 1522,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I27E": {
+   "label": "Sehnen-/Weichteilrekonstruktion einfach",
+   "bwr": 0.743,
+   "ugvd": 1,
+   "mvwd": 3.4,
+   "mvd": 3.4,
+   "inekImpl": 42.78,
+   "pflegeProTag": 211.3,
+   "fallTotal": 3166,
+   "fallOp": 1111,
+   "fallNormal": 1133,
+   "fallAnaesth": 538,
+   "fallRest": 385,
+   "fallStdAbw": 1097,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I29B": {
+   "label": "Komplexe Eingriffe Schulter / Klavikula-OS",
+   "bwr": 0.972,
+   "ugvd": null,
+   "mvwd": null,
+   "mvd": 2.6,
+   "inekImpl": 343.39,
+   "pflegeProTag": 224.2,
+   "fallTotal": 4151,
+   "fallOp": 2145,
+   "fallNormal": 956,
+   "fallAnaesth": 752,
+   "fallRest": 298,
+   "fallStdAbw": 1176,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I31A": {
+   "label": "Implantatentfernung umfangreich",
+   "bwr": 2.132,
+   "ugvd": null,
+   "mvwd": null,
+   "mvd": 8.2,
+   "inekImpl": 950.38,
+   "pflegeProTag": 175.43,
+   "fallTotal": 9096,
+   "fallOp": 4212,
+   "fallNormal": 2289,
+   "fallAnaesth": 1562,
+   "fallRest": 1033,
+   "fallStdAbw": 3640,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I31B": {
+   "label": "Implantatentfernung mittel",
+   "bwr": 1.363,
+   "ugvd": null,
+   "mvwd": null,
+   "mvd": 4.8,
+   "inekImpl": 629.53,
+   "pflegeProTag": 184.69,
+   "fallTotal": 5816,
+   "fallOp": 2807,
+   "fallNormal": 1369,
+   "fallAnaesth": 1010,
+   "fallRest": 631,
+   "fallStdAbw": 2047,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I31C": {
+   "label": "Implantatentfernung einfach",
+   "bwr": 1.208,
+   "ugvd": null,
+   "mvwd": null,
+   "mvd": 4.3,
+   "inekImpl": 461.53,
+   "pflegeProTag": 197.9,
+   "fallTotal": 5152,
+   "fallOp": 2352,
+   "fallNormal": 1295,
+   "fallAnaesth": 917,
+   "fallRest": 587,
+   "fallStdAbw": 1648,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I59Z": {
+   "label": "Diverse OSG/Fuß",
+   "bwr": 0.707,
+   "ugvd": 1,
+   "mvwd": 2.4,
+   "mvd": 2.4,
+   "inekImpl": 74.43,
+   "pflegeProTag": 264.96,
+   "fallTotal": 3011,
+   "fallOp": 1142,
+   "fallNormal": 960,
+   "fallAnaesth": 585,
+   "fallRest": 324,
+   "fallStdAbw": 936,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 05/2026"
+  },
+  "I43B": {
+   "label": "Endoprothese/Wechsel (UC-Modul)",
+   "bwr": 2.372,
+   "ugvd": 2,
+   "mvwd": null,
+   "mvd": null,
+   "inekImpl": 2710.12,
+   "pflegeProTag": null,
+   "fallTotal": 10159,
+   "fallOp": 5704,
+   "fallNormal": 2310,
+   "fallAnaesth": 1151,
+   "fallRest": 994,
+   "fallStdAbw": null,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 07/2026 (Fallkosten); CM aus G-DRG-Katalog"
+  },
+  "I47B": {
+   "label": "Endoprothese (UC-Modul)",
+   "bwr": 1.749,
+   "ugvd": 2,
+   "mvwd": 9,
+   "mvd": 9,
+   "inekImpl": 930.53,
+   "pflegeProTag": 217.2,
+   "fallTotal": 7465,
+   "fallOp": 2848,
+   "fallNormal": 2340,
+   "fallAnaesth": 899,
+   "fallRest": 1378,
+   "fallStdAbw": null,
+   "quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 07/2026"
+  }
+ },
+ "_HDRG": {
+  "I20O": {
+   "pauschale": 1007,
+   "label": "H-DRG Vorfuß einfach (Hybrid)",
+   "quelle": "Hybrid-DRG Pauschale"
+  },
+  "I20N": {
+   "pauschale": 2085,
+   "label": "H-DRG Vorfuß mit Aufwertung",
+   "quelle": "Hybrid-DRG Pauschale"
+  },
+  "I20M": {
+   "pauschale": 3280,
+   "label": "H-DRG Lapidus (Hybrid)",
+   "quelle": "Hybrid-DRG Pauschale"
+  },
+  "I13N": {
+   "pauschale": 3091,
+   "label": "H-DRG (UC-Modul)",
+   "quelle": "Bestandsübernahme aus Code 07/2026"
+  },
+  "I21M": {
+   "pauschale": 3184,
+   "label": "H-DRG (UC-Modul)",
+   "quelle": "Bestandsübernahme aus Code 07/2026"
+  },
+  "I29M": {
+   "pauschale": 3652,
+   "label": "H-DRG (UC-Modul)",
+   "quelle": "Bestandsübernahme aus Code 07/2026"
+  },
+  "I31N": {
+   "pauschale": 3739,
+   "label": "H-DRG (UC-Modul)",
+   "quelle": "Bestandsübernahme aus Code 07/2026"
+  }
+ },
+ "_KURZ": {
+  "I20F": 2000,
+  "I20E": 2800,
+  "I20D": 3700,
+  "I20C": 4000,
+  "I13E": 4600,
+  "I13D": 5600,
+  "I13G": 3600,
+  "I27D": 3400,
+  "I27E": 2700,
+  "I59Z": 2600
+ }
+}

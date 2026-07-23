@@ -1,0 +1,834 @@
+{
+ "_kommentar": ["Ausgelagert aus index.html (Stufe 1 Lizenz-Umbau). Abrechnungs-/Katalogdaten sind behördlich festgelegt — 1:1 übernehmen, niemals 'korrigieren'.", "Strings der Form {\"__fx\": \"...\"} werden beim Laden durch window._fx(...) ersetzt (€-Beträge aus Erlösdaten)."],
+ "ENDO_DRG": {
+  "I47C": {
+   "bwr": 1.396,
+   "mvdPflege": 0,
+   "mvd": 6.1,
+   "label": "Hüft-TEP, ohne kompl. Eingriff, ohne CC",
+   "inekImpl": 1242,
+   "pflegeProTag": 180.37,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 6064,
+   "fallOp": 2947,
+   "fallNormal": 1830,
+   "fallAnaesth": 720,
+   "fallRest": 567
+  },
+  "I47B": {
+   "bwr": 1.749,
+   "mvdPflege": 0,
+   "mvd": 9,
+   "label": "Hüft-TEP, mit kompl. Eingriff",
+   "inekImpl": 930.53,
+   "pflegeProTag": 217.2,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 7465,
+   "fallOp": 2848,
+   "fallNormal": 2340,
+   "fallAnaesth": 899,
+   "fallRest": 1378,
+   "fallStdAbw": 2048
+  },
+  "I47A": {
+   "bwr": 2.113,
+   "mvdPflege": 0,
+   "mvd": 10,
+   "label": "Pfannenwechsel / Revision Hüfte mit kompl. Eingriff",
+   "inekImpl": 1363,
+   "pflegeProTag": 207.06,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 9024,
+   "fallOp": 4041,
+   "fallNormal": 2605,
+   "fallAnaesth": 1098,
+   "fallRest": 1280
+  },
+  "I46C": {
+   "bwr": 2.237,
+   "mvdPflege": 0,
+   "mvd": 9.9,
+   "label": "Hüft-Schaftwechsel / Prothesenwechsel, ohne CC",
+   "inekImpl": 1369,
+   "pflegeProTag": 205.84,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 9555,
+   "fallOp": 4419,
+   "fallNormal": 2666,
+   "fallAnaesth": 1198,
+   "fallRest": 1271
+  },
+  "I46B": {
+   "bwr": 3.179,
+   "mvdPflege": 0,
+   "mvd": 17.5,
+   "label": "Prothesenwechsel Hüfte mit periprothetischer Fraktur, ohne CC",
+   "inekImpl": 1532,
+   "pflegeProTag": 224.31,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 13574,
+   "fallOp": 4956,
+   "fallNormal": 4293,
+   "fallAnaesth": 1463,
+   "fallRest": 2862
+  },
+  "I46A": {
+   "bwr": 4.745,
+   "mvdPflege": 0,
+   "mvd": 25.4,
+   "label": "Hüft-Wechsel, mit aufw. Eingriff / PCCL 4",
+   "inekImpl": 2192,
+   "pflegeProTag": 252.29,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 20265,
+   "fallOp": 6607,
+   "fallNormal": 6019,
+   "fallAnaesth": 1920,
+   "fallRest": 5719
+  },
+  "I05A": {
+   "bwr": 3.843,
+   "mvdPflege": 0,
+   "mvd": 23.9,
+   "label": "Großer Eingriff Hüfte, PCCL 4 / mit aufw. Eingriff",
+   "inekImpl": 958,
+   "pflegeProTag": 265.67,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 16396,
+   "fallOp": 3561,
+   "fallNormal": 5562,
+   "fallAnaesth": 1234,
+   "fallRest": 6038
+  },
+  "I04Z": {
+   "bwr": 3.015,
+   "mvdPflege": 0,
+   "mvd": 15.1,
+   "label": "Reimplantation/Septisch Hüft- o. Kniegelenk + periprothet. Fraktur Schulter/Knie",
+   "inekImpl": 2264,
+   "pflegeProTag": 201.6,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 12891,
+   "fallOp": 5570,
+   "fallNormal": 3997,
+   "fallAnaesth": 1312,
+   "fallRest": 2012,
+   "fallStdAbw": 4231
+  },
+  "I03B": {
+   "bwr": 2.735,
+   "mvdPflege": 0,
+   "mvd": 16.1,
+   "label": "Septische Hüft-Revision (Ausbau), ohne CC",
+   "inekImpl": 1166,
+   "pflegeProTag": 196.64,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 11675,
+   "fallOp": 4227,
+   "fallNormal": 4163,
+   "fallAnaesth": 1307,
+   "fallRest": 1978,
+   "fallStdAbw": 4008
+  },
+  "I03A": {
+   "bwr": 5.82,
+   "mvdPflege": 0,
+   "mvd": 35,
+   "label": "Septische Hüft-Revision, PCCL 4 / aufw. / mehrzeitiger Wechsel",
+   "inekImpl": 2309,
+   "pflegeProTag": 242.78,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 24848,
+   "fallOp": 7881,
+   "fallNormal": 8389,
+   "fallAnaesth": 2448,
+   "fallRest": 6129,
+   "fallStdAbw": 9334
+  },
+  "I44D": {
+   "bwr": 1.397,
+   "mvdPflege": 0,
+   "mvd": 5.4,
+   "label": "Knie unikondyläre Schlittenprothese (kein PCCL-Split)",
+   "inekImpl": 1225,
+   "pflegeProTag": 175.89,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 5972,
+   "fallOp": 2941,
+   "fallNormal": 1701,
+   "fallAnaesth": 737,
+   "fallRest": 592
+  },
+  "I44C": {
+   "bwr": 1.531,
+   "mvdPflege": 0,
+   "mvd": 6.4,
+   "label": "Bikondylärer Knie-OF-Ersatz, ohne CC",
+   "inekImpl": 1234,
+   "pflegeProTag": 181.22,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 6546,
+   "fallOp": 3171,
+   "fallNormal": 1921,
+   "fallAnaesth": 793,
+   "fallRest": 660
+  },
+  "I44A": {
+   "bwr": 2.165,
+   "mvdPflege": 0,
+   "mvd": 8.2,
+   "label": "Bikondylärer Knie-OF-Ersatz, PCCL 4 / schaftverankert / Brustkorbdef.",
+   "inekImpl": 2659,
+   "pflegeProTag": 187.96,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 9270,
+   "fallOp": 5163,
+   "fallNormal": 2204,
+   "fallAnaesth": 1007,
+   "fallRest": 895
+  },
+  "I12A": {
+   "bwr": 3.979,
+   "mvdPflege": 0,
+   "mvd": 24.6,
+   "label": "Knöcherne/gelenkrekonstr. Eingriffe Knie, PCCL 4 / Knochen- und Gelenkinfektion",
+   "inekImpl": 652,
+   "pflegeProTag": 247.1,
+   "_quelle": "InEK Datenbrowser, Datenjahr 2024 gruppiert nach 2026, abgerufen 04/2026",
+   "fallTotal": 16972,
+   "fallOp": 3981,
+   "fallNormal": 6230,
+   "fallAnaesth": 1626,
+   "fallRest": 5134,
+   "fallStdAbw": 6638
+  }
+ },
+ "ENDO_KONSTELLATIONEN": {
+  "coxarthrose": [
+   {
+    "id": "zementfrei",
+    "label": "Zementfrei (Standard)",
+    "icd": "M16.1",
+    "ops": [
+     "5-820.00"
+    ],
+    "drg03": "I47C",
+    "drg4": "I05A"
+   },
+   {
+    "id": "hybrid",
+    "label": "Hybrid (zem. Schaft + zementfreie Pfanne)",
+    "icd": "M16.1",
+    "ops": [
+     "5-820.02"
+    ],
+    "drg03": "I47C",
+    "drg4": "I05A"
+   },
+   {
+    "id": "kurzschaft",
+    "label": "Kurzschaft",
+    "icd": "M16.1",
+    "ops": [
+     "5-820.94"
+    ],
+    "drg03": "I47C",
+    "drg4": "I05A"
+   },
+   {
+    "id": "pfannenboden",
+    "label": "+ Pfannenbodenplastik (M16.3)",
+    "icd": "M16.3",
+    "ops": [
+     "5-820.00",
+     "5-829.h"
+    ],
+    "drg03": "I47B",
+    "drg4": "I05A",
+    "hebel": "Pfannenbodenplastik hebt I47C → I47B"
+   },
+   {
+    "id": "pfannendach",
+    "label": "+ Pfannendachplastik",
+    "icd": "M16.1",
+    "ops": [
+     "5-820.00",
+     "5-829.1"
+    ],
+    "drg03": "I47B",
+    "drg4": "I05A",
+    "hebel": "Pfannendachplastik hebt I47C → I47B"
+   }
+  ],
+  "htep_schmerz": [
+   {
+    "id": "asept_schaft",
+    "label": "Aseptisch: Schaftwechsel zementfrei",
+    "icd": "T84.04",
+    "ops": [
+     "5-821.40"
+    ],
+    "drg03": "I46C",
+    "drg4": "I46A",
+    "zeFaehig": [
+     "ze2023_25"
+    ]
+   },
+   {
+    "id": "asept_pfanne",
+    "label": "Aseptisch: Pfannenwechsel",
+    "icd": "T84.04",
+    "ops": [
+     "5-821.20"
+    ],
+    "drg03": "I47A",
+    "drg4": "I46A",
+    "hebel": "Pfannenwechsel seit 2019 in I47A (statt I46C)"
+   },
+   {
+    "id": "asept_total",
+    "label": "Aseptisch: TEP-Wechsel komplett",
+    "icd": "T84.04",
+    "ops": [
+     "5-821.40"
+    ],
+    "drg03": "I46C",
+    "drg4": "I46A",
+    "zeFaehig": [
+     "ze2023_25"
+    ]
+   },
+   {
+    "id": "periprothet_fraktur",
+    "label": "Periprothetische Fraktur (S72.3) + TEP-Wechsel",
+    "icd": "S72.3 + T84.04",
+    "ops": [
+     "5-821.53",
+     "5-791.*g od. 5-792.*g"
+    ],
+    "drg03": "I46B",
+    "drg4": "I46A",
+    "hebel": {
+     "__fx": "S72.3 als HD (statt T84.04) hebt I46C → I46B (CM +0,942 = +4.297 € pro Fall)"
+    },
+    "zeFaehig": [
+     "ze2023_25"
+    ]
+   },
+   {
+    "id": "sept_ausbau_arthritis",
+    "label": "Septisch: Ausbau + Spacer (M00.85 als HD)",
+    "icd": "M00.85 + T84.5",
+    "ops": [
+     "5-821.7",
+     "5-829.9"
+    ],
+    "drg03": "I03B",
+    "drg4": "I03A",
+    "hebel": "Arthritis-Codierung als HD hebt von I47B → I03B"
+   },
+   {
+    "id": "sept_ausbau_osteo",
+    "label": "Septisch: Ausbau + Spacer (M86.15 als HD)",
+    "icd": "M86.15 + T84.5",
+    "ops": [
+     "5-821.7",
+     "5-829.9"
+    ],
+    "drg03": "I03B",
+    "drg4": "I03A",
+    "hebel": "Osteomyelitis-Codierung als HD hebt von I47B → I03B"
+   },
+   {
+    "id": "sept_reimpl",
+    "label": "Septisch: Reimplantation (2. OP)",
+    "icd": "T84.5",
+    "ops": [
+     "5-820.01",
+     "5-829.n"
+    ],
+    "drg03": "I04Z",
+    "drg4": "I03A",
+    "zeFaehig": [
+     "ze2023_25"
+    ]
+   }
+  ],
+  "gonarthrose": [
+   {
+    "id": "bikondylar",
+    "label": "Bikondylärer Oberflächenersatz (zementiert)",
+    "icd": "M17.1",
+    "ops": [
+     "5-822.g1"
+    ],
+    "drg03": "I44C",
+    "drg4": "I44A"
+   }
+  ],
+  "gonarthrose_modular": [
+   {
+    "id": "modular",
+    "label": "Modulare/teilgekoppelte K-TEP (zementiert, schaftverankert)",
+    "icd": "M17.1",
+    "ops": [
+     "5-822.h1"
+    ],
+    "drg03": "I44A",
+    "drg4": "I44A",
+    "hebel": "Schaftverankerung gruppiert direkt in I44A (CM 2,165) – PCCL-Split entfällt"
+   }
+  ],
+  "knie_uni": [
+   {
+    "id": "schlitten",
+    "label": "Unikondyläre Schlittenprothese (zementiert)",
+    "icd": "M17.1",
+    "ops": [
+     "5-822.01"
+    ],
+    "drg03": "I44D",
+    "drg4": "I44D",
+    "hebel": "I44D hat KEINEN PCCL-Split – Komorbiditäten steigern Erlös NICHT"
+   }
+  ],
+  "ktep_schmerz": [
+   {
+    "id": "asept",
+    "label": "Aseptischer Wechsel",
+    "icd": "T84.04",
+    "ops": [
+     "5-821.40"
+    ],
+    "drg03": "I46C",
+    "drg4": "I46A",
+    "zeFaehig": [
+     "ze2023_25"
+    ]
+   },
+   {
+    "id": "sept_reimpl",
+    "label": "Septisch: Reimplantation/Spacer",
+    "icd": "T84.5",
+    "ops": [
+     "5-822.01",
+     "5-829.9"
+    ],
+    "drg03": "I04Z",
+    "drg4": "I12A",
+    "hebel": "Bei Knie führt PCCL 4 in I12A (nicht I03A wie bei Hüfte)",
+    "zeFaehig": [
+     "ze2023_25"
+    ]
+   }
+  ],
+  "schenkelhalsfraktur": [
+   {
+    "id": "duokopf_zem",
+    "label": "Duokopf zementiert (Hemi-Endoprothese)",
+    "icd": "S72.0",
+    "ops": [
+     "5-820.41"
+    ],
+    "drg03": "I47B",
+    "drg4": "I47B"
+   }
+  ]
+ },
+ "ENDO_BEF_HUEFTE": [
+  {
+   "id": "schmerz_lok_h",
+   "input": true,
+   "label": "Schmerzlokalisation",
+   "placeholder": "z.B. Leiste / Trochanter / glutaeal"
+  },
+  {
+   "id": "rom_h",
+   "input": true,
+   "label": "Beweglichkeit (Flex/Ext)",
+   "placeholder": "z.B. 100/0/10"
+  },
+  {
+   "id": "rom_h_rot",
+   "input": true,
+   "label": "Rotation (IRO/ARO)",
+   "placeholder": "z.B. 30/0/40"
+  },
+  {
+   "id": "rom_h_abdadd",
+   "input": true,
+   "label": "Abd/Add",
+   "placeholder": "z.B. 30/0/20"
+  },
+  {
+   "id": "trendelenburg",
+   "pos": "Trendelenburg-Zeichen positiv",
+   "neg": "Trendelenburg-Zeichen negativ"
+  },
+  {
+   "id": "bld",
+   "input": true,
+   "label": "Beinlängendifferenz",
+   "placeholder": "z.B. 1 cm li-kürzer / o.B."
+  },
+  {
+   "id": "fadir",
+   "pos": "FADIR-Test positiv (Hinweis auf femoroazetabuläres Impingement)",
+   "neg": "FADIR-Test negativ"
+  },
+  {
+   "id": "gang_h",
+   "input": true,
+   "label": "Gangbild",
+   "placeholder": "z.B. unauffällig / Schonhinken / Trendelenburg-Hinken"
+  }
+ ],
+ "ENDO_BEF_KNIE": [
+  {
+   "id": "schmerz_lok_k",
+   "input": true,
+   "label": "Schmerzlokalisation",
+   "placeholder": "z.B. medial / lateral / retropatellar"
+  },
+  {
+   "id": "rom_k",
+   "input": true,
+   "label": "Beweglichkeit (Flex/Ext)",
+   "placeholder": "z.B. 130/0/0"
+  },
+  {
+   "id": "erguss",
+   "pos": "Kniegelenkserguss tastbar",
+   "neg": "Kein Kniegelenkserguss"
+  },
+  {
+   "id": "bandstab",
+   "input": true,
+   "label": "Bandstabilität",
+   "placeholder": "z.B. fest / mediale Aufklappbarkeit / VKB-Pivot"
+  },
+  {
+   "id": "meniskus",
+   "pos": "Meniskuszeichen positiv (McMurray/Steinmann)",
+   "neg": "Meniskuszeichen negativ"
+  },
+  {
+   "id": "gang_k",
+   "input": true,
+   "label": "Gangbild",
+   "placeholder": "z.B. unauffällig / Schonhinken"
+  }
+ ],
+ "ENDO_BEF_TEP_SCHMERZ": [
+  {
+   "id": "haut_tep",
+   "pos": "Haut über der Narbe gerötet, überwärmt",
+   "neg": "Haut über der Narbe reizlos"
+  },
+  {
+   "id": "sekretion",
+   "pos": "Sekretion aus der Narbe",
+   "neg": "Keine Sekretion"
+  },
+  {
+   "id": "schmerzcharakter",
+   "input": true,
+   "label": "Schmerzcharakter",
+   "placeholder": "z.B. Belastungsschmerz / Ruheschmerz / Anlaufschmerz"
+  },
+  {
+   "id": "knirschen",
+   "pos": "Knirschen / Klicken in der Prothese auslösbar",
+   "neg": "Kein Knirschen / Klicken"
+  }
+ ],
+ "ENDO_ZE": {
+  "ze2023_25": {
+   "label": "ZE2023-25: Modulare Endoprothese",
+   "kurz": "Mod. Endoprothese",
+   "betrag": 4500,
+   "ops": "5-829.k1",
+   "beschreibung": "Modulare Endoprothese / mod. Schaft (z.B. Brehm-Revisionsschaft) bei knöcherner Defektsituation",
+   "quelle": "InEK-Untergrenze 4.500 € – krankenhausindividuell mit Kostenträgern zu verhandeln"
+  }
+ },
+ "ENDO_HTEP_IMPL": {
+  "brehm": {
+   "l": "Brehm",
+   "lieferant": "Brehm",
+   "preis": null
+  },
+  "excia_zfr": {
+   "l": "Excia T zementfrei",
+   "lieferant": "Aesculap",
+   "preis": 1104
+  },
+  "metha": {
+   "l": "Metha (Kurzschaft)",
+   "lieferant": "Aesculap",
+   "preis": 1451
+  },
+  "trendhip": {
+   "l": "Trend-Hip",
+   "lieferant": "Aesculap",
+   "preis": 1159
+  },
+  "troja": {
+   "l": "Troja",
+   "lieferant": "Aesculap",
+   "preis": 1149
+  }
+ },
+ "ENDO_DUOKOPF_IMPL": {
+  "excia_zem": {
+   "l": "Excia T zementiert",
+   "lieferant": "Aesculap",
+   "preis": 575
+  },
+  "mathys": {
+   "l": "Mathys (CCA Schaft)",
+   "lieferant": "Mathys",
+   "preis": 952
+  }
+ },
+ "ENDO_IMPL_KOMPONENTEN": {
+  "mathys": [
+   {
+    "name": "CCA Schaft 11.25 zementiert",
+    "lieferant": "Mathys",
+    "preis": 400
+   },
+   {
+    "name": "Bipolarkopf Stahl 52/28",
+    "lieferant": "Mathys",
+    "preis": 378
+   },
+   {
+    "name": "Kopf CoCr 28 L",
+    "lieferant": "Mathys",
+    "preis": 110
+   },
+   {
+    "name": "2× Palacos R+G 40g",
+    "lieferant": "Apotheke",
+    "preis": 64
+   }
+  ],
+  "excia_zem": [
+   {
+    "name": "Excia T zementiert",
+    "lieferant": "Aesculap",
+    "preis": 232
+   },
+   {
+    "name": "Bipolar Cup",
+    "lieferant": "Aesculap",
+    "preis": 159
+   },
+   {
+    "name": "Metallkopf Isodur CoCr",
+    "lieferant": "Aesculap",
+    "preis": 120
+   },
+   {
+    "name": "2× Palacos R+G 40g",
+    "lieferant": "Apotheke",
+    "preis": 64
+   }
+  ],
+  "brehm": [],
+  "excia_zfr": [
+   {
+    "name": "Excia T Schaft zementfrei",
+    "lieferant": "Aesculap",
+    "preis": 413
+   },
+   {
+    "name": "Plasmafit Plus 3 Pfanne",
+    "lieferant": "Aesculap",
+    "preis": 358
+   },
+   {
+    "name": "Plasmafit PE Inlay",
+    "lieferant": "Aesculap",
+    "preis": 151
+   },
+   {
+    "name": "Keramikkopf Biolox Delta",
+    "lieferant": "Aesculap",
+    "preis": 182
+   }
+  ],
+  "metha": [
+   {
+    "name": "Metha 120/130/135° Kurzschaft",
+    "lieferant": "Aesculap",
+    "preis": 760
+   },
+   {
+    "name": "Plasmafit Plus 3 Pfanne",
+    "lieferant": "Aesculap",
+    "preis": 358
+   },
+   {
+    "name": "Plasmafit PE Inlay",
+    "lieferant": "Aesculap",
+    "preis": 151
+   },
+   {
+    "name": "Keramikkopf Biolox Delta",
+    "lieferant": "Aesculap",
+    "preis": 182
+   }
+  ],
+  "trendhip": [
+   {
+    "name": "Trendhip Schaft Standard zementfrei",
+    "lieferant": "Aesculap",
+    "preis": 468
+   },
+   {
+    "name": "Plasmafit Plus 3 Pfanne",
+    "lieferant": "Aesculap",
+    "preis": 358
+   },
+   {
+    "name": "Plasmafit PE Inlay",
+    "lieferant": "Aesculap",
+    "preis": 151
+   },
+   {
+    "name": "Keramikkopf Biolox Delta",
+    "lieferant": "Aesculap",
+    "preis": 182
+   }
+  ],
+  "troja": [
+   {
+    "name": "TRJ Schaft Standard zementfrei",
+    "lieferant": "Aesculap",
+    "preis": 458
+   },
+   {
+    "name": "Plasmafit Plus 3 Pfanne",
+    "lieferant": "Aesculap",
+    "preis": 358
+   },
+   {
+    "name": "Plasmafit PE Inlay",
+    "lieferant": "Aesculap",
+    "preis": 151
+   },
+   {
+    "name": "Keramikkopf Biolox Delta",
+    "lieferant": "Aesculap",
+    "preis": 182
+   }
+  ]
+ },
+ "ENDO_KTEP_IMPL": {
+  "corin": {
+   "l": "Corin Unity",
+   "lieferant": "Corin",
+   "preis": 1253
+  },
+  "emotion": {
+   "l": "Aesculap Emotion UC PRO",
+   "lieferant": "Aesculap",
+   "preis": 1395
+  },
+  "emotion_as": {
+   "l": "AS Emotion (Keramik)",
+   "lieferant": "Aesculap",
+   "preis": 2845
+  }
+ },
+ "ENDO_KTEP_MODULAR_IMPL": {
+  "enduro": {
+   "l": "Aesculap EnduRo modular",
+   "lieferant": "Aesculap",
+   "preis": 4429
+  },
+  "enduro_as": {
+   "l": "AS EnduRo (Keramik, modular)",
+   "lieferant": "Aesculap",
+   "preis": 5781
+  }
+ },
+ "ENDO_SCHLITTEN_IMPL": {},
+ "ENDO_EINGRIFFE": {
+  "ktep_bikondylar": {
+   "l": "K-TEP Bikondylär",
+   "region": "knie",
+   "konstellation": {
+    "diag": "gonarthrose",
+    "id": "bikondylar"
+   },
+   "ops": [
+    "5-822.g1"
+   ],
+   "hatImplantatAuswahl": true,
+   "opSysteme": {
+    "omnibot": "Omnibot (robotergestützt)",
+    "columbus": "Columbus (Aesculap)"
+   },
+   "kodier": "Bikondylärer Oberflächenersatz Knie. OP-System-Wahl ändert nicht die Codierung – beide gruppieren über 5-822.g1 in I44C (PCCL 0–3) bzw. I44A (PCCL 4 / schaftverankert)."
+  },
+  "ktep_modular": {
+   "l": "K-TEP modular/teilgekoppelt",
+   "region": "knie",
+   "konstellation": {
+    "diag": "gonarthrose_modular",
+    "id": "modular"
+   },
+   "ops": [
+    "5-822.h1"
+   ],
+   "hatImplantatAuswahl": true,
+   "opSysteme": {
+    "omnibot": "Omnibot (robotergestützt)",
+    "columbus": "Columbus (Aesculap)"
+   },
+   "hinweis": "Modulare/schaftverankerte K-TEP: gruppiert direkt in I44A (CM 2,165) – kein PCCL-Split, höhere Implantatkosten erwartet.",
+   "kodier": "Modulare K-TEP mit Schaftverankerung (Femur und/oder Tibia). OPS 5-822.h1. Indikation: massive Knochendefekte, Bandinstabilität, Revisionssituationen, Tumorindikationen."
+  },
+  "schlitten": {
+   "l": "Schlittenprothese (Uni-Knie)",
+   "region": "knie",
+   "konstellation": {
+    "diag": "knie_uni",
+    "id": "schlitten"
+   },
+   "ops": [
+    "5-822.01"
+   ],
+   "kodier": "Unikondyläre Schlittenprothese. Wichtig: I44D hat KEINEN PCCL-Split – Komorbiditäten steigern den Erlös NICHT. Bei multimorbidem Patienten besser bikondylär in Erwägung ziehen (I44C/I44A)."
+  },
+  "htep": {
+   "l": "H-TEP primär",
+   "region": "huefte",
+   "konstellation": {
+    "diag": "coxarthrose",
+    "id": "zementfrei"
+   },
+   "ops": [
+    "5-820.00"
+   ],
+   "hatImplantatAuswahl": true,
+   "kodier": "Hüft-TEP primär, zementfrei. ICD-Hauptdiagnose: M16.1 (sonstige primäre Coxarthrose). Bei Pfannenboden-/Pfannendachplastik (5-829.h / 5-829.1) springt I47C → I47B (BWR +0,353)."
+  },
+  "duokopf_uc": {
+   "l": "Duokopf bei Schenkelhalsfraktur (UC)",
+   "region": "huefte",
+   "konstellation": {
+    "diag": "schenkelhalsfraktur",
+    "id": "duokopf_zem"
+   },
+   "ops": [
+    "5-820.41"
+   ],
+   "hatImplantatAuswahl": true,
+   "kodier": "Hemi-Endoprothese zementiert bei Schenkelhalsfraktur (S72.0). OPS 5-820.41. Im Gegensatz zur elektiven Duokopf-Versorgung (5-820.21) eigene DRG-Schiene aufgrund der Frakturindikation. Gruppiert in I47B (Hüft-TEP mit komplexem Eingriff) — kein PCCL-Split."
+  }
+ }
+}

@@ -1,0 +1,914 @@
+{
+ "_kommentar": ["Ausgelagert aus index.html (Stufe 1 Lizenz-Umbau). Abrechnungs-/Katalogdaten sind behördlich festgelegt — 1:1 übernehmen, niemals 'korrigieren'.", "Strings der Form {\"__fx\": \"...\"} werden beim Laden durch window._fx(...) ersetzt (€-Beträge aus Erlösdaten)."],
+ "EINZELPREISE": {
+  "infinity_tibial_tray": {
+   "name": "Infinity Tibial Tray",
+   "artikel": "Infinity TIBIAL TRAY SZ3 STD",
+   "lieferant": "Stryker",
+   "preis": 1902.81
+  },
+  "infinity_talar_dome": {
+   "name": "Infinity Talar Dome",
+   "artikel": "Infinity TALAR DOME SZ 3",
+   "lieferant": "Stryker",
+   "preis": 1783.81
+  },
+  "infinity_poly_insert": {
+   "name": "Infinity Poly Insert",
+   "artikel": "Infinity POLY INSERT SZ3 8MM",
+   "lieferant": "Stryker",
+   "preis": 672.35
+  },
+  "vantage_tibial_component": {
+   "name": "Vantage Tibial Component",
+   "artikel": "Vantage MB Tibia (CoCrMo, Titan-Plasma-Spray)",
+   "lieferant": "Advita",
+   "preis": 1194.44
+  },
+  "vantage_talar_standard": {
+   "name": "Vantage Talar Component (kurviert)",
+   "artikel": "Vantage MB Talus Standard (CoCrMo)",
+   "lieferant": "Advita",
+   "preis": 1025.15
+  },
+  "vantage_talar_flatcut": {
+   "name": "Vantage Flat Cut Talar Component",
+   "artikel": "Vantage MB Talus Flat Cut (CoCrMo)",
+   "lieferant": "Advita",
+   "preis": 1166.22
+  },
+  "vantage_poly_insert": {
+   "name": "Vantage Poly Insert",
+   "artikel": "Vantage MB Poly Insert (UHMWPE, Ti-Röntgenmarker)",
+   "lieferant": "Advita",
+   "preis": 366.8
+  },
+  "vantage_fixierschraube": {
+   "name": "Vantage Talus-Fixierschraube",
+   "artikel": "Vantage MB Talus-Fixierschraube",
+   "lieferant": "Advita",
+   "preis": 124
+  },
+  "inbone_talar_stem": {
+   "name": "Inbone Talar Stem",
+   "artikel": "Inbone Talar Stem 10",
+   "lieferant": "Stryker",
+   "preis": 699.95
+  },
+  "inbone_tibial_tray": {
+   "name": "Inbone Tibial Tray",
+   "artikel": "Inbone Tibial Tray",
+   "lieferant": "Stryker",
+   "preis": 1499.45
+  },
+  "inbone_poly_insert": {
+   "name": "Inbone Poly Insert",
+   "artikel": "Inbone Poly Insert 10mm",
+   "lieferant": "Stryker",
+   "preis": 569.95
+  },
+  "inbone_mid_top_stem": {
+   "name": "Inbone Mid/Top Stem",
+   "artikel": "Inbone Tibial Mid Stem/Top Stem 16",
+   "lieferant": "Stryker",
+   "preis": 245
+  },
+  "inbone_talar_dome": {
+   "name": "Inbone Talar Dome",
+   "artikel": "Inbone Talar Dome 3",
+   "lieferant": "Stryker",
+   "preis": 1405
+  },
+  "inbone_base_stem": {
+   "name": "Inbone Base Stem",
+   "artikel": "Inbone Tibial Base Stem 18",
+   "lieferant": "Stryker",
+   "preis": 245
+  },
+  "trj_schaft_standard": {
+   "name": "TRJ Schaft Standard",
+   "artikel": "TRJ Standard zementfrei (NU105T)",
+   "lieferant": "Aesculap",
+   "preis": 458
+  },
+  "metha_kurzschaft": {
+   "name": "Metha Kurzschaft",
+   "artikel": "Metha 120/130/135° Schaft (NC285T)",
+   "lieferant": "Aesculap",
+   "preis": 760
+  },
+  "trendhip_schaft": {
+   "name": "Trendhip Schaft",
+   "artikel": "Trendhip Standard zementfrei (GL-HET-HS402)",
+   "lieferant": "Aesculap",
+   "preis": 468
+  },
+  "excia_t_zementfrei": {
+   "name": "Excia T zementfrei",
+   "artikel": "Excia T Schaft zementfrei (NU210T)",
+   "lieferant": "Aesculap",
+   "preis": 413
+  },
+  "excia_t_zementiert": {
+   "name": "Excia T zementiert",
+   "artikel": "Excia T zementiert (NU272K)",
+   "lieferant": "Aesculap",
+   "preis": 232
+  },
+  "plasmafit_plus_3_pfanne": {
+   "name": "Plasmafit Plus 3 Pfanne",
+   "artikel": "Plasmafit Plus 3 Pfanne (NV250T)",
+   "lieferant": "Aesculap",
+   "preis": 358
+  },
+  "plasmafit_pe_inlay": {
+   "name": "Plasmafit PE Inlay",
+   "artikel": "Plasmafit PE Inlay (NV202E)",
+   "lieferant": "Aesculap",
+   "preis": 151
+  },
+  "keramikkopf_biolox_delta": {
+   "name": "Keramikkopf Biolox Delta",
+   "artikel": "Keramikkopf Biolox Delta (NK561D)",
+   "lieferant": "Aesculap",
+   "preis": 182
+  },
+  "metallkopf_isodur_cocr": {
+   "name": "Metallkopf Isodur CoCr",
+   "artikel": "Metallkopf Isodur CoCr (NK430K)",
+   "lieferant": "Aesculap",
+   "preis": 120
+  },
+  "bipolar_cup_aesculap": {
+   "name": "Bipolar Cup Aesculap",
+   "artikel": "Bipolar Cup (NK043S)",
+   "lieferant": "Aesculap",
+   "preis": 159
+  },
+  "cca_schaft_11_25": {
+   "name": "CCA Schaft 11.25",
+   "artikel": "CCA Schaft std. CoCr 11.25 zementiert (2.30.352)",
+   "lieferant": "Mathys",
+   "preis": 400
+  },
+  "kopf_cocr_28_l": {
+   "name": "Kopf CoCr 28 L",
+   "artikel": "Kopf CoCr 28 L (2.30.012)",
+   "lieferant": "Mathys",
+   "preis": 110
+  },
+  "bipolarkopf_stahl_52_28": {
+   "name": "Bipolarkopf Stahl 52/28",
+   "artikel": "Bipolarkopf Stahl 52/28 (54.11.0052)",
+   "lieferant": "Mathys",
+   "preis": 378
+  },
+  "palacos_r_g_40g": {
+   "name": "Palacos R+G 40g",
+   "artikel": "PALACOS R+G Knochenzement, 40g-Tube",
+   "lieferant": "Apotheke",
+   "preis": 32
+  },
+  "unity_femur_komp": {
+   "name": "Unity Femur Komp.",
+   "artikel": "Unity Femur CR Komp., zementiert, Gr.5 (112.001.30)",
+   "lieferant": "Corin",
+   "preis": 565
+  },
+  "unity_tibia_komp": {
+   "name": "Unity Tibia Komp.",
+   "artikel": "Unity Tibia Komp. Fixed zementiert, Gr.5 (112.040.10)",
+   "lieferant": "Corin",
+   "preis": 405
+  },
+  "unity_tibia_inlay": {
+   "name": "Unity Tibia Inlay",
+   "artikel": "Unity Tibia Inlay CR Fixed, Gr.5, 9mm (112.014.82)",
+   "lieferant": "Corin",
+   "preis": 220
+  },
+  "e_motion_femurkomp": {
+   "name": "E.Motion Femurkomp",
+   "artikel": "E.Motion Femurkomp FP/UC zementiert (NO819K)",
+   "lieferant": "Aesculap",
+   "preis": 608
+  },
+  "e_motion_meniskuskomp": {
+   "name": "E.Motion Meniskuskomp",
+   "artikel": "E.Motion Meniskuskomp UC PRO (NX406)",
+   "lieferant": "Aesculap",
+   "preis": 105
+  },
+  "e_motion_tibiakomp": {
+   "name": "E.Motion Tibiakomp",
+   "artikel": "E.Motion PRO Tibiakomp zementiert (NX737K)",
+   "lieferant": "Aesculap",
+   "preis": 584
+  },
+  "e_motion_tibia_stopfen": {
+   "name": "E.Motion Tibia Stopfen",
+   "artikel": "Tibia Verschlussstopfen (NN260P)",
+   "lieferant": "Aesculap",
+   "preis": 36
+  },
+  "as_e_motion_femurkomp": {
+   "name": "AS E.Motion Femurkomp",
+   "artikel": "AS E.Motion Femurkomp FP/UC zementiert (NO819Z)",
+   "lieferant": "Aesculap",
+   "preis": 1600
+  },
+  "as_e_motion_tibiakomp": {
+   "name": "AS E.Motion Tibiakomp",
+   "artikel": "AS E.Motion PRO Tibiakomp zementiert (NX737Z)",
+   "lieferant": "Aesculap",
+   "preis": 1041
+  },
+  "enduro_femurkomp": {
+   "name": "EnduRo Femurkomp",
+   "artikel": "EnduRo Femurkompo zementiert (NB015K)",
+   "lieferant": "Aesculap",
+   "preis": 1442
+  },
+  "enduro_femur_schaft": {
+   "name": "EnduRo Femur Schaft",
+   "artikel": "EnduRo Femur Schaft zementiert (NR292K)",
+   "lieferant": "Aesculap",
+   "preis": 771
+  },
+  "enduro_meniskuskomp": {
+   "name": "EnduRo Meniskuskomp",
+   "artikel": "EnduRo Meniskuskomponente (NR880M)",
+   "lieferant": "Aesculap",
+   "preis": 548
+  },
+  "enduro_tibiakomp": {
+   "name": "EnduRo Tibiakomp",
+   "artikel": "EnduRo Tibiakompo M zementiert (NB012K)",
+   "lieferant": "Aesculap",
+   "preis": 1078
+  },
+  "enduro_tibia_schaft": {
+   "name": "EnduRo Tibia Schaft",
+   "artikel": "EnduRo Tibia Schaft zementiert (NR192K)",
+   "lieferant": "Aesculap",
+   "preis": 417
+  },
+  "enduro_femurschaft_mutter": {
+   "name": "EnduRo Femurschaft-Mutter",
+   "artikel": "EnduRo Femurschaft-Mutter, neutral (NR400K)",
+   "lieferant": "Aesculap",
+   "preis": 110
+  },
+  "as_enduro_femurkomp": {
+   "name": "AS EnduRo Femurkomp",
+   "artikel": "AS EnduRo Femurkompo zementiert (NB015Z)",
+   "lieferant": "Aesculap",
+   "preis": 1917
+  },
+  "as_enduro_femur_schaft": {
+   "name": "AS EnduRo Femur Schaft",
+   "artikel": "AS EnduRo Femur Schaft zementiert (NR292Z)",
+   "lieferant": "Aesculap",
+   "preis": 1025
+  },
+  "as_enduro_meniskuskomp": {
+   "name": "AS EnduRo Meniskuskomp",
+   "artikel": "AS EnduRo Meniskuskomponente (NR880Z)",
+   "lieferant": "Aesculap",
+   "preis": 640
+  },
+  "as_enduro_tibiakomp": {
+   "name": "AS EnduRo Tibiakomp",
+   "artikel": "AS EnduRo Tibiakompo M zementiert (NB012Z)",
+   "lieferant": "Aesculap",
+   "preis": 1434
+  },
+  "as_enduro_tibia_schaft": {
+   "name": "AS EnduRo Tibia Schaft",
+   "artikel": "AS EnduRo Tibia Schaft zementiert (NR192Z)",
+   "lieferant": "Aesculap",
+   "preis": 555
+  },
+  "as_enduro_femurschaft_mutter": {
+   "name": "AS EnduRo Femurschaft-Mutter",
+   "artikel": "AS EnduRo Femurschaft-Mutter (NR400Z)",
+   "lieferant": "Aesculap",
+   "preis": 146
+  },
+  "t2_sga_nagel_12_200mm": {
+   "name": "T2 SGA Nagel Ø12×200mm",
+   "artikel": "T2 SGA Nagel Ø12×200mm rechts (Art. 18191120S)",
+   "lieferant": "Stryker",
+   "preis": 431
+  },
+  "t2_querschraube_5mm": {
+   "name": "T2 Querschraube 5mm",
+   "artikel": "Querschraube 5mm Vollgewinde (Art. 18965035S/037S/070S)",
+   "lieferant": "Stryker",
+   "preis": 34
+  },
+  "t2_verschlussschraube": {
+   "name": "T2 Verschlussschraube",
+   "artikel": "Verschlussschraube T2 SGA / SCN (Art. 18260003S)",
+   "lieferant": "Stryker",
+   "preis": 35
+  },
+  "targon_ph_nagel_10_8_150": {
+   "name": "Targon PH Nagel 10/8×150",
+   "artikel": "Targon PH Nagel 10/8×150mm (KE004T)",
+   "lieferant": "Aesculap",
+   "preis": 389
+  },
+  "targon_ph_fixierschraube_4_5": {
+   "name": "Targon PH Fixierschraube 4.5",
+   "artikel": "Targon PH/H Fixierschraube Ø4.5×22mm (KB062T)",
+   "lieferant": "Aesculap",
+   "preis": 60
+  },
+  "targon_ph_verriegelungsschraube_3_5": {
+   "name": "Targon PH Verriegelungsschraube 3.5",
+   "artikel": "Targon PH/H Verriegelungsschraube Ø3.5×18mm (KB518T)",
+   "lieferant": "Aesculap",
+   "preis": 40
+  },
+  "medial_column_plate_lang": {
+   "name": "Medial Column Plate lang",
+   "artikel": "Medial Column Fusion Plate R, long",
+   "lieferant": "Stryker",
+   "preis": 223.62
+  },
+  "slim_straight_plate_5l": {
+   "name": "Slim Straight Plate 5L",
+   "artikel": "Slim Straight Plate, 5 holes",
+   "lieferant": "Stryker",
+   "preis": 149.19
+  },
+  "rechteckplatte_6l": {
+   "name": "Rechteckplatte 6L",
+   "artikel": "6 Holes rectangular plate w. compression",
+   "lieferant": "Stryker",
+   "preis": 239.19
+  },
+  "variax_curved_plate_4l": {
+   "name": "Variax Curved Plate 4L",
+   "artikel": "4 Holes Curved Plate, Variax foot",
+   "lieferant": "Stryker",
+   "preis": 172.25
+  },
+  "variax_curved_plate_5l": {
+   "name": "Variax Curved Plate 5L",
+   "artikel": "5 Holes Curved plate, right, variax foot",
+   "lieferant": "Stryker",
+   "preis": 172.25
+  },
+  "ortholoc_lapidus_platte": {
+   "name": "Ortholoc Lapidus Platte",
+   "artikel": "Ortholoc plantar 3di Lapidus Plate",
+   "lieferant": "Stryker",
+   "preis": 318.8
+  },
+  "ankle_fusion_plate_ant": {
+   "name": "Ankle Fusion Plate ant.",
+   "artikel": "Ankle Fusion Plate, Anterior TT, short neck",
+   "lieferant": "Arthrex",
+   "preis": 880.11
+  },
+  "ankle_fusion_plate_lat": {
+   "name": "Ankle Fusion Plate lat.",
+   "artikel": "Ankle Fusion Plate, Lateral TT",
+   "lieferant": "Arthrex",
+   "preis": 876.01
+  },
+  "ant_tt_platte": {
+   "name": "Ant TT Platte",
+   "artikel": "Anterior TT Plate",
+   "lieferant": "Paragon",
+   "preis": 698
+  },
+  "mini_platte": {
+   "name": "Mini Platte",
+   "artikel": "Mini Platte",
+   "lieferant": "Arthrex",
+   "preis": 290
+  },
+  "lcp_1_3_rohr_6l": {
+   "name": "LCP 1/3 Rohr 6L",
+   "artikel": "LCP One-third Tub 3,5, 6 Holes",
+   "lieferant": "DePuy Synthes",
+   "preis": 28.55
+  },
+  "lcp_1_3_rohr_9l": {
+   "name": "LCP 1/3 Rohr 9L",
+   "artikel": "LCP One-third Tub 3,5, 9 Holes",
+   "lieferant": "DePuy Synthes",
+   "preis": 34.2
+  },
+  "lcp_mdtp_6l": {
+   "name": "LCP MDTP 6L",
+   "artikel": "LCP MDTP 3,5, 6 holes, 135mm",
+   "lieferant": "DePuy Synthes",
+   "preis": 430.07
+  },
+  "philos_humerusplatte_5_loch": {
+   "name": "PHILOS Humerusplatte 5-Loch",
+   "artikel": "PHILOS Proximale Humerusplatte 3.5 Titan steril, 5-Loch (441.903S)",
+   "lieferant": "DePuy Synthes",
+   "preis": 402
+  },
+  "philos_humerusplatte_3_loch": {
+   "name": "PHILOS Humerusplatte 3-Loch",
+   "artikel": "PHILOS Proximale Humerusplatte 3.5 Titan steril, 3-Loch (441.901S)",
+   "lieferant": "DePuy Synthes",
+   "preis": 366
+  },
+  "koenigsee_humerusplatte_5l": {
+   "name": "Königsee Humerusplatte 5L",
+   "artikel": "Prox. Humerus Pl. 4.0/3.5; 8/5L; L 109mm; vws; 2g; T (5.07933.85)",
+   "lieferant": "Königsee",
+   "preis": 263
+  },
+  "winsta_ph2_ws_platte_5_loch": {
+   "name": "WINSTA-PH2 WS Platte 5-Loch",
+   "artikel": "WINSTA-PH2 WS proximale Humerusplatte 5-Loch Titan (14.11200.005S)",
+   "lieferant": "Marquardt axomed",
+   "preis": 415
+  },
+  "winsta_ph2_ws_platte_3_loch": {
+   "name": "WINSTA-PH2 WS Platte 3-Loch",
+   "artikel": "WINSTA-PH2 WS proximale Humerusplatte 3-Loch Titan (14.11200.003S)",
+   "lieferant": "Marquardt axomed",
+   "preis": 376
+  },
+  "aptus_trilock_radius_distal_11l": {
+   "name": "Aptus TriLock Radius distal 11L",
+   "artikel": "2.5 TriLock Distaler Radius Frakturplatte, 11 Loch (A-4750.01)",
+   "lieferant": "Medartis",
+   "preis": 235
+  },
+  "variax_locking_3_5": {
+   "name": "Variax Locking 3,5",
+   "artikel": "Variax 2 Locking Screw 3,5",
+   "lieferant": "Stryker",
+   "preis": 34.49
+  },
+  "variax_locking_2_7": {
+   "name": "Variax Locking 2,7",
+   "artikel": "Variax 2 Locking Screw 2,7",
+   "lieferant": "Stryker",
+   "preis": 24.74
+  },
+  "fixos_hks_4_0": {
+   "name": "Fixos HKS 4,0",
+   "artikel": "Fixos II, 4,0mm headless compression screw",
+   "lieferant": "Stryker",
+   "preis": 96
+  },
+  "fixos_hks_7_0": {
+   "name": "Fixos HKS 7,0",
+   "artikel": "Fixos II, 7,0mm headless compression screw",
+   "lieferant": "Stryker",
+   "preis": 96
+  },
+  "ortholoc_locking": {
+   "name": "Ortholoc Locking",
+   "artikel": "Ortholoc 3Di Locking Screw",
+   "lieferant": "Stryker",
+   "preis": 76.65
+  },
+  "kortikalis_3_5": {
+   "name": "Kortikalis 3,5",
+   "artikel": "Cortex Screw Stardrive 3,5",
+   "lieferant": "DePuy Synthes",
+   "preis": 11.84
+  },
+  "kanuel_schraube_7_0_koenigsee": {
+   "name": "Kanül. Schraube 7,0 Königsee",
+   "artikel": "7,0 kanülierte Schraube, 16mm Gewinde",
+   "lieferant": "Königsee",
+   "preis": 56
+  },
+  "kanuel_schraube_4_0_koenigsee": {
+   "name": "Kanül. Schraube 4,0 Königsee",
+   "artikel": "4,0 kanülierte Schraube, 16mm Gewinde",
+   "lieferant": "Königsee",
+   "preis": 51
+  },
+  "monster_schraube": {
+   "name": "Monster Schraube",
+   "artikel": "Monster kanülierte Schraube",
+   "lieferant": "Paragon",
+   "preis": 117
+  },
+  "gorilla_3_5_locking": {
+   "name": "Gorilla 3,5 Locking",
+   "artikel": "Gorilla 3,5 Locking screw",
+   "lieferant": "Paragon",
+   "preis": 38
+  },
+  "silverback_4_5_locking": {
+   "name": "Silverback 4,5 Locking",
+   "artikel": "Silverback 4,5 Locking",
+   "lieferant": "Paragon",
+   "preis": 52
+  },
+  "silverback_4_5_non_locking": {
+   "name": "Silverback 4,5 non-locking",
+   "artikel": "Silverback 4,5 non-locking",
+   "lieferant": "Paragon",
+   "preis": 52
+  },
+  "arthrex_4_5_locking": {
+   "name": "Arthrex 4,5 Locking",
+   "artikel": "4,5 locking screw",
+   "lieferant": "Arthrex",
+   "preis": 50
+  },
+  "arthrex_4_5_kortikalis": {
+   "name": "Arthrex 4,5 Kortikalis",
+   "artikel": "4,5 Kortikalis screw",
+   "lieferant": "Arthrex",
+   "preis": 50
+  },
+  "k_draht": {
+   "name": "K-Draht",
+   "artikel": "K-Draht",
+   "lieferant": "-",
+   "preis": 16
+  },
+  "kortikalis_3_5_34_koenigsee": {
+   "name": "Kortikalis 3.5×34 Königsee",
+   "artikel": "Kortikalis Ø3.5×34 VG ISR15 ss T (3.1321.34)",
+   "lieferant": "Königsee",
+   "preis": 16
+  },
+  "kortikalis_4_0_40_wstab_koenigsee": {
+   "name": "Kortikalis 4.0×40 wstab Königsee",
+   "artikel": "Kortikalis Ø4.0×40mm winkelstabil VG ss ISR15 (3.0140.40)",
+   "lieferant": "Königsee",
+   "preis": 18
+  },
+  "kortikalis_3_5_34_synthes": {
+   "name": "Kortikalis 3.5×34 Synthes",
+   "artikel": "Kortikalisschraube Ø3.5mm L=34mm (404.834S)",
+   "lieferant": "DePuy Synthes",
+   "preis": 14
+  },
+  "verriegelung_3_5_40_synthes": {
+   "name": "Verriegelung 3.5×40 Synthes",
+   "artikel": "Verriegelungsschraube Ø3.5mm L=40mm (413.040S)",
+   "lieferant": "DePuy Synthes",
+   "preis": 37
+  },
+  "aptus_trilock_2_5_18_wstab": {
+   "name": "Aptus TriLock 2.5×18 wstab",
+   "artikel": "2.5 TriLock Schraube HexaDrive 7, 18mm winkelstabil (A-5750-18)",
+   "lieferant": "Medartis",
+   "preis": 32
+  },
+  "aptus_kortikalis_2_5_18": {
+   "name": "Aptus Kortikalis 2.5×18",
+   "artikel": "2.5 Kortikalisschraube HexaDrive 7, 18mm (A-5700.18)",
+   "lieferant": "Medartis",
+   "preis": 17
+  },
+  "kortikalis_3_5_axomed": {
+   "name": "Kortikalis 3.5 axomed",
+   "artikel": "3,5 mm Kortikalisschraube 20-40 mm selbstschneidend Titan steril (03.03612.020S)",
+   "lieferant": "Marquardt axomed",
+   "preis": 11
+  },
+  "ws_kortikalis_3_5_axomed": {
+   "name": "WS Kortikalis 3.5 axomed",
+   "artikel": "WS Kortikalisschraube Ø3.5×20-60 mm selbstschneidend Titan steril (03.05612.020S)",
+   "lieferant": "Marquardt axomed",
+   "preis": 23
+  },
+  "fiberwire_2": {
+   "name": "FiberWire 2",
+   "artikel": "FiberWire 2",
+   "lieferant": "Arthrex",
+   "preis": 19.51
+  },
+  "biocomposite_tenodese_4_75": {
+   "name": "BioComposite Tenodese 4,75",
+   "artikel": "BioComposite-Tenodesis Screw 4,75x15mm",
+   "lieferant": "Arthrex",
+   "preis": 296.8
+  },
+  "internal_brace": {
+   "name": "Internal Brace",
+   "artikel": "Internal Brace",
+   "lieferant": "Arthrex",
+   "preis": 507
+  },
+  "fibre_tak": {
+   "name": "Fibre Tak",
+   "artikel": "Fibre Tak",
+   "lieferant": "Arthrex",
+   "preis": 140
+  },
+  "iconix_anchor_suture_tape": {
+   "name": "Iconix Anchor Suture Tape",
+   "artikel": "Iconix 2,3 Anchor TT Suture Tape",
+   "lieferant": "Stryker",
+   "preis": 233.06
+  },
+  "iconix_anchor_force_fibre": {
+   "name": "Iconix Anchor Force Fibre",
+   "artikel": "Iconix 2,3 Anchor Force Fibre Suture",
+   "lieferant": "Stryker",
+   "preis": 298.68
+  },
+  "gii_quickanchor_orthocord": {
+   "name": "GII Quickanchor Orthocord",
+   "artikel": "GII Quickanchor Plus Orthocord",
+   "lieferant": "DePuy Mitek",
+   "preis": 205.92
+  },
+  "gii_quickanchor_ethibond": {
+   "name": "GII Quickanchor Ethibond",
+   "artikel": "GII Quickanchor Plus Ethibond",
+   "lieferant": "DePuy Mitek",
+   "preis": 195.92
+  },
+  "dyna_mite_klammer": {
+   "name": "Dyna-Mite Klammer",
+   "artikel": "Dyna-Mite Klammer",
+   "lieferant": "Arthrex",
+   "preis": 350
+  },
+  "dyna_mite_set": {
+   "name": "Dyna-Mite Set",
+   "artikel": "Set Dyna-Mite Klammer",
+   "lieferant": "Arthrex",
+   "preis": 399
+  },
+  "monocryl_3_0": {
+   "name": "Monocryl 3-0",
+   "artikel": "Monocryl 3-0",
+   "lieferant": "Ethicon",
+   "preis": 3.84
+  },
+  "vicryl_2_0": {
+   "name": "Vicryl 2-0",
+   "artikel": "Vicryl 2-0",
+   "lieferant": "Ethicon",
+   "preis": 15.95
+  },
+  "tutogene_1_2_kopf": {
+   "name": "Tutogene 1/2 Kopf",
+   "artikel": "Tutogene 1/2 Kopf",
+   "lieferant": "Tutogene",
+   "preis": 705
+  },
+  "tutogene_1_2_kopf_klein": {
+   "name": "Tutogene 1/2 Kopf klein",
+   "artikel": "Tutogene 1/2 Kopf klein",
+   "lieferant": "Tutogene",
+   "preis": 538
+  },
+  "tutogene_block_30x10x10": {
+   "name": "Tutogene Block 30x10x10",
+   "artikel": "Tutogene 30x10x10",
+   "lieferant": "Tutogene",
+   "preis": 440
+  },
+  "tutogene_block_20x20x10": {
+   "name": "Tutogene Block 20x20x10",
+   "artikel": "Tutogene 20x20x10",
+   "lieferant": "Tutogene",
+   "preis": 445
+  },
+  "tutogene_block_20x10x10": {
+   "name": "Tutogene Block 20x10x10",
+   "artikel": "Tutogene 20x10x10",
+   "lieferant": "Tutogene",
+   "preis": 333
+  },
+  "tutogene_block_8x8x8": {
+   "name": "Tutogene Block 8x8x8",
+   "artikel": "Tutogene 8x8x8",
+   "lieferant": "Tutogene",
+   "preis": 113
+  },
+  "tutogene_chips_15qcm_1_10mm": {
+   "name": "Tutogene Chips 15qcm 1-10mm",
+   "artikel": "Tutogene 15 qcm Chips 1-10mm",
+   "lieferant": "Tutogene",
+   "preis": 495
+  },
+  "tutogene_chips_10qcm": {
+   "name": "Tutogene Chips 10qcm",
+   "artikel": "Tutogene 10 qcm Chips",
+   "lieferant": "Tutogene",
+   "preis": 394
+  },
+  "tutogene_chips_5qcm": {
+   "name": "Tutogene Chips 5qcm",
+   "artikel": "Tutogene 5 qcm Chips",
+   "lieferant": "Tutogene",
+   "preis": 210
+  },
+  "tutogene_chips_15qcm_2_4mm": {
+   "name": "Tutogene Chips 15qcm 2-4mm",
+   "artikel": "Tutogene 15 qcm Chips 2-4mm",
+   "lieferant": "Tutogene",
+   "preis": 515
+  },
+  "tutogene_chips_3qcm": {
+   "name": "Tutogene Chips 3qcm",
+   "artikel": "Tutogene 3 qcm Chips",
+   "lieferant": "Tutogene",
+   "preis": 200
+  },
+  "lyostypt_10x12": {
+   "name": "Lyostypt 10x12",
+   "artikel": "Lyostypt 10x12",
+   "lieferant": "Braun",
+   "preis": 25.11
+  },
+  "lyostypt_3x5": {
+   "name": "Lyostypt 3x5",
+   "artikel": "Lyostypt 3x5cm",
+   "lieferant": "Braun",
+   "preis": 9.08
+  },
+  "bohrer_bk": {
+   "name": "Bohrer BK",
+   "artikel": "Bohrer BK kanüliert",
+   "lieferant": "Arthrex",
+   "preis": 260
+  },
+  "einmal_bohrer_kanueliert": {
+   "name": "Einmal Bohrer kanüliert",
+   "artikel": "Einmal Bohrer kanüliert",
+   "lieferant": "Arthrex",
+   "preis": 206
+  },
+  "shannon_recta_2_0mm": {
+   "name": "Shannon Recta 2,0mm",
+   "artikel": "Fräser Shannon Recta Ø 2,0mm L 13mm steril, Art. 12.20038.050S",
+   "lieferant": "Marquardt axomed",
+   "preis": 43
+  },
+  "shannon_recta_larga_2_2mm": {
+   "name": "Shannon Recta Larga 2,2mm",
+   "artikel": "Fräser Shannon Recta Larga Ø 2,2mm L 22mm steril, Art. 12.20038.060S",
+   "lieferant": "Marquardt axomed",
+   "preis": 43
+  },
+  "verticale_stab_5_5": {
+   "name": "VERTICALE Stab Ø5,5",
+   "artikel": "VERTICALE gebogener Stab Ø5,5 / 45 mm Ti (S-VST-0045-T) — BME 2 ST/PK",
+   "lieferant": "Silony",
+   "preis": 55
+  },
+  "verticale_polyschraube": {
+   "name": "VERTICALE Polyschraube",
+   "artikel": "VERTICALE Poly Schr ST Ø6,2x35 mm kan+fen (S-VPS-6235-KF2)",
+   "lieferant": "Silony",
+   "preis": 140
+  },
+  "madenschraube_torx_25": {
+   "name": "Madenschraube Torx 25",
+   "artikel": "Madenschraube Torx 25 (S-VMS-2025) — BME 2 ST",
+   "lieferant": "Silony",
+   "preis": 30
+  },
+  "favo_s_tlif_cage": {
+   "name": "FAVO S-TLIF Cage",
+   "artikel": "FAVO S-TLIF Cage 07x11x28 mm 5° (S-FST-07112805-S)",
+   "lieferant": "Silony",
+   "preis": 600
+  },
+  "exp_stab_40_mm": {
+   "name": "EXP Stab 40 mm",
+   "artikel": "EXP Stab 40 mm (179772040S)",
+   "lieferant": "DePuy Synthes",
+   "preis": 92
+  },
+  "exp_viper2_cfx_polyschraube": {
+   "name": "EXP Viper2 CFX Polyschraube",
+   "artikel": "EXP Viper2 CFX Polyschraube 6x45 mm zementierbar (186727645S)",
+   "lieferant": "DePuy Synthes",
+   "preis": 217
+  },
+  "exp_single_innie": {
+   "name": "EXP Single Innie",
+   "artikel": "EXP Single Innie (179702000S)",
+   "lieferant": "DePuy Synthes",
+   "preis": 53
+  },
+  "kyphopak_ballon_20er": {
+   "name": "KyphoPak Ballon 20er",
+   "artikel": "CLASSIC KyphoPak One-Step 20er Ballon (KPT2005)",
+   "lieferant": "Medtronic",
+   "preis": 499
+  },
+  "kyphopak_ballon_15_3": {
+   "name": "KyphoPak Ballon 15/3",
+   "artikel": "CLASSIC KyphoPak One-Step Ballon 15/3 (KPT1505)",
+   "lieferant": "Medtronic",
+   "preis": 499
+  },
+  "knochenzement_kypho": {
+   "name": "Knochenzement Kypho",
+   "artikel": "Knochenzement (CX01B-C)",
+   "lieferant": "Medtronic",
+   "preis": 111
+  },
+  "adapter_a23": {
+   "name": "Adapter A23",
+   "artikel": "Adapter A23 (passt zu KPT2005)",
+   "lieferant": "Medtronic",
+   "preis": 10
+  },
+  "adapter_a22": {
+   "name": "Adapter A22",
+   "artikel": "Adapter A22 (passt zu KPT1505)",
+   "lieferant": "Medtronic",
+   "preis": 10
+  },
+  "trokar_t15j": {
+   "name": "Trokar T15J",
+   "artikel": "Trokar 3er passt in 3 (T15J)",
+   "lieferant": "Medtronic",
+   "preis": 141
+  },
+  "trokar_t34a": {
+   "name": "Trokar T34A",
+   "artikel": "Trokar 2er passt in 2 (T34A)",
+   "lieferant": "Medtronic",
+   "preis": 141
+  },
+  "zementapplikator_15_3": {
+   "name": "Zementapplikator 15/3",
+   "artikel": "Zementapplikator 15/3 (F04B)",
+   "lieferant": "Medtronic",
+   "preis": 29
+  },
+  "fixos_hks_2_5": {
+   "name": "Fixos HKS 2,5",
+   "artikel": "Fixos II, 2,5mm headless compression screw",
+   "lieferant": "Stryker",
+   "preis": 96
+  },
+  "fixos_twist_off_2_0": {
+   "name": "Fixos Twist off 2,0",
+   "artikel": "Fixos, 2,0mm twist-off screw",
+   "lieferant": "Stryker",
+   "preis": 96
+  },
+  "t2_nagel_kit": {
+   "name": "T2 Nagel-Kit",
+   "artikel": "T2 SGA Nagel + 5× Querschraube 5mm + 1× Verschlussschraube (Zusammenstellung)",
+   "lieferant": "Stryker",
+   "preis": 636
+  },
+  "chondro_gide_membran": {
+   "name": "Chondro-Gide Membran",
+   "artikel": "Chondro-Gide Knorpel-Knochen-Membran",
+   "lieferant": "Geistlich",
+   "preis": 950
+  }
+ },
+ "UC_IMPL_HUMERUS_PROX": {
+  "philos_5l": {
+   "l": "PHILOS 5-Loch",
+   "lieferant": "DePuy Synthes",
+   "preis": 754
+  },
+  "philos_3l": {
+   "l": "PHILOS 3-Loch",
+   "lieferant": "DePuy Synthes",
+   "preis": 717
+  },
+  "targon": {
+   "l": "Targon PH Nagel",
+   "lieferant": "Aesculap",
+   "preis": 649
+  },
+  "winsta_5l": {
+   "l": "WINSTA-PH2 WS 5-Loch",
+   "lieferant": "Marquardt axomed",
+   "preis": 604
+  },
+  "winsta_3l": {
+   "l": "WINSTA-PH2 WS 3-Loch",
+   "lieferant": "Marquardt axomed",
+   "preis": 565
+  },
+  "koenigsee": {
+   "l": "Königsee Humerusplatte 5-Loch",
+   "lieferant": "Königsee",
+   "preis": 476
+  }
+ },
+ "UC_IMPL_RADIUS_DISTAL": {
+  "aptus_11l": {
+   "l": "Aptus TriLock 11-Loch",
+   "lieferant": "Medartis",
+   "preis": 444
+  }
+ }
+}

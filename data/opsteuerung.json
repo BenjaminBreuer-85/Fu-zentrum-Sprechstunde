@@ -1,0 +1,805 @@
+{
+ "_kommentar": ["Ausgelagert aus index.html (Stufe 1 Lizenz-Umbau). Abrechnungs-/Katalogdaten sind behördlich festgelegt — 1:1 übernehmen, niemals 'korrigieren'.", "Strings der Form {\"__fx\": \"...\"} werden beim Laden durch window._fx(...) ersetzt (€-Beträge aus Erlösdaten)."],
+ "OP_STEUERUNG": {
+  "chevron": {
+   "hdrg": "I20O",
+   "drg": "I20E",
+   "impl": 96,
+   "empf": "both",
+   "hebel": "5-854.2c",
+   "hebelName": "Sehnentransfer",
+   "kontext": [
+    {
+     "code": "5-854.2c",
+     "name": "Sehnentransfer"
+    }
+   ],
+   "aufwertung": {
+    "ziel": {
+     "__fx": "I20N (2.085 €)"
+    },
+    "delta": "+1.078 €",
+    "triggers": [
+     {
+      "code": "5-788.52/53",
+      "name": "1–2× DMMO MT II–V"
+     },
+     {
+      "code": "5-788.68",
+      "name": "3× Arthroplastik IP Kleinzehen"
+     },
+     {
+      "code": "5-808.be/bf/bg",
+      "name": "2–4× Arthrodese IP Kleinzehen"
+     }
+    ]
+   },
+   "ausschluss": {
+    "ziel": "keine H-DRG → nur stationär",
+    "triggers": [
+     {
+      "code": "5-788.54/55",
+      "name": "3–4× DMMO MT II–V"
+     },
+     {
+      "code": "5-788.60",
+      "name": "Arthroplastik MTP I"
+     },
+     {
+      "code": "5-788.59/5a/5b",
+      "name": "3–5× Osteotomie Dig II–V"
+     },
+     {
+      "code": "5-788.62/63/64",
+      "name": "2–4× Arthroplastik MTP II–V"
+     },
+     {
+      "code": "5-788.69/6a",
+      "name": "4–5× Arthroplastik IP, II–V"
+     }
+    ]
+   }
+  },
+  "chevron_akin": {
+   "hdrg": "I20O",
+   "drg": "I20E",
+   "impl": 96,
+   "empf": "both",
+   "hebel": "5-854.2c",
+   "hebelName": "Sehnentransfer",
+   "kontext": [
+    {
+     "code": "5-854.2c",
+     "name": "Sehnentransfer"
+    }
+   ],
+   "aufwertung": {
+    "ziel": {
+     "__fx": "I20N (2.085 €)"
+    },
+    "delta": "+1.078 €",
+    "triggers": [
+     {
+      "code": "5-788.52/53",
+      "name": "1–2× DMMO MT II–V"
+     },
+     {
+      "code": "5-788.68",
+      "name": "3× Arthroplastik IP Kleinzehen"
+     },
+     {
+      "code": "5-808.be/bf/bg",
+      "name": "2–4× Arthrodese IP Kleinzehen"
+     }
+    ]
+   },
+   "ausschluss": {
+    "ziel": "keine H-DRG → nur stationär",
+    "triggers": [
+     {
+      "code": "5-788.54/55",
+      "name": "3–4× DMMO MT II–V"
+     },
+     {
+      "code": "5-788.60",
+      "name": "Arthroplastik MTP I"
+     },
+     {
+      "code": "5-788.59/5a/5b",
+      "name": "3–5× Osteotomie Dig II–V"
+     },
+     {
+      "code": "5-788.62/63/64",
+      "name": "2–4× Arthroplastik MTP II–V"
+     },
+     {
+      "code": "5-788.69/6a",
+      "name": "4–5× Arthroplastik IP, II–V"
+     }
+    ]
+   }
+  },
+  "scarf": {
+   "hdrg": "I20O",
+   "drg": "I20E",
+   "impl": 192,
+   "empf": "both",
+   "hebel": "5-854.2c",
+   "hebelName": "Sehnentransfer",
+   "kontext": [
+    {
+     "code": "5-854.2c",
+     "name": "Sehnentransfer"
+    }
+   ],
+   "aufwertung": {
+    "ziel": {
+     "__fx": "I20N (2.085 €)"
+    },
+    "delta": "+1.078 €",
+    "triggers": [
+     {
+      "code": "5-788.52/53",
+      "name": "1–2× DMMO MT II–V"
+     },
+     {
+      "code": "5-788.68",
+      "name": "3× Arthroplastik IP Kleinzehen"
+     },
+     {
+      "code": "5-808.be/bf/bg",
+      "name": "2–4× Arthrodese IP Kleinzehen"
+     }
+    ]
+   },
+   "ausschluss": {
+    "ziel": "keine H-DRG → nur stationär",
+    "triggers": [
+     {
+      "code": "5-788.54/55",
+      "name": "3–4× DMMO MT II–V"
+     },
+     {
+      "code": "5-788.60",
+      "name": "Arthroplastik MTP I"
+     },
+     {
+      "code": "5-788.59/5a/5b",
+      "name": "3–5× Osteotomie Dig II–V"
+     },
+     {
+      "code": "5-788.62/63/64",
+      "name": "2–4× Arthroplastik MTP II–V"
+     },
+     {
+      "code": "5-788.69/6a",
+      "name": "4–5× Arthroplastik IP, II–V"
+     }
+    ]
+   }
+  },
+  "lapidus": {
+   "hdrg": "I20M",
+   "drg": "I20D",
+   "impl": 513.76,
+   "empf": "both",
+   "hebel": "5-783.0v + 5-784.0u",
+   "hebelName": "Spongiosa MT → Tarsale",
+   "hdrgTrigger": [
+    {
+     "code": "5-788.5c",
+     "name": "distale OT MT I"
+    },
+    {
+     "code": "5-788.56",
+     "name": "Akin-Osteotomie"
+    },
+    {
+     "code": "5-788.40",
+     "name": "Arthroplastik MT-Basis"
+    }
+   ],
+   "kontext": [
+    {
+     "code": "5-783.0v",
+     "name": "Spongiosaentnahme Metatarsale"
+    },
+    {
+     "code": "5-784.0u",
+     "name": "Spongiosatransplantation Tarsale"
+    }
+   ],
+   "hinweise": [
+    {
+     "typ": "warn",
+     "txt": "Bei diesem Eingriff praktisch obligate Codes 5-854.1c, 5-788.60, 5-854.2c sind bei I20M KEINE Kontextprozedur — sie verhindern den Sprung in die volle DRG nicht."
+    }
+   ]
+  },
+  "cheilektomie": {
+   "hdrg": "I20O",
+   "drg": "I20F",
+   "impl": 0,
+   "empf": "both",
+   "hebel": null,
+   "hebelName": null
+  },
+  "mtp1_arthrodese": {
+   "hdrg": "I20N",
+   "drg": "I20E",
+   "impl": 367.21,
+   "empf": "both",
+   "hebel": "5-784.0v",
+   "hebelName": "Spongiosa MTP I",
+   "kontext": [
+    {
+     "code": "5-784.0v",
+     "name": "Spongiosa MTP I"
+    }
+   ],
+   "hinweise": [
+    {
+     "typ": "erloes",
+     "txt": {
+      "__fx": "Stationär mit Kontextprozedur + 3× DMMO MT II–V (5-788.54) → I20D (4.710 €), +787 € gegenüber I20E."
+     }
+    },
+    {
+     "typ": "erloes",
+     "txt": {
+      "__fx": "Stationär mit Kontextprozedur + 4× DMMO MT II–V (5-788.55) → I20C (5.068 €), +1.145 € gegenüber I20E."
+     }
+    }
+   ]
+  },
+  "brostrom_gould": {
+   "hdrg": null,
+   "drg": "I59Z",
+   "impl": 391.84,
+   "empf": "stat",
+   "ambStatus": "ebm",
+   "hebel": null,
+   "hebelName": null
+  },
+  "brostrom_int_brace": {
+   "hdrg": null,
+   "drg": "I59Z",
+   "impl": 787,
+   "empf": "stat",
+   "ambStatus": "ebm",
+   "hebel": null,
+   "hebelName": null
+  },
+  "bandplastik_autolog": {
+   "hdrg": null,
+   "drg": "I59Z",
+   "impl": 593.6,
+   "empf": "stat",
+   "ambStatus": "ebm",
+   "hebel": null,
+   "hebelName": null
+  },
+  "ask_osg": {
+   "hdrg": "I20O",
+   "drg": "I20F",
+   "impl": 0,
+   "empf": "both",
+   "hebel": null,
+   "hebelName": null
+  },
+  "arthrodese_osg": {
+   "hdrg": null,
+   "drg": "I13D",
+   "impl": 582,
+   "empf": "stat",
+   "hebel": "5-783.0d + 5-784.0n",
+   "hebelName": "Spongiosa Beckenkamm → Tibia",
+   "kontext": [
+    {
+     "code": "5-783.0d",
+     "name": "Spongiosaentnahme Beckenkamm"
+    },
+    {
+     "code": "5-784.0n",
+     "name": "Spongiosatransplantation Tibia"
+    }
+   ],
+   "hinweise": [
+    {
+     "typ": "warn",
+     "txt": "Spongiosaplastik ist bei diesem Eingriff zur Erreichung der DRG I13D erforderlich — Beckenkammentnahme (5-783.0d) und Tibia-Transplantation (5-784.0n) müssen zwingend kodiert UND im OP-Bericht dokumentiert sein."
+    },
+    {
+     "typ": "alert",
+     "txt": {
+      "__fx": "Ohne Spongiosa-Kodierung fällt der Erlös auf I13E (5.829 €) — Verlust von 1.250 € gegenüber I13D."
+     }
+    }
+   ]
+  },
+  "tep_infinity": {
+   "hdrg": null,
+   "drg": "I05B",
+   "impl": 4358.97,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "tep_vantage": {
+   "hdrg": null,
+   "drg": "I05B",
+   "impl": 2710.39,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "tep_inbone": {
+   "hdrg": null,
+   "drg": "I05B",
+   "impl": 4419.35,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "amic": {
+   "hdrg": null,
+   "drg": "I13G",
+   "impl": 950,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null,
+   "hinweise": [
+    {
+     "typ": "erloes",
+     "txt": {
+      "__fx": "Bei zusätzlicher Innenknöchelosteotomie (5-781.an) Aufwertung zur I13E (5.829 €) — +1.290 €."
+     }
+    }
+   ]
+  },
+  "oats": {
+   "hdrg": null,
+   "drg": "I13G",
+   "impl": 0,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "mdo_offen": {
+   "hdrg": null,
+   "drg": "I20C",
+   "impl": 192,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "mdo_mini": {
+   "hdrg": null,
+   "drg": "I20C",
+   "impl": 235,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "lcot": {
+   "hdrg": null,
+   "drg": "I20C",
+   "impl": 333,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null,
+   "hinweise": [
+    {
+     "typ": "info",
+     "txt": "In Kombination mit Calcaneus-OT sinnvoll."
+    }
+   ]
+  },
+  "cotton": {
+   "hdrg": null,
+   "drg": "I20C",
+   "impl": 333,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "calcaneus_ot": {
+   "hdrg": null,
+   "drg": "I20C",
+   "impl": 192,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "coalition_exzision": {
+   "hdrg": null,
+   "drg": "I27D",
+   "impl": 0,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null,
+   "hinweise": [
+    {
+     "typ": "erloes",
+     "txt": {
+      "__fx": "In Kombination mit LCOT (5-781.4t) Aufwertung zur I20C (5.068 €) — bei Patienten <12 Jahre sogar I20B (6.815 €)."
+     }
+    }
+   ]
+  },
+  "subtalar_arthrodese": {
+   "hdrg": null,
+   "drg": "I13E",
+   "impl": 192,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "tn_arthrodese": {
+   "hdrg": null,
+   "drg": "I13E",
+   "impl": 367.21,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "double_arthrodese": {
+   "hdrg": null,
+   "drg": "I13E",
+   "impl": 559.21,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "triple_arthrodese": {
+   "hdrg": null,
+   "drg": "I20B",
+   "impl": 559.21,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "arthrodese_tmt": {
+   "hdrg": null,
+   "drg": "I20D",
+   "impl": 271.21,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null,
+   "hinweise": [
+    {
+     "typ": "erloes",
+     "txt": {
+      "__fx": "TMT-Arthrodese 3 Gelenke (5-808.a6) → I20C (5.068 €). 4–5 Gelenke (5-808.a7/a8) → I20B (6.815 €)."
+     }
+    }
+   ]
+  },
+  "haglund_as_split": {
+   "hdrg": null,
+   "drg": "I27D",
+   "impl": 391.84,
+   "empf": "stat",
+   "hebel": "5-854.29",
+   "hebelName": "Sehnentransposition Unterschenkel",
+   "kontext": [
+    {
+     "code": "5-854.29",
+     "name": "Sehnentransposition Unterschenkel"
+    }
+   ]
+  },
+  "supramal_ot": {
+   "hdrg": null,
+   "drg": "I13E",
+   "impl": 333,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null,
+   "hinweise": [
+    {
+     "typ": "info",
+     "txt": "Gleiche DRG für Dome, Open Wedge und Closed Wedge. Valgisierend 5-781.0n, varisierend 5-781.1n."
+    }
+   ]
+  },
+  "haglund_mini": {
+   "hdrg": "I20O",
+   "drg": "I20F",
+   "impl": 0,
+   "empf": "both",
+   "hebel": null,
+   "hebelName": null
+  },
+  "arthrorise": {
+   "hdrg": "I20O",
+   "drg": null,
+   "impl": 56,
+   "empf": "amb",
+   "hebel": null,
+   "hebelName": null,
+   "hinweise": [
+    {
+     "typ": "alert",
+     "txt": "Patientenalter <18 Jahre → Altersausschluss für Hybrid-DRG. Code 5-796.pv ist zwar auf Positivliste, aber die H-DRG ist für diese Patientengruppe grundsätzlich nicht abrechenbar."
+    }
+   ]
+  },
+  "dmmo": {
+   "hdrg": "I20O",
+   "drg": "I20F",
+   "impl": 43,
+   "empf": "both",
+   "hebel": null,
+   "hebelName": null,
+   "ausschluss": {
+    "ziel": "keine H-DRG → nur stationär",
+    "triggers": [
+     {
+      "code": "5-788.54",
+      "name": "3× DMMO MT II–V"
+     },
+     {
+      "code": "5-788.55",
+      "name": "4× DMMO MT II–V"
+     }
+    ]
+   }
+  },
+  "kleinzehen_pip": {
+   "hdrg": "I20O",
+   "drg": "I20F",
+   "impl": 16,
+   "empf": "both",
+   "hebel": null,
+   "hebelName": null
+  },
+  "fhl_transfer": {
+   "hdrg": null,
+   "drg": "I27D",
+   "impl": 296.8,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "as_naht": {
+   "hdrg": null,
+   "drg": "I27E",
+   "impl": 0,
+   "empf": "stat",
+   "ambStatus": "ebm",
+   "hebel": null,
+   "hebelName": null,
+   "opsCodes": [
+    {
+     "code": "5-855.19",
+     "name": "Sehnennaht primär (Hauptcode)"
+    },
+    {
+     "code": "5-855.39",
+     "name": "Naht der Sehnenscheide (zwingend mitkodieren)"
+    }
+   ],
+   "hinweise": [
+    {
+     "typ": "alert",
+     "txt": "⚠ ZWINGEND BEIDE OPS-CODES KODIEREN: 5-855.19 (Sehnennaht primär) UND 5-855.39 (Naht Sehnenscheide). Wird nur 5-855.19 kodiert, fällt der Fall in I20F → Erlösverlust 268 € bei voller DRG, 328 € bei UGVD-Abschlag (1 Tag)."
+    }
+   ]
+  },
+  "peroneal_naht": {
+   "hdrg": null,
+   "drg": "I27E",
+   "impl": 0,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null
+  },
+  "t2_nagel": {
+   "hdrg": null,
+   "drg": "I20A",
+   "impl": 634,
+   "empf": "stat",
+   "hebel": null,
+   "hebelName": null,
+   "hinweise": [
+    {
+     "typ": "alert",
+     "txt": "UGVD = 2 Tage, volle DRG erst ab 3 Belegungstagen. Bei Entlassung am 1. oder 2. Tag nach OP: Abschlag ~1.209 € pro Tag."
+    },
+    {
+     "typ": "warn",
+     "txt": "Mindestens 3 Übernachtungen einplanen."
+    }
+   ]
+  },
+  "fasziotomie_offen": {
+   "hdrg": "I20O",
+   "drg": "I59Z",
+   "impl": 0,
+   "empf": "amb",
+   "hebel": null,
+   "hebelName": null,
+   "opsCodes": [
+    {
+     "code": "5-841.10",
+     "name": "Inzision an Sehnen und Faszien, Fuß"
+    }
+   ],
+   "hinweise": [
+    {
+     "typ": "info",
+     "txt": {
+      "__fx": "Standard-Weg: ambulant als H-DRG I20O (1.007 €). Bei beidseitigem Vorgehen oder anderen Ausnahmefällen kurzstationär als I59Z (3.225 € abzgl. UGVD-Abschlag bei 1 Tag)."
+     }
+    }
+   ]
+  },
+  "gastroc_strayer": {
+   "hdrg": null,
+   "drg": "I59Z",
+   "impl": 0,
+   "empf": "stat",
+   "ambStatus": "ebm",
+   "hebel": null,
+   "hebelName": null,
+   "opsCodes": [
+    {
+     "code": "5-859.0",
+     "name": "Sehnenverlängerung untere Extremität"
+    }
+   ],
+   "hinweise": [
+    {
+     "typ": "info",
+     "txt": "Ambulant per EBM (AOP-fähig) oder kurzstationär als I59Z möglich. Bei stationärer Führung UGVD = 1 Tag — volle DRG erst ab 2 Belegungstagen."
+    }
+   ]
+  },
+  "gastroc_pmgr": {
+   "hdrg": null,
+   "drg": "I59Z",
+   "impl": 0,
+   "empf": "stat",
+   "ambStatus": "ebm",
+   "hebel": null,
+   "hebelName": null,
+   "opsCodes": [
+    {
+     "code": "5-859.0",
+     "name": "Sehnenverlängerung untere Extremität"
+    }
+   ],
+   "hinweise": [
+    {
+     "typ": "info",
+     "txt": "Ambulant per EBM (AOP-fähig) oder kurzstationär als I59Z möglich. Bei stationärer Führung UGVD = 1 Tag — volle DRG erst ab 2 Belegungstagen."
+    }
+   ]
+  }
+ },
+ "UGVD_ABSCHLAG": {
+  "I05B": 1570,
+  "I05C": 1310,
+  "I08F": 1222,
+  "I13D": 1180,
+  "I13E": 1075,
+  "I13F": 960,
+  "I13G": 860,
+  "I20A": 1209,
+  "I20B": 1170,
+  "I20C": 1170,
+  "I20D": 1079,
+  "I20E": 985,
+  "I20F": 821,
+  "I21Z": 820,
+  "I27D": 731,
+  "I27E": 611,
+  "I29B": 889,
+  "I31A": 1140,
+  "I31B": 900,
+  "I31C": 820,
+  "I43B": 1430,
+  "I47B": 1323,
+  "I59Z": 564
+ },
+ "ME_REGIONEN": {
+  "metatarsale": {
+   "label": "Metatarsale",
+   "codes": {
+    "schraube": "5-787.1v",
+    "platte": "5-787.kv"
+   },
+   "zusatz": [
+    {
+     "code": "5-788.00",
+     "name": "Resektion Exostose Os metatarsale I"
+    },
+    {
+     "code": "5-788.06",
+     "name": "Resektion Exostose Os metatarsale II–V (1 Knochen)"
+    },
+    {
+     "code": "5-859.2a",
+     "name": "Resektion eines Ganglions Fuß"
+    }
+   ]
+  },
+  "tarsale": {
+   "label": "Tarsale",
+   "codes": {
+    "schraube": "5-787.1u",
+    "platte": "5-787.ku"
+   },
+   "zusatz": [
+    {
+     "code": "5-800.9n",
+     "name": "Zystenexstirpation Tarsalgelenk"
+    },
+    {
+     "code": "5-800.9p",
+     "name": "Zystenexstirpation Tarsometatarsalgelenk"
+    },
+    {
+     "code": "5-782.1u",
+     "name": "Partielle Resektion Tarsale"
+    },
+    {
+     "code": "5-859.2a",
+     "name": "Resektion eines Ganglions Fuß"
+    }
+   ]
+  },
+  "calcaneus": {
+   "label": "Calcaneus",
+   "codes": {
+    "schraube": "5-787.1t",
+    "platte": "5-787.kt"
+   },
+   "zusatz": [
+    {
+     "code": "5-782.at",
+     "name": "Partielle Resektion Calcaneus offen (Haglund-Exostose)"
+    },
+    {
+     "code": "5-859.2a",
+     "name": "Resektion eines Ganglions Fuß"
+    }
+   ]
+  },
+  "tibia": {
+   "label": "Tibia distal",
+   "codes": {
+    "schraube": "5-787.1n",
+    "platte": "5-787.kn"
+   },
+   "zusatz": [
+    {
+     "code": "5-859.2a",
+     "name": "Resektion eines Ganglions Fuß"
+    },
+    {
+     "code": "5-859.1a",
+     "name": "Totale Resektion Schleimbeutel Fuß"
+    }
+   ]
+  },
+  "fibula": {
+   "label": "Fibula distal",
+   "codes": {
+    "schraube": "5-787.1r",
+    "platte": "5-787.kr"
+   },
+   "zusatz": [
+    {
+     "code": "5-859.2a",
+     "name": "Resektion eines Ganglions Fuß"
+    },
+    {
+     "code": "5-859.1a",
+     "name": "Totale Resektion Schleimbeutel Fuß"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,1165 @@
+{
+ "_kommentar": ["Ausgelagert aus index.html (Stufe 1 Lizenz-Umbau). Abrechnungs-/Katalogdaten sind behördlich festgelegt — 1:1 übernehmen, niemals 'korrigieren'.", "Strings der Form {\"__fx\": \"...\"} werden beim Laden durch window._fx(...) ersetzt (€-Beträge aus Erlösdaten)."],
+ "DIAG": {
+  "hallux_valgus": {
+   "label": "Hallux valgus",
+   "diagnoseText": "Hallux valgus",
+   "lokBeschwerden": "im Bereich der Großzehe und des Vorfußes",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Schmerztherapie",
+    "Anpassung des Schuhwerks",
+    "Zehengymnastik",
+    "Dehnübungen",
+    "Übung der intrinsischen Fußmuskulatur",
+    "Polsterung/Schutz der Pseudoexostose"
+   ],
+   "befunde": [
+    {
+     "id": "haut",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_mtp1",
+     "pos": "Druckschmerz über dem MTP-I-Gelenk medial",
+     "neg": "Kein Druckschmerz über dem MTP-I-Gelenk"
+    },
+    {
+     "id": "pseudoex",
+     "pos": "Prominente Pseudoexostose medial tastbar",
+     "neg": "Keine wesentliche Pseudoexostose"
+    },
+    {
+     "id": "schuhkonflikt",
+     "pos": "Schuhkonflikt medial",
+     "neg": "Kein Schuhkonflikt"
+    },
+    {
+     "id": "bursitis",
+     "pos": "Bursitis über der Pseudoexostose",
+     "neg": "Keine Bursitis"
+    },
+    {
+     "id": "tmt1",
+     "pos": "Druckschmerz und erhöhte Mobilität des TMT-I-Gelenkes, Hinweis auf TMT-I-Instabilität",
+     "neg": "TMT-I-Gelenk stabil, keine Hypermobilität"
+    },
+    {
+     "id": "hallux_stellung",
+     "pos": "Hallux-valgus-Fehlstellung",
+     "neg": "Keine relevante Hallux-valgus-Fehlstellung"
+    },
+    {
+     "id": "hallux_ip",
+     "pos": "Hallux interphalangeus",
+     "neg": "Kein Hallux interphalangeus"
+    },
+    {
+     "id": "bew_mtp1",
+     "input": true,
+     "label": "Beweglichkeit MTP I (Ext/Flex)",
+     "placeholder": "30/0/20"
+    },
+    {
+     "id": "kleinzehen",
+     "pos": "Begleitende Kleinzehendeformitäten",
+     "neg": "Keine Kleinzehendeformitäten"
+    },
+    {
+     "id": "metatarsalgie",
+     "pos": "Transfermetatarsalgie",
+     "neg": "Keine Transfermetatarsalgie"
+    },
+    {
+     "id": "beschwielung",
+     "pos": "Plantare Mehrbeschwielung unter den MT-Köpfchen",
+     "neg": "Keine plantare Mehrbeschwielung"
+    }
+   ],
+   "opMethoden": [
+    "chevron",
+    "chevron_akin",
+    "scarf",
+    "lapidus",
+    "dmmo",
+    "kleinzehen_pip"
+   ],
+   "bildBefunde": "Hallux-valgus-Deformität mit einem IM-Winkel von __ Grad und einem HV-Winkel von __ Grad",
+   "literatur": "AWMF S2e-Leitlinie Hallux valgus (Nr. 187-051, Stand 2024): https://register.awmf.org/de/leitlinien/detail/187-051"
+  },
+  "hallux_rigidus": {
+   "label": "Hallux rigidus",
+   "diagnoseText": "Hallux rigidus",
+   "lokBeschwerden": "im Bereich des Großzehengrundgelenkes",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung mit Rigidusfeder",
+    "Schmerztherapie",
+    "Anpassung des Schuhwerks",
+    "Nutzung von Schuhen mit steifer Sohle",
+    "Nutzung eines Schuhes mit Sohlenversteifung und Abrollhilfe",
+    "Infiltrationstherapie",
+    "Physiotherapie"
+   ],
+   "befunde": [
+    {
+     "id": "haut_r",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_mtp1_dorsal",
+     "pos": "Druckschmerz über dem MTP-I-Gelenk dorsal",
+     "neg": "Kein Druckschmerz MTP I"
+    },
+    {
+     "id": "osteophyten_palp",
+     "pos": "Palpable dorsale Osteophyten am MTP-I-Gelenk",
+     "neg": "Keine palpablen Osteophyten"
+    },
+    {
+     "id": "bew_mtp1_r",
+     "input": true,
+     "label": "Beweglichkeit MTP I (Ext/Flex)",
+     "placeholder": "10/0/15"
+    },
+    {
+     "id": "schmerz_endgrad",
+     "pos": "Schmerz bei endgradiger Dorsalextension",
+     "neg": "Kein Schmerz bei Dorsalextension"
+    },
+    {
+     "id": "krepitation",
+     "pos": "Krepitation im MTP-I-Gelenk",
+     "neg": "Keine Krepitation"
+    }
+   ],
+   "opMethoden": [
+    "cheilektomie",
+    "mtp1_arthrodese",
+    "dmmo",
+    "kleinzehen_pip"
+   ],
+   "bildBefunde": "Arthrose des MTP-I-Gelenkes Grad __ nach Coughlin mit dorsalen Osteophyten",
+   "literatur": "Anderson MR et al. (2023) Current Concepts Review: Hallux Rigidus. Foot & Ankle Orthopaedics. https://doi.org/10.1177/24730114231188123"
+  },
+  "osg_instabil": {
+   "label": "OSG-Instabilität",
+   "diagnoseText": "Chronische laterale Bandinstabilität des oberen Sprunggelenkes",
+   "lokBeschwerden": "im Bereich des oberen Sprunggelenkes mit rezidivierenden Distorsionsereignissen",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Schmerztherapie",
+    "Physiotherapie (propriozeptives Training)",
+    "Bandage/Orthese",
+    "Eigenübungen (Koordinationstraining)"
+   ],
+   "befunde": [
+    {
+     "id": "haut_i",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_lfta",
+     "pos": "Druckschmerz über dem LFTA-Ansatz",
+     "neg": "Kein Druckschmerz über dem LFTA"
+    },
+    {
+     "id": "aufklappen_lat",
+     "pos": "Laterales Aufklappen positiv",
+     "neg": "Laterales Aufklappen negativ"
+    },
+    {
+     "id": "talusvorschub",
+     "pos": "Positiver Talusvorschub",
+     "neg": "Kein Talusvorschub"
+    },
+    {
+     "id": "giving_way",
+     "pos": "Giving-way-Symptomatik",
+     "neg": "Kein Giving-way"
+    },
+    {
+     "id": "schwellung_lat",
+     "pos": "Schwellung lateraler Kapsel-Band-Apparat",
+     "neg": "Keine Schwellung lateral"
+    },
+    {
+     "id": "peroneal",
+     "pos": "Peronealsehnen druckschmerzhaft",
+     "neg": "Peronealsehnen unauffällig"
+    },
+    {
+     "id": "bew_osg_i",
+     "input": true,
+     "label": "Beweglichkeit OSG (Ext/Flex)",
+     "placeholder": "15/0/40"
+    }
+   ],
+   "opMethoden": [
+    "brostrom_gould",
+    "brostrom_int_brace",
+    "bandplastik_autolog",
+    "ask_osg"
+   ],
+   "bildBefunde": "gehaltene Aufnahmen mit lateralem Aufklappen von __ Grad und Talusvorschub von __ mm",
+   "literatur": "AWMF S2k-Leitlinie Frische Außenbandruptur des oberen Sprunggelenkes (Nr. 187-025): https://register.awmf.org/de/leitlinien/detail/187-025"
+  },
+  "osg_arthrose": {
+   "label": "OSG-Arthrose",
+   "diagnoseText": "Arthrose des oberen Sprunggelenkes",
+   "lokBeschwerden": "im Bereich des oberen Sprunggelenkes",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Schmerztherapie",
+    "Anpassung des Schuhwerks",
+    "Nutzung von Schuhen mit steifer Sohle",
+    "Nutzung eines Schuhes mit Sohlenversteifung und Abrollhilfe",
+    "Infiltrationstherapie",
+    "Physiotherapie"
+   ],
+   "befunde": [
+    {
+     "id": "haut_a",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_osg",
+     "pos": "Druckschmerz über dem OSG",
+     "neg": "Kein Druckschmerz OSG"
+    },
+    {
+     "id": "schwellung_osg",
+     "pos": "Schwellung und Erguss am OSG",
+     "neg": "Kein Erguss"
+    },
+    {
+     "id": "bew_osg_a",
+     "input": true,
+     "label": "Beweglichkeit OSG (Ext/Flex)",
+     "placeholder": "5/0/30"
+    },
+    {
+     "id": "krepitation_osg",
+     "pos": "Krepitation im OSG",
+     "neg": "Keine Krepitation"
+    },
+    {
+     "id": "rf_achse_a",
+     "input": true,
+     "label": "Rückfußachse",
+     "placeholder": "5° valgus"
+    },
+    {
+     "id": "impingement",
+     "pos": "Ventrales knöchernes Impingement",
+     "neg": "Kein ventrales Impingement"
+    }
+   ],
+   "opMethoden": [
+    "ask_osg",
+    "arthrodese_osg",
+    "tep_infinity",
+    "tep_vantage",
+    "tep_inbone",
+    "t2_nagel",
+    "supramal_ot"
+   ],
+   "bildBefunde": "Arthrose des OSG Grad __ nach Kellgren-Lawrence",
+   "literatur": "Anderson DD et al. (2024) Ankle osteoarthritis: Toward new understanding and opportunities for prevention and intervention. J Orthop Res. https://doi.org/10.1002/jor.25973",
+   "literaturTEP": "Colò G et al. (2025) Five decades of total ankle replacement: from early failures to fourth-generation innovations. Eur J Orthop Surg Traumatol. https://doi.org/10.1007/s00590-025-04634-5"
+  },
+  "usg_arthrose": {
+   "label": "USG-Arthrose",
+   "diagnoseText": "Arthrose des unteren Sprunggelenkes (Subtalargelenk)",
+   "lokBeschwerden": "im Bereich des Rückfußes / unteren Sprunggelenkes, belastungsabhängig",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Schuhzurichtung mit Abrollhilfe",
+    "Nutzung eines Schuhes mit Sohlenversteifung und Abrollhilfe",
+    "Schmerztherapie",
+    "Infiltrationstherapie",
+    "Physiotherapie"
+   ],
+   "befunde": [
+    {
+     "id": "haut_usg",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_sinus_usg",
+     "pos": "Druckschmerz auf Höhe des Sinus Tarsi / über dem Subtalargelenk",
+     "neg": "Kein Druckschmerz Sinus Tarsi"
+    },
+    {
+     "id": "schwellung_rf",
+     "pos": "Schwellung am Rückfuß",
+     "neg": "Keine Schwellung"
+    },
+    {
+     "id": "bew_usg",
+     "input": true,
+     "label": "Beweglichkeit USG",
+     "placeholder": "frei / eingeschränkt / aufgehoben"
+    },
+    {
+     "id": "inv_ev",
+     "pos": "Schmerzhafte/eingeschränkte Inversion/Eversion",
+     "neg": "Inversion/Eversion frei und schmerzarm"
+    },
+    {
+     "id": "rf_achse_usg",
+     "input": true,
+     "label": "Rückfußachse",
+     "placeholder": "5° valgus"
+    }
+   ],
+   "opMethoden": [
+    "subtalar_arthrodese",
+    "tn_arthrodese",
+    "double_arthrodese",
+    "triple_arthrodese"
+   ],
+   "bildBefunde": "Arthrose des unteren Sprunggelenkes (Subtalargelenk) Grad __",
+   "literatur": "Jennison T et al. Subtalar arthrodesis union rates with and without adjacent ankle arthrodesis. · Röhm J et al. Double versus triple arthrodesis for adult-acquired flatfoot deformity (Stage III PTTD)."
+  },
+  "ocl": {
+   "label": "OCL / Knorpelschaden",
+   "diagnoseText": "Osteochondrale Läsion des Talus",
+   "lokBeschwerden": "im Bereich des oberen Sprunggelenkes, belastungsabhängig",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Schmerztherapie",
+    "Physiotherapie",
+    "Infiltrationstherapie (Hyaluronsäure, PRP/ACP etc.)",
+    "Verzicht auf Impact-Sport",
+    "Nahrungsergänzungsmittel (z.B. Glucosamin, Chondroitin etc.)"
+   ],
+   "befunde": [
+    {
+     "id": "haut_o",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_talus",
+     "pos": "Druckschmerz über dem Talus",
+     "neg": "Kein Druckschmerz Talus"
+    },
+    {
+     "id": "schwellung_ocl",
+     "pos": "Schwellung/Erguss am OSG",
+     "neg": "Kein Erguss"
+    },
+    {
+     "id": "bew_osg_o",
+     "input": true,
+     "label": "Beweglichkeit OSG (Ext/Flex)",
+     "placeholder": "15/0/40"
+    },
+    {
+     "id": "stabil_ocl",
+     "pos": "Bandapparat instabil",
+     "neg": "Bandapparat stabil"
+    }
+   ],
+   "opMethoden": [
+    "amic",
+    "oats",
+    "ask_osg"
+   ],
+   "bildBefunde": "osteochondrale Läsion der __ Talusschulter, Größe __ x __ mm",
+   "literatur": "Walther M et al. (2024) Operative management of osteochondral lesions of the talus: 2024 recommendations of the DGOU. EFORT Open Reviews. https://doi.org/10.1530/EOR-23-0075"
+  },
+  "knick_senk": {
+   "label": "Knick-Senk-Fuß",
+   "diagnoseText": "Pes planovalgus",
+   "lokBeschwerden": "im Bereich des Rückfußes und Mittelfußes",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Schmerztherapie",
+    "Physiotherapie",
+    "Spiraldynamik",
+    "Anpassung des Schuhwerks",
+    "Eigenübungen"
+   ],
+   "befunde": [
+    {
+     "id": "haut_k",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "rf_valgus",
+     "pos": "Valgische Rückfußachse",
+     "neg": "Rückfußachse neutral"
+    },
+    {
+     "id": "rf_rigide",
+     "pos": "Rigide valgische Rückfußachse",
+     "neg": "Flexible Rückfußachse, passiv korrigierbar"
+    },
+    {
+     "id": "abflachung",
+     "pos": "Abflachung des medialen Längsgewölbes",
+     "neg": "Medialer Bogen erhalten"
+    },
+    {
+     "id": "too_many_toes",
+     "pos": "Too-many-toes-Sign positiv",
+     "neg": "Too-many-toes-Sign negativ"
+    },
+    {
+     "id": "single_heel",
+     "pos": "Single-Heel-Rise-Test eingeschränkt bzw. nicht möglich",
+     "neg": "Single-Heel-Rise-Test unauffällig"
+    },
+    {
+     "id": "tib_post",
+     "pos": "Druckschmerz und Insuffizienz der Tibialis-posterior-Sehne",
+     "neg": "Tibialis-posterior-Sehne unauffällig"
+    },
+    {
+     "id": "silfverskjoeld",
+     "pos": "Verkürzung der Achillessehne (Silfverskjöld positiv)",
+     "neg": "Silfverskjöld negativ"
+    },
+    {
+     "id": "supination_ks",
+     "pos": "Keine signifikante Supination möglich",
+     "neg": "Supination möglich"
+    },
+    {
+     "id": "ds_sinus",
+     "pos": "Druckschmerz auf Höhe des Sinus Tarsi",
+     "neg": "Kein Druckschmerz Sinus Tarsi"
+    },
+    {
+     "id": "ds_innenknoe",
+     "pos": "Druckschmerz unterhalb des Innenknöchels",
+     "neg": "Kein Druckschmerz unterhalb des Innenknöchels"
+    },
+    {
+     "id": "waden",
+     "pos": "Geringe Wadenmuskelkontraktur",
+     "neg": "Keine Wadenmuskelkontraktur"
+    }
+   ],
+   "opMethoden": [
+    "mdo_offen",
+    "mdo_mini",
+    "lcot",
+    "cotton",
+    "calcaneus_ot",
+    "coalition_exzision",
+    "subtalar_arthrodese",
+    "fhl_transfer",
+    "peroneal_naht"
+   ],
+   "bildBefunde": "Knick-Senk-Fuß-Deformität mit Talonavikular-Uncoverage von __ %, Meary-Winkel __ Grad",
+   "literatur": "Henry JK et al. (2019) Adult-Acquired Flatfoot Deformity. Foot & Ankle Orthopaedics. https://doi.org/10.1177/2473011418820847"
+  },
+  "mittelfuss_arthrose": {
+   "label": "Mittelfußarthrose",
+   "diagnoseText": "Arthrose der Tarsometatarsalgelenke",
+   "lokBeschwerden": "im Bereich des Mittelfußes",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Schmerztherapie",
+    "Anpassung des Schuhwerks",
+    "Nutzung von Schuhen mit steifer Sohle",
+    "Nutzung eines Schuhes mit Sohlenversteifung und Abrollhilfe",
+    "Infiltrationstherapie"
+   ],
+   "befunde": [
+    {
+     "id": "haut_m",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_tmt",
+     "pos": "Druckschmerz über den TMT-Gelenken",
+     "neg": "Kein Druckschmerz TMT"
+    },
+    {
+     "id": "schwellung_mf",
+     "pos": "Schwellung Mittelfuß dorsal",
+     "neg": "Keine Schwellung"
+    },
+    {
+     "id": "prominenz_mf",
+     "pos": "Dorsale Prominenz und Osteophyten palpabel",
+     "neg": "Keine dorsale Prominenz"
+    },
+    {
+     "id": "schuhkonflikt_mf",
+     "pos": "Schuhkonflikt dorsal",
+     "neg": "Kein Schuhkonflikt"
+    }
+   ],
+   "opMethoden": [
+    "arthrodese_tmt"
+   ],
+   "bildBefunde": "Arthrose der TMT-Gelenke __ mit dorsalen Osteophyten",
+   "literatur": "Kurup H, Vasukutty N (2020) Midfoot arthritis – current concepts review. J Clin Orthop Trauma. https://doi.org/10.1016/j.jcot.2020.03.002"
+  },
+  "haglund": {
+   "label": "Haglund / Achillodynie",
+   "diagnoseText": "Haglund-Exostose mit insertionaler Achillodynie",
+   "lokBeschwerden": "im Bereich der Ferse und des Achillessehnenansatzes",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Schmerztherapie",
+    "Anpassung des Schuhwerks",
+    "Fersenkeil",
+    "Stoßwellentherapie",
+    "Physiotherapie (exzentrisches Training)",
+    "Infiltrationstherapie"
+   ],
+   "befunde": [
+    {
+     "id": "haut_h",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_tuber",
+     "pos": "Druckschmerz über dem Tuber calcanei",
+     "neg": "Kein Druckschmerz Tuber"
+    },
+    {
+     "id": "prominenz_post",
+     "pos": "Palpable posteriore Prominenz/Exostose",
+     "neg": "Keine posteriore Prominenz"
+    },
+    {
+     "id": "bursitis_sub",
+     "pos": "Bursitis subachillea",
+     "neg": "Keine Bursitis"
+    },
+    {
+     "id": "as_verdickung",
+     "pos": "Verdickung und Verkalkung des Achillessehnenansatzes",
+     "neg": "Achillessehnenansatz unauffällig"
+    },
+    {
+     "id": "thompson",
+     "pos": "Thompson-Test positiv",
+     "neg": "Thompson-Test negativ"
+    },
+    {
+     "id": "schuhkonflikt_post",
+     "pos": "Schuhkonflikt posterior",
+     "neg": "Kein Schuhkonflikt"
+    }
+   ],
+   "opMethoden": [
+    "haglund_mini",
+    "haglund_as_split",
+    "fhl_transfer"
+   ],
+   "bildBefunde": "Haglund-Exostose mit Verkalkung am Achillessehnenansatz",
+   "literatur": "Zhi X et al. (2021) Nonoperative treatment of insertional Achilles tendinopathy: a systematic review. J Orthop Surg Res. https://doi.org/10.1186/s13018-021-02370-0 (weitere Informationen zur konservativen Behandlung)"
+  },
+  "achillesruptur": {
+   "label": "Achillessehnenruptur",
+   "diagnoseText": "frische Achillessehnenruptur",
+   "lokBeschwerden": "im Bereich der Achillessehne",
+   "konservativ": [
+    "Frühfunktionelle Therapie im Spitzfußstiefel"
+   ],
+   "befunde": [
+    {
+     "id": "haut_asr",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "thompson_asr",
+     "pos": "Thompson-Test positiv",
+     "neg": "Thompson-Test negativ"
+    },
+    {
+     "id": "defekt_asr",
+     "pos": "Tastbare Delle im Verlauf der Achillessehne",
+     "neg": "Keine tastbare Delle"
+    },
+    {
+     "id": "schwaeche_pf",
+     "pos": "Aktive Plantarflexion gegen Widerstand abgeschwächt",
+     "neg": "Aktive Plantarflexion kraftvoll"
+    },
+    {
+     "id": "haematom_asr",
+     "pos": "Hämatom im Verlauf der Achillessehne",
+     "neg": "Kein Hämatom"
+    },
+    {
+     "id": "schwellung_asr",
+     "pos": "Schwellung im Sehnenverlauf",
+     "neg": "Keine Schwellung"
+    }
+   ],
+   "opMethoden": [
+    "as_naht"
+   ],
+   "bildBefunde": "Sonographisch / MR-tomographisch nachgewiesene komplette Ruptur der Achillessehne",
+   "literatur": ""
+  },
+  "juvenil_ppv": {
+   "label": "Juvenil PPV",
+   "diagnoseText": "Juveniler Pes planovalgus",
+   "lokBeschwerden": "im Bereich des Rückfußes und des medialen Fußgewölbes",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Einlagenversorgung",
+    "Physiotherapie",
+    "Spiraldynamik",
+    "Sportreduktion",
+    "Eigenübungen",
+    "Anpassung des Schuhwerks"
+   ],
+   "befunde": [
+    {
+     "id": "haut_jppv",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "planovalgus_j",
+     "pos": "Pes planovalgus mit Rückfußvalgus",
+     "neg": "Kein Planovalgus"
+    },
+    {
+     "id": "flex_j",
+     "pos": "Flexible Rückfußachse, passiv korrigierbar",
+     "neg": "Rigide Rückfußachse, nicht passiv korrigierbar"
+    },
+    {
+     "id": "medarch_j",
+     "pos": "Abgeflachtes mediales Längsgewölbe",
+     "neg": "Erhaltenes mediales Längsgewölbe"
+    },
+    {
+     "id": "tmt_j",
+     "pos": "Too-many-toes-Sign positiv",
+     "neg": "Too-many-toes-Sign negativ"
+    },
+    {
+     "id": "silfv_j",
+     "pos": "Verkürzung der Achillessehne (Silfverskjöld positiv)",
+     "neg": "Silfverskjöld negativ"
+    },
+    {
+     "id": "schmerz_sinus_j",
+     "pos": "Schmerzen im Bereich des Sinus Tarsi",
+     "neg": "Kein Sinustarsischmerz"
+    }
+   ],
+   "opMethoden": [
+    "arthrorise"
+   ],
+   "bildBefunde": "Pes planovalgus mit vermindertem Calcaneus-Pitch und erhöhtem talometatarsalem Winkel",
+   "literatur": "Bernasconi A et al. (2021) Subtalar arthroereisis for symptomatic flatfoot. EFORT Open Rev. https://doi.org/10.1302/2058-5241.6.210009"
+  },
+  "metatarsalgie": {
+   "label": "Metatarsalgie",
+   "diagnoseText": "Metatarsalgie mit Kleinzehendeformitäten",
+   "lokBeschwerden": "im Bereich des Vorfußes, insbesondere plantar unter den Metatarsalköpfchen",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Einlagenversorgung mit retrocapitaler Abstützung",
+    "Schmerztherapie",
+    "Anpassung des Schuhwerks",
+    "Nutzung von Schuhen mit Abrollhilfe",
+    "Polsterung",
+    "Zehengymnastik",
+    "Physiotherapie"
+   ],
+   "befunde": [
+    {
+     "id": "haut_mt",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_mt_koepfchen",
+     "pos": "Druckschmerz plantar unter den MT-Köpfchen",
+     "neg": "Kein plantarer Druckschmerz unter den MT-Köpfchen"
+    },
+    {
+     "id": "beschwielung_mt",
+     "pos": "Plantare Mehrbeschwielung unter den MT-Köpfchen",
+     "neg": "Keine relevante Beschwielung"
+    },
+    {
+     "id": "kleinzehen_def",
+     "pos": "Kleinzehendeformitäten (Hammer-/Krallen-/Malletzehen)",
+     "neg": "Keine Kleinzehendeformitäten"
+    },
+    {
+     "id": "mtp_instab",
+     "pos": "Instabilität der Kleinzehen-MTP-Gelenke",
+     "neg": "MTP-Gelenke stabil"
+    },
+    {
+     "id": "schuhkonflikt_mt",
+     "pos": "Schuhkonflikt dorsal an den Kleinzehen",
+     "neg": "Kein Schuhkonflikt"
+    }
+   ],
+   "opMethoden": [
+    "dmmo",
+    "kleinzehen_pip",
+    "morton_neurom"
+   ],
+   "bildBefunde": "Metatarsalgie mit relativer Überlänge der MT-Köpfchen __ und Kleinzehendeformität",
+   "literatur": "Espinosa N et al. (2010) Metatarsalgia. J Am Acad Orthop Surg. https://doi.org/10.5435/00124635-201008000-00004"
+  },
+  "peronealsehnen": {
+   "label": "Läsion der Peronealsehnen",
+   "diagnoseText": "Läsion der Peronealsehnen",
+   "lokBeschwerden": "im Bereich des lateralen Rückfußes",
+   "konservativ": [
+    "Schonung",
+    "Belastungsreduktion",
+    "Einlagenversorgung",
+    "Bandage/Orthese",
+    "Schmerztherapie",
+    "Physiotherapie",
+    "Infiltrationstherapie"
+   ],
+   "befunde": [
+    {
+     "id": "haut_per",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_peroneal",
+     "pos": "Druckschmerz retromalleolär lateral über den Peronealsehnen",
+     "neg": "Kein Druckschmerz über den Peronealsehnen"
+    },
+    {
+     "id": "ds_aussenband",
+     "pos": "Druckschmerz über dem Außenbandapparat",
+     "neg": "Kein Druckschmerz über dem Außenbandapparat"
+    },
+    {
+     "id": "schwellung_per",
+     "pos": "Schwellung retromalleolär lateral",
+     "neg": "Keine Schwellung retromalleolär"
+    },
+    {
+     "id": "schmerz_eversion",
+     "pos": "Schmerz bei Eversion gegen Widerstand",
+     "neg": "Kein Schmerz bei Eversion gegen Widerstand"
+    },
+    {
+     "id": "subluxation",
+     "pos": "Subluxation/Luxation der Peronealsehnen bei Plantarflexion und Eversion auslösbar",
+     "neg": "Keine Subluxation/Luxation der Peronealsehnen"
+    },
+    {
+     "id": "lat_instab",
+     "pos": "Hinweis auf laterale Instabilität (giving-way, positives laterales Aufklappen)",
+     "neg": "Kein Hinweis auf laterale Instabilität"
+    },
+    {
+     "id": "rf_achse_per",
+     "input": true,
+     "label": "Rückfußachse",
+     "placeholder": "z.B. 5° valgus / 0° / varus"
+    },
+    {
+     "id": "bew_osg_per",
+     "input": true,
+     "label": "Beweglichkeit OSG (Ext/Flex)",
+     "placeholder": "15/0/40"
+    }
+   ],
+   "opMethoden": [
+    "peroneal_naht",
+    "peroneal_rek",
+    "peroneal_lux"
+   ],
+   "bildBefunde": "Tendinopathie/Längsruptur der Peroneus brevis/longus-Sehne mit Tenosynovitis",
+   "literatur": "van Dijk PA et al. (2014) Chronic disorders of the peroneal tendons. JAAOS. https://doi.org/10.5435/JAAOS-22-04-205"
+  },
+  "diffuse_beschwerden": {
+   "label": "Diffuse Beschwerden",
+   "diagnoseText": "Diffuse Beschwerden im Bereich des Fußes/Sprunggelenkes ohne eindeutige Zuordnung",
+   "lokBeschwerden": "diffus im Bereich des Fußes/Sprunggelenkes",
+   "konservativ": [
+    "Schonung",
+    "Belastungsreduktion",
+    "Schmerztherapie",
+    "Physiotherapie",
+    "Bandage/Orthese",
+    "Einlagenversorgung"
+   ],
+   "befunde": [
+    {
+     "id": "haut_diff",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_diff",
+     "input": true,
+     "label": "Druckschmerz-Lokalisation",
+     "placeholder": "z.B. medialer Mittelfuß / lateraler Rückfuß / diffus"
+    },
+    {
+     "id": "schwellung_diff",
+     "pos": "Schwellung tastbar",
+     "neg": "Keine Schwellung"
+    },
+    {
+     "id": "rf_achse_diff",
+     "input": true,
+     "label": "Rückfußachse",
+     "placeholder": "z.B. 5° valgus / 0° / varus"
+    },
+    {
+     "id": "bew_osg_diff",
+     "input": true,
+     "label": "Beweglichkeit OSG (Ext/Flex)",
+     "placeholder": "15/0/40"
+    },
+    {
+     "id": "bew_usg_diff",
+     "input": true,
+     "label": "Beweglichkeit USG",
+     "placeholder": "frei / eingeschränkt / aufgehoben"
+    },
+    {
+     "id": "bew_vorfuss",
+     "input": true,
+     "label": "Beweglichkeit Vorfuß/MTP",
+     "placeholder": "frei / eingeschränkt"
+    },
+    {
+     "id": "gangbild_diff",
+     "input": true,
+     "label": "Gangbild",
+     "placeholder": "z.B. unauffällig / Schonhinken"
+    },
+    {
+     "id": "asr_diff",
+     "label": "Achillessehnenreflex",
+     "options": {
+      "phys": {
+       "l": "physiologisch",
+       "t": "Achillessehnenreflex physiologisch auslösbar"
+      },
+      "abges": {
+       "l": "abgeschwächt",
+       "t": "Achillessehnenreflex abgeschwächt auslösbar"
+      },
+      "fehlt": {
+       "l": "fehlend",
+       "t": "Achillessehnenreflex nicht auslösbar"
+      }
+     }
+    },
+    {
+     "id": "fhfs_diff",
+     "label": "Fußheber/Fußsenker",
+     "options": {
+      "voll": {
+       "l": "volle Kraft",
+       "t": "Fußheber und Fußsenker mit voller Kraft"
+      },
+      "vermind": {
+       "l": "verminderte Kraft",
+       "t": "Fußheber und/oder Fußsenker mit verminderter Kraft"
+      },
+      "parese": {
+       "l": "Parese",
+       "t": "Parese der Fußheber und/oder Fußsenker"
+      }
+     }
+    },
+    {
+     "id": "veg_diff",
+     "pos": "Vegetative Störungen vorhanden",
+     "neg": "Keine vegetativen Störungen"
+    },
+    {
+     "id": "ueber_diff",
+     "pos": "Überwärmung der betroffenen Region",
+     "neg": "Keine Überwärmung"
+    },
+    {
+     "id": "sens_diff",
+     "pos": "Sensibles Defizit nachweisbar",
+     "neg": "Sensibilität intakt"
+    },
+    {
+     "id": "troph_diff",
+     "pos": "Trophische Störungen erkennbar",
+     "neg": "Keine trophischen Störungen"
+    },
+    {
+     "id": "atibpost_diff",
+     "label": "A. tibialis post.",
+     "options": {
+      "kraft": {
+       "l": "kräftig",
+       "t": "A. tibialis posterior kräftig palpabel"
+      },
+      "abges": {
+       "l": "abgeschwächt",
+       "t": "A. tibialis posterior abgeschwächt palpabel"
+      },
+      "nicht": {
+       "l": "nicht palpabel",
+       "t": "A. tibialis posterior nicht palpabel"
+      }
+     }
+    },
+    {
+     "id": "adp_diff",
+     "label": "A. dorsalis pedis",
+     "options": {
+      "kraft": {
+       "l": "kräftig",
+       "t": "A. dorsalis pedis kräftig palpabel"
+      },
+      "abges": {
+       "l": "abgeschwächt",
+       "t": "A. dorsalis pedis abgeschwächt palpabel"
+      },
+      "nicht": {
+       "l": "nicht palpabel",
+       "t": "A. dorsalis pedis nicht palpabel"
+      }
+     }
+    },
+    {
+     "id": "doppler_diff",
+     "label": "Doppler",
+     "options": {
+      "nachw": {
+       "l": "nachweisbar",
+       "t": "Im Doppler Fluss über A. tibialis posterior und A. dorsalis pedis nachweisbar"
+      },
+      "abges": {
+       "l": "abgeschwächt",
+       "t": "Im Doppler Fluss über A. tibialis posterior und A. dorsalis pedis abgeschwächt"
+      },
+      "nicht": {
+       "l": "nicht nachweisbar",
+       "t": "Im Doppler kein Fluss über A. tibialis posterior und A. dorsalis pedis nachweisbar"
+      }
+     }
+    },
+    {
+     "id": "recap_diff",
+     "label": "Rekapillarisierung Zehen",
+     "options": {
+      "phys": {
+       "l": "physiologisch",
+       "t": "Rekapillarisierung der Zehen physiologisch"
+      },
+      "verlang": {
+       "l": "verlangsamt",
+       "t": "Rekapillarisierung der Zehen verlangsamt"
+      }
+     }
+    },
+    {
+     "id": "pole_diff",
+     "label": "Pole-Test",
+     "options": {
+      "phys": {
+       "l": "physiologisch",
+       "t": "Pole-Test physiologisch"
+      },
+      "auff": {
+       "l": "auffällig",
+       "t": "Pole-Test auffällig"
+      }
+     }
+    }
+   ],
+   "opMethoden": [],
+   "bildBefunde": "Kein eindeutig pathologischer Befund / weiter abzuklären"
+  },
+  "plantarfasciitis": {
+   "label": "Plantarfasciitis",
+   "diagnoseText": "Plantarfasciitis",
+   "lokBeschwerden": "im Bereich der Ferse plantar mit belastungsabhängiger Schmerzsymptomatik, typischerweise Anlauf-/Morgenschmerz",
+   "konservativ": [
+    "Belassen des Befundes",
+    "Belastungsreduktion",
+    "Einlagenversorgung mit Fersenpolsterung / weicher Fersenschalung",
+    "Schmerztherapie",
+    "Anpassung des Schuhwerks (gedämpfte Sohle, Absatzerhöhung)",
+    "Physiotherapie mit Wadendehnung und Plantarfasziendehnung",
+    "Eigendehnübungen mehrmals täglich",
+    "Stoßwellentherapie (ESWT)",
+    "Infiltrationstherapie",
+    "Nachtschiene zur Dauerdehnung"
+   ],
+   "befunde": [
+    {
+     "id": "haut_pf",
+     "pos": "Die Haut ist reizlos, die periphere Durchblutung, Motorik und Sensibilität sind intakt",
+     "neg": "Es zeigen sich Hautveränderungen"
+    },
+    {
+     "id": "ds_calc_medial",
+     "pos": "Druckschmerz medioplantar am Tuber calcanei (Ansatz der Plantarfaszie)",
+     "neg": "Kein Druckschmerz medioplantar am Tuber calcanei"
+    },
+    {
+     "id": "ds_plantarfaszie",
+     "pos": "Druckschmerz im Verlauf der Plantarfaszie",
+     "neg": "Kein Druckschmerz im Faszienverlauf"
+    },
+    {
+     "id": "anlaufschmerz",
+     "pos": "Anlaufschmerz / Morgenschmerz bei den ersten Schritten",
+     "neg": "Kein typischer Anlaufschmerz"
+    },
+    {
+     "id": "windlass",
+     "pos": "Schmerzprovokation durch passive Dorsalextension der Großzehe (Windlass-Test positiv)",
+     "neg": "Windlass-Test negativ"
+    },
+    {
+     "id": "wadendehnung",
+     "pos": "Verkürzung der Wadenmuskulatur (Silfverskiöld-Test positiv)",
+     "neg": "Keine relevante Wadenverkürzung (Silfverskiöld-Test negativ)"
+    },
+    {
+     "id": "fussform_pf",
+     "input": true,
+     "label": "Fußstatik",
+     "placeholder": "z.B. Senk-/Spreizfuß, Hohlfuß"
+    },
+    {
+     "id": "ausstrahlung",
+     "pos": "Ausstrahlung der Schmerzen in den medialen Fußrand",
+     "neg": "Keine Schmerzausstrahlung"
+    },
+    {
+     "id": "achilles_ds",
+     "pos": "Begleitende Achillodynie",
+     "neg": "Achillessehne unauffällig"
+    }
+   ],
+   "opMethoden": [
+    "fasziotomie_offen",
+    "gastroc_strayer",
+    "gastroc_pmgr"
+   ],
+   "bildBefunde": "Sonographische Verdickung der Plantarfaszie >4 mm am Ansatz; ggf. MRT mit Knochenmarködem am Tuber calcanei"
+  }
+ },
+ "COALITIO_BEFUNDE": [
+  {
+   "id": "ds_innenknoe_c",
+   "pos": "Druckschmerz unterhalb des Innenknöchels",
+   "neg": "Kein Druckschmerz unterhalb des Innenknöchels"
+  },
+  {
+   "id": "ds_sinus_c",
+   "pos": "Druckschmerz auf Höhe des Sinus Tarsi",
+   "neg": "Kein Druckschmerz Sinus Tarsi"
+  },
+  {
+   "id": "rigide_c",
+   "pos": "Rigide Rückfußachse, nicht passiv korrigierbar",
+   "neg": "Flexible Rückfußachse"
+  }
+ ],
+ "KONSERV": [
+  "Schonung",
+  "Sportreduktion",
+  "Anpassung des Schuhwerks",
+  "Einlagenversorgung",
+  "Infiltrationstherapie",
+  "Schmerzmittel (NSAR)",
+  "Stoßwellentherapie",
+  "Physiotherapie",
+  "Spiraldynamik",
+  "Eigenübungen",
+  "Bandage/Orthese"
+ ],
+ "RISIKEN": [
+  "Nikotinabusus",
+  "Diabetes mellitus",
+  "Rheumatische Erkrankung",
+  "Eingeschränkte Mobilität",
+  "Eingeschränkte häusliche Versorgung",
+  "Z.n. fehlgeschlagener Voroperation",
+  "Adipositas",
+  "Immunsuppression"
+ ],
+ "RISIKEN_ENDO": [
+  "Zahnsanierung ausstehend",
+  "Infekt der Haut",
+  "Chronischer Harnwegsinfekt"
+ ],
+ "KONTROLLE_TEXT": {
+  "verlauf": [
+   "stellte sich heute zur Verlaufskontrolle vor.",
+   "Die Wundverhältnisse zeigen sich reizlos und ohne Anzeichen einer Wundheilungsstörung.",
+   "Der Verband wurde erneuert.",
+   "Klinisch zeigt sich ein reizfreier postoperativer Verlauf ohne wesentliche Beschwerden."
+  ],
+  "fadenzug": [
+   "stellte sich heute zur Verlaufskontrolle und zum Fadenzug vor.",
+   "Die Wundverhältnisse zeigen sich reizlos und die Operationsnarbe ist primär verheilt.",
+   "Der Fadenzug wurde komplikationslos durchgeführt.",
+   "Im Anschluss erfolgte ein steriler Pflasterverband.",
+   "Klinisch zeigt sich ein reizfreier Verlauf ohne wesentliche Beschwerden."
+  ],
+  "roentgen": [
+   "stellte sich heute zur 6-Wochen-Kontrolle vor.",
+   "Im aktuellen Röntgen zeigt sich eine regelrechte ossäre Konsolidierung im Operationsgebiet ohne Hinweis auf Materiallockerung oder Achsabweichung.",
+   "Klinisch zeigt sich ein reizfreier Verlauf.",
+   "Die Belastung kann nun schrittweise bis zur Vollbelastung gesteigert werden.",
+   "Eine sportliche Wiederbelastung ist nach individueller Beschwerdefreiheit ab der 12. postoperativen Woche zu erwägen."
+  ]
+ },
+ "KONTROLLE_LABEL": {
+  "verlauf": "Verlauf",
+  "fadenzug": "Fadenzug",
+  "roentgen": "Röntgen"
+ }
+}
