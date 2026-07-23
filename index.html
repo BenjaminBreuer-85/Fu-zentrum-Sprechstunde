@@ -134,17 +134,31 @@ window._fx = function(t){
     return v==null?m0:code+mid+f(v)+eur; });
   return t;
 };
+// --- Stufe 2: Zugangskonfiguration ------------------------------------------
+// Produktiv (GitHub Pages) lädt die App die Inhalte nach Login aus einem
+// PRIVATEN Supabase-Storage-Bucket; lokal (localhost) weiterhin aus ./data/.
+// Einrichtung: siehe SUPABASE_SETUP.md. Der anon-Key ist bewusst öffentlich —
+// der Schutz liegt in den Storage-Policies (nur eingeloggte Nutzer dürfen lesen).
+window.TOOLBOX_AUTH = {
+  url: "https://nfvrdhrxfgclczllzwzz.supabase.co",   // Supabase Projekt-URL
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdnJkaHJ4ZmdjbGN6bGx6d3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MzIzMDUsImV4cCI6MjEwMDQwODMwNX0.Ce8qDJiOalb4k8pwDzn4CmAXDv4j0nFg9lekWa59Lhg",   // anon public Key (öffentlich by design)
+  bucket: "toolbox-data"   // privater Storage-Bucket mit den zehn data/*.json
+};
+
 (function(){
   var GROUPS=["katalog2026","erloes2026","diagnosen","opmethoden","opsteuerung","endo","preise","optexte","aufklaerung","referenz"];
   var domReady=new Promise(function(res){ if(document.readyState!=="loading"){res();} else {document.addEventListener("DOMContentLoaded",function(){res();});} });
-  Promise.all(GROUPS.map(function(g){
-    return fetch("data/"+g+".json?v="+Date.now()).then(function(r){
-      if(!r.ok) throw new Error("data/"+g+".json: HTTP "+r.status);
-      return r.json();
-    });
-  })).then(function(res){
-    var D={}; GROUPS.forEach(function(g,i){D[g]=res[i];});
-    // Globale Katalog-/Erlösdaten wie bisher
+  var CFG=window.TOOLBOX_AUTH;
+  var isLocal=/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  var useSupabase=!isLocal || /[?&]auth=1/.test(location.search); // ?auth=1 = Supabase-Pfad lokal testen
+
+  function fail(e){
+    var d=document.getElementById("err-display");
+    if(d){d.style.display="block";d.textContent="DATEN-FEHLER: "+(e&&e.message?e.message:String(e));}
+  }
+
+  // Gemeinsame Pipeline (Stufe 1): Globale setzen, __fx-Reviver, App-Skript aktivieren
+  function start(D){
     window._KATALOG_META=D.katalog2026._KATALOG_META;
     window._HD=D.katalog2026._HD;
     window._KX=D.katalog2026._KX;
@@ -163,16 +177,120 @@ window._fx = function(t){
     }
     revive(D);
     window._DATA=D;
-    return domReady;
-  }).then(function(){
-    var s=document.getElementById("app-src");
-    s.setAttribute("type","text/babel");
-    if(window.Babel&&Babel.transformScriptTags){ Babel.transformScriptTags(); }
-    else { var out=Babel.transform(s.textContent,{presets:["react"]}).code; (0,eval)(out); }
-  }).catch(function(e){
-    var d=document.getElementById("err-display");
-    if(d){d.style.display="block";d.textContent="DATEN-FEHLER: "+(e&&e.message?e.message:String(e));}
-  });
+    domReady.then(function(){
+      var s=document.getElementById("app-src");
+      s.setAttribute("type","text/babel");
+      if(window.Babel&&Babel.transformScriptTags){ Babel.transformScriptTags(); }
+      else { var out=Babel.transform(s.textContent,{presets:["react"]}).code; (0,eval)(out); }
+    });
+  }
+
+  // ---- Pfad A: lokal aus ./data/ (Dev-Server) --------------------------------
+  function loadLocal(){
+    Promise.all(GROUPS.map(function(g){
+      return fetch("data/"+g+".json?v="+Date.now()).then(function(r){
+        if(!r.ok) throw new Error("data/"+g+".json: HTTP "+r.status);
+        return r.json();
+      });
+    })).then(function(res){
+      var D={}; GROUPS.forEach(function(g,i){D[g]=res[i];});
+      start(D);
+    }).catch(fail);
+  }
+
+  // ---- Pfad B: Supabase (Login + privater Storage-Bucket) --------------------
+  function loadScriptTag(u,cb){
+    var s=document.createElement("script"); s.src=u; s.crossOrigin="anonymous";
+    s.onload=cb; s.onerror=function(){fail(new Error("supabase-js konnte nicht vom CDN geladen werden"));};
+    document.head.appendChild(s);
+  }
+
+  var loginBox=null, loginErr=null, loginBtn=null;
+
+  function showLogin(client){
+    if(loginBox) return;
+    var wrap=document.createElement("div");
+    wrap.id="toolbox-login";
+    wrap.style.cssText="position:fixed;inset:0;background:#F5F7FA;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'IBM Plex Sans',system-ui,sans-serif;";
+    var card=document.createElement("div");
+    card.style.cssText="background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:32px 28px;width:320px;text-align:center;";
+    card.innerHTML='<div style="font-size:34px;margin-bottom:6px;">🦶</div>'
+      +'<div style="font-size:19px;font-weight:700;color:#006B6F;">Fußzentrum Toolbox</div>'
+      +'<div style="font-size:11px;color:#718096;margin-bottom:18px;">Interner Bereich · Anmeldung erforderlich</div>'
+      +'<input id="tb-email" type="email" placeholder="E-Mail" autocomplete="username" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:8px;border:1px solid #CBD5E0;border-radius:8px;font-size:14px;font-family:inherit;">'
+      +'<input id="tb-pass" type="password" placeholder="Passwort" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:12px;border:1px solid #CBD5E0;border-radius:8px;font-size:14px;font-family:inherit;">'
+      +'<button id="tb-login" style="width:100%;padding:10px 0;background:#006B6F;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Anmelden</button>'
+      +'<div id="tb-err" style="color:#c00;font-size:12px;min-height:16px;margin-top:10px;"></div>';
+    wrap.appendChild(card);
+    document.body.appendChild(wrap);
+    loginBox=wrap;
+    loginErr=card.querySelector("#tb-err");
+    loginBtn=card.querySelector("#tb-login");
+    var email=card.querySelector("#tb-email"), pass=card.querySelector("#tb-pass");
+    function submit(){
+      loginErr.textContent="";
+      loginBtn.disabled=true; loginBtn.textContent="Anmelden…";
+      client.auth.signInWithPassword({email:email.value.trim(),password:pass.value}).then(function(r){
+        if(r.error){
+          loginBtn.disabled=false; loginBtn.textContent="Anmelden";
+          loginErr.textContent=(r.error.message==="Invalid login credentials")?"E-Mail oder Passwort falsch."
+            :(/fetch/i.test(r.error.message)?"Server nicht erreichbar — bitte Internetverbindung prüfen.":r.error.message);
+          return;
+        }
+        loginBtn.textContent="Inhalte werden geladen…";
+        download(client);
+      });
+    }
+    loginBtn.addEventListener("click",submit);
+    pass.addEventListener("keydown",function(ev){ if(ev.key==="Enter") submit(); });
+    email.focus();
+  }
+
+  function removeLogin(){ if(loginBox){loginBox.remove();loginBox=null;} }
+
+  function addLogoutLink(client){
+    domReady.then(function(){
+      var a=document.createElement("div");
+      a.textContent="Abmelden";
+      a.title="Von der Toolbox abmelden";
+      a.style.cssText="position:fixed;bottom:10px;right:12px;z-index:9999;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:11px;color:#718096;text-decoration:underline;cursor:pointer;";
+      a.addEventListener("click",function(){ client.auth.signOut().then(function(){ location.reload(); }); });
+      document.body.appendChild(a);
+    });
+  }
+
+  function download(client){
+    Promise.all(GROUPS.map(function(g){
+      return client.storage.from(CFG.bucket).download(g+".json").then(function(r){
+        if(r.error) throw new Error(g+".json: "+(r.error.message||"Download fehlgeschlagen"));
+        return r.data.text().then(function(t){ return JSON.parse(t); });
+      });
+    })).then(function(res){
+      removeLogin();
+      addLogoutLink(client);
+      var D={}; GROUPS.forEach(function(g,i){D[g]=res[i];});
+      start(D);
+    }).catch(function(e){
+      if(loginBtn){loginBtn.disabled=false;loginBtn.textContent="Anmelden";}
+      fail(e);
+    });
+  }
+
+  function loadSupabase(){
+    if(!CFG.url||!CFG.anonKey){
+      fail(new Error("Kein Datenzugang konfiguriert — TOOLBOX_AUTH in index.html ausfüllen (Anleitung: SUPABASE_SETUP.md)."));
+      return;
+    }
+    loadScriptTag("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js",function(){
+      var client=window.supabase.createClient(CFG.url,CFG.anonKey);
+      client.auth.getSession().then(function(r){
+        if(r.data&&r.data.session){ download(client); }
+        else { domReady.then(function(){ showLogin(client); }); }
+      });
+    });
+  }
+
+  if(useSupabase){ loadSupabase(); } else { loadLocal(); }
 })();
 </script>
 <script type="text/plain" id="app-src">

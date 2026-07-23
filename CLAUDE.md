@@ -1,6 +1,8 @@
 # CLAUDE.md — Fußzentrum Toolbox (Fu-zentrum-Sprechstunde)
 
-Klinische Dokumentations-Toolbox des Departments Spezielle Fußchirurgie (Florence-Nightingale-Krankenhaus, Kaiserswerther Diakonie). Seit Stufe 1 des Lizenz-Umbaus (07/2026) ist `index.html` (~516 KB) die **Hülle** (React-Komponenten, Berechnungslogik, Loader); die **Inhalte liegen in `data/*.json`** und werden zur Laufzeit per fetch geladen. React 18 + Babel Standalone via unpkg-CDN, kein Build-Schritt. Deployment manuell per GitHub-Upload (GitHub Pages: `https://benjaminbreuer-85.github.io/Fu-zentrum-Sprechstunde/`). Geplante Stufe 2: Inhalte hinter Supabase-Login.
+Klinische Dokumentations-Toolbox des Departments Spezielle Fußchirurgie (Florence-Nightingale-Krankenhaus, Kaiserswerther Diakonie). Seit Stufe 1 des Lizenz-Umbaus (07/2026) ist `index.html` (~530 KB) die **Hülle** (React-Komponenten, Berechnungslogik, Loader); die **Inhalte liegen in `data/*.json`**. React 18 + Babel Standalone via unpkg-CDN, kein Build-Schritt. Deployment manuell per GitHub-Upload (GitHub Pages: `https://benjaminbreuer-85.github.io/Fu-zentrum-Sprechstunde/`).
+
+**Stufe 2 (07/2026): Inhalte hinter Login.** Der Loader hat zwei Pfade: **lokal** (localhost) lädt er aus `./data/`; **produktiv** verlangt er Anmeldung (supabase-js v2 via jsDelivr, E-Mail+Passwort) und lädt die zehn JSONs aus dem **privaten Supabase-Storage-Bucket** `toolbox-data`. Konfiguration im Block `window.TOOLBOX_AUTH` in index.html (Projekt-URL + anon-Key; der anon-Key ist bewusst öffentlich, der Schutz liegt in der Storage-Policy „select nur für authenticated"). `?auth=1` erzwingt den Login-Pfad lokal zum Testen. Einrichtung/Betrieb: `SUPABASE_SETUP.md`. **Sobald Supabase live ist: `data/` gehört NICHT mehr ins öffentliche GitHub-Repo** (lokal bleibt es für Dev-Server und als Upload-Quelle); Jahres-Updates ersetzen die Datei im Supabase-Bucket.
 
 Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.html`), auf die die Toolbox per QR-Code/Deep-Links verweist (`FUSSTRACK_BASE_URL`). Für beide Apps gilt die Skill `fusstrack-toolbox` (Schreibstil-Regeln, PubMed-Recherche-Pflicht, Workflow).
 
@@ -21,6 +23,7 @@ Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.ht
 | `data/optexte.json` | `T` (93 Fuß-OP-Texte), `UC_EINGRIFFE`, `UC_TEXT_MAP`, `WS_EINGRIFFE`, `WS_WIRBEL`, `WS_SEGMENTE` |
 | `data/aufklaerung.json` | `AUFKLAERUNG_RISIKEN` (43 Eingriffe) |
 | `data/referenz.json` | `KLASSIFIKATIONEN` (47), `ROENTGEN` (14), `MESSMETHODEN` (32), `MANUALE` |
+| `SUPABASE_SETUP.md` | Einrichtungs- und Betriebsanleitung für den Login (Stufe 2) |
 | `scripts/dev-server.py` | Lokaler Dev-Server mit Live-Reload (s. u.) |
 | `scripts/verify_extraction.py` | Prüfskript: vergleicht data/*.json Wert für Wert mit dem alten Einbettungs-Stand aus Git |
 | `bausteine.json` | **Wird von index.html NICHT geladen.** Ältere Arbeitskopie der Fuss-Track-Patientendaten; maßgebliche Version im Fuss-Track-Repo |
@@ -29,7 +32,7 @@ Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.ht
 ## Aufbau von index.html
 
 1. **Kopf:** CSS, QR-Code-Generator (inline, MIT) — nicht anfassen.
-2. **Daten-Loader (`<script>`, plain JS):** definiert die Erlös-Helper `window._E`/`_EF`/`_fx` (Code, keine Daten), lädt alle zehn `data/*.json` per `fetch(...?v=Date.now())`, setzt `window._KATALOG_META/_HD/_KX/_ERLOES_META/_DRG/_HDRG/_KURZ` und `window._DATA.<gruppe>`, wendet den **__fx-Reviver** an und aktiviert erst dann das App-Skript (setzt dessen type auf `text/babel` + `Babel.transformScriptTags()`). Ladefehler erscheinen in der roten Fehlerleiste `#err-display`.
+2. **Daten-Loader (`<script>`, plain JS):** definiert die Erlös-Helper `window._E`/`_EF`/`_fx` (Code, keine Daten) und `window.TOOLBOX_AUTH` (Stufe-2-Konfiguration). Lädt die zehn Daten-Gruppen — lokal per `fetch("data/…?v=Date.now())`, produktiv nach Login via `supabase.storage.download()` —, setzt `window._KATALOG_META/_HD/_KX/_ERLOES_META/_DRG/_HDRG/_KURZ` und `window._DATA.<gruppe>`, wendet den **__fx-Reviver** an und aktiviert erst dann das App-Skript (setzt dessen type auf `text/babel` + `Babel.transformScriptTags()`). Login-Maske und „Abmelden"-Link sind plain-DOM im Loader. Ladefehler erscheinen in der roten Fehlerleiste `#err-display`.
 3. **App-Skript (`<script type="text/plain" id="app-src">`):** alle Komponenten. Die früheren Daten-Konstanten sind Verweise: `const DIAG = window._DATA.diagnosen.DIAG` usw. (43 Stück). Abgeleitete Strukturen bleiben Code: `FUSS_DRG` und `INEK_IMPL` (IIFEs aus `window._DRG`), `ENDO_IMPL_PRO_DIAG` (referenziert die Impl-Listen), die Fuß-Eingriffs-Verdrahtung im OP-Bericht (`codes.push`/`o.push`-Logik).
 
 **__fx-Mechanik:** In den JSONs stehen an ehemals `window._fx("…")`-Stellen Marker-Objekte `{"__fx": "…"}` mit dem Roh-Text. Der Reviver im Loader ersetzt exakt diese durch `window._fx(rohtext)` — €-Beträge werden so weiterhin zur Laufzeit aus den Erlösdaten berechnet, und ein Jahres-Update von data/erloes2026.json schreibt alle Hinweis-Beträge automatisch um.
@@ -53,7 +56,7 @@ Werkzeuge (`App()`-Routing per `tool`-State): `sb` Sprechstundenbrief · `ob` OP
    - Referenzen: jeder Key in `DIAG[x].opMethoden` existiert in `OPS`; `OP_STEUERUNG`-/`AUFKLAERUNG_MAP`-Keys passen zu `OPS`; DRG-Codes existieren in `_DRG`/`_HDRG`; `__fx`-Marker nur als `{"__fx": "string"}`.
    - Nach Daten-Verschiebungen: `python3 scripts/verify_extraction.py <ref>` — `<ref>` ist ein Git-Stand, der die Daten noch EINGEBETTET in index.html hat (Stufe-1-Vergleich; nach dem Umbau-Commit den Pre-Umbau-Hash angeben, z. B. `2aafcc5`).
 3. **Live-Preview:** Dev-Server (s. u.), `http://localhost:8000/index.html`.
-4. **Deploy:** Der Autor lädt manuell auf GitHub hoch — am Ende immer die exakt zu deployenden Dateien benennen. Bei Inhaltsänderungen gehören die betroffenen `data/*.json` IMMER mit zum Deploy.
+4. **Deploy:** Der Autor lädt manuell auf GitHub hoch — am Ende immer die exakt zu deployenden Dateien benennen. Solange Supabase noch nicht live ist, gehören bei Inhaltsänderungen die betroffenen `data/*.json` mit zum GitHub-Deploy. **Sobald Supabase live ist:** Inhaltsänderungen werden im Supabase-Bucket ersetzt (Storage → Datei überschreiben), `data/` bleibt aus dem GitHub-Repo draußen; zu GitHub geht dann nur noch index.html/Hüllen-Code.
 
 ## Lokaler Dev-Server (Standard bei jeder Arbeitssitzung)
 
