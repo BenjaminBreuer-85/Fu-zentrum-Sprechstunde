@@ -72,5 +72,18 @@ Zeilennummern verschieben sich bei Edits — Konstanten immer per Namen greppen.
    - JSX: `text/babel`-Block extrahieren und mit Babel transpilieren (Node + `@babel/standalone`, z. B. `../Fuss-Track/lib/babel.min.js` — dieses Repo hat keinen `lib/`-Ordner, React/Babel kommen zur Laufzeit vom unpkg-CDN).
    - JSON (`bausteine.json` falls berührt): parsen.
    - Referenzen prüfen: jeder Key in `DIAG[x].opMethoden` existiert in `OPS`; `OP_STEUERUNG`-/`AUFKLAERUNG_MAP`-Keys passen zu `OPS`; DRG-Codes existieren in `window._DRG`/`window._HDRG`.
-3. **Live-Preview:** `python3 -m http.server 8000` im Repo-Ordner, dann `http://localhost:8000/index.html?v=<cachebuster>`.
+3. **Live-Preview:** über den Dev-Server mit Live-Reload (siehe unten) unter `http://localhost:8000/index.html`.
 4. **Deploy:** Der Autor lädt die Datei(en) manuell auf GitHub hoch — am Ende immer die exakt zu deployenden Dateien benennen.
+
+## Lokaler Dev-Server (Standard bei jeder Arbeitssitzung)
+
+Zu Beginn jeder Arbeitssitzung wird standardmäßig der Live-Reload-Dev-Server gestartet:
+
+```
+python3 scripts/dev-server.py
+```
+
+- **Adresse: `http://localhost:8000/index.html`** — der Browser lädt bei jeder Dateiänderung im Repo automatisch neu (Polling auf `/__livereload`, .git ausgenommen), Caching ist deaktiviert.
+- Kein Node.js nötig (auf diesem Rechner nicht installiert); das Skript ist reine Python-Standardbibliothek. Als JS-Runtime für Prüfskripte dient macOS-`jsc` (`/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc`).
+- In Claude-Code-Sitzungen: Server per Bash im Hintergrund starten (die `.claude/launch.json`-Preview-Integration scheitert an macOS-Berechtigungen für den Desktop-Ordner); vor dem Start prüfen, ob Port 8000 schon belegt ist.
+- **Achtung Injektionsfalle:** index.html hat KEIN schließendes `</body>`-Tag (Datei endet mitten im Markup); das einzige `</body>` der Datei liegt in einem JS-String (Word-Export, ~Zeile 6135). Der Dev-Server hängt sein Snippet deshalb ans Dateiende an — niemals an `</body>`-Fundstellen injizieren.

@@ -86,10 +86,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if path.endswith(".html") and os.path.isfile(path):
             with open(path, "rb") as f:
                 content = f.read()
-            if b"</body>" in content:
-                content = content.replace(b"</body>", LIVERELOAD_SNIPPET + b"</body>", 1)
-            else:
-                content += LIVERELOAD_SNIPPET
+            # Snippet ans Dateiende anhängen. NICHT an </body> injizieren:
+            # index.html hat kein schließendes </body>-Tag, das einzige
+            # "</body>" der Datei steckt in einem JS-String (Word-Export) —
+            # eine Injektion dort zerbricht das Babel-Skript.
+            content += LIVERELOAD_SNIPPET
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Cache-Control", "no-store")
