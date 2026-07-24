@@ -4,6 +4,12 @@ Klinische Dokumentations-Toolbox des Departments Spezielle Fußchirurgie (Floren
 
 **Stufe 2 (07/2026): Inhalte hinter Login.** Der Loader hat zwei Pfade: **lokal** (localhost) lädt er aus `./data/`; **produktiv** verlangt er Anmeldung (supabase-js v2 via jsDelivr, E-Mail+Passwort) und lädt die zehn JSONs aus dem **privaten Supabase-Storage-Bucket** `toolbox-data`. Konfiguration im Block `window.TOOLBOX_AUTH` in index.html (Projekt-URL + anon-Key; der anon-Key ist bewusst öffentlich, der Schutz liegt in der Storage-Policy „select nur für authenticated"). `?auth=1` erzwingt den Login-Pfad lokal zum Testen. Einrichtung/Betrieb: `SUPABASE_SETUP.md`. **Sobald Supabase live ist: `data/` gehört NICHT mehr ins öffentliche GitHub-Repo** (lokal bleibt es für Dev-Server und als Upload-Quelle); Jahres-Updates ersetzen die Datei im Supabase-Bucket.
 
+**Stufe 3 (geplant): Bezahl-Automatik — Strategie-Entscheidungen vom 24.07.2026:**
+- **Produktname: „Fuss-Track Clinic"** (die Patienten-App heißt weiterhin „Fuss-Track").
+- **Zahlungsanbieter: Paddle** als Merchant of Record (Lemon Squeezy ausgeschieden — Übergangsphase nach Stripe-Übernahme; Digistore24 zu teuer).
+- **Preismodell: Jahres-Abo pro Nutzer** mit 30 Tagen kostenlosem Test; Preishöhe wird nach der Beta festgelegt (Korridor 150–300 €/Jahr).
+- **Reihenfolge:** Erst Landingpage + Rechtstexte (Paddle prüft die Produktseite vor Konto-Freischaltung), dann Paddle-Konto, dann Webhook-Automatik (Zahlung → Supabase Edge Function → Invite; Abo-Ende → Sperrung). Bis dahin läuft Onboarding ausschließlich über das Invite-Verfahren im Supabase-Dashboard.
+
 Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.html`), auf die die Toolbox per QR-Code/Deep-Links verweist (`FUSSTRACK_BASE_URL`). Für beide Apps gilt die Skill `fusstrack-toolbox` (Schreibstil-Regeln, PubMed-Recherche-Pflicht, Workflow).
 
 **Wichtig:** Seit dem Umbau funktioniert index.html NICHT mehr per Doppelklick (`file://`) — fetch braucht einen Webserver (lokal: Dev-Server, produktiv: GitHub Pages).
