@@ -29,6 +29,8 @@ Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.ht
 | `data/optexte.json` | `T` (93 Fuß-OP-Texte), `UC_EINGRIFFE`, `UC_TEXT_MAP`, `WS_EINGRIFFE`, `WS_WIRBEL`, `WS_SEGMENTE` |
 | `data/aufklaerung.json` | `AUFKLAERUNG_RISIKEN` (43 Eingriffe) |
 | `data/referenz.json` | `KLASSIFIKATIONEN` (47), `ROENTGEN` (14), `MESSMETHODEN` (32), `MANUALE` |
+| `landing.html` | Öffentliche Produktseite „Fuss-Track Clinic" (Voraussetzung für Paddle-Prüfung; `noindex` bis Rechtstexte final) |
+| `impressum.html`, `datenschutz.html`, `agb.html`, `widerruf.html` | Rechtstexte-Gerüst mit [PLATZHALTER]-Blöcken — Inhalte kommen von Anwalt/Generator, nie von Claude formulieren |
 | `SUPABASE_SETUP.md` | Einrichtungs- und Betriebsanleitung für den Login (Stufe 2) |
 | `scripts/dev-server.py` | Lokaler Dev-Server mit Live-Reload (s. u.) |
 | `scripts/verify_extraction.py` | Prüfskript: vergleicht data/*.json Wert für Wert mit dem alten Einbettungs-Stand aus Git |
