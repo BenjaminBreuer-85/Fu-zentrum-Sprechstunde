@@ -58,6 +58,20 @@ Nach erfolgreichem Test den Ordner `data/` im GitHub-Repo **löschen** (im Web: 
 
 **Ehrlicher Hinweis zur Git-Historie:** Die bisherigen Commits (eingebettete index.html, data/-Ordner) bleiben in der öffentlichen Historie einsehbar. Wer gezielt sucht, findet die 2026er-Daten dort weiterhin. Wenn das stört, gibt es zwei Optionen, beide mit Aufwand: die Historie neu aufsetzen (neues Repo bzw. Orphan-Branch nur mit aktuellem Stand) — dabei ändert sich die GitHub-Pages-URL nicht, wenn Repo-Name gleich bleibt — oder es pragmatisch akzeptieren, weil der Schutz vor allem für künftige Katalog-Jahrgänge greift.
 
+## Nutzer einladen & Passwort vergessen (eingerichtet 07/2026)
+
+Die App enthält einen „Passwort vergessen?"-Link in der Login-Maske und eine Empfangsseite für Einladungs-/Reset-Links („Neues Passwort setzen"). Damit die Mail-Links funktionieren, muss im Dashboard einmalig die URL-Konfiguration stimmen:
+
+**Authentication → URL Configuration:**
+- **Site URL:** `https://benjaminbreuer-85.github.io/Fu-zentrum-Sprechstunde/`
+- **Redirect URLs** (beide hinzufügen):
+  - `https://benjaminbreuer-85.github.io/Fu-zentrum-Sprechstunde/*`
+  - `http://localhost:8000/*` (für lokale Tests)
+
+**Neuen Nutzer aufnehmen:** Authentication → Users → **Invite user** → E-Mail eintragen. Die Person bekommt eine Einladungs-Mail, klickt den Link, landet in der Toolbox auf „Neues Passwort setzen" und ist danach drin. Kein Passwort-Handling durch den Admin. Zugang entziehen: Users → Drei-Punkte-Menü → Delete user (wirkt sofort).
+
+**Passwort vergessen:** Nutzer trägt in der Login-Maske seine E-Mail ein, klickt „Passwort vergessen?", bekommt eine Mail und setzt über den Link ein neues Passwort. Ohne Admin-Beteiligung. Hinweis: Der kostenlose eingebaute Mail-Versand von Supabase ist auf wenige Mails pro Stunde begrenzt — für ein kleines Team ausreichend.
+
 ## Jahres-Update ab jetzt (z. B. Katalog 2027)
 
 1. Neue JSON lokal in `data/` ablegen (aus den Master-Excel-Dateien, 1:1-Regel!).

@@ -206,8 +206,10 @@ window.TOOLBOX_AUTH = {
   }
 
   var loginBox=null, loginErr=null, loginBtn=null;
+  // Ziel-Adresse für Einladungs-/Reset-Links (lokal inkl. ?auth=1, live ohne)
+  var REDIRECT_URL=location.origin+location.pathname+(isLocal?"?auth=1":"");
 
-  function showLogin(client){
+  function showLogin(client,startMeldung){
     if(loginBox) return;
     var wrap=document.createElement("div");
     wrap.id="toolbox-login";
@@ -220,7 +222,8 @@ window.TOOLBOX_AUTH = {
       +'<input id="tb-email" type="email" placeholder="E-Mail" autocomplete="username" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:8px;border:1px solid #CBD5E0;border-radius:8px;font-size:14px;font-family:inherit;">'
       +'<input id="tb-pass" type="password" placeholder="Passwort" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:12px;border:1px solid #CBD5E0;border-radius:8px;font-size:14px;font-family:inherit;">'
       +'<button id="tb-login" style="width:100%;padding:10px 0;background:#006B6F;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Anmelden</button>'
-      +'<div id="tb-err" style="color:#c00;font-size:12px;min-height:16px;margin-top:10px;"></div>';
+      +'<div id="tb-err" style="color:#c00;font-size:12px;min-height:16px;margin-top:10px;"></div>'
+      +'<div id="tb-forgot" style="font-size:12px;color:#718096;text-decoration:underline;cursor:pointer;margin-top:6px;">Passwort vergessen?</div>';
     wrap.appendChild(card);
     document.body.appendChild(wrap);
     loginBox=wrap;
@@ -228,6 +231,7 @@ window.TOOLBOX_AUTH = {
     loginBtn=card.querySelector("#tb-login");
     var email=card.querySelector("#tb-email"), pass=card.querySelector("#tb-pass");
     function submit(){
+      loginErr.style.color="#c00";
       loginErr.textContent="";
       loginBtn.disabled=true; loginBtn.textContent="Anmelden…";
       client.auth.signInWithPassword({email:email.value.trim(),password:pass.value}).then(function(r){
@@ -243,7 +247,58 @@ window.TOOLBOX_AUTH = {
     }
     loginBtn.addEventListener("click",submit);
     pass.addEventListener("keydown",function(ev){ if(ev.key==="Enter") submit(); });
+    if(startMeldung){ loginErr.style.color="#718096"; loginErr.textContent=startMeldung; }
+    // Passwort-vergessen: Reset-Mail anfordern (Link führt zurück in die Toolbox)
+    card.querySelector("#tb-forgot").addEventListener("click",function(){
+      loginErr.style.color="#c00";
+      var em=email.value.trim();
+      if(!em){ loginErr.textContent="Bitte zuerst oben die E-Mail-Adresse eintragen."; return; }
+      client.auth.resetPasswordForEmail(em,{redirectTo:REDIRECT_URL}).then(function(r){
+        if(r.error){ loginErr.textContent=/rate limit/i.test(r.error.message)?"Zu viele Anfragen — bitte kurz warten.":r.error.message; return; }
+        loginErr.style.color="#2F855A";
+        loginErr.textContent="E-Mail verschickt — bitte Posteingang prüfen (Link 1 Stunde gültig).";
+      });
+    });
     email.focus();
+  }
+
+  // Formular "Neues Passwort setzen" — für Einladungs- und Passwort-Reset-Links
+  function showSetPassword(client){
+    var wrap=document.createElement("div");
+    wrap.id="toolbox-login";
+    wrap.style.cssText="position:fixed;inset:0;background:#F5F7FA;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'IBM Plex Sans',system-ui,sans-serif;";
+    var card=document.createElement("div");
+    card.style.cssText="background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:32px 28px;width:320px;text-align:center;";
+    card.innerHTML='<div style="font-size:34px;margin-bottom:6px;">🦶</div>'
+      +'<div style="font-size:19px;font-weight:700;color:#006B6F;">Fußzentrum Toolbox</div>'
+      +'<div style="font-size:11px;color:#718096;margin-bottom:18px;">Bitte neues Passwort festlegen</div>'
+      +'<input id="tb-np1" type="password" placeholder="Neues Passwort (min. 8 Zeichen)" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:8px;border:1px solid #CBD5E0;border-radius:8px;font-size:14px;font-family:inherit;">'
+      +'<input id="tb-np2" type="password" placeholder="Passwort wiederholen" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:12px;border:1px solid #CBD5E0;border-radius:8px;font-size:14px;font-family:inherit;">'
+      +'<button id="tb-npbtn" style="width:100%;padding:10px 0;background:#006B6F;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Passwort speichern</button>'
+      +'<div id="tb-nperr" style="color:#c00;font-size:12px;min-height:16px;margin-top:10px;"></div>';
+    wrap.appendChild(card);
+    document.body.appendChild(wrap);
+    loginBox=wrap;
+    var p1=card.querySelector("#tb-np1"), p2=card.querySelector("#tb-np2");
+    var btn=card.querySelector("#tb-npbtn"), err=card.querySelector("#tb-nperr");
+    function save(){
+      err.textContent="";
+      if(p1.value.length<8){ err.textContent="Mindestens 8 Zeichen."; return; }
+      if(p1.value!==p2.value){ err.textContent="Die Passwörter stimmen nicht überein."; return; }
+      btn.disabled=true; btn.textContent="Speichern…";
+      client.auth.updateUser({password:p1.value}).then(function(r){
+        if(r.error){
+          btn.disabled=false; btn.textContent="Passwort speichern";
+          err.textContent=/same password/i.test(r.error.message)?"Das neue Passwort darf nicht das alte sein.":r.error.message;
+          return;
+        }
+        btn.textContent="Inhalte werden geladen…";
+        download(client);
+      });
+    }
+    btn.addEventListener("click",save);
+    p2.addEventListener("keydown",function(ev){ if(ev.key==="Enter") save(); });
+    p1.focus();
   }
 
   function removeLogin(){ if(loginBox){loginBox.remove();loginBox=null;} }
@@ -281,11 +336,24 @@ window.TOOLBOX_AUTH = {
       fail(new Error("Kein Datenzugang konfiguriert — TOOLBOX_AUTH in index.html ausfüllen (Anleitung: SUPABASE_SETUP.md)."));
       return;
     }
+    // Hash-Parameter der Einladungs-/Reset-Links VOR createClient sichern
+    // (supabase-js verarbeitet und entfernt den Hash beim Initialisieren)
+    var hashParams=new URLSearchParams((location.hash||"").replace(/^#/,""));
+    var linkTyp=hashParams.get("type");                 // "recovery" | "invite" | null
+    var linkFehler=hashParams.get("error_description"); // z.B. abgelaufener Link
     loadScriptTag("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js",function(){
       var client=window.supabase.createClient(CFG.url,CFG.anonKey);
       client.auth.getSession().then(function(r){
-        if(r.data&&r.data.session){ download(client); }
-        else { domReady.then(function(){ showLogin(client); }); }
+        var session=r.data&&r.data.session;
+        if(session&&(linkTyp==="recovery"||linkTyp==="invite")){
+          domReady.then(function(){ showSetPassword(client); });
+        } else if(session){
+          download(client);
+        } else if(linkTyp||linkFehler){
+          domReady.then(function(){ showLogin(client,"Der Link ist ungültig oder abgelaufen — bitte über „Passwort vergessen?“ einen neuen anfordern."); });
+        } else {
+          domReady.then(function(){ showLogin(client); });
+        }
       });
     });
   }
