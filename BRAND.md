@@ -29,7 +29,7 @@ Regeln: Petrol ist die einzige Markenfarbe — kein zweites Blau/Grün daneben. 
 
 ## 3. Logo & Bildsprache
 
-- **FT-Monogramm:** weißes Serifen-„FT" auf Petrol, abgerundetes Quadrat, feiner Innenrahmen. Quelldatei: ft-monogramm.svg. Nicht verzerren, nicht umfärben, Schutzraum ≈ Breite des „F".
+- **FT-Icon (finale kleine Variante):** weißes Serifen-FT als Pfadgrafik auf Petrol #10535B, stark abgerundetes Quadrat. Einsatz: Favicon, Homescreen-/App-Icon, Profilbilder. Quelldatei icons/ft-logo-master.svg. Eine große Bildmarke ist bewusst offen; bis dahin tragen die Wortmarken in Source Serif die Marke. Fuß-Motive wurden geprüft und verworfen.
 - **Wortmarken:** „Fuss-Track" (Patienten) und „Fuss-Track Clinic" — Schreibweise immer mit Bindestrich und Doppel-s, „ß" nur dekorativ zulässig, nie in Domains/Dateinamen.
 - **Signatur-Motiv:** der „Baustein" — modulare Karten/Chips mit Petrol-Linkskante (siehe Hero der Clinic-Seite). Wiederverwenden, wo Modularität gezeigt wird.
 - Fotos: echte Screenshots und echte Personen statt Stock-Material; klinisch-aufgeräumt, keine Symbolbild-Klischees (keine Stethoskop-auf-Tastatur-Fotos).
