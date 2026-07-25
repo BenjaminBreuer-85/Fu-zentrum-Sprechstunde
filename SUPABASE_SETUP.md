@@ -62,11 +62,12 @@ Nach erfolgreichem Test den Ordner `data/` im GitHub-Repo **löschen** (im Web: 
 
 Die App enthält einen „Passwort vergessen?"-Link in der Login-Maske und eine Empfangsseite für Einladungs-/Reset-Links („Neues Passwort setzen"). Damit die Mail-Links funktionieren, muss im Dashboard einmalig die URL-Konfiguration stimmen:
 
-**Authentication → URL Configuration:**
-- **Site URL:** `https://benjaminbreuer-85.github.io/Fu-zentrum-Sprechstunde/`
-- **Redirect URLs** (beide hinzufügen):
-  - `https://benjaminbreuer-85.github.io/Fu-zentrum-Sprechstunde/*`
+**Authentication → URL Configuration** (Stand nach Domain-Umzug 07/2026):
+- **Site URL:** `https://fuss-track.de/app.html` — WICHTIG: auf die App-Seite zeigen, nicht auf die Landingpage; Dashboard-Einladungen („Invite user") schicken die Empfänger an genau diese Adresse.
+- **Redirect URLs:**
+  - `https://fuss-track.de/*`
   - `http://localhost:8000/*` (für lokale Tests)
+  - (`https://benjaminbreuer-85.github.io/...` kann als Altlast entfernt werden, sobald alles auf der Domain läuft)
 
 **Neuen Nutzer aufnehmen:** Authentication → Users → **Invite user** → E-Mail eintragen. Die Person bekommt eine Einladungs-Mail, klickt den Link, landet in der Toolbox auf „Neues Passwort setzen" und ist danach drin. Kein Passwort-Handling durch den Admin. Zugang entziehen: Users → Drei-Punkte-Menü → Delete user (wirkt sofort).
 
