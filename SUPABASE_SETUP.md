@@ -115,7 +115,22 @@ create policy "nur eigener Materialsatz" on public.materialsatz
   for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 ```
 
-Erfolgsmeldung ist „Success. No rows returned". Unter **Table Editor** müssen danach die zwei Tabellen erscheinen, jeweils mit dem Hinweis „RLS enabled".
+Erfolgsmeldung ist „Success. No rows returned".
+
+**Kontrolle** (die Anzeige im Table Editor unterscheidet sich je nach Supabase-Version — diese Abfrage ist eindeutig). Neue Query, einfügen, Run:
+
+```sql
+select t.tablename,
+       t.rowsecurity as rls_aktiv,
+       count(p.policyname) as policies
+from pg_tables t
+left join pg_policies p on p.tablename = t.tablename and p.schemaname = 'public'
+where t.schemaname = 'public'
+  and t.tablename in ('implantatpreise','materialsatz')
+group by t.tablename, t.rowsecurity;
+```
+
+Richtig ist: **zwei Zeilen**, bei beiden `rls_aktiv = true` und `policies = 1`. Kommt gar keine Zeile zurück, wurde der Block darüber noch nicht ausgeführt.
 
 ## Jahres-Update ab jetzt (z. B. Katalog 2027)
 
