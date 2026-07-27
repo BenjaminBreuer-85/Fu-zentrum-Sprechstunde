@@ -3,38 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex">
 <title>Datenschutzerklärung – Fuss-Track Clinic</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<!-- Schriften: lokal aus /fonts (woff2, latin-Subset) — keine externen Font-Server (DSGVO). -->
 <style>
-  body{font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;background:#F5F7FA;color:#1A2A3A;line-height:1.6;margin:0;}
-  .wrap{max-width:760px;margin:0 auto;padding:40px 20px 60px;}
-  h1{color:#006B6F;font-size:26px;}
-  h2{color:#006B6F;font-size:17px;margin-top:26px;}
-  .entwurf{background:#FEF3C7;border:1px solid #F59E0B;border-radius:10px;padding:12px 16px;font-size:13px;margin:18px 0;}
-  .todo{background:#fff;border:1px dashed #CBD5E0;border-radius:10px;padding:14px 16px;font-size:14px;color:#4A5568;margin:10px 0;}
-  a{color:#006B6F;}
-  footer{margin-top:40px;font-size:12px;color:#718096;}
+  @font-face{font-family:'Source Serif 4';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/source-serif-4-600.woff2') format('woff2')}
+  @font-face{font-family:'Source Serif 4';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/source-serif-4-700.woff2') format('woff2')}
+  @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/ibm-plex-sans-400.woff2') format('woff2')}
+  @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/ibm-plex-sans-500.woff2') format('woff2')}
+  @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/ibm-plex-sans-600.woff2') format('woff2')}
+  :root{--op:#10535B;--paper:#FAFAF7;--ink:#1D2421;--muted:#5C6660;--line:#D6E2E3;--amber:#8A5A00;--amber-bg:#FBF3DF;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.65;font-size:16.5px;}
+  .wrap{max-width:760px;margin:0 auto;padding:36px 24px 64px;}
+  h1{font-family:'Source Serif 4',Georgia,serif;color:var(--op);font-size:30px;line-height:1.18;margin-bottom:20px;}
+  h2{font-family:'Source Serif 4',Georgia,serif;color:var(--op);font-size:18px;margin:28px 0 8px;}
+  p{margin-bottom:10px;}
+  ul{margin:0 0 12px 22px;}
+  li{margin-bottom:6px;}
+  address{font-style:normal;margin-bottom:10px;}
+  a{color:var(--op);}
+  .zurueck{display:inline-block;margin-bottom:22px;font-size:14px;text-decoration:none;}
+  .zurueck:hover{text-decoration:underline;}
+  .vorlaeufig{background:var(--amber-bg);border:1px solid var(--amber);border-radius:10px;padding:13px 16px;font-size:14px;color:var(--amber);margin-bottom:24px;}
+  footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);}
+  footer a{color:var(--muted);}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <p><a href="index.html">← Fuss-Track Clinic</a></p>
+  <a class="zurueck" href="index.html">← Fuss-Track Clinic</a>
   <h1>Datenschutzerklärung</h1>
-  <div class="entwurf">⚠️ Entwurf — dieser Text ist noch nicht rechtsverbindlich und wird vor dem Verkaufsstart durch geprüfte Inhalte ersetzt.</div>
-  <div class="todo">[PLATZHALTER] Verantwortlicher (Name, Anschrift, E-Mail).</div>
-  <h2>Hosting</h2>
-  <div class="todo">[PLATZHALTER] GitHub Pages (GitHub Inc.) als Hoster: Verarbeitung von IP-Adressen in Server-Logs, Drittlandbezug USA, Rechtsgrundlage Art. 6 Abs. 1 lit. f DSGVO.</div>
-  <h2>Login und Nutzerkonten</h2>
-  <div class="todo">[PLATZHALTER] Supabase (Projekt-Region Frankfurt/EU): E-Mail-Adresse und Passwort-Hash zur Zugangsverwaltung, Session-Speicherung im Browser (localStorage), Auftragsverarbeitungsvertrag.</div>
-  <h2>Zahlungsabwicklung</h2>
-  <div class="todo">[PLATZHALTER] Paddle als Merchant of Record — ergänzen, sobald der Verkauf startet.</div>
-  <h2>Ihre Rechte</h2>
-  <div class="todo">[PLATZHALTER] Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit, Widerspruch, Beschwerderecht bei der Aufsichtsbehörde.</div>
 
-  <footer>Fuss-Track Clinic · © 2026 Dr. med. Benjamin Breuer · <a href="index.html">Startseite</a></footer>
+  <div class="vorlaeufig">
+    <strong>Vorläufige Fassung.</strong> Dieser Text beschreibt den tatsächlichen Stand der Datenverarbeitung
+    (Stand Juli 2026). Eine anwaltlich geprüfte Fassung folgt.
+  </div>
+
+  <h2>Verantwortlicher</h2>
+  <address>
+    Dr. med. Benjamin Breuer<br>
+    c/o Impressumservice Dein-Impressum<br>
+    Stettiner Str. 41, 35410 Hungen<br>
+    E-Mail: <a href="mailto:kontakt@fuss-track.de">kontakt@fuss-track.de</a>
+  </address>
+  <p>Vollständige Angaben im <a href="impressum.html">Impressum</a>.</p>
+
+  <h2>Grundsatz: keine Patientendaten</h2>
+  <p>
+    Weder Fuss-Track noch Fuss-Track Clinic sind dafür vorgesehen, Patientendaten zu erfassen. Die in der
+    Clinic-App erstellten Texte und Berechnungen entstehen im Browser und werden nicht an uns übermittelt;
+    die patientenbezogene Dokumentation verbleibt in Ihrem Klinik- oder Praxissystem. Bitte geben Sie keine
+    personenbezogenen Patientendaten in die Anwendungen ein.
+  </p>
+
+  <h2>Hosting (GitHub Pages)</h2>
+  <p>
+    Die Seiten werden über GitHub Pages der GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA,
+    ausgeliefert. Beim Aufruf verarbeitet GitHub technisch bedingt Server-Logfiles, darunter Ihre IP-Adresse,
+    Datum und Uhrzeit des Zugriffs, die abgerufene Seite sowie Browser- und Betriebssystemangaben. Rechtsgrundlage
+    ist unser berechtigtes Interesse an einem sicheren und zuverlässigen Betrieb (Art. 6 Abs. 1 lit. f DSGVO).
+    Die Verarbeitung erfolgt auch in den USA; GitHub stützt sich hierfür auf Standardvertragsklauseln.
+  </p>
+
+  <h2>Nutzerkonten der Clinic-App (Supabase)</h2>
+  <p>
+    Der geschützte Bereich von Fuss-Track Clinic nutzt zur Anmeldung den Dienst Supabase; das Projekt wird in der
+    Region Frankfurt (EU) betrieben. Verarbeitet werden Ihre E-Mail-Adresse, Ihr Passwort (ausschließlich als
+    nicht rückrechenbarer Hashwert), Zeitpunkte von Anmeldung und Kontoerstellung sowie Sitzungsdaten, die zur
+    Aufrechterhaltung der Anmeldung lokal in Ihrem Browser gespeichert werden. Zweck ist die Zugangskontrolle zu
+    den lizenzierten Inhalten, Rechtsgrundlage die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).
+    Ihre Angaben werden gelöscht, wenn Sie Ihr Konto beenden.
+  </p>
+  <p>
+    Sofern Sie im Bereich „Meine Implantatpreise“ eigene Preisdaten hinterlegen, werden diese Ihrem Konto zugeordnet
+    gespeichert und sind ausschließlich für Sie abrufbar.
+  </p>
+
+  <h2>E-Mail-Kontakt</h2>
+  <p>
+    Das Postfach zu kontakt@fuss-track.de wird bei der united-domains AG, Gautinger Str. 10, 82319 Starnberg,
+    betrieben. Wenn Sie uns schreiben, verarbeiten wir Ihre Angaben zur Bearbeitung der Anfrage
+    (Art. 6 Abs. 1 lit. b und f DSGVO) und bewahren die Korrespondenz auf, solange dies zur Bearbeitung
+    erforderlich ist oder gesetzliche Aufbewahrungsfristen bestehen.
+  </p>
+
+  <h2>Zahlungsabwicklung (Paddle)</h2>
+  <p>
+    Für den künftigen kostenpflichtigen Zugang zu Fuss-Track Clinic setzen wir Paddle als Zahlungsdienstleister
+    ein, der zugleich als Verkäufer auftritt (Merchant of Record). Beim Kauf werden die dafür erforderlichen
+    Daten — insbesondere Name, E-Mail-Adresse, Rechnungsanschrift und Zahlungsdaten — unmittelbar von Paddle
+    erhoben und verarbeitet; vollständige Zahlungsdaten erhalten wir nicht. Rechtsgrundlage ist die Erfüllung
+    des Vertrags (Art. 6 Abs. 1 lit. b DSGVO). Solange der Verkauf noch nicht gestartet ist, findet diese
+    Verarbeitung nicht statt.
+  </p>
+
+  <h2>Freiwillige Unterstützung (Ko-fi, PayPal)</h2>
+  <p>
+    Die Patienten-App Fuss-Track ist kostenlos. Wer sie freiwillig unterstützen möchte, wird auf die Dienste
+    Ko-fi bzw. PayPal weitergeleitet. Die dort eingegebenen Angaben werden von den jeweiligen Anbietern in
+    eigener Verantwortung verarbeitet; wir erhalten lediglich die Information über eine eingegangene
+    Unterstützung. Rechtsgrundlage ist Ihre Einwilligung durch die aktive Nutzung des Angebots
+    (Art. 6 Abs. 1 lit. a DSGVO).
+  </p>
+
+  <h2>Cookies und lokale Speicherung</h2>
+  <p>
+    Wir setzen keine Cookies zu Werbe- oder Analysezwecken ein. Verwendet werden ausschließlich technisch
+    notwendige Speichermechanismen: die Sitzungsdaten der Anmeldung sowie Einstellungen, die Ihr Browser lokal
+    vorhält. Ein Tracking Ihres Verhaltens findet nicht statt; es sind keine Analyse-, Werbe- oder
+    Social-Media-Dienste eingebunden. Schriften werden lokal von unserem Server geladen, nicht von externen
+    Anbietern.
+  </p>
+
+  <h2>Ihre Rechte</h2>
+  <ul>
+    <li>Auskunft über die zu Ihrer Person verarbeiteten Daten (Art. 15 DSGVO)</li>
+    <li>Berichtigung unrichtiger Daten (Art. 16 DSGVO)</li>
+    <li>Löschung (Art. 17 DSGVO) und Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+    <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+    <li>Widerspruch gegen Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21 DSGVO)</li>
+    <li>Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)</li>
+  </ul>
+  <p>
+    Wenden Sie sich dafür an <a href="mailto:kontakt@fuss-track.de">kontakt@fuss-track.de</a>. Unabhängig davon
+    steht Ihnen ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu, für Nordrhein-Westfalen bei der
+    Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen.
+  </p>
+
+  <footer>
+    Fuss-Track Clinic · © 2026 Dr. med. Benjamin Breuer ·
+    <a href="index.html">Startseite</a> ·
+    <a href="impressum.html">Impressum</a> ·
+    <a href="agb.html">AGB</a> ·
+    <a href="widerruf.html">Widerruf</a>
+  </footer>
 </div>
 </body>
 </html>

@@ -1,2 +1,5 @@
 data/
 .DS_Store
+
+# Vertrauliche Preisdaten — nie ins Repo
+meine-preise/

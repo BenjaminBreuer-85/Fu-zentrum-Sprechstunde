@@ -51,6 +51,23 @@ Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.ht
 
 Werkzeuge (`App()`-Routing per `tool`-State): `sb` Sprechstundenbrief · `ob` OP-Bericht Generator (Sektionen fuss/uc/endo/ws) · `aufklaerung` · `hdrg` OPS-Code-Zuordnung · `manuale` · `klassifikationen` · `roentgen` · `codes`.
 
+## Meine Implantatpreise (Modul in Arbeit)
+
+Implantatpreise sind **Nutzerdaten**, keine Auslieferungsdaten — jeder Nutzer pflegt seine eigenen (die Preise der Klinik sind vertraulich). Datenmodell zweistufig: **Einzelpreise** (Implantat-ID → Stückpreis, einzige Preisquelle) und **Zuordnungen** (Eingriff-ID → Implantat-ID → Anzahl, preisfrei). Paketpreise werden immer berechnet, nie gespeichert.
+
+**Excel-Vorlage (Export wie Import), drei Blätter:** „Anleitung" · „Meine Preise" (Implantat | Hersteller | Artikelnummer | Einzelpreis | Implantat-ID grau) · „Eingriffe" (Sektion | Eingriff | Variante | Implantat | Anzahl | Einzelpreis | Zeilensumme | IDs grau, Zwischensumme je Eingriff, echte INDEX/MATCH- und SUM-Formeln). Erzeugt mit `lib/xlsx-style.min.js` (xlsx-js-style, MIT) — SheetJS Community kann keine Styles schreiben.
+
+**Abschnitte A/B in „Meine Preise":** Abschnitt A = Positionen, die in den hinterlegten Eingriffen vorkommen (wird beim Erzeugen automatisch aus den Zuordnungen berechnet, damit er mitwächst); Abschnitt B = alle übrigen, optional. Keine Position wird je gelöscht.
+
+**Import-Regeln (verbindlich, entschieden 27.07.2026):**
+- Zuordnung primär über die ID-Spalten, ersatzweise über die Bezeichnung.
+- **Konfliktregel: Bezeichnung schlägt ID.** Weicht die Bezeichnung von der zur ID gehörenden ab und ist sie in „Meine Preise" auflösbar, gilt die Bezeichnung (der Nutzer hat sichtbar getippt, die ID ist graue Technik). Die Vorschau weist das als „ausgetauscht: alt → neu" aus.
+- **Fehlende Eingriffe werden nie automatisch gelöscht:** Fehlt eine Eingriffsgruppe komplett in der hochgeladenen Datei, meldet die Vorschau das ausdrücklich („1 Eingriff fehlt in der Datei: … — behalten oder löschen?") und der Nutzer entscheidet pro Import.
+- Der Import ersetzt den Materialsatz **je Eingriff** vollständig (nicht additiv), damit gelöschte Positionen nicht zurückkehren.
+- Positionen aus Abschnitt B und eigene, vom Nutzer ergänzte Zeilen werden übernommen und gespeichert — **nie** als Fehler oder „nicht zugeordnet" gemeldet.
+- Die Vorschau vor der Übernahme unterscheidet drei Zahlen: „X benötigte Positionen mit Preis", „Y optionale Positionen", „Z Positionen ohne Preis (nur relevant, wenn benötigt)". Wirklich unklare Zeilen werden als „nicht zugeordnet" gemeldet, nie stillschweigend verworfen.
+- **Kein stiller Teilbetrag:** Fehlt zu einem Eingriff auch nur ein Preis, wird kein DB2 ausgegeben, sondern „unvollständig — X Positionen ohne Preis".
+
 ## Wichtige Regeln
 
 - **Markenrichtlinie (verbindlich):** Alle Änderungen an Oberfläche, Texten oder Grafiken müssen `BRAND.md` entsprechen. Bei Konflikten BRAND.md folgen und den Autor auf den Konflikt hinweisen. Bestehende Oberflächen werden NICHT automatisch an BRAND.md angeglichen — nur künftige Änderungen laufen dagegen; Abweichungen im Bestand nur auflisten, nicht ändern.

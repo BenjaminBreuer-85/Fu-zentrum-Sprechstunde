@@ -73,6 +73,50 @@ Die App enthält einen „Passwort vergessen?"-Link in der Login-Maske und eine 
 
 **Passwort vergessen:** Nutzer trägt in der Login-Maske seine E-Mail ein, klickt „Passwort vergessen?", bekommt eine Mail und setzt über den Link ein neues Passwort. Ohne Admin-Beteiligung. Hinweis: Der kostenlose eingebaute Mail-Versand von Supabase ist auf wenige Mails pro Stunde begrenzt — für ein kleines Team ausreichend.
 
+## Tabellen für „Meine Implantatpreise" (einmalig)
+
+**SQL Editor → New query**, alles einfügen und **Run**. Danach läuft alles automatisch — die App legt Preise selbst an, aktualisiert und liest sie; pro Nutzer getrennt, ohne weiteres Zutun im Dashboard.
+
+```sql
+-- 1) Preisliste je Nutzer (die einzige Preisquelle)
+create table if not exists public.implantatpreise (
+  user_id          uuid    not null references auth.users(id) on delete cascade,
+  implantat_id     text    not null,
+  bezeichnung      text    not null,
+  hersteller       text,
+  artikelnummer    text,
+  preis            numeric(10,2),
+  eigene_position  boolean not null default false,
+  aktualisiert     timestamptz not null default now(),
+  primary key (user_id, implantat_id)
+);
+
+-- 2) Materialsatz je Nutzer (Abweichungen vom Standard-Vorschlag)
+create table if not exists public.materialsatz (
+  user_id        uuid    not null references auth.users(id) on delete cascade,
+  eingriff_id    text    not null,
+  variante       text    not null default 'Standard',
+  implantat_id   text    not null,
+  anzahl         integer not null default 1,
+  eingriff_name  text,
+  sortierung     integer not null default 0,
+  aktualisiert   timestamptz not null default now(),
+  primary key (user_id, eingriff_id, variante, implantat_id)
+);
+
+-- 3) Zugriffsschutz: jeder sieht und ändert ausschließlich seine eigenen Zeilen
+alter table public.implantatpreise enable row level security;
+alter table public.materialsatz    enable row level security;
+
+create policy "nur eigene Preise" on public.implantatpreise
+  for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "nur eigener Materialsatz" on public.materialsatz
+  for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+```
+
+Erfolgsmeldung ist „Success. No rows returned". Unter **Table Editor** müssen danach die zwei Tabellen erscheinen, jeweils mit dem Hinweis „RLS enabled".
+
 ## Jahres-Update ab jetzt (z. B. Katalog 2027)
 
 1. Neue JSON lokal in `data/` ablegen (aus den Master-Excel-Dateien, 1:1-Regel!).
