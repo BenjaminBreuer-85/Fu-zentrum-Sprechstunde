@@ -59,13 +59,17 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 29.07.2026, abends: Repo und Bucket sind synchron.** Der Bucket-Upload der
-sieben geaenderten Inhaltsdateien (`diagnosen`, `aufklaerung`, `opmethoden`,
-`opsteuerung`, `optexte`, `endo`, `preise`) ist erfolgt, der Code ist gepusht,
-die Live-Seite laeuft auf dem neuen Stand.
+**Stand 29.07.2026: nichts offen.** Bucket-Upload (ca. 18:00 Uhr) und Push sind
+erfolgt, die Live-Seite laeuft auf dem neuen Stand. Keine Datei in `data/` wurde
+seither veraendert — juengste Aenderung war 16:27 Uhr, also vor dem Upload.
 
 Diesen Abschnitt bei der naechsten Aenderung wieder fuellen: Welche Datei wurde
 geaendert, was steht drin, und ob sie ins Repo oder in den Bucket gehoert.
+Pruefen laesst sich das jederzeit mit den Zeitstempeln:
+
+```bash
+cd data && ls -lT *.json | awk '{print $9, $6, $7, $8}'
+```
 
 > **Warum das zusammengehoert:** Die Kennung `arthrodesenagel_retro` steht sowohl in
 > `zuordnung/implantat_zuordnung.json` (Repo) als auch in fuenf Bucket-Dateien.
