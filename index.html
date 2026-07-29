@@ -12,6 +12,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10535B">
 <!-- Schriften: lokal aus /fonts (woff2, latin-Subset, SIL-OFL-Lizenz) — keine externen Font-Server (DSGVO). -->
 <style>
   @font-face{font-family:'Source Serif 4';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/source-serif-4-600.woff2') format('woff2')}
@@ -238,6 +240,15 @@
 </head>
 <body>
 
+<!-- Dezente Leiste für bereits angemeldete Nutzer — keine automatische Weiterleitung.
+     Wird nur eingeblendet, wenn eine gültige Supabase-Sitzung besteht. -->
+<div id="ft-session-bar" style="display:none;background:#E6F0F1;border-bottom:1px solid #D6E2E3;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:9px;padding-bottom:9px;flex-wrap:wrap;">
+    <span style="font-size:.9rem;color:#10535B;">Angemeldet<span id="ft-session-mail" style="color:#5C6660;"></span></span>
+    <a class="btn" href="app.html" style="padding:.45em 1.1em;font-size:.88rem;">Zur App</a>
+  </div>
+</div>
+
 <header class="topbar">
   <div class="wrap">
     <a class="wordmark" href="#top">Fuss-Track <span>Clinic</span></a>
@@ -462,5 +473,40 @@
   </div>
 </footer>
 
+
+<!-- Sitzungsprüfung: zeigt die Leiste oben, wenn bereits angemeldet.
+     Lädt supabase-js nur bei Bedarf und leitet niemals automatisch weiter. -->
+<script>
+(function(){
+  var CFG = { url: "https://nfvrdhrxfgclczllzwzz.supabase.co",
+              anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdnJkaHJ4ZmdjbGN6bGx6d3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MzIzMDUsImV4cCI6MjEwMDQwODMwNX0.Ce8qDJiOalb4k8pwDzn4CmAXDv4j0nFg9lekWa59Lhg" };
+  // Ohne gespeicherte Sitzung gar nicht erst laden (spart Anfrage und Bandbreite)
+  var hatSitzung = false;
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf("sb-") === 0 && k.indexOf("-auth-token") > 0) { hatSitzung = true; break; }
+    }
+  } catch(e){ return; }
+  if (!hatSitzung) return;
+
+  var s = document.createElement("script");
+  s.src = "lib/supabase.js";
+  s.onload = function(){
+    try {
+      var c = window.supabase.createClient(CFG.url, CFG.anonKey);
+      c.auth.getSession().then(function(r){
+        var sitzung = r && r.data && r.data.session;
+        if (!sitzung) return;
+        var bar = document.getElementById("ft-session-bar");
+        var mail = document.getElementById("ft-session-mail");
+        if (mail && sitzung.user && sitzung.user.email) mail.textContent = " als " + sitzung.user.email;
+        if (bar) bar.style.display = "block";
+      });
+    } catch(e){}
+  };
+  document.head.appendChild(s);
+})();
+</script>
 </body>
 </html>

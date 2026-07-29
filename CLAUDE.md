@@ -23,6 +23,7 @@ Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.ht
 | `BRAND.md` | Verbindliche Markenrichtlinie (Farben, Typografie, Ton) — identische Kopie im Fuss-Track-Repo pflegen |
 | `fonts/*.woff2` | Lokale Schriften (Source Serif 4, IBM Plex Sans/Mono; latin-Subset, SIL OFL) — DSGVO: keine externen Font-Server |
 | `CNAME` | GitHub-Pages-Custom-Domain `fuss-track.de` — nie löschen |
+| `manifest.json` | Web-App-Manifest: `start_url` = `/app.html`, damit Homescreen-Verknüpfungen immer in der App starten (auch wenn von der Landingpage aus angelegt) |
 | `data/katalog2026.json` | `_KATALOG_META`, `_KX`, `_HD` = OPS-Katalog 2026 (Bitmaske f: 1=AOP, 2=Hybrid-DRG, 4=Kontextprozedur). **NICHT von Hand editieren** — Quelle: OPS_Katalogdaten_2026_MASTER.xlsx |
 | `data/erloes2026.json` | `_ERLOES_META` (u. a. `lbfw`), `_DRG`, `_HDRG`, `_KURZ`, `GVD`. **NICHT von Hand editieren** — Quelle: Erloesdaten_2026_MASTER.xlsx; Jahres-Update = Datei komplett ersetzen |
 | `data/diagnosen.json` | `DIAG` (15 Diagnosen), `COALITIO_BEFUNDE`, `KONSERV`, `RISIKEN`, `RISIKEN_ENDO`, `KONTROLLE_TEXT`, `KONTROLLE_LABEL` |

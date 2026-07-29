@@ -28,6 +28,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10535B">
 <!-- Programmbibliotheken lokal aus /lib — keine CDN-Aufrufe (BRAND.md, DSGVO).
      Stand 07/2026:  React 18.3.1 · ReactDOM 18.3.1 · Babel standalone 7.25.6 · supabase-js 2 (UMD)
      Aktualisieren: Datei aus derselben Quelle ersetzen und Version hier nachtragen. -->
@@ -548,39 +550,6 @@ function materialsatzSpeichern(eingriffId, variante, positionen){
       });
   });
 }
-// ---------------------------------------------------------------- Demo-Modus
-// Frei erfundene Rundwerte — niemals echte Einkaufspreise.
-const DEMO_PREISE = {
-  schraube_hcs_2_5:100, schraube_hcs_4_0:100, schraube_hcs_7_0:120, schraube_hcs_2_0:90,
-  schraube_ws_2_7:25, schraube_ws_3_5:25, schraube_ws_4_5:50, schraube_ws_3_5_klav:25,
-  schraube_kort_3_5:12, schraube_kort_3_5_klav:12, schraube_kanuel_7_0:60,
-  platte_lapidus:300, platte_ws_gebogen_4l:180, platte_mini_osg:280,
-  platte_drittelrohr_6l:30, platte_klavikula_ws_8l:300,
-  anker_faden_geflochten:200, anker_knotenfrei:150, bandaugmentation:500, anker_tenodese_4_75:300,
-  nagel_arthrodese_set:1500, nagel_humerus_prox:800,
-  membran_kollagen:950, knochenblock_allogen:350, k_draht:15,
-  fraeser_mis_2_0:45, fraeser_mis_2_2:45,
-  tep_lp_tibia:1900, tep_lp_talus:1800, tep_lp_inlay:700,
-  tep_mb_tibia:1000, tep_mb_talus_kurv:1000, tep_mb_talus_flat:1100, tep_mb_inlay:600, tep_mb_fixschraube:150,
-  tep_ax_tibia:1900, tep_ax_talus:1500, tep_ax_inlay:700,
-  tep_ax_schaft_basis:400, tep_ax_schaft_verl:350, tep_ax_talus_schaft:400
-};
-function demoAktiv(){ return !!window._DEMO; }
-function demoUmschalten(an){
-  if (an) {
-    window._PREISE_ECHT = window._PREISE;
-    var d = {};
-    Object.keys(DEMO_PREISE).forEach(function(id){
-      d[id] = {bezeichnung: (_ZUORD.KATALOG[id]||{}).bezeichnung || id,
-               hersteller:"Demo", preis: DEMO_PREISE[id], aktualisiert:null};
-    });
-    window._PREISE = d; window._DEMO = true;
-  } else {
-    window._PREISE = window._PREISE_ECHT || {}; window._DEMO = false;
-  }
-  if (window._onPreiseGeladen) window._onPreiseGeladen();
-}
-
 // ============================================================================
 // MATERIALSATZ — Positionen je Eingriff aus data/implantat_zuordnung.json,
 // bewertet mit den PREISEN DES NUTZERS (Supabase). Keine Preise im Code.
@@ -6250,7 +6219,6 @@ function ImplantatpreiseView(){
   const [offen, setOffen] = React.useState({});        // aufgeklappte Verwendung
   const [bearbeite, setBearbeite] = React.useState(null);  // {id, wert}
   const [meldung, setMeldung] = React.useState("");
-  const [demo, setDemo] = React.useState(demoAktiv());
   const dateiRef = React.useRef(null);
 
   React.useEffect(function(){ window._onPreiseGeladen = function(){ setTick(function(x){return x+1;}); };
@@ -6337,7 +6305,7 @@ function ImplantatpreiseView(){
     border:"1px solid "+(aktiv?P:LINIE), background: aktiv?P:"#fff", color: aktiv?"#fff":"#5C6660"});
 
   // ---------------------------------------------------------------- Leerzustand
-  if (!hatPreise && !demo) {
+  if (!hatPreise) {
     return <div style={{maxWidth:760,margin:"0 auto",padding:"8px 4px"}}>
       <div style={{background:"#fff",border:"1px solid "+LINIE,borderRadius:12,padding:"26px 24px",textAlign:"center"}}>
         <div style={{fontSize:38,marginBottom:8}}>💶</div>
@@ -6352,10 +6320,6 @@ function ImplantatpreiseView(){
           <div onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false))}>2 · Ausgefüllte Datei hochladen</div>
         </div>
         <input ref={dateiRef} type="file" accept=".xlsx" onChange={dateiGewaehlt} style={{display:"none"}}/>
-        <div style={{fontSize:11,color:"#5C6660",borderTop:"1px solid "+LINIE,paddingTop:14}}>
-          Nur ausprobieren? <span onClick={()=>{demoUmschalten(true);setDemo(true);neuBerechnen();}}
-            style={{color:P,textDecoration:"underline",cursor:"pointer"}}>Demo-Modus mit Beispielwerten</span>
-        </div>
         {meldung && <div style={{marginTop:12,fontSize:12,color:AMBER}}>{meldung}</div>}
       </div>
     </div>;
@@ -6363,13 +6327,6 @@ function ImplantatpreiseView(){
 
   // ---------------------------------------------------------------- Hauptansicht
   return <div style={{maxWidth:980,margin:"0 auto",padding:"4px 4px 30px"}}>
-    {demo && <div style={{background:AMBERBG,border:"1px solid "+AMBER,borderRadius:10,padding:"8px 14px",
-        marginBottom:12,fontSize:12,color:AMBER,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-      <span><strong>Demo-Modus</strong> — alle Preise sind frei erfunden und dienen nur zur Vorführung.</span>
-      <span onClick={()=>{demoUmschalten(false);setDemo(false);neuBerechnen();}}
-        style={{textDecoration:"underline",cursor:"pointer",fontWeight:600}}>beenden</span>
-    </div>}
-
     {/* Statuszeile */}
     <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:12}}>
       <div style={{flex:"1 1 150px",background:"#fff",border:"1px solid "+LINIE,borderRadius:10,padding:"10px 14px"}}>
@@ -6404,8 +6361,6 @@ function ImplantatpreiseView(){
       <div onClick={exportieren} style={Object.assign({},btn(false),{fontSize:11})}>↓ Als Excel exportieren</div>
       <div onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false),{fontSize:11})}>↑ Datei hochladen</div>
       <input ref={dateiRef} type="file" accept=".xlsx" onChange={dateiGewaehlt} style={{display:"none"}}/>
-      {!demo && <div onClick={()=>{demoUmschalten(true);setDemo(true);neuBerechnen();}}
-        style={Object.assign({},btn(false),{fontSize:11})}>Demo</div>}
     </div>
 
     {/* Suche + Filter */}
@@ -6458,9 +6413,9 @@ function ImplantatpreiseView(){
                         : "wird derzeit in keinem Eingriff verwendet"}
                     </div>
                   </span>
-                : <span onClick={()=>!demo&&setBearbeite({id:i.id})} title={demo?"Im Demo-Modus nicht änderbar":"Preis bearbeiten"}
-                    style={{fontSize:13,fontWeight:700,cursor:demo?"default":"pointer",
-                            color: i.preis==null?AMBER:"#1D2421",borderBottom:demo?"none":"1px dotted "+LINIE}}>
+                : <span onClick={()=>setBearbeite({id:i.id})} title="Preis bearbeiten"
+                    style={{fontSize:13,fontWeight:700,cursor:"pointer",
+                            color: i.preis==null?AMBER:"#1D2421",borderBottom:"1px dotted "+LINIE}}>
                     {i.preis==null ? "kein Preis" : i.preis.toFixed(2)+" €"}</span>}
             </div>
             <div style={{flex:"0 0 130px",textAlign:"right"}}>
@@ -6509,12 +6464,10 @@ function ImplantatpreiseView(){
               return <div key={idx} style={{padding:"5px 0",borderBottom: idx<e.positionen.length-1?"1px solid #F1F4F3":"none"}}>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <span style={{flex:"1 1 auto",fontSize:12}}>{implantatBezeichnung(pos.implantat_id)}</span>
-                  {demo
-                    ? <span style={{flex:"0 0 46px",textAlign:"center",fontSize:12}}>{pos.anzahl}×</span>
-                    : <input type="number" min="0" defaultValue={pos.anzahl}
-                        onBlur={ev=>{ var n=parseInt(ev.target.value||"0",10); if(n!==pos.anzahl) mengeUebernehmen(e.eingriffId,e.variante,idx,n); }}
-                        style={{flex:"0 0 46px",width:46,padding:"2px 4px",fontSize:11,textAlign:"center",
-                                border:"1px solid "+LINIE,borderRadius:4}}/>}
+                  <input type="number" min="0" defaultValue={pos.anzahl}
+                    onBlur={ev=>{ var n=parseInt(ev.target.value||"0",10); if(n!==pos.anzahl) mengeUebernehmen(e.eingriffId,e.variante,idx,n); }}
+                    style={{flex:"0 0 46px",width:46,padding:"2px 4px",fontSize:11,textAlign:"center",
+                            border:"1px solid "+LINIE,borderRadius:4}}/>
                   <span style={{flex:"0 0 78px",textAlign:"right",fontSize:11,color: pos.stueckpreis==null?AMBER:"#5C6660"}}>
                     {pos.stueckpreis==null?"—":pos.stueckpreis.toFixed(2)+" €"}</span>
                   <span style={{flex:"0 0 82px",textAlign:"right",fontSize:12,fontWeight:600,

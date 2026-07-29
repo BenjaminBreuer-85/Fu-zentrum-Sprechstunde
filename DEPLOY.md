@@ -24,6 +24,7 @@ Die App lädt ihre Daten aus **zwei getrennten Quellen**. Wer nur eine davon akt
 | `fonts/` (7 Dateien) | Source Serif 4, IBM Plex Sans/Mono (woff2) |
 | `icons/` (6 Dateien) | Favicon, App-Icon, Logo-Quelle |
 | `CNAME` | Custom Domain `fuss-track.de` — **niemals löschen** |
+| `manifest.json` | Web-App-Manifest (Homescreen startet in `app.html`) |
 | `scripts/`, `*.md` | Werkzeuge und Dokumentation |
 
 **Nicht im Repo** (steht in `.gitignore`): `data/` und `meine-preise/`.
