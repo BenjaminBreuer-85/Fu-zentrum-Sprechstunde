@@ -6491,9 +6491,126 @@ function ImplantatpreiseView(){
   </div>;
 }
 
+
+// ============================================================================
+// HOMESCREEN-ANLEITUNG — erklärt, wie die App auf den Startbildschirm kommt.
+// Erscheint einmalig nach dem Login, nur im Browser (nicht bei bereits vom
+// Startbildschirm gestarteter App), und ist danach über das Symbol in der
+// Kopfzeile jederzeit wieder aufrufbar.
+// ============================================================================
+const HOMESCREEN_MERKER = "ft-homescreen-gesehen";
+
+// Läuft die App bereits vom Startbildschirm?
+function alsAppGestartet(){
+  try{
+    return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)
+        || window.navigator.standalone === true;
+  }catch(e){ return false; }
+}
+// Welche Anleitung passt zum Gerät?
+function geraeteArt(){
+  var ua = navigator.userAgent || "";
+  var iOS = /iPad|iPhone|iPod/.test(ua)
+         || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);   // iPad ab iPadOS 13
+  if (iOS) {
+    // Auf iOS kann nur Safari zum Startbildschirm hinzufügen
+    var safari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|Chrome/.test(ua);
+    return safari ? "ios_safari" : "ios_anderer";
+  }
+  if (/Android/.test(ua)) return "android";
+  return "desktop";
+}
+
+// Kleine Symbolgrafiken, damit man sie auf dem eigenen Gerät wiedererkennt
+function SymbolTeilen(){   // iOS: Quadrat mit Pfeil nach oben
+  return <svg width="17" height="21" viewBox="0 0 17 21" fill="none" aria-hidden="true"
+    style={{verticalAlign:"-5px",margin:"0 3px"}}>
+    <path d="M8.5 1.5v11" stroke="#10535B" strokeWidth="1.6" strokeLinecap="round"/>
+    <path d="M5 5l3.5-3.5L12 5" stroke="#10535B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3.5 8.5h-2v11h14v-11h-2" stroke="#10535B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>;
+}
+function SymbolMenue(){    // Android: drei Punkte übereinander
+  return <svg width="6" height="20" viewBox="0 0 6 20" aria-hidden="true"
+    style={{verticalAlign:"-4px",margin:"0 5px"}}>
+    <circle cx="3" cy="4" r="1.7" fill="#10535B"/>
+    <circle cx="3" cy="10" r="1.7" fill="#10535B"/>
+    <circle cx="3" cy="16" r="1.7" fill="#10535B"/>
+  </svg>;
+}
+
+function HomescreenKarte({onClose}){
+  const art = geraeteArt();
+  const P="#10535B", TINT="#E6F0F1", LINIE="#D6E2E3", GRAU="#5C6660";
+  const istMac = /Mac/.test(navigator.platform||"");
+
+  var schritte;
+  if (art === "ios_safari") {
+    schritte = <p style={{margin:0}}>
+      Tippen Sie unten in der Leiste auf das Teilen-Symbol<SymbolTeilen/>
+      und wählen Sie <strong>„Zum Home-Bildschirm"</strong>. Die App erscheint dann
+      wie eine normale App auf Ihrem Startbildschirm.
+    </p>;
+  } else if (art === "ios_anderer") {
+    schritte = <p style={{margin:0}}>
+      Auf dem iPhone und iPad klappt das nur über <strong>Safari</strong>. Öffnen Sie diese Seite
+      einmal dort, tippen Sie unten auf das Teilen-Symbol<SymbolTeilen/>
+      und wählen Sie <strong>„Zum Home-Bildschirm"</strong>.
+    </p>;
+  } else if (art === "android") {
+    schritte = <p style={{margin:0}}>
+      Tippen Sie oben rechts auf die drei Punkte<SymbolMenue/>
+      und wählen Sie <strong>„App installieren"</strong> beziehungsweise
+      <strong> „Zum Startbildschirm hinzufügen"</strong>.
+    </p>;
+  } else {
+    schritte = <p style={{margin:0}}>
+      Speichern Sie sich diese Seite als Lesezeichen
+      (<strong>{istMac ? "Cmd + D" : "Strg + D"}</strong>) — Sie bleiben angemeldet
+      und sind mit einem Klick wieder hier.
+    </p>;
+  }
+
+  return <div style={{width:"100%",maxWidth:640,margin:"0 auto 18px",background:"#fff",
+      border:"1px solid "+LINIE,borderRadius:12,boxShadow:"0 2px 10px rgba(16,83,91,.07)",overflow:"hidden"}}>
+    <div style={{background:TINT,padding:"9px 14px",display:"flex",alignItems:"center",
+        justifyContent:"space-between",gap:10}}>
+      <span style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:14,fontWeight:700,color:P}}>
+        Immer griffbereit</span>
+      <span onClick={onClose} title="Nicht mehr anzeigen" role="button"
+        style={{cursor:"pointer",fontSize:17,lineHeight:1,color:GRAU,padding:"0 2px"}}>×</span>
+    </div>
+    <div style={{padding:"12px 16px 14px",fontSize:13,lineHeight:1.65,color:"#1D2421"}}>
+      <p style={{margin:"0 0 8px",color:GRAU}}>
+        So öffnen Sie Fuss-Track Clinic künftig mit einem Tipp — wie eine App, ohne App-Store.
+      </p>
+      {schritte}
+      <div style={{marginTop:12,textAlign:"right"}}>
+        <span onClick={onClose} style={{fontSize:12,color:P,textDecoration:"underline",cursor:"pointer"}}>
+          Verstanden, nicht mehr anzeigen</span>
+      </div>
+    </div>
+  </div>;
+}
+
 function LandingPage({onSelect}) {
+  // Anleitung nur zeigen, wenn im Browser gestartet und noch nicht weggeklickt
+  const [zeigeTipp, setZeigeTipp] = useState(function(){
+    try{ return !alsAppGestartet() && localStorage.getItem(HOMESCREEN_MERKER) !== "1"; }
+    catch(e){ return !alsAppGestartet(); }
+  });
+  function tippSchliessen(){
+    try{ localStorage.setItem(HOMESCREEN_MERKER, "1"); }catch(e){}
+    setZeigeTipp(false);
+  }
   return (
     <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 16px 16px"}}>
+      {!alsAppGestartet() && <div style={{width:"100%",maxWidth:640,margin:"0 auto",textAlign:"right"}}>
+        <span onClick={()=>setZeigeTipp(true)} title="Auf dem Startbildschirm ablegen"
+          style={{cursor:"pointer",fontSize:11,color:"#5C6660",textDecoration:"underline"}}>
+          ⌂ Zum Startbildschirm hinzufügen</span>
+      </div>}
+      {zeigeTipp && <HomescreenKarte onClose={tippSchliessen}/>}
       <div style={{textAlign:"center",marginBottom:14}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginBottom:16}}>
           <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADIAMgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7Ifg9cfhSgZHNBHPf86Og4oELgUmKBzS0AGKMUUUALikIozRQAYoxS0lAABScZxXhn7QXx/t/h5rKeGdD06LUtbMayTNO5ENsG+6CByzEc4yABjnmvnHxF8dPib4u1MXMev3GlRLhUtdNYwxrjqTyWYk56k1hOvGDsdNPCzmr9D9Ahg9KWvh3wj+0Z8RvD6S2d69vruWD79QUl4x3AZCDg++cV9N/Bv4uaB8SoLiOzilsNQtsGW0nZSSp/iQj7wzwe44z1qoVoz0QqmGnTV3sejYoNGaK1OcBRiiigBcUYoFJQAUUUtACUlLRQAjdOlFB6UUAFGKDRnigBaKKKADvRRRQIKBRXkf7SXxrtPg7pelyPoc2r3uqNKtvEs4iRfLC5LNgn+McAevSgaPXc1neIdQ/svQdQ1IJ5htLWWcIP4tiFsfpXzz4X8SftF/Eiwj1azu/C3gTR7gZtpPsrXdzKv8AeCvkY9Cducccc1yPxC1zU/DcVza6n+0R4m1fVVRg9tpun26Qhum1mztA55Ayfak3YpJs+aPF/iCe+8T3F5eztcXcsrymcnd5wdi6tn6Nj8Kk0m5mju2mgwiOdwDHoepH55/OoZ5J9NV5bS/guUTLFZrZVYjOTgiiz13zL9oNQmFiFBBJQtg+h9K5alNyd0d9KuoR5ZHSJJfQCadlgmEuBlHBIGMdKsaBrU2la1BeaJczW15AwaB0bDiTIwfz/SseBnkijke4VS6BjiMnAPbAI/Un6VoabaW0tzC51IxSMdpY2qZH49ahUdb3NPb3WiP0n8M6h/avh7TtTICm7tYpyB2LoG/rWkBXzNotl8Tbbwx/anw3+LNr4otLOAD+z720WNwFX/VqTuCnAwAwUHjkVv8A7Pnxo1rxv4oXw5rcGns76e15FPApjk4KcOmSOQx5GPumu1M8to96oopBTELRmiigAozRRQAUhpaSgBpNFDcUUDHHrQKRuDQKBC0tJRQIWiiigAr5h/bU8OXPjXxd4I8Kaaha+uLDWLhF67jDbrIi/UuoGfevp6vlP9rjxJq+hfGTw+2i2hnuh4au4/MDY+zJNKEeT67FYD3YUDR5Xqnxq8SSfDXT/DlleJbwLbCBpYV2T4CgeU5HTbyOME9/fySa4kmfz3bGMBgT0FZvisx3WrSzI6B3bLPt2kn396TRPDl9q86xadFdajKPvRQoT+o4H41zV3GN3J2R3YeMnpGJpEwz3MawOkrp8yoOdzds/wCyDyT7Y71bfw9BM8MMkYLSws5cj5ic8kn1zXVaP8J/GqQJNZ6FFAyncBLcxq5B6qeefbPStc/D/wAfy3UDDw7Krxq0ZPnR7eSDnO7p1rzXmWE2VRaeaO+OEqq7lHc870KZbWQ6LqzfZ54ziKR+FkTtW1LaMWBh+bJ+UrzgetdtqXwU8Z6rHHLeQ6UxQHbE90cj8QuP1rjPEPw21/wzE0mq6fqFhbg83cE5kiH/AHySB+OKdPMcHWlaNRX9SXh8RTW10b3g7xF4i8MXMl7o09xbyKhUyEEJgjB354K89D+HNemfCp9B0DxL8J/FGjSp5097daBrzEbWMk6lrfPqAAQD7H0r55israKVZft15eYOVMxLAe4rRl1TUtItI77Tgzw293b3kqZ+48MgdZAPb5gfZq9KnUV7HFVotxcmfqCOnvS1V0q8j1DTba+hOYrmFJkPqGUMP51aroOEKKKKBBRRSUALSGimMc0DFaimk9qKBjnPNIDjvQ3WkoAfmlpo606mIWiikpCFzXyN+2frdtb+JZnt2RLhNPjspXHMhwzSAL6D95yTX1zjivh39t62mh8YXTteqLVmRwgX5i5UEgn0FNaJsuCuzw7wToZ8Q60tqB8md9w/Uqvpk9zX0/4M0Sx0jTo7Wxto4IlHCouPxPqfevOvg94dGl+FbO/li2z6j+/5HIQ/dz+HP4169pcZEa/KcfSvz7iCvOVX2beh9jl1OMad1ubNmg2itO3jGRwKz7ZSoGQR9RWlAwGOa+fpQV9TqqMvRwoQOBVe7t42VkdFdGGGBGQR6EVcgIZePxqC6ntgdrXECn0Mqg/zr0K1CMqeiOSM2panzj8bfAU3h+Ua1oMZOkTybZ7YNgW0h6Fc/wADHjHY8dCK868OTWo1VIb9GED/ACSo6nlTwR+VfYWsada6rptzpl/EJbW5iMcinupH+SD618ieI9GvPC/ja40G8k3tbzARu5K+bGeVYH3BH45r6Hh/MJVl7KprKP4r/gHHjaKScl1PvL4C6rHqnwq0MxiQfY7cWRD/AHv3Xygn6qFP413deZfs2TQSfDhYYY0jNtdyRSBTkFtqNn8iB+FenV9efNytcKSiloICkFLSd6BgTUZBNSdaZ0NMBMEUUNzRSGPfrSAUNQKAF7ilpCKXtTJCiilFIAFfFP7eekm38TLeRwSOby2WYszjZGFxGxA9SdtfZer3YsNLu74ruFvA8xHrtUnH6V+enxI1XUPFH2+91BnuL+8miDOTk4aVflHsOwrmrYmNKcYPeR24bCyqxlUW0T0Hxt/a1jp2jaToAgiuDaohuJfuQKEHzY7sew+tcVe+F9RRvNuvGN9cXLcsQGxn/vqvQvHOm6lqGp3Vrps629xFD5cUjLuCkD0yK84+Ofg+y8O+BtCl0myOo3V6Xkv9TuMyTSygKQgJ4ReWbauM474rw5w9viJqMlG1k9Lv8eh7cZ+xpRvFu/mdL8OP7Y0XxEk134guLmz2MjwSF+SR8pwxIGOua9qsrlpkDIcg185/BixvtR8LahqSW13a2li9tbiOeYyB5WVvMKZA2jhW2c43V758N2+06V++PzR5X8q+dzXDShWs2mz0aFSM6POlYxPiTomoeIZLMQa5PYW9uH82KNCwkJxg9RyMY5z1rho9A8I2lybbVPEtx5wOCrXcEbA/7p5r2LV9Gm1LT72KDLSm3laKMMV82QISiZHOC2AcdRx3r5G+HlnrJ8c2+kL4Ysru8n1KDZJPDuZAHxJGU+6VYE7w6nAB6V15TQrV6N3V5YrZK1zDE1oQdlC76n0/4C0i40iaP+zdfl1DRpAc211hmiPZo3HvwVIx+Ned/tM6PK/jfRL60jRpLu18sow4dkfj8cMBXsNn4K0Twp4g1E+Grm4h0qcqyacJd1tbyc7vLB5APHGcDJwK5j4y6Le6re+Drqyt3lMGp7JmVciNCA25vQfJ+oqcJU+rY2XPK/L12v6kVP31Jcqtfoeufs4aa2mfDCzSS3a2mnmeeWF+HQnAww6g8Zwa9KryT4c6jqEXieOK4cMlzlGwMDoSOPYivWlORmvqcmzP+0cP7VqzTs1/XqfP5hhHha3Je6eotFFFeqcAUlLRQAh4ph5NPNNI64pjQw0Up4opDHnrikFK3Wm55oAd1NLTQeacKYgHSiiikIivreO7sp7WbmOaNo3+jAg/zr4N1DSbvw18RZdLv4GBsrgo5xx8p4b6EYP419715h8aPhPB45C3+nXkenasqeW0joSk6DoGxyCOxGfT0rgx2GdXlnHeJ6WXYtUXKEtpHkGr3Cw+LLoZ+8+a11t7K/s2tru2huIJCC0UiBkY9iQeK5X4iWl5oHi4Wl8yNcRRokrJnazBRkjPY9av6ZrEUUAd24x3r5PNqTjiJTjpc+pwLjLDxRq6vDZ6bo7JBBDb20QJWKNAqgn0A4yal+Hnm/2YZApG9i2K5TxhdXuqaeFsGwysGA9cVJ8PtZ8UW0YsW0yQ44WU9Me9eXKnalzN63Om/wBlHqlqFljYE9OtEen2q3LXKW0Amf70ojAdvq2MmqWmQaiIXN+8O5vuiMEYHvmq0uqmyuRbTPhm+5n+KsaU4QspIxcHJvlZqXL+W2AeKluHLWEKKuS5NY0l0ZDn1rrND8LX2vWdrcw6mllBEWWQGDez5weDkAY9811YahPEqpChG7a/VGWJlChGMqjsjQ8A6eJtbW5UfJaoSzf7bDAH5ZP5V6KBgVS0bTLbSrFLO1UhF5LMcs7HqxPcmrtfc5TgPqOGVN7vV+p8ljcT9YquS26C0UUV6RxhRRSUAFITjNKaMCmMiNFKTnjFFIY5uDSDmlb71AFABtp3agUUxBS0lFIQtFFFAHgv7UXheVmtfE1tGWTAhuCB91h90n6jj8BXm3haWwurB4LqJJAy7WBr641fT7PVtMuNOv4VmtrhCkiHuD/X3r5V+I/gfVPAGtGZA9xpMz/uLgDj/db0Yfr2r57OcA6q9pE+hynGqK9lI47TdE1bSNeu4v7YvrvSnw1sqkGa355U5++uDweoxXqeg6dYpHEW8aXMe44KtCoYfmtcrpscepRrIrfMO4ro7DSbz5QtycfrXhyxlNaVIJv01Pb9imrqbX4r8Te1KGxii2WurazqMrY2/OI4yf8Ae2j9Kw9H8NLpOmqdS1G61bUZH8ya6uXyc9lQdFUdAB+OTW7aWTwjfKzMwH3mOTVHVLtd2zqc4AHUmvNxmJ9r7kIJX7LX/MqnBRekm/X+rCQBp7mOGFSzuwVVHUk9q948Oaf/AGZo9vZnG9F+cjux5Ncd8M/B0unldZ1ePbdkZggP/LIH+Jv9r27fWvQhX1+QZbLCUnUqfFL8EfN5vjY15qEHovzDvS0UV9AeKFFJRQAUUtFACYzTSSOlO7U04pjGZ55opSBRSGK/3qUZzSPy1KvWgBehpaRuaWmIWiiikIBQaKDQMSq2qWFnqVhLY39tFc20y7ZIpFyrCrVI3SgEfHXjVofBPjvVNOslkFnDcMqRs2cL1HP0Per2m/EDStqs9wIz6NVX9o1FPxK1MxFWDupypyM7Bn9a8/0nw79rmDzZIPavic1wtF1W3p6H2mAqSlSinroeqXHxCtbkeTp4e6lPGEHA+pq94bjvbjUIb68O0hgyoO1ZXhPw/b26qFiAx7V3EFr5aqVGMdK8B1Y0Zc1PddTumlazPd7SQSwRyg5DqGH4jNTV5vH8SfDHhXw7by+K9S/s2EOIFuJIXaMH+EMyg7fTJwOK7nQ9X0zXNMh1PR9Qtr+ynXdFPbyB0cexFfpuFxEMTSjVpu6Z8FXpSozcJdC/RSUtdBiFFFFABRSUtACGmkZp1GaYyM5ooc80Uhit1pcd6U4zTeaAHgUUA8UUxC0UlLSEFITiuQ+JnxH8LfD7Sje6/fqsrLmG0iw0830XsP8AaOBXx38Wf2o/GPiR5bDw03/CP6e2VH2dszuP9qTqP+A4/GtIUpTE5JH2D8QPib4L8Dxka9rUMd0RlLOH95cP9EHI+rYHvXyf8eP2m/EXiDQbjSfCML6BaXj+Ss6y5u5EPU7hxGCP7vPPWvB57yeSFprq4kmurtsSSOxLEd8k89KveE9FbxZ4mgsI2AW3jMvPtirxEYYahKrLoisOnXrRprqz16wtYBomiWNuS629jHGWPJZsZYn6sSa63QbNY1XIqr4T8NXFpIkU3zKiYBrpEt0guRHkCvy/MsZGtUbiz7/CUfZQUTd0hAMYHFWfFPiHSPDGhyarrN0tvbpwO7yN2VV6sx9K5nxb4t0zwdobalfbj/DDGOGlfsq/49hXzB478Y6x4x1htR1Wb5VyLe3Q/u4F9FHr6nqf0rpyHJKmZNylpTW77+S/rQ87NMfHC6by7f5nRfE/4p634xkltIWfTdGzhbSNvmkHYysPvH26D361B8Jvit4u+HGpebod5vs5HDXNjPloJvqOzf7Qwa4T5vx/lTT8vev07CYKhg6XsaMUo/197Pj61adefPN3Z9/fC79o/wADeLzFZapIfDupvgeVduPJc/7MvA/76A/GvaI5EkRXRlZWGVIOQR6ivyajuGTpz7GvTfhZ8bfGvgOSOHTtRa504H5rC7JkgI/2edyfVSPpTnhE9YGSq20Z+jVFeQfCL9oDwb46aHT7qUaJrMmFFtcyDy5W9I5OAf8AdOD7GvYMg9K4pwlB2kjZNNXQUh6UtJSAQU0k05uKYMmgaEY9qKUjFFIY4jBopW60g9aBDqWkopiFrm/iZ4ssvBHgbVvE98A0djbtIseceY/RE/FsD866Svlz9v7xKbbwnp3hiGQg3Ba7nUd1B2J+pf8AKqpx5pWFJ2R8m+OPFOteK9budV1i8e5u7lzLO5P8R7AdlUYUDsAK5+3jzICa1Usy0BmI+9k1S27Ca9VRscjkR30paRcHhRxXZfAyYx+PIUzgyxOv6Z/pXES85J9a6H4ZXYsfHekTscJ9pVGPs3y/1rjzKk6uEqxXWL/I68DU9niKcvNfmfXVi7LBtHX1rO8Qanpvh3S7jWtVmEcMK5J6sxPRVHck9BVm5vLTS9Omvr+dLe3gQvJI5wFAr5j+KXji68ZazuXfDpduxFpAeP8Agbf7R/QcetfmGSZNPM63aC3f6LzZ9vmeYxwVO/2nsij498Waj4v1x9SviUjXKW1uDlYU9B6k9z3P4VhxAhs/xfypijHJ69qenFfrVChToU1TpqyWx8BUqzqzc5u7Y5ztHFQMSTzUknNEURc1rYi4ka7jgVfWzIiV2BLOcIo6sf8ACpLG1AcM/CjmrunSrczPdEfL9yIeijv+PWi9gUb7lBrea1IYOQevy8Yr6Y/ZZ+OGsQ63beEfF+py31heMIbO7uX3SW0p4VGY8lG6c/dOO2a+frmMOlUrCQ2t8pyVUnqDyPeiUI1Y8rDWDuj9TgeKWuD+Bni0+M/hxpuqTSh72Jfs176mVAAW/wCBDa3/AAKu7WvFlFxbTOxNNXQj9KROtOYcU0AUhg9FI/XrRSGPagUGgUCAHmlzRR2piA9K/Pr9sXxKNf8AivrVtHJuhslWyi5yP3Y+b/x8tX3b4z1qHw54T1TXZyAljavNg/xMB8o/E4H41+WPjjUrjUPEVzcuxknmlZmPXc7HJ/MmuigrJyInq0jo54hF4es2xzJArn8RXLXLfMa6vxfKtnBb2AIJghSM/UKAa48ncea9M5BHGY2+madbSvBcRzRnDxsGU+4ORQOTjseDUAOw4bII46Umu40+x6B8UviFeeLXjsIA9vpsAUtHnmaTHLN7A5wPxrh0/XtTAQxD5ySMH8O9PQc1z4TB0cHSVKirJGuIxFTEVHUqO7ZKtPHtTEGasQwlmrrMRkcRc1o2lsAMnpUltbgYJFF7cLAm0HmluUlbVlXV7jy7cwxnl/lyKSxuBGioOABisq9n3Tpk9MmnQze9T1HdnVwSh09ar3kPJYVV0ubPBNajKHShOzKeqPf/ANirxn9j8TXPhe6lxHqMeYwT/wAtkBK/mu4fUCvr9GzX5ieHdXvPDfiOy1qwkKXFpMsqEHupB/pX6ReB/ENj4r8K6b4h05w1tfQLKAD9w/xKfcMCPwrixtO0lNdTSjLTlNzimU8dKjbqRXEbICMUUEcZopDJDQKRjSDJNAhWznigdKWimB80ftr+PZdMsrHwhaXOyO5jNxqAGOV/5YqT2G5S34LXxToBjuvF1rJPgxxyGdge+wFh+oFfWv7evw/1eeKHx9o9tJc2aQLbaqiAkwhSdkuP7mDtJ7YU9CcfHGhTGLV4jnhg6Z/3lIrrhKKjFIycXds09X1B77UZZXbILGq4IqnkrKfc1IHNdkancwcC1kdaXIx1qr5h9aQyH1q+dC5GWd2Tmgy7GwFzxmq6PTjh3JPbilzdg5e5ehmBPKfka1LRkIHBFYsAGfvMPxrUgkwnEn5rVXEjRlnWOI7Qc1g3cru5LZ/Gp7qVjxlT+dUpDnsBTG3cy7+VluR/u1YtZNwBqrqg/eIfaiyfjGa4lNqq0zdxvBHRadNhwM10ED7gK5GzlAYHNb9jdZHyDd7ngV1GSLtymVzivoz9iX4gGz1O68AajPiG6LXGnlj92UD50H+8Bke6n1r50KtKnzsSPReBVGK+XS9RhuoLgRSxOGVlbBUg5BB9aJxVSDiwu4yuj9UENOwDXH/CDxX/AMJr8N9E8TFCj3tvmUEYBkUlHI9iykj611wPFeM9HZnXuDACikY0UhgxpVPpRRQAFuaCxoooA5H4wauuj/DfWrskbntzAgPOWf5f5E1+cuu+FrCXUDd2B+xuJN2wDMZ57Dt+FFFeNmGJq0a0eR20Pby3DUq1F86vqcZcYGxsc7nU/gaTIoor6uOqPnGrMaTSE0UUxApNSRsefqaKKcXqDRahNWkY4oordGLGuxzVeRuTRRTYIzNTPK1BCxV8ZoorzaulY7IfCaFu1d74K8FeKteZPsOmvHC3/Le4yiY9h1NFFebn+aV8vwynRtd9zuynA08XVaqXsj2Pw/8AA5fJSXW9Qlum7xRjZH+Q5P4mui0z9mzwl4t8V6fLe3c9jY2MTG5tLdcNeDcNq7/4AOckAkgjGOtFFfB5dm+MxOZ0/a1G076dNux9BjMLRpYSahFL+u59VaPp1jpGlWul6ZaRWdlaRLDbwRLtSNFGAoHoBV0H1oor9DPlAJyaKKKYH//Z" style={{width:56,height:56,borderRadius:12,objectFit:"cover"}} alt=""/>
