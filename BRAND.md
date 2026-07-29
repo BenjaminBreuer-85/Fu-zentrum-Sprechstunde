@@ -21,15 +21,26 @@ Regeln: Petrol ist die einzige Markenfarbe — kein zweites Blau/Grün daneben. 
 
 ## 2. Typografie
 
+**Marketingseiten** (Landingpages, Unterstützen-Seite, Rechtsseiten):
+
 - **Überschriften/Display:** Source Serif 4 (600/700) — Fallback: Georgia, serif
 - **Fließtext/UI:** IBM Plex Sans (400/500/600) — Fallback: Systemschrift (system-ui)
-- **Codes/Zahlenwerte (OPS, Beträge):** IBM Plex Mono (400/500) — Fallback: monospace
+
+**App-Oberflächen** (`fusstrack.html`, `app.html`):
+
+- **Überschriften:** Source Serif 4 (600/700) — lokal geladen, damit die App als dieselbe Marke erkennbar bleibt
+- **Fließtext, Bedienelemente, Formulare:** Systemschriften (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`). Das ist eine bewusste Entscheidung zugunsten der Ladezeit auf Mobilgeräten und keine Abweichung.
+
+**Überall:**
+
+- **Codes/Zahlenwerte (OPS, Beträge):** IBM Plex Mono (400/500) — Fallback: `ui-monospace, monospace`. Liegt die Datei in einem Repo nicht lokal vor, ist `ui-monospace` zulässig; nachgeladen wird nichts.
 - Schriften stets **lokal gehostet** (woff2 im Repo), niemals von externen Servern (DSGVO).
+- Dasselbe gilt für **alle übrigen Ressourcen**: Programmbibliotheken, Skripte, Symbole und Videos werden ausschließlich lokal ausgeliefert. Keine CDN-Einbindungen, keine iframes fremder Anbieter. Ausgenommen sind allein die funktionsnotwendigen Verbindungen zur Supabase-API und zum Paddle-Bezahlvorgang.
 - Keine weiteren Schriftfamilien, kein Kursiv als Dauerstil, Fettung sparsam.
 
 ## 3. Logo & Bildsprache
 
-- **FT-Icon (finale kleine Variante):** weißes Serifen-FT als Pfadgrafik auf Petrol #10535B, stark abgerundetes Quadrat. Einsatz: Favicon, Homescreen-/App-Icon, Profilbilder. Quelldatei icons/ft-logo-master.svg. Eine große Bildmarke ist bewusst offen; bis dahin tragen die Wortmarken in Source Serif die Marke. Fuß-Motive wurden geprüft und verworfen.
+- **FT-Monogramm:** weißes Serifen-„FT" auf Petrol, abgerundetes Quadrat, feiner Innenrahmen. Quelldatei: ft-monogramm.svg. Nicht verzerren, nicht umfärben, Schutzraum ≈ Breite des „F".
 - **Wortmarken:** „Fuss-Track" (Patienten) und „Fuss-Track Clinic" — Schreibweise immer mit Bindestrich und Doppel-s, „ß" nur dekorativ zulässig, nie in Domains/Dateinamen.
 - **Signatur-Motiv:** der „Baustein" — modulare Karten/Chips mit Petrol-Linkskante (siehe Hero der Clinic-Seite). Wiederverwenden, wo Modularität gezeigt wird.
 - Fotos: echte Screenshots und echte Personen statt Stock-Material; klinisch-aufgeräumt, keine Symbolbild-Klischees (keine Stethoskop-auf-Tastatur-Fotos).
@@ -63,7 +74,7 @@ Regeln: Petrol ist die einzige Markenfarbe — kein zweites Blau/Grün daneben. 
 
 ## 7. Wo diese Datei lebt und wer sie durchsetzt
 
-- Identische Kopie in **beiden Repos** (Toolbox + Fußtrack), Master ist die Toolbox-Version; Claude Code hält beide synchron.
+- Identische Kopie in **beiden Repos** (Toolbox + Fußtrack), Master ist die Toolbox-Version. Die Synchronisierung erfolgt **von Hand**: Wer den Master ändert, kopiert die Datei anschließend in das andere Repo und pusht beide.
 - **Claude Code (beide Projekte):** CLAUDE.md verweist verbindlich auf BRAND.md — jede UI-/Text-Änderung wird dagegen geprüft.
 - **Inhalte-Projekt (Patiententexte):** Abschnitt 5 „Sprache & Tonalität" ist Teil der Projektanweisungen.
 - **Claude Design:** Beim ersten Projekt einmal das Designsystem aus dieser Datei/den Landingpages anlegen und für alle weiteren Entwürfe verwenden.

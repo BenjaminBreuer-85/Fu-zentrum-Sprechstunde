@@ -31,6 +31,7 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js" crossorigin></script>
+<script src="lib/xlsx-style.min.js"></script>
 <script>
 /* qr-creator (MIT, https://github.com/nimiq/qr-creator) — inline-embedded */
 /*
@@ -322,6 +323,32 @@ window.TOOLBOX_AUTH = {
     });
   }
 
+  // Nutzerpreise + Materialsätze aus Supabase nachladen (nach dem Login)
+  function ladePreise(client){
+    window._SB = client;
+    return Promise.all([
+      client.from("implantatpreise").select("*"),
+      client.from("materialsatz").select("*")
+    ]).then(function(res){
+      var pr = {}, ms = {};
+      (res[0].data || []).forEach(function(r){
+        pr[r.implantat_id] = {bezeichnung:r.bezeichnung, hersteller:r.hersteller,
+          artikelnummer:r.artikelnummer, preis:r.preis, eigene:r.eigene_position,
+          aktualisiert:r.aktualisiert};
+      });
+      (res[1].data || []).forEach(function(r){
+        var e = ms[r.eingriff_id] || (ms[r.eingriff_id] = {});
+        (e[r.variante] || (e[r.variante] = [])).push(
+          {implantat_id:r.implantat_id, anzahl:r.anzahl, _sort:r.sortierung||0});
+      });
+      Object.keys(ms).forEach(function(e){ Object.keys(ms[e]).forEach(function(v){
+        ms[e][v].sort(function(a,b){ return a._sort - b._sort; }); }); });
+      window._PREISE = pr;
+      window._MATSATZ = ms;
+      if (window._onPreiseGeladen) window._onPreiseGeladen();
+    }).catch(function(e){ console.warn("Preise konnten nicht geladen werden:", e && e.message); });
+  }
+
   function download(client){
     Promise.all(GROUPS.map(function(g){
       var dn=(DATEI[g]||g);
@@ -332,6 +359,7 @@ window.TOOLBOX_AUTH = {
     })).then(function(res){
       removeLogin();
       addLogoutLink(client);
+      ladePreise(client);
       var D={}; GROUPS.forEach(function(g,i){D[g]=res[i];});
       start(D);
     }).catch(function(e){
@@ -422,6 +450,81 @@ function coalBildText(v) {
 
 const OPS = window._DATA.opmethoden.OPS;
 
+
+// ============================================================================
+// SPEICHERN in Supabase (nur eigenes Konto — Row Level Security)
+// ============================================================================
+function preisSpeichern(id, felder){
+  var e = window._PREISE[id] || {};
+  var neu = Object.assign({}, e, felder);
+  window._PREISE[id] = neu;                       // sofort lokal wirksam
+  if (!window._SB) return Promise.resolve();
+  return window._SB.auth.getUser().then(function(u){
+    var uid = u && u.data && u.data.user ? u.data.user.id : null;
+    if (!uid) return;
+    return window._SB.from("implantatpreise").upsert({
+      user_id: uid, implantat_id: id,
+      bezeichnung: neu.bezeichnung || implantatBezeichnung(id),
+      hersteller: neu.hersteller || null, artikelnummer: neu.artikelnummer || null,
+      preis: neu.preis == null ? null : Number(neu.preis),
+      eigene_position: !!neu.eigene, aktualisiert: new Date().toISOString()
+    }, {onConflict: "user_id,implantat_id"});
+  });
+}
+// Standard-Materialsatz eines Eingriffs speichern (genau EIN Satz je Eingriff+Variante)
+function materialsatzSpeichern(eingriffId, variante, positionen){
+  var e = window._MATSATZ[eingriffId] || (window._MATSATZ[eingriffId] = {});
+  e[variante || "Standard"] = positionen.map(function(p,i){
+    return {implantat_id:p.implantat_id, anzahl:p.anzahl, _sort:i}; });
+  if (!window._SB) return Promise.resolve();
+  return window._SB.auth.getUser().then(function(u){
+    var uid = u && u.data && u.data.user ? u.data.user.id : null;
+    if (!uid) return;
+    return window._SB.from("materialsatz")
+      .delete().eq("user_id", uid).eq("eingriff_id", eingriffId).eq("variante", variante || "Standard")
+      .then(function(){
+        if (!positionen.length) return;
+        return window._SB.from("materialsatz").insert(positionen.map(function(p,i){
+          return {user_id:uid, eingriff_id:eingriffId, variante:variante||"Standard",
+                  implantat_id:p.implantat_id, anzahl:p.anzahl, sortierung:i,
+                  aktualisiert:new Date().toISOString()};
+        }));
+      });
+  });
+}
+// ---------------------------------------------------------------- Demo-Modus
+// Frei erfundene Rundwerte — niemals echte Einkaufspreise.
+const DEMO_PREISE = {
+  schraube_hcs_2_5:100, schraube_hcs_4_0:100, schraube_hcs_7_0:120, schraube_hcs_2_0:90,
+  schraube_ws_2_7:25, schraube_ws_3_5:25, schraube_ws_4_5:50, schraube_ws_3_5_klav:25,
+  schraube_kort_3_5:12, schraube_kort_3_5_klav:12, schraube_kanuel_7_0:60,
+  platte_lapidus:300, platte_ws_gebogen_4l:180, platte_mini_osg:280,
+  platte_drittelrohr_6l:30, platte_klavikula_ws_8l:300,
+  anker_faden_geflochten:200, anker_knotenfrei:150, bandaugmentation:500, anker_tenodese_4_75:300,
+  nagel_arthrodese_set:1500, nagel_humerus_prox:800,
+  membran_kollagen:950, knochenblock_allogen:350, k_draht:15,
+  fraeser_mis_2_0:45, fraeser_mis_2_2:45,
+  tep_lp_tibia:1900, tep_lp_talus:1800, tep_lp_inlay:700,
+  tep_mb_tibia:1000, tep_mb_talus_kurv:1000, tep_mb_talus_flat:1100, tep_mb_inlay:600, tep_mb_fixschraube:150,
+  tep_ax_tibia:1900, tep_ax_talus:1500, tep_ax_inlay:700,
+  tep_ax_schaft_basis:400, tep_ax_schaft_verl:350, tep_ax_talus_schaft:400
+};
+function demoAktiv(){ return !!window._DEMO; }
+function demoUmschalten(an){
+  if (an) {
+    window._PREISE_ECHT = window._PREISE;
+    var d = {};
+    Object.keys(DEMO_PREISE).forEach(function(id){
+      d[id] = {bezeichnung: (_ZUORD.KATALOG[id]||{}).bezeichnung || id,
+               hersteller:"Demo", preis: DEMO_PREISE[id], aktualisiert:null};
+    });
+    window._PREISE = d; window._DEMO = true;
+  } else {
+    window._PREISE = window._PREISE_ECHT || {}; window._DEMO = false;
+  }
+  if (window._onPreiseGeladen) window._onPreiseGeladen();
+}
+
 // ============================================================================
 // MATERIALSATZ — Positionen je Eingriff aus data/implantat_zuordnung.json,
 // bewertet mit den PREISEN DES NUTZERS (Supabase). Keine Preise im Code.
@@ -465,6 +568,26 @@ function MATPOS(eingriffId, variante, faktor){
 // (kein stiller Teilbetrag; die Aufrufer zeigen dann "unvollständig").
 // Materialkosten zu einem Abrechnungs-Eingriff (OP_STEUERUNG-Key).
 // Rueckgabe: Zahl | {unvollstaendig:true,…} | 0 (Eingriff ohne Implantate)
+// Platzhalter in OP-Texten aufloesen:
+//   {IMPL:<id>}  → Bezeichnung aus der Nutzerliste, sonst generische Bezeichnung
+//   {MATERIAL}   → komplette Materialliste des Eingriffs; ohne Materialsatz ersatzlos entfernt
+function textPlatzhalter(text, eingriffId, variante, faktor){
+  if (typeof text !== "string" || text.indexOf("{") < 0) return text;
+  var out = text.replace(/\{IMPL:([a-z0-9_]+)\}/g, function(_m, id){
+    return implantatBezeichnung(id);
+  });
+  if (out.indexOf("{MATERIAL}") >= 0) {
+    var pos = eingriffId ? MATPOS(eingriffId, variante, faktor) : [];
+    var liste = pos.map(function(x){
+      return (x.anzahl > 1 ? x.anzahl + "× " : "") + implantatBezeichnung(x.implantat_id);
+    }).join(", ");
+    // ohne Materialsatz: Platzhalter samt umgebender Satzreste sauber entfernen
+    out = liste
+      ? out.replace(/\{MATERIAL\}/g, liste)
+      : out.replace(/[^.\n]*\{MATERIAL\}[^.\n]*\.?/g, "").replace(/\n{3,}/g, "\n\n");
+  }
+  return out;
+}
 function implKostenFuer(opsKey){
   var m = _ZUORD.MAPPING_OPS && _ZUORD.MAPPING_OPS[opsKey];
   if (!m) return 0;
@@ -579,7 +702,7 @@ const EINZELPREISE = window._DATA.preise.EINZELPREISE;
 
 const ENDO_HTEP_IMPL = window._DATA.endo.ENDO_HTEP_IMPL;
 
-// Duokopf / Hemi-Endoprothese (zementiert) — Excel-Datenbasis: 2 Tuben Palacos R+G
+// Duokopf / Hemi-Endoprothese (zementiert)
 const ENDO_DUOKOPF_IMPL = window._DATA.endo.ENDO_DUOKOPF_IMPL;
 
 // Komponenten-Aufschlüsselungen (Einzelpreise aus Klinik-Materialkosten-Excel Sheet 2)
@@ -1952,6 +2075,12 @@ var _s = useState, _m = useMemo;
                   <div style={{fontSize:10,color:"#555",marginBottom:3}}>Bei Kombination mit einem dieser Codes entfällt die H-DRG-Fähigkeit:</div>
                   {best.ausschluss.triggers.map(function(t,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#C62828"}}>{t.code}</span> <span style={{color:"#555"}}>— {OPS_LABELS[t.code]||t.name||t.code}</span></div>;})}
                 </div>}
+                {/* Standardversorgung aufgeschlüsselt — interne Anzeige, nicht im Brief */}
+                {(function(){
+                  var m=_ZUORD.MAPPING_OPS&&_ZUORD.MAPPING_OPS[bestKey];
+                  return <MaterialsatzAnsicht eingriffId={m?m[0]:null} variante={m?m[1]:null}
+                            drg={drg} readOnly={true} fall={null} setFall={function(){}}/>;
+                })()}
                 {function(){
                   // Neues strukturiertes Format: best.hinweise = [{typ, txt}, ...]
                   // Override kann best.hinweise überschreiben via override.altHinweise
@@ -2382,6 +2511,145 @@ function OBSec({title,open,onToggle,active,onReset,children}){
 // (Komponenten-Tabelle + Summe + InEK-Ampel)
 // genutzt im UC-Bereich, Endo-Bereich (Duokopf) — analog Aufbau zum Sprechstundenbrief-Block
 // ============================================================
+
+// ============================================================================
+// MATERIALSATZ-ANSICHT — gemeinsame Darstellung für Sprechstundenbrief und
+// OP-Bericht. readOnly=true zeigt nur die Standardversorgung (Sprechstundenbrief),
+// sonst ist der Modus "tatsächliche Versorgung" mit Bearbeitung verfügbar.
+// ============================================================================
+function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fall, setFall, readOnly}){
+  const [suche, setSuche] = React.useState("");
+  // Entweder fertige Positionsliste (OP-Bericht, mehrere Eingriffe) oder ein Eingriff
+  const standard = React.useMemo(
+    () => positionen ? positionen : (eingriffId ? MATPOS(eingriffId, variante, faktor) : []),
+    [positionen, eingriffId, variante, faktor]);
+  const istModus = !readOnly && fall !== null && fall !== undefined;
+  const zeilen = istModus ? fall : standard;
+
+  const summe = zeilen.reduce((s,z) => s + (z.preis || 0), 0);
+  const fehlend = zeilen.filter(z => z.preis == null).length;
+  const summeStandard = standard.reduce((s,z) => s + (z.preis || 0), 0);
+  const standardVollstaendig = standard.length > 0 && standard.every(z => z.preis != null);
+  const delta = istModus && standardVollstaendig && fehlend === 0 ? summe - summeStandard : null;
+  const ampel = (drg && fehlend === 0 && zeilen.length) ? implAmpel(summe, drg) : null;
+
+  // --- Bearbeiten (nur tatsächliche Versorgung, nie gespeichert) ---
+  const setzeMenge = (i, n) => {
+    const neu = zeilen.map((z,k) => {
+      if (k !== i) return z;
+      const anzahl = Math.max(0, n);
+      return {...z, anzahl, preis: z.stueckpreis == null ? null : Math.round(z.stueckpreis*anzahl*100)/100};
+    }).filter(z => z.anzahl > 0);
+    setFall(neu);
+  };
+  const entferne = (i) => setFall(zeilen.filter((_,k) => k !== i));
+  const ergaenze = (id) => {
+    const sp = implantatStueckpreis(id);
+    setFall([...zeilen, {implantat_id:id, name:implantatBezeichnung(id), anzahl:1,
+      stueckpreis:sp, preis: sp == null ? null : sp,
+      hinweis: sp == null ? "Preis nicht hinterlegt" : undefined}]);
+    setSuche("");
+  };
+  // Suchtreffer aus der hinterlegten Preisliste (max. 6)
+  const treffer = React.useMemo(() => {
+    const q = suche.trim().toLowerCase();
+    if (q.length < 2) return [];
+    const ids = new Set([...Object.keys(window._PREISE||{}), ...Object.keys(_ZUORD.KATALOG||{})]);
+    return [...ids].filter(id => implantatBezeichnung(id).toLowerCase().includes(q)).slice(0,6);
+  }, [suche]);
+
+  const HEAD = istModus ? "#8A5A00" : "#10535B";
+  const HEADBG = istModus ? "#FBF3DF" : "#E6F0F1";
+
+  if (!zeilen.length && !istModus) {
+    return <div style={{marginTop:10,padding:"10px 12px",border:"1px dashed #D6E2E3",borderRadius:8,
+                        fontSize:11,color:"#5C6660",background:"#FAFAF7"}}>
+      keine Materialkosten hinterlegt
+      {!readOnly && <span onClick={()=>setFall([])} style={{marginLeft:8,color:"#10535B",textDecoration:"underline",cursor:"pointer"}}>
+        tatsächliche Versorgung erfassen</span>}
+    </div>;
+  }
+
+  return <div style={{marginTop:10,border:"1px solid "+HEAD,borderRadius:8,overflow:"hidden"}}>
+    <div style={{background:HEAD,padding:"6px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,flexWrap:"wrap"}}>
+      <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>
+        {istModus ? "🔧 Tatsächliche Versorgung" : "📦 Standardversorgung"}
+      </span>
+      <span style={{display:"flex",alignItems:"center",gap:8}}>
+        {fehlend === 0
+          ? <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{summe.toFixed(2)} €</span>
+          : <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>unvollständig — {fehlend} ohne Preis</span>}
+        {!readOnly && <span onClick={()=> istModus ? setFall(null) : setFall(standard.map(z=>({...z})))}
+          style={{fontSize:10,color:"#fff",textDecoration:"underline",cursor:"pointer"}}>
+          {istModus ? "zurück zur Standardversorgung" : "tatsächliche Versorgung"}</span>}
+      </span>
+    </div>
+    <div style={{padding:"8px 12px",background:HEADBG,overflowX:"auto"}}>
+      <table style={{width:"100%",fontSize:11,borderCollapse:"collapse"}}>
+        <tbody>
+          <tr style={{fontSize:9,color:"#5C6660",textTransform:"uppercase"}}>
+            <td style={{padding:"2px 4px"}}>Implantat</td>
+            <td style={{padding:"2px 4px",textAlign:"center",width:70}}>Anzahl</td>
+            <td style={{padding:"2px 4px",textAlign:"right",width:80}}>Einzelpreis</td>
+            <td style={{padding:"2px 4px",textAlign:"right",width:80}}>Summe</td>
+            {istModus && <td style={{width:24}}></td>}
+          </tr>
+          {zeilen.map((z,i) => <tr key={i} style={{borderBottom:"1px solid rgba(0,0,0,.05)"}}>
+            <td style={{padding:"4px"}}>{z.name.replace(/^\d+×\s*/,"")}</td>
+            <td style={{padding:"4px",textAlign:"center"}}>
+              {istModus
+                ? <input type="number" min="1" value={z.anzahl} onChange={e=>setzeMenge(i, parseInt(e.target.value||"0",10))}
+                    style={{width:52,padding:"2px 4px",fontSize:11,border:"1px solid #D6E2E3",borderRadius:4,textAlign:"center"}}/>
+                : z.anzahl}
+            </td>
+            <td style={{padding:"4px",textAlign:"right",color:z.stueckpreis==null?"#8A5A00":"#1D2421"}}>
+              {z.stueckpreis==null ? "—" : z.stueckpreis.toFixed(2)+" €"}</td>
+            <td style={{padding:"4px",textAlign:"right",fontWeight:600,color:z.preis==null?"#8A5A00":"#1D2421"}}>
+              {z.preis==null ? "kein Preis" : z.preis.toFixed(2)+" €"}</td>
+            {istModus && <td style={{padding:"4px",textAlign:"center"}}>
+              <span onClick={()=>entferne(i)} title="Zeile entfernen"
+                style={{cursor:"pointer",color:"#8A5A00",fontWeight:700}}>×</span></td>}
+          </tr>)}
+          <tr style={{borderTop:"2px solid "+HEAD}}>
+            <td style={{padding:"4px",fontWeight:700,color:HEAD}} colSpan={istModus?4:3}>Materialsumme</td>
+            <td style={{padding:"4px",textAlign:"right",fontWeight:700,fontSize:12,color:HEAD}}
+                colSpan={istModus?1:1}>{fehlend===0 ? summe.toFixed(2)+" €" : "—"}</td>
+          </tr>
+          {delta !== null && <tr>
+            <td style={{padding:"4px",fontSize:10,color:"#5C6660"}} colSpan={istModus?4:3}>
+              Abweichung zur Standardversorgung ({summeStandard.toFixed(2)} €)</td>
+            <td style={{padding:"4px",textAlign:"right",fontSize:11,fontWeight:700,
+                        color: delta>0 ? "#C62828" : delta<0 ? "#2E7D32" : "#5C6660"}}>
+              {delta>0?"+":""}{delta.toFixed(2)} €</td>
+          </tr>}
+          {ampel && <tr>
+            <td style={{padding:"4px",fontSize:10,color:"#5C6660"}} colSpan={istModus?4:3}>
+              InEK-Referenz {drg}</td>
+            <td style={{padding:"4px",textAlign:"right",fontSize:10,color:"#5C6660",fontWeight:600}}>
+              {ampel.soll.toFixed(2)} €</td>
+          </tr>}
+          {fehlend>0 && <tr><td colSpan={istModus?5:4} style={{padding:"6px 4px",fontSize:10,color:"#8A5A00"}}>
+            {fehlend} von {zeilen.length} Positionen ohne Preis — kein Deckungsbeitrag berechenbar.
+            </td></tr>}
+        </tbody>
+      </table>
+      {istModus && <div style={{marginTop:8,position:"relative"}}>
+        <input value={suche} onChange={e=>setSuche(e.target.value)} placeholder="Position hinzufügen — Bezeichnung eingeben…"
+          style={{width:"100%",boxSizing:"border-box",padding:"6px 8px",fontSize:11,border:"1px solid #D6E2E3",borderRadius:6}}/>
+        {treffer.length>0 && <div style={{position:"absolute",zIndex:20,left:0,right:0,background:"#fff",
+            border:"1px solid #D6E2E3",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,.08)",marginTop:2}}>
+          {treffer.map(id => <div key={id} onClick={()=>ergaenze(id)}
+            style={{padding:"6px 8px",fontSize:11,cursor:"pointer",borderBottom:"1px solid rgba(0,0,0,.04)"}}>
+            {implantatBezeichnung(id)}
+            <span style={{color:"#5C6660",marginLeft:6}}>
+              {implantatStueckpreis(id)==null ? "· kein Preis hinterlegt" : "· "+implantatStueckpreis(id).toFixed(2)+" €"}</span>
+          </div>)}
+        </div>}
+      </div>}
+    </div>
+  </div>;
+}
+
 function MaterialkostenBlock({items, drg, label}){
   if(!items || items.length===0) return null;
   const ist = items.reduce((s,m) => s + (m.preis||0), 0);
@@ -2544,7 +2812,7 @@ function OPBerichtApp(){
   const [tepTalCut,setTepTalCut]=useState("chamfer");// chamfer|flat
   const [tepInlaySz,setTepInlaySz]=useState("");// 1,1+,2,2+,3,3+,4,4+,5
   const [tepInlayMM,setTepInlayMM]=useState("");// 6-13
-  // Inbone Stem sizes
+  // Schaftgrößen achsgeführte OSG-TEP
   const [ibTopStem,setIbTopStem]=useState("");// 12|14|16
   const [ibMidStem1,setIbMidStem1]=useState("");// 12|14|16|18
   const [ibMidStem2,setIbMidStem2]=useState("");// ""|12|14|16|18 (optional 2nd mid stem)
@@ -2594,8 +2862,8 @@ function OPBerichtApp(){
   const [ucMeRegion,setUcMeRegion]=useState("");
   const [ucMeImpl,setUcMeImpl]=useState("");
   const [ucMeZusatz,setUcMeZusatz]=useState("");
-  // UC-Duokopf: Schaftauswahl (Mathys CCA = Standard, Excia T zementiert = Alternative)
-  const [ucDuokopfImpl,setUcDuokopfImpl]=useState("mathys");
+  // UC-Duokopf: Schaftauswahl aus den generischen Prothesentypen
+  const [ucDuokopfImpl,setUcDuokopfImpl]=useState("duokopf_zem");
   // H-DRG-Fähigkeits-Check: jeder Key kann null (nicht geprüft), true (erfüllt), false (nicht erfüllt) sein
   const [ucHdrg,setUcHdrg]=useState({});
   const [ucSec,setUcSec]=useState({rad:false,fib:false,fem:false,ell:false,kla:false,hum:false,sehn:false,me:false});
@@ -2605,7 +2873,7 @@ function OPBerichtApp(){
   const [radiusImpl,setRadiusImpl]=useState("aptus_11l"); // Default: einzige Option
   // ENDO (Endoprothetik – Knie/Hüfte)
   const [endoOp,setEndoOp]=useState("");
-  const [endoOpSystem,setEndoOpSystem]=useState("");// nur K-TEP: omnibot | columbus
+  const [endoOpSystem,setEndoOpSystem]=useState("");// nur K-TEP: omnibot | konventionell
   const [endoObPccl,setEndoObPccl]=useState("03");// "03" oder "4" – PCCL-Toggle im OB-Generator
   const [endoImplWahl,setEndoImplWahl]=useState("");// zentraler State für alle Endo-Implantat-Auswahlen (H-TEP, K-TEP, Duokopf, etc.) — kein Default
   // WS (Wirbelsäule – Kypho/Deko)
@@ -2649,6 +2917,8 @@ function OPBerichtApp(){
     // ============================================================
   // MATERIALKOSTEN – automatisch pro Eingriff
   // ============================================================
+  // Fallbezogene tatsächliche Versorgung — nur für diesen Bericht, wird nie gespeichert
+  const [fallMaterial,setFallMaterial]=useState(null);
   const materialKosten=useMemo(()=>{
     const items=[];
     const P=function(name,lief,preis){items.push({name:name,lieferant:lief,preis:preis});};
@@ -2977,11 +3247,11 @@ function OPBerichtApp(){
 
 
     // OSG-TEP → I05B (primär) / I43B (Wechsel)
-    if(tepType&&tepType.startsWith("primaer")) return [o,{label:"OSG-TEP primär ("+(tepType.includes("inbone")?"Inbone II":tepType.includes("vantage")?"Vantage":"Infinity")+")",ops:o,
+    if(tepType&&tepType.startsWith("primaer")) return [o,{label:"OSG-TEP primär ("+(tepType.includes("inbone")?"achsgeführt":tepType.includes("vantage")?"Mobile Bearing":"Low Profile")+")",ops:o,
       hdrg:"—",ebm:"—",kurz:"I05B gekürzt (VWD 1: Abschlag)",drg:window._fx("I05B 8.773 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Immer stationär. Volle DRG I05B (CM 1,923 = 8.773 €) ab 2 Belegungstagen (= 2 Übernachtungen).\nMVWD 6,2 Tage."),
       kodier:"5-826.00 (Implantation Endoprothese OSG).\n⚠ Nicht im AOP-Katalog, nicht auf H-DRG-Positivliste → nur stationär.\n⚠ Häufiger Fehler: VWD zu kurz → Abschlag! Mind. 2 Belegungstage für volle DRG.\n💡 MVWD 6,2 Tage — Belegungstage sorgfältig dokumentieren."}];
-    if(tepType&&tepType.startsWith("wechsel")) return [o,{label:"OSG-TEP Wechsel ("+(tepType.includes("inbone")?"Inbone II":tepType.includes("vantage")?"Vantage":"Infinity")+")",ops:o,
+    if(tepType&&tepType.startsWith("wechsel")) return [o,{label:"OSG-TEP Wechsel ("+(tepType.includes("inbone")?"achsgeführt":tepType.includes("vantage")?"Vantage":"Infinity")+")",ops:o,
       hdrg:"—",ebm:"—",kurz:"I43B gekürzt (VWD 1–2: Abschlag!)",drg:window._fx("I43B 10.819 €"),hdrg_n1:"—",empf:"n3",
       ziel:window._fx("⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen."),
       kodier:"5-827.10 (Wechsel Endoprothese OSG).\n⚠ Patient muss mindestens 3 Tage bleiben! Am 1. und 2. Tag nach OP gibt es bei Entlassung Erlöskürzungen."}];
@@ -3185,7 +3455,7 @@ function OPBerichtApp(){
   // ============================================================
   // ENDO_EINGRIFFE — Endoprothetik Knie/Hüfte
   // konstellation: Verweis auf ENDO_KONSTELLATIONEN[diag][id] – liefert DRG/CM/Erlös/Hebel automatisch
-  // opSysteme: optional, reine Info zur OP-System-Wahl (z.B. K-TEP Omnibot vs. Columbus) – ändert keine Codierung
+  // opSysteme: optional, reine Info zur OP-System-Wahl – ändert keine Codierung
   // hatImplantatAuswahl: bei H-TEP → ENDO_HTEP_IMPL-Vergleich anzeigen
   // ============================================================
   const ENDO_EINGRIFFE = window._DATA.endo.ENDO_EINGRIFFE;
@@ -3243,7 +3513,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   // UC full text for Word export
   const ucFullText=useMemo(()=>{
     if(!ucOp||!UC_TEXT_MAP||!UC_TEXT_MAP[ucOp])return "";
-    var t=T[UC_TEXT_MAP[ucOp]];
+    var t=textPlatzhalter(T[UC_TEXT_MAP[ucOp]]);
     if(ucOp==="tfna")t=t.replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___");
     else if(ucOp==="duokopf")t=t.replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken");
     else if(ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox"))t=t.replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben");
@@ -3269,14 +3539,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     const PZ=function(eingriffId,variante,faktor){ MATPOS(eingriffId,variante,faktor).forEach(function(x){items.push(x);}); };
     const PEND=function(name,lief){items.push({name:name,lieferant:lief,preis:null,hinweis:"Preis ausstehend"});};
     if(!ucOp)return items;
-    // Radius distal — winkelstabile Aptus-Platte (Standard, einzige Option laut Klinik-Vorgabe)
+    // Radius distal — winkelstabile Platte (Standard laut Materialsatz)
     // Radius distal — einfach/MFF mit Platte = identische winkelstabile Aptusplatte (Klinik-Standard)
     if(ucOp==="radius_einf_pl"||ucOp==="radius_einf_wsp"||ucOp==="radius_mehr_wsp"){
       var rImp=UC_IMPL_RADIUS_DISTAL[radiusImpl];
       if(rImp){
-        P("Aptus TriLock Radiusplatte 11-Loch + 6× TriLock 2.5×18 + 1× Kortikalis 2.5×18", rImp.lieferant, rImp.preis);
+        P("Radiusplatte distal, winkelstabil + Schrauben", rImp.lieferant||"", rImp.preis);
       } else {
-        PEND("Aptusplatte winkelstabil Radius distal","Medartis");
+        PEND("Radiusplatte distal, winkelstabil","");
       }
     }
     // Radius proximal
@@ -3298,7 +3568,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     // Klavikula
       if(ucOp==="klav_einf_pl"||ucOp==="klav_mehr_pl")PZ("klav_einf_pl","Kortikalisschrauben");
       if(ucOp==="klav_einf_wsp"||ucOp==="klav_mehr_wsp")PZ("klav_einf_wsp","winkelstabil");
-    // Duokopf — Schaftauswahl Mathys / Excia (Komponenten-Aufschlüsselung aus zentraler Struktur ENDO_IMPL_KOMPONENTEN)
+    // Duokopf — Schaftauswahl (Komponenten aus ENDO_IMPL_KOMPONENTEN)
     if(ucOp==="duokopf"){
       var dkComp = ENDO_IMPL_KOMPONENTEN[ucDuokopfImpl] || [];
       if(dkComp.length>0){
@@ -3307,23 +3577,23 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         PEND("Duokopfprothese – Schaftauswahl ausstehend","–");
       }
     }
-    if(ucOp==="tfna")PEND("TFNA Nagel (Stryker)","Stryker");
-    // Humerus proximal — 6 Optionen via Implantat-Auswahl (PHILOS, Targon, WINSTA, Königsee)
-    // humerus_subcap_wsp: alle Plattenoptionen + Targon (Anwender wählt)
+    if(ucOp==="tfna")PEND("Femurnagel proximal","");
+    // Humerus proximal — Implantat-Auswahl aus den generischen Typen
+    // humerus_subcap_wsp: alle Plattenoptionen (Anwender wählt)
     // humerus_schaft_targon: Targon-Default
     if(ucOp==="humerus_subcap_wsp"){
       var hImp=UC_IMPL_HUMERUS_PROX[humerusImpl];
       if(hImp){
         P(hImp.l, hImp.lieferant, hImp.preis);
       } else {
-        PEND("Humerusplatte/Nagel proximal — Implantat wählen","DePuy Synthes/Aesculap/Marquardt axomed/Königsee");
+        PEND("Humerusplatte/Nagel proximal — Implantat wählen","");
       }
     }
     if(ucOp==="humerus_schaft_targon"){
       // Schaft = klassisch Targon-Nagel; Implantat-Auswahl optional
       var hImp2=UC_IMPL_HUMERUS_PROX[humerusImpl||"targon"];
       if(hImp2)P(hImp2.l, hImp2.lieferant, hImp2.preis);
-      else PEND("Targon-Nagel Humerus","Aesculap");
+      else PEND("Humerusnagel proximal","");
     }
     return items;
   },[ucOp,olekOSE,humerusImpl,radiusImpl,ucDuokopfImpl]);
@@ -3435,7 +3705,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
 
     // TEP
     if(tepType){
-      const prothese=tepType.includes("inbone")?"Inbone II":tepType.includes("vantage")?"Vantage (Advita)":"Infinity";
+      const prothese=tepType.includes("inbone")?"achsgeführt":tepType.includes("vantage")?"Mobile Bearing":"Low Profile";
       const wechsel=tepType.startsWith("wechsel");
       const prophecy=tepProphecy?" mit Prophecy CT-basierter Planung":"";
       const tibInfo=tepTibSz?` Tibiale Komponente Größe ${tepTibSz}${tepTibLong?" Long":""}.`:"";
@@ -3489,7 +3759,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           // Replace implantation talare Komponente
           tepText=tepText.replace(
             "Einbringen der talaren Komponente, Impaktierung",
-            "Einbringen der talaren Komponente (Flat-Cut / Inbone Talus), Impaktierung"
+            "Einbringen der talaren Komponente (Flat-Cut), Impaktierung"
           );
         }
         p.push("\n\n"+tepText+"\n\nImplantatdokumentation:"+tibInfo+talInfo+inlayInfo);
@@ -3599,7 +3869,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     const r=needsRuhig&&ruhig==="keine"?"orthese":ruhig;
     p.push("\n\n"+buildVerband(hasVF,bs,r));
     if(entlassGespr)p.push("\n\nPostoperativ erfolgt ein ausführliches Entlassgespräch über den Eingriff und die Nachbehandlung. Aufklärung über Zeichen von Infekt, Thrombose oder andere postoperative Komplikationen mit Verhaltensmaßgaben. Kontrolltermine werden besprochen und abgestimmt. Häusliche Versorgung und Betreuung am OP-Tag ist anamnestisch gewährleistet. Recap der Zehen ist intakt, Belastungsvorgaben können umgesetzt werden, Verband ist trocken.");
-    return p.join("");
+    return textPlatzhalter(p.join(""));
   },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT]);
 
   const canExport=gender&&side&&hasAny;
@@ -3849,7 +4119,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           {tepType.includes("infinity")&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
             <span style={{fontSize:10,color:"#718096",minWidth:40}}>Schnitt:</span>
             <div style={chip(tepTalCut==="chamfer")} onClick={()=>setTepTalCut("chamfer")}>Chamfer-Cut</div>
-            <div style={chip(tepTalCut==="flat")} onClick={()=>setTepTalCut("flat")}>Flat Cut / Inbone</div>
+            <div style={chip(tepTalCut==="flat")} onClick={()=>setTepTalCut("flat")}>Flat Cut</div>
           </div>}
           {tepType.includes("vantage")&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
             <span style={{fontSize:10,color:"#718096",minWidth:40}}>Schnitt:</span>
@@ -3865,7 +4135,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             <div style={row}>{(tepType.includes("vantage")?["6","7","8","9","10","11","12"]:["3","4"].includes(tepTibSz)?["6","7","8","9","10","11","12","13"]:["6","8","10","12"]).map(d=><div key={d} style={chip(tepInlayMM===d)} onClick={()=>setTepInlayMM(tepInlayMM===d?"":d)}>{d} mm</div>)}</div>
           </div>:<div style={{fontSize:10,color:"#EF6C00"}}>Bitte zuerst Tibia-Größe wählen</div>}
 
-          {/* INBONE STEM SIZES */}
+          {/* SCHAFTGRÖSSEN achsgeführte TEP */}
           {tepType.includes("inbone")&&<div>
             <div style={{...cat,marginTop:10}}>Stem-Größen (Fräsköpfe)</div>
             <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:4}}>
@@ -4209,49 +4479,12 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         </div>}
 
         {/* MATERIALKOSTEN */}
-      {materialKosten.length>0&&function(){
-        const ist=materialKosten.reduce(function(s,m){return s+(m.preis||0);},0);
+        {/* MATERIALKOSTEN — Standardversorgung, umschaltbar auf tatsächliche Versorgung */}
+      {(function(){
         const drgKey=erloesData&&erloesData.drg?erloesData.drg.split(" ")[0]:null;
-        const a=drgKey?implAmpel(ist,drgKey):null;
-        const ampelIcon=a?(a.state==="gruen"?"🟢":a.state==="gelb"?"🟡":"🔴"):"";
-        const ampelColor=a?(a.state==="gruen"?"#2E7D32":a.state==="gelb"?"#E65100":"#C62828"):"#1565C0";
-        const ampelText=a?(a.state==="gruen"?(a.ist<=a.soll?"im InEK-Rahmen":"bis 20% über InEK — akzeptabel"):a.state==="gelb"?a.pct+"% über InEK":a.pct+"% über InEK — kritisch"):null;
-        return <div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
-        <div style={{background:"#1565C0",padding:"6px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:14}}>💶</span><span style={{fontSize:11,fontWeight:700,color:"#fff"}}>MATERIALKOSTEN</span></div>
-          <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{ist.toFixed(2)} € {ampelIcon}</span>
-        </div>
-        <div style={{padding:"8px 12px",background:"rgba(25,118,210,.04)",overflowX:"auto"}}>
-          <table style={{width:"100%",borderCollapse:"collapse",fontSize:10}}>
-            <thead><tr style={{borderBottom:"1px solid rgba(0,0,0,.1)"}}>
-              <th style={{textAlign:"left",padding:"3px 4px",color:"#718096",fontWeight:600}}>Implantat</th>
-              <th style={{textAlign:"left",padding:"3px 4px",color:"#718096",fontWeight:600}}>Hersteller</th>
-              <th style={{textAlign:"right",padding:"3px 4px",color:"#718096",fontWeight:600}}>Preis</th>
-            </tr></thead>
-            <tbody>{materialKosten.map(function(m,i){return <tr key={i} style={{borderBottom:"1px solid rgba(0,0,0,.05)"}}>
-              <td style={{padding:"3px 4px",color:"#2D3748"}}>{m.name}</td>
-              <td style={{padding:"3px 4px",color:"#718096"}}>{m.lieferant}</td>
-              <td style={{textAlign:"right",padding:"3px 4px",color:m.preis?"#1565C0":"#E65100",fontWeight:600}}>{m.preis?m.preis.toFixed(2)+" €":"⚠️ fehlt"}</td>
-            </tr>;})}</tbody>
-            <tfoot><tr style={{borderTop:"2px solid rgba(0,0,0,.15)"}}>
-              <td style={{padding:"4px",fontWeight:700,color:a?ampelColor:"#1565C0"}} colSpan={2}>{a?ampelIcon:"💶"} GESAMT</td>
-              <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{ist.toFixed(2)} €</td>
-            </tr>
-            {a&&<tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
-              <td style={{padding:"4px",fontSize:10,color:"#718096"}} colSpan={2}>InEK-Referenz {drgKey} (Ø Impl.)</td>
-              <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{a.soll.toFixed(2)} €</td>
-            </tr>}
-            {a&&<tr>
-              <td style={{padding:"4px",fontSize:10,color:ampelColor,fontWeight:600}} colSpan={2}>{ampelText}</td>
-              <td style={{textAlign:"right",padding:"4px",fontSize:10,color:ampelColor,fontWeight:700}}>{a.delta>=0?"+":""}{a.delta.toFixed(2)} €</td>
-            </tr>}
-            </tfoot>
-          </table>
-          {a&&a.state==="rot"&&<div style={{marginTop:6,fontSize:10,color:"#C62828",padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung oder Erlös unter regulärer DRG. Volle DRG zwingend ansteuern, Materialalternativen prüfen.</div>}
-          {a&&a.state==="gelb"&&<div style={{marginTop:6,fontSize:10,color:"#E65100",padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
-          {materialKosten.some(function(m){return !m.preis;})&&<div style={{marginTop:4,fontSize:10,color:"#E65100"}}>⚠️ Einige Preise fehlen – Gesamtsumme ist unvollständig</div>}
-        </div>
-      </div>;}()}
+        return <MaterialsatzAnsicht positionen={materialKosten} drg={drgKey}
+                  fall={fallMaterial} setFall={setFallMaterial} readOnly={false}/>;
+      })()}
         {erloesData.hdrg!=="—"&&<div style={{marginTop:4,fontSize:10,color:"#718096"}}>H-DRG: Anlage 2a, §115f SGB V, 2026 · +30 € bei Nachbehandlung im KH</div>}
       </div>}
 
@@ -4338,7 +4571,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={card}>
           <OBSec title="🦴 Distaler Radius" open={ucSec.rad} onToggle={()=>setUcSec(p=>({...p,rad:!p.rad}))} active={ucOp&&(ucOp.startsWith("radius_einf")||ucOp==="radius_mehr_wsp")} onReset={()=>{setUcOp("");}}>
             <div style={row}>{["radius_einf_pl","radius_einf_wsp","radius_mehr_wsp"].map(function(k){return UC_EINGRIFFE[k]?<div key={k} style={chip(ucOp===k)} onClick={function(){setUcOp(ucOp===k?"":k);}}>{UC_EINGRIFFE[k].l}</div>:null;})}</div>
-            {/* Implantat-Anzeige bei winkelstabilen Radius-Eingriffen (Aptus = Standard, einzige Option) */}
+            {/* Implantat-Anzeige bei winkelstabilen Radius-Eingriffen */}
             {ucOp&&(ucOp==="radius_einf_wsp"||ucOp==="radius_mehr_wsp")&&(function(){
               var imp=UC_IMPL_RADIUS_DISTAL.aptus_11l;
               return <div style={{marginTop:8,padding:"8px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
@@ -4361,7 +4594,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
               var keys=Object.keys(ENDO_DUOKOPF_IMPL);
               return <div style={{marginTop:8,padding:"8px 10px",background:"rgba(0,0,0,.02)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6}}>
                 <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:6}}>SCHAFTAUSWAHL (Klinik-Netto-Komplettpreise)</div>
-                <div style={{fontSize:10,color:"#718096",marginBottom:6,fontStyle:"italic"}}>Komplettpreis = Schaft + Bipolarkopf + Kopf + 2× Palacos R+G. Aufschlüsselung in der Materialkostenübersicht.</div>
+                <div style={{fontSize:10,color:"#718096",marginBottom:6,fontStyle:"italic"}}>Komplettpreis = Schaft + Bipolarkopf + Kopf + Knochenzement R+G. Aufschlüsselung in der Materialkostenübersicht.</div>
                 <div style={{display:"flex",flexDirection:"column",gap:4}}>
                   {keys.map(function(k){
                     var imp=ENDO_DUOKOPF_IMPL[k];
@@ -5766,6 +5999,489 @@ function AufklaerungstoolView() {
 }
 
 
+
+
+// ============================================================================
+// EXCEL — Export (aktueller Kontostand) und Import mit Vorschau
+// ============================================================================
+function preisExcelBauen(implantate, eingriffe){
+  var X = window.XLSX;
+  var P="10535B", TINT="E6F0F1", AMBER="8A5A00", AMBERBG="FBF3DF", LINIE="D6E2E3", GRAU="5C6660";
+  var rand = function(c){ var b={style:"thin",color:{rgb:c}}; return {top:b,bottom:b,left:b,right:b}; };
+  var kopf = {fill:{fgColor:{rgb:P}},font:{color:{rgb:"FFFFFF"},bold:true,sz:11},border:rand(LINIE)};
+  var eingabe = {font:{sz:10,bold:true},fill:{fgColor:{rgb:AMBERBG}},border:rand(AMBER),numFmt:'#,##0.00 "€"'};
+  var grau = {font:{sz:8,color:{rgb:GRAU}},fill:{fgColor:{rgb:"F2F2F0"}},border:rand(LINIE)};
+  var normal = {font:{sz:10},border:rand(LINIE)};
+  var gruppe = {font:{sz:11,bold:true,color:{rgb:P}},fill:{fgColor:{rgb:TINT}},border:rand(LINIE)};
+  var summe = {font:{sz:10,bold:true,color:{rgb:P}},fill:{fgColor:{rgb:TINT}},border:rand(LINIE),numFmt:'#,##0.00 "€"'};
+  var euro = {font:{sz:10},border:rand(LINIE),numFmt:'#,##0.00 "€"'};
+  function z(ws,a,v,s,f){ var c={}; if(f){c.t="n";c.f=f; if(v!=null&&isFinite(v))c.v=v;}
+    else if(typeof v==="number"){c.t="n";c.v=v;} else {c.t="s";c.v=v==null?"":String(v);} if(s)c.s=s; ws[a]=c; }
+  function sp(i){ var s="";i++; while(i>0){var r=(i-1)%26; s=String.fromCharCode(65+r)+s; i=Math.floor((i-1)/26);} return s; }
+
+  // Blatt 1: Anleitung
+  var ws1={}, A=[
+   ["Fuss-Track Clinic — Meine Implantatpreise"],[""],
+   ["1. Tragen Sie Ihre Preise ausschließlich im Blatt „Meine Preise“ in der gelb markierten Spalte „Einzelpreis (€)“ ein — immer der Preis für EIN Stück."],
+   ["2. Das Blatt „Eingriffe“ ist ein Standard-Materialsatz — bitte an Ihr Haus anpassen: Implantate ändern, Mengen korrigieren, Zeilen löschen oder ergänzen."],
+   ["3. Bitte nicht verändern: die grauen ID-Spalten, die Blattnamen und die Spaltenreihenfolge."],
+   ["4. Speichern als .xlsx und in der App unter „Implantatpreise“ wieder hochladen — vor der Übernahme sehen Sie eine Vorschau."],
+   ["5. Positionen ohne Preis bleiben leer; betroffene Eingriffe werden als „unvollständig“ ausgewiesen statt falsch berechnet."],[""],
+   ["Diese Datei enthält Ihre vertraulichen Einkaufspreise und verlässt Ihren Rechner nur beim Hochladen in Ihr eigenes Konto."]];
+  A.forEach(function(r,i){ z(ws1,"A"+(i+1),r[0], i===0?{font:{sz:14,bold:true,color:{rgb:P}}}:{font:{sz:11},alignment:{wrapText:true,vertical:"top"}}); });
+  ws1["!ref"]="A1:A"+A.length; ws1["!cols"]=[{wch:118}];
+
+  // Blatt 2: Meine Preise
+  var ws2={}, r2=1, zeileVon={};
+  ["Implantat","Hersteller","Artikelnummer","Einzelpreis (€)","Implantat-ID"].forEach(function(h,i){ z(ws2,sp(i)+"1",h,kopf); });
+  var benoetigt = {}; eingriffe.forEach(function(e){ e.positionen.forEach(function(x){ benoetigt[x.implantat_id]=1; }); });
+  var sortiert = implantate.slice().sort(function(a,b){
+    var ba=!!benoetigt[a.id], bb=!!benoetigt[b.id];
+    if(ba!==bb) return ba?-1:1;
+    return a.bezeichnung.localeCompare(b.bezeichnung,"de"); });
+  var letzterAbschnitt=null;
+  sortiert.forEach(function(i){
+    var ab = benoetigt[i.id] ? "A" : "B";
+    if(ab!==letzterAbschnitt){
+      r2++; for(var c=0;c<5;c++) z(ws2,sp(c)+r2, c===0?(ab==="A"?"ABSCHNITT A — Für die hinterlegten Eingriffe benötigt":"ABSCHNITT B — Weitere Positionen (optional)"):"",
+        {font:{sz:12,bold:true,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:P}},border:rand(P)});
+      letzterAbschnitt=ab;
+    }
+    r2++;
+    z(ws2,"A"+r2,i.bezeichnung,normal); z(ws2,"B"+r2,i.hersteller||"",normal);
+    z(ws2,"C"+r2,i.artikelnummer||"",normal);
+    z(ws2,"D"+r2, i.preis==null?"":i.preis, eingabe);
+    z(ws2,"E"+r2,i.id,grau);
+    zeileVon[i.id]=r2;
+  });
+  r2++; for(var ce=0;ce<5;ce++) z(ws2,sp(ce)+r2, ce===0?"Eigene Positionen können Sie ab hier ergänzen (Implantat-ID freilassen)":"", gruppe);
+  ws2["!ref"]="A1:E"+r2; ws2["!cols"]=[{wch:42},{wch:16},{wch:34},{wch:15},{wch:30}];
+  ws2["!freeze"]={xSplit:0,ySplit:1}; ws2["!autofilter"]={ref:"A1:E1"};
+
+  // Blatt 3: Eingriffe (mit Formeln)
+  var ws3={}, r3=2;
+  var K3=["Sektion","Eingriff","Variante","Implantat","Anzahl","Einzelpreis (€)","Zeilensumme (€)","Eingriff-ID","Implantat-ID"];
+  for(var ch=0;ch<K3.length;ch++) z(ws3,sp(ch)+"1", ch===0?"Standard-Materialsatz — bitte an Ihr Haus anpassen: Implantate ändern, Mengen korrigieren, Zeilen löschen oder ergänzen.":"",
+    {font:{sz:11,bold:true,color:{rgb:AMBER}},fill:{fgColor:{rgb:AMBERBG}},border:rand(AMBER)});
+  K3.forEach(function(h,i){ z(ws3,sp(i)+"2",h,kopf); });
+  var letzteSektion=null;
+  eingriffe.forEach(function(e){
+    if(e.sektion!==letzteSektion){ r3++; for(var c=0;c<K3.length;c++) z(ws3,sp(c)+r3, c===0?e.sektion:"", gruppe); letzteSektion=e.sektion; }
+    r3++; for(var c2=0;c2<K3.length;c2++) z(ws3,sp(c2)+r3,"",{font:{sz:11,bold:true},fill:{fgColor:{rgb:"EFF4F2"}},border:rand(LINIE)});
+    z(ws3,"B"+r3,e.name,{font:{sz:11,bold:true},fill:{fgColor:{rgb:"EFF4F2"}},border:rand(LINIE)});
+    z(ws3,"C"+r3,e.variante,{font:{sz:10,italic:true,color:{rgb:GRAU}},fill:{fgColor:{rgb:"EFF4F2"}},border:rand(LINIE)});
+    z(ws3,"H"+r3,e.eingriffId,grau);
+    var von=r3+1;
+    e.positionen.forEach(function(pos){
+      r3++;
+      z(ws3,"A"+r3,"",normal); z(ws3,"B"+r3,"",normal); z(ws3,"C"+r3,"",normal);
+      z(ws3,"D"+r3,"    "+implantatBezeichnung(pos.implantat_id),normal);
+      z(ws3,"E"+r3,pos.anzahl,normal);
+      z(ws3,"F"+r3,pos.stueckpreis,euro,"IFERROR(INDEX('Meine Preise'!$D:$D,MATCH($I"+r3+",'Meine Preise'!$E:$E,0)),\"\")");
+      z(ws3,"G"+r3,pos.preis,euro,"IFERROR($E"+r3+"*$F"+r3+",\"\")");
+      z(ws3,"H"+r3,e.eingriffId,grau); z(ws3,"I"+r3,pos.implantat_id,grau);
+    });
+    r3++; for(var c3=0;c3<K3.length;c3++) z(ws3,sp(c3)+r3,"",summe);
+    z(ws3,"D"+r3,"    Paketpreis "+e.name,summe);
+    z(ws3,"G"+r3, e.fehlend?null:e.summe, summe, "SUM(G"+von+":G"+(r3-1)+")");
+  });
+  ws3["!ref"]="A1:I"+r3; ws3["!cols"]=[{wch:15},{wch:32},{wch:18},{wch:38},{wch:8},{wch:15},{wch:16},{wch:24},{wch:28}];
+  ws3["!freeze"]={xSplit:0,ySplit:2};
+
+  var wb=X.utils.book_new();
+  X.utils.book_append_sheet(wb,ws1,"Anleitung");
+  X.utils.book_append_sheet(wb,ws2,"Meine Preise");
+  X.utils.book_append_sheet(wb,ws3,"Eingriffe");
+  var d=new Date(), stempel=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  X.writeFile(wb, "Implantatpreise_"+stempel+".xlsx");
+}
+
+// ---------------------------------------------------------------- Import
+function preisExcelEinlesen(datei, fertig){
+  var X = window.XLSX;
+  if (!X) { fertig("Excel-Bibliothek nicht geladen"); return; }
+  var leser = new FileReader();
+  leser.onload = function(ev){
+    try {
+      var wb = X.read(new Uint8Array(ev.target.result), {type:"array"});
+      var wsP = wb.Sheets["Meine Preise"], wsE = wb.Sheets["Eingriffe"];
+      if (!wsP) { fertig("Blatt „Meine Preise“ fehlt — bitte die Vorlage aus der App verwenden."); return; }
+      // --- Preise ---
+      var preise = X.utils.sheet_to_json(wsP).filter(function(r){ return r["Implantat"]; });
+      var nachName = {};
+      Object.keys(_ZUORD.KATALOG).forEach(function(id){ nachName[_ZUORD.KATALOG[id].bezeichnung.toLowerCase()] = id; });
+      Object.keys(window._PREISE||{}).forEach(function(id){
+        var b=(window._PREISE[id].bezeichnung||"").toLowerCase(); if(b) nachName[b]=id; });
+      var uebernommen=0, ohnePreis=0, eigene=0, unklar=[];
+      preise.forEach(function(r){
+        var id = r["Implantat-ID"] || nachName[String(r["Implantat"]).trim().toLowerCase()];
+        if (!id) { id = "eigen_" + String(r["Implantat"]).toLowerCase().replace(/[^a-z0-9]+/g,"_").slice(0,40); eigene++; }
+        var roh = r["Einzelpreis (€)"];
+        var preis = (roh===undefined||roh==="") ? null : Number(String(roh).replace(",", "."));
+        if (preis == null) ohnePreis++; else uebernommen++;
+        preisSpeichern(id, {bezeichnung:String(r["Implantat"]).trim(), hersteller:r["Hersteller"]||"",
+          artikelnummer:r["Artikelnummer"]||"", preis: isFinite(preis)?preis:null, eigene: !r["Implantat-ID"]});
+      });
+      // --- Materialsätze ---
+      var saetze = {}, fehlendeEingriffe = [];
+      if (wsE) {
+        X.utils.sheet_to_json(wsE, {range:1}).forEach(function(r){
+          var eg = r["Eingriff-ID"], im = r["Implantat-ID"];
+          if (!eg || !im) return;
+          var va = (r["Variante"] || "Standard").toString().trim() || "Standard";
+          var s = saetze[eg] || (saetze[eg] = {});
+          (s[va] || (s[va] = [])).push({implantat_id: im, anzahl: parseInt(r["Anzahl"]||"1",10)});
+        });
+        Object.keys(_ZUORD.EINGRIFFE).forEach(function(eg){ if(!saetze[eg]) fehlendeEingriffe.push(_ZUORD.EINGRIFFE[eg].name); });
+        Object.keys(saetze).forEach(function(eg){ Object.keys(saetze[eg]).forEach(function(va){
+          materialsatzSpeichern(eg, va, saetze[eg][va]); }); });
+      }
+      var text = uebernommen+" Positionen mit Preis übernommen";
+      if (ohnePreis) text += ", "+ohnePreis+" ohne Preis";
+      if (eigene) text += ", "+eigene+" eigene Position"+(eigene>1?"en":"");
+      if (fehlendeEingriffe.length) text += " · "+fehlendeEingriffe.length+" Eingriff"+(fehlendeEingriffe.length>1?"e":"")+" nicht in der Datei — bisheriger Materialsatz bleibt erhalten";
+      fertig(text);
+    } catch(e){ fertig("Datei konnte nicht gelesen werden: "+(e&&e.message?e.message:e)); }
+  };
+  leser.readAsArrayBuffer(datei);
+}
+
+// ============================================================================
+// IMPLANTATPREISE — Kontoeigene Preisliste und Materialsätze
+// ============================================================================
+const PREIS_SEKTIONEN = ["Vorfuß","Rückfuß","OSG","OSG-Prothese","Unfallchirurgie"];
+
+// Wo wird ein Implantat verwendet? → [{eingriffId, name, variante, anzahl}]
+function verwendungVon(id){
+  var out = [];
+  Object.keys(_ZUORD.EINGRIFFE).forEach(function(eg){
+    var e = _ZUORD.EINGRIFFE[eg];
+    Object.keys(e.varianten).forEach(function(v){
+      materialsatzPositionen(eg, v).forEach(function(pos){
+        if (pos.implantat_id === id)
+          out.push({eingriffId:eg, name:e.name, variante:v, sektion:e.sektion, anzahl:pos.anzahl});
+      });
+    });
+  });
+  return out;
+}
+// Alle Eingriffe mit Positionen, Summen und Vollständigkeit
+function alleEingriffe(){
+  var out = [];
+  Object.keys(_ZUORD.EINGRIFFE).forEach(function(eg){
+    var e = _ZUORD.EINGRIFFE[eg];
+    Object.keys(e.varianten).forEach(function(v){
+      var pos = MATPOS(eg, v);
+      var fehlend = pos.filter(function(x){ return x.preis == null; });
+      out.push({eingriffId:eg, name:e.name, sektion:e.sektion, variante:v, positionen:pos,
+        summe: pos.reduce(function(s,x){ return s + (x.preis||0); }, 0),
+        fehlend: fehlend.length, fehlendeIds: fehlend.map(function(x){ return x.implantat_id; })});
+    });
+  });
+  return out.sort(function(a,b){
+    var sa = PREIS_SEKTIONEN.indexOf(a.sektion), sb = PREIS_SEKTIONEN.indexOf(b.sektion);
+    if (sa !== sb) return (sa<0?99:sa) - (sb<0?99:sb);
+    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+  });
+}
+
+function ImplantatpreiseView(){
+  const [tick, setTick] = React.useState(0);          // erzwingt Neuberechnung
+  const [ansicht, setAnsicht] = React.useState("implantate");
+  const [suche, setSuche] = React.useState("");
+  const [sektion, setSektion] = React.useState("");
+  const [sortierung, setSortierung] = React.useState("name");
+  const [offen, setOffen] = React.useState({});        // aufgeklappte Verwendung
+  const [bearbeite, setBearbeite] = React.useState(null);  // {id, wert}
+  const [meldung, setMeldung] = React.useState("");
+  const [demo, setDemo] = React.useState(demoAktiv());
+  const dateiRef = React.useRef(null);
+
+  React.useEffect(function(){ window._onPreiseGeladen = function(){ setTick(function(x){return x+1;}); };
+    return function(){ window._onPreiseGeladen = null; }; }, []);
+  const neuBerechnen = () => setTick(function(x){ return x+1; });
+
+  // --- Datenbasis ---
+  const eingriffe = React.useMemo(function(){ return alleEingriffe(); }, [tick]);
+  const implantate = React.useMemo(function(){
+    var ids = new Set([...Object.keys(_ZUORD.KATALOG), ...Object.keys(window._PREISE||{})]);
+    return [...ids].map(function(id){
+      var e = (window._PREISE||{})[id] || {};
+      return {id:id, bezeichnung: implantatBezeichnung(id), hersteller: e.hersteller || "",
+        artikelnummer: e.artikelnummer || "", preis: implantatStueckpreis(id),
+        aktualisiert: e.aktualisiert || null, verwendung: verwendungVon(id)};
+    });
+  }, [tick]);
+
+  const hatPreise = implantate.some(function(i){ return i.preis != null; });
+  const status = React.useMemo(function(){
+    return {gesamt: eingriffe.length,
+            vollstaendig: eingriffe.filter(function(e){ return e.positionen.length && !e.fehlend; }).length,
+            unvollstaendig: eingriffe.filter(function(e){ return e.fehlend > 0; })};
+  }, [eingriffe]);
+
+  // --- Filter + Sortierung ---
+  const q = suche.trim().toLowerCase();
+  const gefiltert = React.useMemo(function(){
+    var l = implantate.filter(function(i){
+      if (q && !((i.bezeichnung+" "+i.hersteller+" "+i.artikelnummer).toLowerCase().includes(q))) return false;
+      if (sektion && !i.verwendung.some(function(v){ return v.sektion === sektion; })) return false;
+      return true;
+    });
+    l.sort(function(a,b){
+      if (sortierung === "preis") return (b.preis||0) - (a.preis||0);
+      return a.bezeichnung.localeCompare(b.bezeichnung, "de");
+    });
+    return l;
+  }, [implantate, q, sektion, sortierung]);
+  const maxPreis = Math.max.apply(null, [1].concat(gefiltert.map(function(i){ return i.preis||0; })));
+
+  const eingriffeGefiltert = React.useMemo(function(){
+    return eingriffe.filter(function(e){
+      if (sektion && e.sektion !== sektion) return false;
+      if (!q) return true;
+      return e.name.toLowerCase().includes(q) ||
+             e.positionen.some(function(p){ return implantatBezeichnung(p.implantat_id).toLowerCase().includes(q); });
+    });
+  }, [eingriffe, q, sektion]);
+
+  // --- Inline speichern ---
+  function preisUebernehmen(id, roh){
+    var wert = String(roh).replace(",", ".").trim();
+    var zahl = wert === "" ? null : Number(wert);
+    if (wert !== "" && !isFinite(zahl)) { setBearbeite(null); return; }
+    preisSpeichern(id, {preis: zahl}).then(function(){
+      setBearbeite(null); neuBerechnen();
+      var n = verwendungVon(id).length;
+      setMeldung("Preis gespeichert" + (n ? " — " + n + " Eingriff" + (n>1?"e":"") + " neu berechnet" : ""));
+      setTimeout(function(){ setMeldung(""); }, 3500);
+    });
+  }
+  function mengeUebernehmen(eingriffId, variante, index, neueAnzahl){
+    var pos = materialsatzPositionen(eingriffId, variante).map(function(p){ return {implantat_id:p.implantat_id, anzahl:p.anzahl}; });
+    if (neueAnzahl <= 0) pos.splice(index, 1); else pos[index].anzahl = neueAnzahl;
+    materialsatzSpeichern(eingriffId, variante, pos).then(function(){
+      neuBerechnen(); setMeldung("Materialsatz gespeichert"); setTimeout(function(){ setMeldung(""); }, 3000);
+    });
+  }
+
+  // --- Export / Import ---
+  function exportieren(){
+    if (!window.XLSX) { setMeldung("Excel-Bibliothek nicht geladen"); return; }
+    preisExcelBauen(implantate, eingriffe);
+  }
+  function dateiGewaehlt(ev){
+    var f = ev.target.files && ev.target.files[0];
+    if (f) preisExcelEinlesen(f, function(text){ setMeldung(text); neuBerechnen(); });
+    ev.target.value = "";
+  }
+
+  const P = "#10535B", TINT = "#E6F0F1", AMBER = "#8A5A00", AMBERBG = "#FBF3DF", LINIE = "#D6E2E3";
+  const btn = (aktiv) => ({padding:"6px 14px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",
+    border:"1px solid "+(aktiv?P:LINIE), background: aktiv?P:"#fff", color: aktiv?"#fff":"#5C6660"});
+
+  // ---------------------------------------------------------------- Leerzustand
+  if (!hatPreise && !demo) {
+    return <div style={{maxWidth:760,margin:"0 auto",padding:"8px 4px"}}>
+      <div style={{background:"#fff",border:"1px solid "+LINIE,borderRadius:12,padding:"26px 24px",textAlign:"center"}}>
+        <div style={{fontSize:38,marginBottom:8}}>💶</div>
+        <div style={{fontSize:17,fontWeight:700,color:P,marginBottom:6}}>Noch keine Preisliste hinterlegt</div>
+        <div style={{fontSize:13,color:"#5C6660",lineHeight:1.6,maxWidth:520,margin:"0 auto 20px"}}>
+          Implantatpreise sind vertraulich und gehören Ihrem Konto. Laden Sie die Vorlage herunter,
+          tragen Sie Ihre Einkaufspreise ein und laden Sie die Datei wieder hoch. Danach berechnen
+          Sprechstundenbrief und OP-Bericht Ihre Materialkosten und Deckungsbeiträge.
+        </div>
+        <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginBottom:18}}>
+          <div onClick={exportieren} style={Object.assign({},btn(true))}>1 · Vorlage herunterladen</div>
+          <div onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false))}>2 · Ausgefüllte Datei hochladen</div>
+        </div>
+        <input ref={dateiRef} type="file" accept=".xlsx" onChange={dateiGewaehlt} style={{display:"none"}}/>
+        <div style={{fontSize:11,color:"#5C6660",borderTop:"1px solid "+LINIE,paddingTop:14}}>
+          Nur ausprobieren? <span onClick={()=>{demoUmschalten(true);setDemo(true);neuBerechnen();}}
+            style={{color:P,textDecoration:"underline",cursor:"pointer"}}>Demo-Modus mit Beispielwerten</span>
+        </div>
+        {meldung && <div style={{marginTop:12,fontSize:12,color:AMBER}}>{meldung}</div>}
+      </div>
+    </div>;
+  }
+
+  // ---------------------------------------------------------------- Hauptansicht
+  return <div style={{maxWidth:980,margin:"0 auto",padding:"4px 4px 30px"}}>
+    {demo && <div style={{background:AMBERBG,border:"1px solid "+AMBER,borderRadius:10,padding:"8px 14px",
+        marginBottom:12,fontSize:12,color:AMBER,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+      <span><strong>Demo-Modus</strong> — alle Preise sind frei erfunden und dienen nur zur Vorführung.</span>
+      <span onClick={()=>{demoUmschalten(false);setDemo(false);neuBerechnen();}}
+        style={{textDecoration:"underline",cursor:"pointer",fontWeight:600}}>beenden</span>
+    </div>}
+
+    {/* Statuszeile */}
+    <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:12}}>
+      <div style={{flex:"1 1 150px",background:"#fff",border:"1px solid "+LINIE,borderRadius:10,padding:"10px 14px"}}>
+        <div style={{fontSize:20,fontWeight:700,color:P}}>{status.gesamt}</div>
+        <div style={{fontSize:11,color:"#5C6660"}}>Eingriffe gesamt</div>
+      </div>
+      <div style={{flex:"1 1 150px",background:"#fff",border:"1px solid "+LINIE,borderRadius:10,padding:"10px 14px"}}>
+        <div style={{fontSize:20,fontWeight:700,color:"#2E7D32"}}>{status.vollstaendig}</div>
+        <div style={{fontSize:11,color:"#5C6660"}}>vollständig bepreist</div>
+      </div>
+      <div style={{flex:"1 1 190px",background: status.unvollstaendig.length?AMBERBG:"#fff",
+          border:"1px solid "+(status.unvollstaendig.length?AMBER:LINIE),borderRadius:10,padding:"10px 14px"}}>
+        <div style={{fontSize:20,fontWeight:700,color:status.unvollstaendig.length?AMBER:"#5C6660"}}>{status.unvollstaendig.length}</div>
+        <div style={{fontSize:11,color:"#5C6660"}}>ohne hinterlegten Preis</div>
+        {status.unvollstaendig.length>0 && <div style={{marginTop:6,display:"flex",gap:5,flexWrap:"wrap"}}>
+          {status.unvollstaendig.slice(0,6).map(function(e){
+            return <span key={e.eingriffId+e.variante} title={"zur fehlenden Position springen"}
+              onClick={()=>{ setAnsicht("implantate"); setSektion(""); setSuche(implantatBezeichnung(e.fehlendeIds[0])); }}
+              style={{fontSize:10,padding:"2px 7px",borderRadius:20,background:"#fff",border:"1px solid "+AMBER,
+                      color:AMBER,cursor:"pointer"}}>{e.name}</span>;
+          })}
+          {status.unvollstaendig.length>6 && <span style={{fontSize:10,color:AMBER}}>+{status.unvollstaendig.length-6} weitere</span>}
+        </div>}
+      </div>
+    </div>
+
+    {/* Umschalter + Werkzeuge */}
+    <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",marginBottom:10}}>
+      <div onClick={()=>setAnsicht("implantate")} style={btn(ansicht==="implantate")}>Implantate</div>
+      <div onClick={()=>setAnsicht("eingriffe")} style={btn(ansicht==="eingriffe")}>Eingriffe</div>
+      <div style={{flex:1}}></div>
+      <div onClick={exportieren} style={Object.assign({},btn(false),{fontSize:11})}>↓ Als Excel exportieren</div>
+      <div onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false),{fontSize:11})}>↑ Datei hochladen</div>
+      <input ref={dateiRef} type="file" accept=".xlsx" onChange={dateiGewaehlt} style={{display:"none"}}/>
+      {!demo && <div onClick={()=>{demoUmschalten(true);setDemo(true);neuBerechnen();}}
+        style={Object.assign({},btn(false),{fontSize:11})}>Demo</div>}
+    </div>
+
+    {/* Suche + Filter */}
+    <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
+      <input value={suche} onChange={e=>setSuche(e.target.value)}
+        placeholder="Suchen — Bezeichnung, Hersteller oder Artikelnummer…"
+        style={{flex:"2 1 260px",padding:"8px 10px",fontSize:12,border:"1px solid "+LINIE,borderRadius:8}}/>
+      <select value={sektion} onChange={e=>setSektion(e.target.value)}
+        style={{flex:"1 1 130px",padding:"8px 10px",fontSize:12,border:"1px solid "+LINIE,borderRadius:8,background:"#fff"}}>
+        <option value="">Alle Sektionen</option>
+        {PREIS_SEKTIONEN.map(function(s){ return <option key={s} value={s}>{s}</option>; })}
+      </select>
+      {ansicht==="implantate" && <select value={sortierung} onChange={e=>setSortierung(e.target.value)}
+        style={{flex:"1 1 120px",padding:"8px 10px",fontSize:12,border:"1px solid "+LINIE,borderRadius:8,background:"#fff"}}>
+        <option value="name">Nach Name</option>
+        <option value="preis">Nach Preis</option>
+      </select>}
+    </div>
+
+    {meldung && <div style={{marginBottom:10,padding:"7px 12px",background:TINT,border:"1px solid "+P,
+      borderRadius:8,fontSize:12,color:P}}>{meldung}</div>}
+
+    {/* ---------------- Ansicht: Implantate ---------------- */}
+    {ansicht==="implantate" && <div style={{background:"#fff",border:"1px solid "+LINIE,borderRadius:12,overflow:"hidden"}}>
+      {gefiltert.length===0 && <div style={{padding:20,fontSize:12,color:"#5C6660",textAlign:"center"}}>Keine Position gefunden.</div>}
+      {gefiltert.map(function(i){
+        const anteil = i.preis ? Math.max(2, Math.round(i.preis / maxPreis * 100)) : 0;
+        const auf = !!offen[i.id];
+        return <div key={i.id} style={{borderBottom:"1px solid "+LINIE,padding:"9px 14px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+            <div style={{flex:"1 1 240px",minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:600,color:"#1D2421"}}>{i.bezeichnung}</div>
+              <div style={{fontSize:10,color:"#5C6660"}}>
+                {[i.hersteller, i.artikelnummer].filter(Boolean).join(" · ") || "—"}
+                {i.aktualisiert && <span> · Stand {new Date(i.aktualisiert).toLocaleDateString("de-DE")}</span>}
+              </div>
+            </div>
+            <div style={{flex:"0 0 120px",textAlign:"right"}}>
+              {bearbeite && bearbeite.id===i.id
+                ? <span>
+                    <input autoFocus defaultValue={i.preis==null?"":i.preis}
+                      onBlur={e=>preisUebernehmen(i.id, e.target.value)}
+                      onKeyDown={e=>{ if(e.key==="Enter") e.target.blur(); if(e.key==="Escape") setBearbeite(null); }}
+                      style={{width:92,padding:"4px 6px",fontSize:12,textAlign:"right",border:"1px solid "+P,borderRadius:6}}/>
+                    <div style={{fontSize:10,color:AMBER,marginTop:3,textAlign:"right",lineHeight:1.4}}>
+                      {i.verwendung.length
+                        ? "wirkt sich auf "+i.verwendung.length+" Eingriff"+(i.verwendung.length>1?"e":"")+" aus: "
+                          + i.verwendung.slice(0,3).map(function(v){return v.name;}).join(", ")
+                          + (i.verwendung.length>3 ? " …" : "")
+                        : "wird derzeit in keinem Eingriff verwendet"}
+                    </div>
+                  </span>
+                : <span onClick={()=>!demo&&setBearbeite({id:i.id})} title={demo?"Im Demo-Modus nicht änderbar":"Preis bearbeiten"}
+                    style={{fontSize:13,fontWeight:700,cursor:demo?"default":"pointer",
+                            color: i.preis==null?AMBER:"#1D2421",borderBottom:demo?"none":"1px dotted "+LINIE}}>
+                    {i.preis==null ? "kein Preis" : i.preis.toFixed(2)+" €"}</span>}
+            </div>
+            <div style={{flex:"0 0 130px",textAlign:"right"}}>
+              {i.verwendung.length
+                ? <span onClick={()=>setOffen(Object.assign({},offen,{[i.id]:!auf}))}
+                    style={{fontSize:11,color:P,cursor:"pointer",textDecoration:"underline"}}>
+                    in {i.verwendung.length} Eingriff{i.verwendung.length>1?"en":""} {auf?"▴":"▾"}</span>
+                : <span style={{fontSize:10,color:"#5C6660",fontStyle:"italic"}}>nicht verwendet</span>}
+            </div>
+          </div>
+          <div style={{marginTop:6,height:4,background:"#F1F4F3",borderRadius:3,overflow:"hidden"}}>
+            <div style={{width:anteil+"%",height:"100%",background:i.preis?P:"transparent",borderRadius:3}}></div>
+          </div>
+          {auf && <div style={{marginTop:8,paddingLeft:10,borderLeft:"2px solid "+TINT}}>
+            {i.verwendung.map(function(v,k){
+              return <div key={k} style={{fontSize:11,color:"#5C6660",padding:"2px 0"}}>
+                {v.anzahl}× in <strong style={{color:"#1D2421"}}>{v.name}</strong>
+                {v.variante!=="Standard" && <span> · {v.variante}</span>}
+                <span style={{color:"#9AA5A0"}}> · {v.sektion}</span>
+              </div>;
+            })}
+          </div>}
+        </div>;
+      })}
+    </div>}
+
+    {/* ---------------- Ansicht: Eingriffe ---------------- */}
+    {ansicht==="eingriffe" && <div>
+      {eingriffeGefiltert.length===0 && <div style={{padding:20,fontSize:12,color:"#5C6660",textAlign:"center",
+        background:"#fff",border:"1px solid "+LINIE,borderRadius:12}}>Kein Eingriff gefunden.</div>}
+      {eingriffeGefiltert.map(function(e){
+        const maxZ = Math.max.apply(null, [1].concat(e.positionen.map(function(x){ return x.preis||0; })));
+        return <div key={e.eingriffId+e.variante} style={{background:"#fff",border:"1px solid "+LINIE,
+            borderRadius:12,marginBottom:10,overflow:"hidden"}}>
+          <div style={{background:TINT,padding:"8px 14px",display:"flex",justifyContent:"space-between",
+              alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span style={{fontSize:13,fontWeight:700,color:P}}>{e.name}
+              {e.variante!=="Standard" && <span style={{fontWeight:400,fontStyle:"italic",color:"#5C6660"}}> · {e.variante}</span>}
+              <span style={{fontSize:10,color:"#5C6660",fontWeight:400}}> · {e.sektion}</span></span>
+            <span style={{fontSize:13,fontWeight:700,color: e.fehlend?AMBER:P}}>
+              {e.fehlend ? "unvollständig — "+e.fehlend+" ohne Preis" : e.summe.toFixed(2)+" €"}</span>
+          </div>
+          <div style={{padding:"6px 14px 10px"}}>
+            {e.positionen.map(function(pos,idx){
+              const anteil = pos.preis ? Math.max(2, Math.round(pos.preis / maxZ * 100)) : 0;
+              return <div key={idx} style={{padding:"5px 0",borderBottom: idx<e.positionen.length-1?"1px solid #F1F4F3":"none"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{flex:"1 1 auto",fontSize:12}}>{implantatBezeichnung(pos.implantat_id)}</span>
+                  {demo
+                    ? <span style={{flex:"0 0 46px",textAlign:"center",fontSize:12}}>{pos.anzahl}×</span>
+                    : <input type="number" min="0" defaultValue={pos.anzahl}
+                        onBlur={ev=>{ var n=parseInt(ev.target.value||"0",10); if(n!==pos.anzahl) mengeUebernehmen(e.eingriffId,e.variante,idx,n); }}
+                        style={{flex:"0 0 46px",width:46,padding:"2px 4px",fontSize:11,textAlign:"center",
+                                border:"1px solid "+LINIE,borderRadius:4}}/>}
+                  <span style={{flex:"0 0 78px",textAlign:"right",fontSize:11,color: pos.stueckpreis==null?AMBER:"#5C6660"}}>
+                    {pos.stueckpreis==null?"—":pos.stueckpreis.toFixed(2)+" €"}</span>
+                  <span style={{flex:"0 0 82px",textAlign:"right",fontSize:12,fontWeight:600,
+                                color: pos.preis==null?AMBER:"#1D2421"}}>
+                    {pos.preis==null?"kein Preis":pos.preis.toFixed(2)+" €"}</span>
+                </div>
+                <div style={{marginTop:4,height:3,background:"#F1F4F3",borderRadius:2,overflow:"hidden"}}>
+                  <div style={{width:anteil+"%",height:"100%",background:pos.preis?P:"transparent"}}></div>
+                </div>
+              </div>;
+            })}
+            <div style={{display:"flex",justifyContent:"space-between",paddingTop:8,marginTop:4,
+                borderTop:"2px solid "+TINT,fontSize:12,fontWeight:700,color:P}}>
+              <span>Paketsumme</span>
+              <span>{e.fehlend ? "—" : e.summe.toFixed(2)+" €"}</span>
+            </div>
+          </div>
+        </div>;
+      })}
+    </div>}
+  </div>;
+}
+
 function LandingPage({onSelect}) {
   return (
     <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 16px 16px"}}>
@@ -5816,6 +6532,13 @@ function LandingPage({onSelect}) {
           <div style={{fontSize:36,marginBottom:6}}>📊</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Klassifikationen</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Klassifikationen der Fußchirurgie</div>
+        </div>
+        <div onClick={()=>onSelect("preise")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
+          onMouseEnter={e=>{e.currentTarget.style.border="1px solid #10535B";e.currentTarget.style.boxShadow="0 4px 12px rgba(16,83,91,.12)"}}
+          onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
+          <div style={{fontSize:36,marginBottom:6}}>💶</div>
+          <div style={{fontSize:14,fontWeight:700,color:"#10535B",marginBottom:3,lineHeight:1.2}}>Implantatpreise</div>
+          <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Eigene Preisliste · Materialsätze</div>
         </div>
         <div onClick={()=>onSelect("roentgen")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
@@ -5913,6 +6636,19 @@ function App() {
         <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}>
           <KlassifikationenView/>
         </div>
+      </div>
+    </div>
+  );
+
+  if (tool === "preise") return (
+    <div>
+      <ToolKopfleiste titel="Implantatpreise" onHome={()=>setTool(null)}/>
+      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:1020,margin:"0 auto",padding:"16px 16px 40px"}}>
+        <div style={{textAlign:"center",marginBottom:18}}>
+          <div style={{fontSize:22,fontWeight:700,color:"#10535B",marginBottom:4}}>💶 Implantatpreise</div>
+          <div style={{fontSize:11,color:"#718096"}}>Ihre eigene Preisliste · Materialsätze je Eingriff · nur in Ihrem Konto</div>
+        </div>
+        <ImplantatpreiseView/>
       </div>
     </div>
   );
