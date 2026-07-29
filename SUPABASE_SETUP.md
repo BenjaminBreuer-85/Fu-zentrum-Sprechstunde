@@ -132,6 +132,16 @@ group by t.tablename, t.rowsecurity;
 
 Richtig ist: **zwei Zeilen**, bei beiden `rls_aktiv = true` und `policies = 1`. Kommt gar keine Zeile zurück, wurde der Block darüber noch nicht ausgeführt.
 
+## Nachtrag 29.07.2026: Spalte `sektion` (einmalig)
+
+Die Funktion „Implantat anlegen" speichert zu jeder selbst angelegten Position eine Sektion. Dafür braucht `implantatpreise` eine zusätzliche Spalte. **SQL Editor → New query**, einfügen, **Run**:
+
+```sql
+alter table public.implantatpreise add column if not exists sektion text;
+```
+
+Der Befehl ist gefahrlos wiederholbar und ändert an vorhandenen Zeilen nichts. Solange er nicht gelaufen ist, funktioniert die App weiter — sie speichert dann lediglich die Sektion nicht mit und schreibt einen Hinweis in die Browser-Konsole.
+
 ## Jahres-Update ab jetzt (z. B. Katalog 2027)
 
 1. Neue JSON lokal in `data/` ablegen (aus den Master-Excel-Dateien, 1:1-Regel!).

@@ -391,7 +391,7 @@ window.TOOLBOX_AUTH = {
       (res[0].data || []).forEach(function(r){
         pr[r.implantat_id] = {bezeichnung:r.bezeichnung, hersteller:r.hersteller,
           artikelnummer:r.artikelnummer, preis:r.preis, eigene:r.eigene_position,
-          aktualisiert:r.aktualisiert};
+          sektion:r.sektion || "", aktualisiert:r.aktualisiert};
       });
       (res[1].data || []).forEach(function(r){
         var e = ms[r.eingriff_id] || (ms[r.eingriff_id] = {});
@@ -402,8 +402,29 @@ window.TOOLBOX_AUTH = {
         ms[e][v].sort(function(a,b){ return a._sort - b._sort; }); }); });
       window._PREISE = pr;
       window._MATSATZ = ms;
+      geisterEntfernen(client, pr);
       if (window._onPreiseGeladen) window._onPreiseGeladen();
     }).catch(function(e){ console.warn("Preise konnten nicht geladen werden:", e && e.message); });
+  }
+
+  // Aufraeumen: Ueberschriftszeilen der Excel-Vorlage, die ein frueherer Import
+  // faelschlich als Implantate angelegt hat. Nur Eintraege ohne Preis werden
+  // entfernt — echte Positionen bleiben in jedem Fall erhalten.
+  function geisterEntfernen(client, pr){
+    var muell = Object.keys(pr).filter(function(id){
+      var e = pr[id];
+      return /^(ABSCHNITT\b|Eigene Positionen k\u00f6nnen Sie)/i.test(String(e.bezeichnung||"").trim())
+             && (e.preis == null || e.preis === "");
+    });
+    if (!muell.length) return;
+    muell.forEach(function(id){ delete pr[id]; });
+    client.auth.getUser().then(function(u){
+      var uid = u && u.data && u.data.user ? u.data.user.id : null;
+      if (!uid) return;
+      return client.from("implantatpreise").delete().eq("user_id", uid).in("implantat_id", muell);
+    }).then(function(){
+      console.info("Aufgeraeumt: " + muell.length + " Ueberschriftszeile(n) aus der Preisliste entfernt.");
+    }).catch(function(e){ console.warn("Aufraeumen fehlgeschlagen:", e && e.message); });
   }
 
   function download(client){
@@ -464,9 +485,9 @@ const { useState, useMemo, useEffect, useRef } = React;
    ============================================================ */
 function ToolKopfleiste(props){
   return <div style={{position:"sticky",top:0,zIndex:999,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,padding:"8px 12px",background:"rgba(255,255,255,.97)",borderBottom:"1px solid rgba(0,0,0,.08)"}}>
-    <div onClick={props.onHome} style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:11,fontWeight:600,whiteSpace:"nowrap",boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>← Toolbox</div>
+    <div onClick={props.onHome} style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:11,fontWeight:600,whiteSpace:"nowrap",boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>← Menü</div>
     <div style={{fontSize:12,fontWeight:700,color:"#006B6F",textAlign:"center",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{props.titel}</div>
-    <div onClick={props.onHome} title="Zur Toolbox" style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:12,fontWeight:600,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>⌂</div>
+    <div onClick={props.onHome} title="Zum Menü" style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:12,fontWeight:600,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>⌂</div>
   </div>;
 }
 
@@ -512,6 +533,10 @@ const OPS = window._DATA.opmethoden.OPS;
 // ============================================================================
 // SPEICHERN in Supabase (nur eigenes Konto — Row Level Security)
 // ============================================================================
+// Die Spalte "sektion" kam erst mit der Funktion "Implantat anlegen" dazu.
+// Fehlt sie in der Datenbank, speichern wir ohne sie weiter, statt den
+// Speichervorgang scheitern zu lassen.
+var _SEKTIONSSPALTE = true;
 function preisSpeichern(id, felder){
   var e = window._PREISE[id] || {};
   var neu = Object.assign({}, e, felder);
@@ -520,13 +545,35 @@ function preisSpeichern(id, felder){
   return window._SB.auth.getUser().then(function(u){
     var uid = u && u.data && u.data.user ? u.data.user.id : null;
     if (!uid) return;
-    return window._SB.from("implantatpreise").upsert({
-      user_id: uid, implantat_id: id,
-      bezeichnung: neu.bezeichnung || implantatBezeichnung(id),
-      hersteller: neu.hersteller || null, artikelnummer: neu.artikelnummer || null,
-      preis: neu.preis == null ? null : Number(neu.preis),
-      eigene_position: !!neu.eigene, aktualisiert: new Date().toISOString()
-    }, {onConflict: "user_id,implantat_id"});
+    function zeile(mitSektion){
+      var z = {user_id: uid, implantat_id: id,
+        bezeichnung: neu.bezeichnung || implantatBezeichnung(id),
+        hersteller: neu.hersteller || null, artikelnummer: neu.artikelnummer || null,
+        preis: neu.preis == null ? null : Number(neu.preis),
+        eigene_position: !!neu.eigene, aktualisiert: new Date().toISOString()};
+      if (mitSektion) z.sektion = neu.sektion || null;
+      return z;
+    }
+    return window._SB.from("implantatpreise")
+      .upsert(zeile(_SEKTIONSSPALTE), {onConflict: "user_id,implantat_id"})
+      .then(function(r){
+        if (r && r.error && _SEKTIONSSPALTE && /sektion/i.test(r.error.message||"")) {
+          _SEKTIONSSPALTE = false;                 // Spalte fehlt — ohne sie erneut
+          console.warn("Spalte „sektion“ fehlt in implantatpreise — siehe SUPABASE_SETUP.md.");
+          return window._SB.from("implantatpreise").upsert(zeile(false), {onConflict: "user_id,implantat_id"});
+        }
+        return r;
+      });
+  });
+}
+// Eigene Position wieder entfernen (Katalogpositionen bleiben unantastbar)
+function preisLoeschen(id){
+  delete window._PREISE[id];
+  if (!window._SB) return Promise.resolve();
+  return window._SB.auth.getUser().then(function(u){
+    var uid = u && u.data && u.data.user ? u.data.user.id : null;
+    if (!uid) return;
+    return window._SB.from("implantatpreise").delete().eq("user_id", uid).eq("implantat_id", id);
   });
 }
 // Standard-Materialsatz eines Eingriffs speichern (genau EIN Satz je Eingriff+Variante)
@@ -561,6 +608,13 @@ function implantatBezeichnung(id){
   if (e && e.bezeichnung) return e.bezeichnung;              // vom Nutzer umbenannt
   var k = _ZUORD.KATALOG[id];
   return k ? k.bezeichnung : id;
+}
+// Eigene Position? Alles, was nicht im ausgelieferten Katalog steht.
+function istEigenePosition(id){ return !_ZUORD.KATALOG[id]; }
+// Selbst gewaehlte Sektion einer eigenen Position (Katalogpositionen: keine)
+function implantatSektion(id){
+  var e = _preisEintrag(id);
+  return (e && e.sektion) || "";
 }
 function implantatStueckpreis(id){
   var e = _preisEintrag(id);
@@ -6132,7 +6186,23 @@ function preisExcelEinlesen(datei, fertig){
       var wsP = wb.Sheets["Meine Preise"], wsE = wb.Sheets["Eingriffe"];
       if (!wsP) { fertig("Blatt „Meine Preise“ fehlt — bitte die Vorlage aus der App verwenden."); return; }
       // --- Preise ---
-      var preise = X.utils.sheet_to_json(wsP).filter(function(r){ return r["Implantat"]; });
+      // Struktur-Zeilen der Vorlage sind keine Implantate. Erkennung strukturell:
+      // Die Vorlage schreibt Abschnitts- und Hinweiszeilen ausschliesslich in
+      // Spalte A und laesst Hersteller, Artikelnummer, Preis und ID leer. Eine
+      // echte Position hat immer mindestens eines dieser vier Felder gefuellt.
+      function istStrukturzeile(r){
+        var bez = String(r["Implantat"] == null ? "" : r["Implantat"]).trim();
+        if (!bez) return true;                                  // voellig leere Zeile
+        var nurSpalteA = !r["Implantat-ID"] && !r["Hersteller"] && !r["Artikelnummer"]
+                      && (r["Einzelpreis (\u20ac)"] === undefined || r["Einzelpreis (\u20ac)"] === "");
+        if (!nurSpalteA) return false;         // echte Position, evtl. noch ohne Preis
+        return /^(ABSCHNITT\b|Eigene Positionen k\u00f6nnen Sie)/i.test(bez);
+      }
+      var strukturzeilen = 0;
+      var preise = X.utils.sheet_to_json(wsP).filter(function(r){
+        if (istStrukturzeile(r)) { if (String(r["Implantat"]||"").trim()) strukturzeilen++; return false; }
+        return true;
+      });
       var nachName = {};
       Object.keys(_ZUORD.KATALOG).forEach(function(id){ nachName[_ZUORD.KATALOG[id].bezeichnung.toLowerCase()] = id; });
       Object.keys(window._PREISE||{}).forEach(function(id){
@@ -6145,7 +6215,8 @@ function preisExcelEinlesen(datei, fertig){
         var preis = (roh===undefined||roh==="") ? null : Number(String(roh).replace(",", "."));
         if (preis == null) ohnePreis++; else uebernommen++;
         preisSpeichern(id, {bezeichnung:String(r["Implantat"]).trim(), hersteller:r["Hersteller"]||"",
-          artikelnummer:r["Artikelnummer"]||"", preis: isFinite(preis)?preis:null, eigene: !r["Implantat-ID"]});
+          artikelnummer:r["Artikelnummer"]||"", preis: isFinite(preis)?preis:null,
+          eigene: !_ZUORD.KATALOG[id]});
       });
       // --- Materialsätze ---
       var saetze = {}, fehlendeEingriffe = [];
@@ -6165,6 +6236,7 @@ function preisExcelEinlesen(datei, fertig){
       if (ohnePreis) text += ", "+ohnePreis+" ohne Preis";
       if (eigene) text += ", "+eigene+" eigene Position"+(eigene>1?"en":"");
       if (fehlendeEingriffe.length) text += " · "+fehlendeEingriffe.length+" Eingriff"+(fehlendeEingriffe.length>1?"e":"")+" nicht in der Datei — bisheriger Materialsatz bleibt erhalten";
+      if (strukturzeilen) text += " · "+strukturzeilen+" Überschriftszeile"+(strukturzeilen>1?"n":"")+" der Vorlage übersprungen";
       fertig(text);
     } catch(e){ fertig("Datei konnte nicht gelesen werden: "+(e&&e.message?e.message:e)); }
   };
@@ -6176,6 +6248,13 @@ function preisExcelEinlesen(datei, fertig){
 // ============================================================================
 const PREIS_SEKTIONEN = ["Vorfuß","Rückfuß","OSG","OSG-Prothese","Unfallchirurgie"];
 
+// Anzeigename eines Eingriffs. Sieben Namen kommen mehrfach vor und sind nur
+// ueber die Variante unterscheidbar ("OSG-TEP Mobile Bearing" gibt es als
+// "Flat Cut" und "kurviert") — deshalb haengen wir sie ueberall dort an, wo
+// der Eingriff ohne eigene Variantenspalte erscheint.
+function eingriffAnzeige(name, variante){
+  return (!variante || variante === "Standard") ? name : name + " · " + variante;
+}
 // Wo wird ein Implantat verwendet? → [{eingriffId, name, variante, anzahl}]
 function verwendungVon(id){
   var out = [];
@@ -6184,7 +6263,8 @@ function verwendungVon(id){
     Object.keys(e.varianten).forEach(function(v){
       materialsatzPositionen(eg, v).forEach(function(pos){
         if (pos.implantat_id === id)
-          out.push({eingriffId:eg, name:e.name, variante:v, sektion:e.sektion, anzahl:pos.anzahl});
+          out.push({eingriffId:eg, name:e.name, anzeige:eingriffAnzeige(e.name, v),
+                    variante:v, sektion:e.sektion, anzahl:pos.anzahl});
       });
     });
   });
@@ -6198,7 +6278,8 @@ function alleEingriffe(){
     Object.keys(e.varianten).forEach(function(v){
       var pos = MATPOS(eg, v);
       var fehlend = pos.filter(function(x){ return x.preis == null; });
-      out.push({eingriffId:eg, name:e.name, sektion:e.sektion, variante:v, positionen:pos,
+      out.push({eingriffId:eg, name:e.name, anzeige:eingriffAnzeige(e.name, v),
+        sektion:e.sektion, variante:v, positionen:pos,
         summe: pos.reduce(function(s,x){ return s + (x.preis||0); }, 0),
         fehlend: fehlend.length, fehlendeIds: fehlend.map(function(x){ return x.implantat_id; })});
     });
@@ -6235,6 +6316,8 @@ function ImplantatpreiseView(){
     setTimeout(function(){ window.scrollTo({top:y, behavior:"auto"}); }, 30);
   }
   const [bearbeite, setBearbeite] = React.useState(null);  // {id, wert}
+  const [anlegen, setAnlegen] = React.useState(null);      // Formular „Implantat anlegen“
+  const [neuePos, setNeuePos] = React.useState({});        // Auswahl je Eingriff
   const [meldung, setMeldung] = React.useState("");
   const dateiRef = React.useRef(null);
 
@@ -6250,6 +6333,7 @@ function ImplantatpreiseView(){
       var e = (window._PREISE||{})[id] || {};
       return {id:id, bezeichnung: implantatBezeichnung(id), hersteller: e.hersteller || "",
         artikelnummer: e.artikelnummer || "", preis: implantatStueckpreis(id),
+        sektion: implantatSektion(id), eigene: istEigenePosition(id),
         aktualisiert: e.aktualisiert || null, verwendung: verwendungVon(id)};
     });
   }, [tick]);
@@ -6266,7 +6350,10 @@ function ImplantatpreiseView(){
   const gefiltert = React.useMemo(function(){
     var l = implantate.filter(function(i){
       if (q && !((i.bezeichnung+" "+i.hersteller+" "+i.artikelnummer).toLowerCase().includes(q))) return false;
-      if (sektion && !i.verwendung.some(function(v){ return v.sektion === sektion; })) return false;
+      // Eine selbst angelegte Position hat noch keine Verwendung — dann zaehlt
+      // die bei der Anlage gewaehlte Sektion.
+      if (sektion && i.sektion !== sektion
+          && !i.verwendung.some(function(v){ return v.sektion === sektion; })) return false;
       return true;
     });
     l.sort(function(a,b){
@@ -6306,6 +6393,64 @@ function ImplantatpreiseView(){
     });
   }
 
+  // --- Eigene Position anlegen ---------------------------------------------
+  const LEER_FORM = {bezeichnung:"", hersteller:"", artikelnummer:"", preis:"", sektion:PREIS_SEKTIONEN[0]};
+  function neueImplantatId(bez){
+    var basis = "eigen_" + bez.toLowerCase()
+      .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
+      .replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,40);
+    if (basis === "eigen_") basis = "eigen_position";
+    var id = basis, n = 2;
+    while (_ZUORD.KATALOG[id] || (window._PREISE||{})[id]) id = basis + "_" + (n++);
+    return id;
+  }
+  function anlegenSpeichern(){
+    var f = anlegen, bez = (f.bezeichnung||"").trim();
+    if (!bez) { setMeldung("Bitte eine Bezeichnung eintragen."); return; }
+    var preis = String(f.preis).replace(",", ".").trim();
+    if (preis === "" || !isFinite(Number(preis))) { setMeldung("Bitte einen Einzelpreis eintragen."); return; }
+    // Keine zwei Positionen duerfen gleich heissen
+    var doppelt = implantate.some(function(i){
+      return i.bezeichnung.trim().toLowerCase() === bez.toLowerCase(); });
+    if (doppelt) { setMeldung("„"+bez+"“ gibt es bereits — bitte eine unterscheidbare Bezeichnung wählen."); return; }
+    var id = neueImplantatId(bez);
+    preisSpeichern(id, {bezeichnung:bez, hersteller:(f.hersteller||"").trim(),
+      artikelnummer:(f.artikelnummer||"").trim(), preis:Number(preis),
+      sektion:f.sektion || "", eigene:true}).then(function(){
+      setAnlegen(null); neuBerechnen();
+      setMeldung("„"+bez+"“ angelegt — ab sofort in den Materialsätzen wählbar.");
+      setTimeout(function(){ setMeldung(""); }, 4000);
+    });
+  }
+  function positionLoeschen(i){
+    if (i.verwendung.length) {
+      if (!window.confirm("„"+i.bezeichnung+"“ wird in "+i.verwendung.length+" Eingriff"
+        +(i.verwendung.length>1?"en":"")+" verwendet.\n\nWirklich löschen? Die Position verschwindet "
+        +"dann auch aus diesen Materialsätzen.")) return;
+    }
+    preisLoeschen(i.id).then(function(){
+      neuBerechnen(); setMeldung("„"+i.bezeichnung+"“ gelöscht.");
+      setTimeout(function(){ setMeldung(""); }, 3000);
+    });
+  }
+  // --- Position zu einem Materialsatz hinzufuegen ---------------------------
+  function positionHinzufuegen(e){
+    var key = e.eingriffId + "|" + e.variante, id = neuePos[key];
+    if (!id) return;
+    var pos = materialsatzPositionen(e.eingriffId, e.variante).map(function(x){
+      return {implantat_id:x.implantat_id, anzahl:x.anzahl}; });
+    if (pos.some(function(x){ return x.implantat_id === id; })) {
+      setMeldung(implantatBezeichnung(id)+" ist in diesem Eingriff bereits enthalten.");
+      setTimeout(function(){ setMeldung(""); }, 3000); return;
+    }
+    pos.push({implantat_id:id, anzahl:1});
+    materialsatzSpeichern(e.eingriffId, e.variante, pos).then(function(){
+      setNeuePos(Object.assign({}, neuePos, {[key]:""}));
+      neuBerechnen(); setMeldung(implantatBezeichnung(id)+" zu „"+e.anzeige+"“ hinzugefügt.");
+      setTimeout(function(){ setMeldung(""); }, 3000);
+    });
+  }
+
   // --- Export / Import ---
   function exportieren(){
     if (!window.XLSX) { setMeldung("Excel-Bibliothek nicht geladen"); return; }
@@ -6320,6 +6465,8 @@ function ImplantatpreiseView(){
   const P = "#10535B", TINT = "#E6F0F1", AMBER = "#8A5A00", AMBERBG = "#FBF3DF", LINIE = "#D6E2E3";
   const btn = (aktiv) => ({padding:"6px 14px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",
     border:"1px solid "+(aktiv?P:LINIE), background: aktiv?P:"#fff", color: aktiv?"#fff":"#5C6660"});
+  const feld = {width:"100%",marginTop:3,padding:"7px 9px",fontSize:12,color:"#1D2421",
+    border:"1px solid "+LINIE,borderRadius:7,boxSizing:"border-box"};
 
   // ---------------------------------------------------------------- Leerzustand
   if (!hatPreise) {
@@ -6346,13 +6493,11 @@ function ImplantatpreiseView(){
   return <div style={{maxWidth:980,margin:"0 auto",padding:"4px 4px 30px"}}>
     {/* Statuszeile */}
     <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:12}}>
-      <div style={{flex:"1 1 150px",background:"#fff",border:"1px solid "+LINIE,borderRadius:10,padding:"10px 14px"}}>
-        <div style={{fontSize:20,fontWeight:700,color:P}}>{status.gesamt}</div>
-        <div style={{fontSize:11,color:"#5C6660"}}>Eingriffe gesamt</div>
-      </div>
-      <div style={{flex:"1 1 150px",background:"#fff",border:"1px solid "+LINIE,borderRadius:10,padding:"10px 14px"}}>
-        <div style={{fontSize:20,fontWeight:700,color:"#2E7D32"}}>{status.vollstaendig}</div>
-        <div style={{fontSize:11,color:"#5C6660"}}>vollständig bepreist</div>
+      <div style={{flex:"1 1 240px",background:"#fff",border:"1px solid "+LINIE,borderRadius:10,padding:"10px 14px"}}>
+        <div style={{fontSize:20,fontWeight:700,color: status.vollstaendig===status.gesamt ? "#2E7D32" : P}}>
+          {status.vollstaendig}<span style={{fontSize:13,fontWeight:400,color:"#5C6660"}}> von </span>{status.gesamt}
+        </div>
+        <div style={{fontSize:11,color:"#5C6660"}}>Eingriffen vollständig bepreist</div>
       </div>
       {status.unvollstaendig.length>0 && <div style={{flex:"1 1 190px",background:AMBERBG,
           border:"1px solid "+AMBER,borderRadius:10,padding:"10px 14px"}}>
@@ -6368,7 +6513,7 @@ function ImplantatpreiseView(){
             return <span key={e.eingriffId+e.variante} title="zur fehlenden Position springen"
               onClick={()=>springeZu(e.fehlendeIds[0])}
               style={{fontSize:10,padding:"2px 7px",borderRadius:20,background:"#fff",border:"1px solid "+AMBER,
-                      color:AMBER,cursor:"pointer"}}>{e.name}</span>;
+                      color:AMBER,cursor:"pointer"}}>{e.anzeige}</span>;
           })}
         </div>}
       </div>}
@@ -6385,6 +6530,8 @@ function ImplantatpreiseView(){
       <div onClick={()=>setAnsicht("implantate")} style={btn(ansicht==="implantate")}>Implantate</div>
       <div onClick={()=>setAnsicht("eingriffe")} style={btn(ansicht==="eingriffe")}>Eingriffe</div>
       <div style={{flex:1}}></div>
+      {ansicht==="implantate" && <div onClick={()=>setAnlegen(anlegen?null:LEER_FORM)}
+        style={Object.assign({},btn(false),{fontSize:11})}>+ Implantat anlegen</div>}
       <div onClick={exportieren} style={Object.assign({},btn(false),{fontSize:11})}>↓ Als Excel exportieren</div>
       <div onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false),{fontSize:11})}>↑ Datei hochladen</div>
       <input ref={dateiRef} type="file" accept=".xlsx" onChange={dateiGewaehlt} style={{display:"none"}}/>
@@ -6410,6 +6557,51 @@ function ImplantatpreiseView(){
     {meldung && <div style={{marginBottom:10,padding:"7px 12px",background:TINT,border:"1px solid "+P,
       borderRadius:8,fontSize:12,color:P}}>{meldung}</div>}
 
+
+    {/* ---------------- Formular: eigenes Implantat anlegen ---------------- */}
+    {anlegen && <div style={{background:"#fff",border:"1px solid "+P,borderRadius:12,
+        padding:"14px 16px",marginBottom:12}}>
+      <div style={{fontSize:13,fontWeight:700,color:P,marginBottom:4}}>Eigenes Implantat anlegen</div>
+      <div style={{fontSize:11,color:"#5C6660",marginBottom:12,lineHeight:1.55}}>
+        Für Positionen, die im Standardkatalog fehlen. Sie erscheinen anschließend in Ihrer
+        Preisliste, sind in jedem Materialsatz auswählbar und werden beim Excel-Export mit ausgegeben.
+      </div>
+      <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+        <label style={{flex:"2 1 240px",fontSize:11,color:"#5C6660"}}>Bezeichnung *
+          <input autoFocus value={anlegen.bezeichnung}
+            onChange={ev=>setAnlegen(Object.assign({},anlegen,{bezeichnung:ev.target.value}))}
+            onKeyDown={ev=>{ if(ev.key==="Enter") anlegenSpeichern(); if(ev.key==="Escape") setAnlegen(null); }}
+            placeholder="z. B. Winkelstabile Platte, 6 Loch"
+            style={feld}/></label>
+        <label style={{flex:"1 1 150px",fontSize:11,color:"#5C6660"}}>Einzelpreis (€) *
+          <input value={anlegen.preis} inputMode="decimal"
+            onChange={ev=>setAnlegen(Object.assign({},anlegen,{preis:ev.target.value}))}
+            onKeyDown={ev=>{ if(ev.key==="Enter") anlegenSpeichern(); if(ev.key==="Escape") setAnlegen(null); }}
+            placeholder="0,00" style={Object.assign({},feld,{textAlign:"right"})}/></label>
+      </div>
+      <div style={{display:"flex",gap:10,flexWrap:"wrap",marginTop:8}}>
+        <label style={{flex:"1 1 160px",fontSize:11,color:"#5C6660"}}>Hersteller
+          <input value={anlegen.hersteller}
+            onChange={ev=>setAnlegen(Object.assign({},anlegen,{hersteller:ev.target.value}))}
+            style={feld}/></label>
+        <label style={{flex:"1 1 160px",fontSize:11,color:"#5C6660"}}>Artikelnummer
+          <input value={anlegen.artikelnummer}
+            onChange={ev=>setAnlegen(Object.assign({},anlegen,{artikelnummer:ev.target.value}))}
+            style={feld}/></label>
+        <label style={{flex:"1 1 150px",fontSize:11,color:"#5C6660"}}>Sektion
+          <select value={anlegen.sektion}
+            onChange={ev=>setAnlegen(Object.assign({},anlegen,{sektion:ev.target.value}))}
+            style={Object.assign({},feld,{background:"#fff"})}>
+            {PREIS_SEKTIONEN.map(function(s){ return <option key={s} value={s}>{s}</option>; })}
+          </select></label>
+      </div>
+      <div style={{display:"flex",gap:8,marginTop:12,alignItems:"center"}}>
+        <div onClick={anlegenSpeichern} style={btn(true)}>Anlegen</div>
+        <div onClick={()=>setAnlegen(null)} style={btn(false)}>Abbrechen</div>
+        <span style={{fontSize:10,color:"#9AA5A0"}}>* Pflichtfeld</span>
+      </div>
+    </div>}
+
     {/* ---------------- Ansicht: Implantate ---------------- */}
     {ansicht==="implantate" && <div style={{background:"#fff",border:"1px solid "+LINIE,borderRadius:12,overflow:"hidden"}}>
       {gefiltert.length===0 && <div style={{padding:20,fontSize:12,color:"#5C6660",textAlign:"center"}}>Keine Position gefunden.</div>}
@@ -6419,9 +6611,13 @@ function ImplantatpreiseView(){
         return <div key={i.id} style={{borderBottom:"1px solid "+LINIE,padding:"9px 14px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
             <div style={{flex:"1 1 240px",minWidth:0}}>
-              <div style={{fontSize:13,fontWeight:600,color:"#1D2421"}}>{i.bezeichnung}</div>
+              <div style={{fontSize:13,fontWeight:600,color:"#1D2421"}}>{i.bezeichnung}
+                {i.eigene && <span title="Selbst angelegte Position"
+                  style={{marginLeft:6,fontSize:9,fontWeight:600,color:P,background:TINT,
+                          padding:"1px 6px",borderRadius:20,verticalAlign:"1px"}}>eigene</span>}</div>
               <div style={{fontSize:10,color:"#5C6660"}}>
                 {[i.hersteller, i.artikelnummer].filter(Boolean).join(" · ") || "—"}
+                {i.eigene && i.sektion && <span> · {i.sektion}</span>}
                 {i.aktualisiert && <span> · Stand {new Date(i.aktualisiert).toLocaleDateString("de-DE")}</span>}
               </div>
             </div>
@@ -6435,7 +6631,7 @@ function ImplantatpreiseView(){
                     <div style={{fontSize:10,color:AMBER,marginTop:3,textAlign:"right",lineHeight:1.4}}>
                       {i.verwendung.length
                         ? "wirkt sich auf "+i.verwendung.length+" Eingriff"+(i.verwendung.length>1?"e":"")+" aus: "
-                          + i.verwendung.slice(0,3).map(function(v){return v.name;}).join(", ")
+                          + i.verwendung.slice(0,3).map(function(v){return v.anzeige;}).join(", ")
                           + (i.verwendung.length>3 ? " …" : "")
                         : "wird derzeit in keinem Eingriff verwendet"}
                     </div>
@@ -6452,6 +6648,10 @@ function ImplantatpreiseView(){
                     in {i.verwendung.length} Eingriff{i.verwendung.length>1?"en":""} {auf?"▴":"▾"}</span>
                 : <span style={{fontSize:10,color:"#5C6660",fontStyle:"italic"}}>nicht verwendet</span>}
             </div>
+            <div style={{flex:"0 0 18px",textAlign:"right"}}>
+              {i.eigene && <span onClick={()=>positionLoeschen(i)} role="button" title="Eigene Position löschen"
+                style={{cursor:"pointer",fontSize:15,lineHeight:1,color:"#9AA5A0",padding:"0 2px"}}>×</span>}
+            </div>
           </div>
           <div style={{marginTop:6,height:4,background:"#F1F4F3",borderRadius:3,overflow:"hidden"}}>
             <div style={{width:anteil+"%",height:"100%",background:i.preis?P:"transparent",borderRadius:3}}></div>
@@ -6459,8 +6659,7 @@ function ImplantatpreiseView(){
           {auf && <div style={{marginTop:8,paddingLeft:10,borderLeft:"2px solid "+TINT}}>
             {i.verwendung.map(function(v,k){
               return <div key={k} style={{fontSize:11,color:"#5C6660",padding:"2px 0"}}>
-                {v.anzahl}× in <strong style={{color:"#1D2421"}}>{v.name}</strong>
-                {v.variante!=="Standard" && <span> · {v.variante}</span>}
+                {v.anzahl}× in <strong style={{color:"#1D2421"}}>{v.anzeige}</strong>
                 <span style={{color:"#9AA5A0"}}> · {v.sektion}</span>
               </div>;
             })}
@@ -6506,6 +6705,20 @@ function ImplantatpreiseView(){
                 </div>
               </div>;
             })}
+            <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8,flexWrap:"wrap"}}>
+              <select value={neuePos[e.eingriffId+"|"+e.variante] || ""}
+                onChange={ev=>setNeuePos(Object.assign({},neuePos,{[e.eingriffId+"|"+e.variante]:ev.target.value}))}
+                style={{flex:"1 1 200px",padding:"5px 7px",fontSize:11,border:"1px solid "+LINIE,
+                        borderRadius:6,background:"#fff",color:"#5C6660"}}>
+                <option value="">Position hinzufügen …</option>
+                {implantate.slice().sort(function(a,b){ return a.bezeichnung.localeCompare(b.bezeichnung,"de"); })
+                  .map(function(i){ return <option key={i.id} value={i.id}>
+                    {i.bezeichnung}{i.preis==null?" (kein Preis)":""}</option>; })}
+              </select>
+              <span onClick={()=>positionHinzufuegen(e)}
+                style={{fontSize:11,padding:"5px 12px",borderRadius:6,cursor:"pointer",
+                        border:"1px solid "+LINIE,background:"#fff",color:P,fontWeight:600}}>+ Hinzufügen</span>
+            </div>
             <div style={{display:"flex",justifyContent:"space-between",paddingTop:8,marginTop:4,
                 borderTop:"2px solid "+TINT,fontSize:12,fontWeight:700,color:P}}>
               <span>Paketsumme</span>

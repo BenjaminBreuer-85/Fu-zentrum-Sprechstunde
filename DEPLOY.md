@@ -59,9 +59,20 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 29.07.2026: nichts offen.** Bucket-Upload (ca. 18:00 Uhr) und Push sind
-erfolgt, die Live-Seite laeuft auf dem neuen Stand. Keine Datei in `data/` wurde
-seither veraendert — juengste Aenderung war 16:27 Uhr, also vor dem Upload.
+**Stand 29.07.2026: kein Bucket-Upload offen.** Keine Datei in `data/` wurde
+veraendert; die letzten Aenderungen betreffen ausschliesslich `app.html`.
+
+**Offen ist dagegen ein einmaliger SQL-Befehl in Supabase.** Die Funktion
+„Implantat anlegen" speichert eine Sektion je Position und braucht dafuer eine
+neue Spalte. SQL Editor → New query → ausfuehren:
+
+```sql
+alter table public.implantatpreise add column if not exists sektion text;
+```
+
+Reihenfolge egal: die App laeuft auch ohne die Spalte weiter und speichert dann
+nur die Sektion nicht mit (Hinweis in der Browser-Konsole). Details in
+`SUPABASE_SETUP.md`.
 
 Diesen Abschnitt bei der naechsten Aenderung wieder fuellen: Welche Datei wurde
 geaendert, was steht drin, und ob sie ins Repo oder in den Bucket gehoert.
