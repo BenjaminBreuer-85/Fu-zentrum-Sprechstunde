@@ -81,6 +81,14 @@ Implantatpreise sind **Nutzerdaten**, keine Auslieferungsdaten — jeder Nutzer 
 - Medizinische Textänderungen: erst recherchieren (PubMed, mit PMID/DOI), dann Vorschlag zur Freigabe — nie stillschweigend genehmigte Texte überschreiben.
 - Schreibstil (auch für Aufklärungs-/Patiententexte): Fließtext statt Label-Bullets, keine rhetorischen Fragen, keine stilistischen Doppelpunkte, deutsche Anführungszeichen „…", schwierige Begriffe kurz in Klammern erklären. ICD-Codes gehören in die klinischen Tools, nie in Patiententexte.
 
+## Arbeitsweise (verbindlich)
+
+**Wer committet:** Commits erstellt **ausschließlich die Claude-Code-Sitzung**, mit beschreibender Nachricht (Betreffzeile plus Aufzählung, was sich fachlich geändert hat — nicht „Update" oder „x"). Benjamin committet nicht von Hand; so bleibt die Historie lückenlos nachvollziehbar und jede Änderung ist einem geprüften Stand zugeordnet.
+
+**Wann gepusht wird:** Benjamin pusht **nur dann, wenn die Sitzung den Stand ausdrücklich als „deploybar" bezeichnet hat** — nie zwischendurch. „Deploybar" heißt: validiert (JSON/JSX), lokal im Dev-Server geprüft, und die Reihenfolge aus `DEPLOY.md` ist berücksichtigt (Bucket-Upload vor Push). Ein Push mitten in einer laufenden Änderung kann die Live-Seite brechen — genau so entstand die Panne vom 29.07.2026.
+
+**Vor jeder Deploy-Aussage:** Die Sitzung prüft den **tatsächlichen Remote-Stand mit `git fetch`** (dann `git status -sb` / `git log --oneline origin/main`), statt aus dem Gedächtnis zu argumentieren. Der eigene Kontext kann veraltet sein, weil Benjamin zwischendurch selbst gepusht hat. Erst nach dieser Prüfung werden die zu deployenden Dateien benannt.
+
 ## Workflow für Änderungen
 
 1. **Ändern** in `index.html` (Komponenten/Logik) bzw. `data/*.json` (Inhalte); bei medizinischem Inhalt erst Vorschlag zur Freigabe.
