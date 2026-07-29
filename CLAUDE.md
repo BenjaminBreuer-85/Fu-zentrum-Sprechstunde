@@ -35,6 +35,8 @@ Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.ht
 | `data/referenz.json` | `KLASSIFIKATIONEN` (47), `ROENTGEN` (14), `MESSMETHODEN` (32), `MANUALE` |
 | `landing.html` | Öffentliche Produktseite „Fuss-Track Clinic" (Voraussetzung für Paddle-Prüfung; `noindex` bis Rechtstexte final) |
 | `impressum.html`, `datenschutz.html`, `agb.html`, `widerruf.html` | Rechtstexte-Gerüst mit [PLATZHALTER]-Blöcken — Inhalte kommen von Anwalt/Generator, nie von Claude formulieren |
+| `DEPLOY.md` | **Deploy-Checkliste**: was ins Repo, was in den Bucket, in welcher Reihenfolge — vor jedem Deploy lesen |
+| `zuordnung/implantat_zuordnung.json` | Standard-Materialsatz (Eingriff → Implantattyp → Anzahl), preis- und markenfrei — liegt bewusst offen im Repo, nicht im Bucket |
 | `SUPABASE_SETUP.md` | Einrichtungs- und Betriebsanleitung für den Login (Stufe 2) |
 | `scripts/dev-server.py` | Lokaler Dev-Server mit Live-Reload (s. u.) |
 | `scripts/verify_extraction.py` | Prüfskript: vergleicht data/*.json Wert für Wert mit dem alten Einbettungs-Stand aus Git |
@@ -87,7 +89,7 @@ Implantatpreise sind **Nutzerdaten**, keine Auslieferungsdaten — jeder Nutzer 
    - Referenzen: jeder Key in `DIAG[x].opMethoden` existiert in `OPS`; `OP_STEUERUNG`-/`AUFKLAERUNG_MAP`-Keys passen zu `OPS`; DRG-Codes existieren in `_DRG`/`_HDRG`; `__fx`-Marker nur als `{"__fx": "string"}`.
    - Nach Daten-Verschiebungen: `python3 scripts/verify_extraction.py <ref>` — `<ref>` ist ein Git-Stand, der die Daten noch EINGEBETTET in index.html hat (Stufe-1-Vergleich; nach dem Umbau-Commit den Pre-Umbau-Hash angeben, z. B. `2aafcc5`).
 3. **Live-Preview:** Dev-Server (s. u.), `http://localhost:8000/index.html`.
-4. **Deploy:** Der Autor lädt manuell auf GitHub hoch — am Ende immer die exakt zu deployenden Dateien benennen. Solange Supabase noch nicht live ist, gehören bei Inhaltsänderungen die betroffenen `data/*.json` mit zum GitHub-Deploy. **Sobald Supabase live ist:** Inhaltsänderungen werden im Supabase-Bucket ersetzt (Storage → Datei überschreiben), `data/` bleibt aus dem GitHub-Repo draußen; zu GitHub geht dann nur noch index.html/Hüllen-Code.
+4. **Deploy:** **Zuerst `DEPLOY.md` lesen** — Bucket-Upload vor Push. Der Autor lädt manuell auf GitHub hoch — am Ende immer die exakt zu deployenden Dateien benennen. Solange Supabase noch nicht live ist, gehören bei Inhaltsänderungen die betroffenen `data/*.json` mit zum GitHub-Deploy. **Sobald Supabase live ist:** Inhaltsänderungen werden im Supabase-Bucket ersetzt (Storage → Datei überschreiben), `data/` bleibt aus dem GitHub-Repo draußen; zu GitHub geht dann nur noch index.html/Hüllen-Code.
 
 ## Lokaler Dev-Server (Standard bei jeder Arbeitssitzung)
 

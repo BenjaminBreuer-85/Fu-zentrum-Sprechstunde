@@ -1,0 +1,947 @@
+{
+ "_kommentar": [
+  "Standard-Materialsatz (Auslieferung) — Zuordnung Eingriff → Implantat → Anzahl, OHNE Preise.",
+  "Preise sind Nutzerdaten und liegen ausschliesslich im Supabase-Konto des jeweiligen Nutzers.",
+  "Bezeichnungen sind bewusst markenfrei; Nutzer koennen sie in der App auf ihre Produkte umbenennen.",
+  "MAPPING_OPS verbindet die Abrechnungs-Keys (OP_STEUERUNG) mit den Materialsaetzen."
+ ],
+ "KATALOG": {
+  "tep_ax_schaft_basis": {
+   "bezeichnung": "OSG-TEP achsgeführt: Schaft-Basiselement",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_ax_schaft_verl": {
+   "bezeichnung": "OSG-TEP achsgeführt: Schaft-Verlängerung",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_ax_inlay": {
+   "bezeichnung": "OSG-TEP achsgeführt: PE-Inlay",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_ax_talus": {
+   "bezeichnung": "OSG-TEP achsgeführt: Taluskomponente",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_ax_talus_schaft": {
+   "bezeichnung": "OSG-TEP achsgeführt: Talus-Stem",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_ax_tibia": {
+   "bezeichnung": "OSG-TEP achsgeführt: Tibiakomponente",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_lp_inlay": {
+   "bezeichnung": "OSG-TEP Low Profile: PE-Inlay",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_lp_talus": {
+   "bezeichnung": "OSG-TEP Low Profile: Taluskomponente",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_lp_tibia": {
+   "bezeichnung": "OSG-TEP Low Profile: Tibiakomponente",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_mb_talus_flat": {
+   "bezeichnung": "OSG-TEP Mobile Bearing: Taluskomponente, flach reseziert",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_mb_inlay": {
+   "bezeichnung": "OSG-TEP Mobile Bearing: PE-Inlay",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_mb_talus_kurv": {
+   "bezeichnung": "OSG-TEP Mobile Bearing: Taluskomponente, kurviert",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_mb_fixschraube": {
+   "bezeichnung": "OSG-TEP Mobile Bearing: Talus-Fixierschraube",
+   "kategorie": "OSG-Prothese"
+  },
+  "tep_mb_tibia": {
+   "bezeichnung": "OSG-TEP Mobile Bearing: Tibiakomponente",
+   "kategorie": "OSG-Prothese"
+  },
+  "platte_drittelrohr_6l": {
+   "bezeichnung": "Drittelrohrplatte 6-Loch",
+   "kategorie": "Platten"
+  },
+  "platte_mini_osg": {
+   "bezeichnung": "Mini-Platte (OSG-Arthrodese)",
+   "kategorie": "Platten"
+  },
+  "platte_lapidus": {
+   "bezeichnung": "Lapidus-Platte, winkelstabil",
+   "kategorie": "Platten"
+  },
+  "platte_ws_gebogen_4l": {
+   "bezeichnung": "Winkelstabile Platte, gebogen, 4-Loch",
+   "kategorie": "Platten"
+  },
+  "platte_klavikula_ws_8l": {
+   "bezeichnung": "Winkelstabile Klavikulaplatte, 8-Loch",
+   "kategorie": "Platten"
+  },
+  "schraube_ws_4_5": {
+   "bezeichnung": "Winkelstabile Schraube 4,5 mm",
+   "kategorie": "Schrauben"
+  },
+  "schraube_hcs_2_5": {
+   "bezeichnung": "Kompressionsschraube 2,5 mm, kopflos",
+   "kategorie": "Schrauben"
+  },
+  "schraube_hcs_4_0": {
+   "bezeichnung": "Kompressionsschraube 4,0 mm, kopflos",
+   "kategorie": "Schrauben"
+  },
+  "schraube_hcs_7_0": {
+   "bezeichnung": "Kompressionsschraube 7,0 mm, kopflos",
+   "kategorie": "Schrauben"
+  },
+  "schraube_hcs_2_0": {
+   "bezeichnung": "Kompressionsschraube 2,0 mm, kopflos (Twist-off)",
+   "kategorie": "Schrauben"
+  },
+  "schraube_kanuel_7_0": {
+   "bezeichnung": "Kanülierte Schraube 7,0 mm",
+   "kategorie": "Schrauben"
+  },
+  "schraube_kort_3_5": {
+   "bezeichnung": "Kortikalisschraube 3,5 mm",
+   "kategorie": "Schrauben"
+  },
+  "schraube_kort_3_5_klav": {
+   "bezeichnung": "Kortikalisschraube 3,5 mm (Klavikula-System)",
+   "kategorie": "Schrauben"
+  },
+  "schraube_ws_3_5": {
+   "bezeichnung": "Winkelstabile Schraube 3,5 mm",
+   "kategorie": "Schrauben"
+  },
+  "schraube_ws_2_7": {
+   "bezeichnung": "Winkelstabile Schraube 2,7 mm",
+   "kategorie": "Schrauben"
+  },
+  "schraube_ws_3_5_klav": {
+   "bezeichnung": "Winkelstabile Schraube 3,5 mm (Klavikula-System)",
+   "kategorie": "Schrauben"
+  },
+  "anker_tenodese_4_75": {
+   "bezeichnung": "Tenodese-Anker 4,75 mm (bioresorbierbar)",
+   "kategorie": "Anker & Fäden"
+  },
+  "anker_knotenfrei": {
+   "bezeichnung": "Fadenanker, knotenfrei",
+   "kategorie": "Anker & Fäden"
+  },
+  "anker_faden_geflochten": {
+   "bezeichnung": "Fadenanker mit geflochtenem Faden",
+   "kategorie": "Anker & Fäden"
+  },
+  "bandaugmentation": {
+   "bezeichnung": "Bandaugmentation (Tape-System)",
+   "kategorie": "Anker & Fäden"
+  },
+  "nagel_arthrodese_set": {
+   "bezeichnung": "Arthrodesenagel-Set, retrograd",
+   "kategorie": "Nägel"
+  },
+  "membran_kollagen": {
+   "bezeichnung": "Kollagenmembran (Knorpelchirurgie)",
+   "kategorie": "Knochenersatz & Membranen"
+  },
+  "knochenblock_allogen": {
+   "bezeichnung": "Allogener Knochenblock 20×10×10 mm",
+   "kategorie": "Knochenersatz & Membranen"
+  },
+  "k_draht": {
+   "bezeichnung": "Kirschner-Draht",
+   "kategorie": "Kleinmaterial"
+  },
+  "fraeser_mis_2_0": {
+   "bezeichnung": "Fräser für MIS-Osteotomie 2,0 mm",
+   "kategorie": "Kleinmaterial"
+  },
+  "fraeser_mis_2_2": {
+   "bezeichnung": "Fräser für MIS-Osteotomie 2,2 mm, lang",
+   "kategorie": "Kleinmaterial"
+  },
+  "nagel_humerus_prox": {
+   "bezeichnung": "Humerusnagel proximal",
+   "kategorie": "Nägel"
+  }
+ },
+ "EINGRIFFE": {
+  "chevron_akin": {
+   "name": "Chevron + Akin",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_2_5",
+      "anzahl": 1,
+      "hinweis": "Akin ohne Implantat — geprüft 07/2026"
+     }
+    ]
+   }
+  },
+  "chevron": {
+   "name": "Chevron-Osteotomie",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_2_5",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "dmmo": {
+   "name": "DMMO (MT-Osteotomie)",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "fraeser_mis_2_0",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "lapidus": {
+   "name": "Lapidus-Arthrodese",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_4_0",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "platte_lapidus",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_2_7",
+      "anzahl": 4
+     }
+    ]
+   }
+  },
+  "mtp1art": {
+   "name": "MTP-I-Arthrodese",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_4_0",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "platte_ws_gebogen_4l",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_2_7",
+      "anzahl": 4
+     }
+    ]
+   }
+  },
+  "kleinzehen_pip": {
+   "name": "PIP-Arthrodese Kleinzehe",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "je Zehe": [
+     {
+      "implantat_id": "k_draht",
+      "anzahl": 1,
+      "hinweis": "1 K-Draht pro Zehe"
+     }
+    ]
+   }
+  },
+  "scarf": {
+   "name": "Scarf-Osteotomie",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_2_5",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "zusatz_subcapital": {
+   "name": "Subcapitale Osteotomie",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Zusatzposition": [
+     {
+      "implantat_id": "schraube_hcs_2_5",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "arthrodese_tmt": {
+   "name": "TMT-Arthrodese",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "platte_ws_gebogen_4l",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_2_7",
+      "anzahl": 4
+     }
+    ]
+   }
+  },
+  "kleinzehen_weil": {
+   "name": "Weil-Osteotomie",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "je Osteotomie": [
+     {
+      "implantat_id": "schraube_hcs_2_0",
+      "anzahl": 1,
+      "hinweis": "1 Schraube pro Osteotomie"
+     }
+    ]
+   }
+  },
+  "arthrorise": {
+   "name": "Arthrorise",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_kanuel_7_0",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "coalitio_lcot": {
+   "name": "Coalitio-Resektion + LCOT",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "mit LCOT": [
+     {
+      "implantat_id": "knochenblock_allogen",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "allogen": {
+   "name": "Cotton-OT",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "allogen (Spenderknochen)": [
+     {
+      "implantat_id": "knochenblock_allogen",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "double_arthrodese": {
+   "name": "Double-Arthrodese",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_7_0",
+      "anzahl": 3
+     },
+     {
+      "implantat_id": "platte_ws_gebogen_4l",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_2_7",
+      "anzahl": 4
+     }
+    ]
+   }
+  },
+  "dwyer": {
+   "name": "Dwyer-Osteotomie",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_7_0",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "fhl_transfer": {
+   "name": "FHL-Transfer",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "anker_tenodese_4_75",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "calc_ot_verl": {
+   "name": "Kalkaneus-Verlaengerungsosteotomie",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "knochenblock_allogen",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "lambrinudi": {
+   "name": "Lambrinudi-Arthrodese",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_kanuel_7_0",
+      "anzahl": 3
+     }
+    ]
+   }
+  },
+  "mdo_mini": {
+   "name": "MDO",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "minimalinvasiv": [
+     {
+      "implantat_id": "schraube_hcs_7_0",
+      "anzahl": 2
+     },
+     {
+      "implantat_id": "fraeser_mis_2_2",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "mdo_fdl_transfer": {
+   "name": "MDO",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "mit FDL-Transfer": [
+     {
+      "implantat_id": "anker_tenodese_4_75",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "mdo_offen": {
+   "name": "MDO",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "offen": [
+     {
+      "implantat_id": "schraube_hcs_7_0",
+      "anzahl": 2,
+      "hinweis": "geprüft 07/2026"
+     }
+    ]
+   }
+  },
+  "tn_arthrodese": {
+   "name": "TN-Arthrodese",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_7_0",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "platte_ws_gebogen_4l",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_2_7",
+      "anzahl": 4
+     }
+    ]
+   }
+  },
+  "triple_arthrodese": {
+   "name": "Triple-Arthrodese",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_7_0",
+      "anzahl": 3
+     },
+     {
+      "implantat_id": "platte_ws_gebogen_4l",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_2_7",
+      "anzahl": 4
+     }
+    ]
+   }
+  },
+  "subtalar": {
+   "name": "USG-Arthrodese",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_7_0",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "amic": {
+   "name": "AMIC",
+   "sektion": "OSG",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "membran_kollagen",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "bandplastik_autolog": {
+   "name": "Bandplastik autolog",
+   "sektion": "OSG",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "anker_tenodese_4_75",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "brostrom_gould": {
+   "name": "Brostrom-Gould",
+   "sektion": "OSG",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "anker_faden_geflochten",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "brostrom_internal_brace": {
+   "name": "Brostrom-Gould",
+   "sektion": "OSG",
+   "varianten": {
+    "mit InternalBrace": [
+     {
+      "implantat_id": "anker_knotenfrei",
+      "anzahl": 2
+     },
+     {
+      "implantat_id": "anker_faden_geflochten",
+      "anzahl": 2
+     },
+     {
+      "implantat_id": "bandaugmentation",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "haglund": {
+   "name": "Haglund + AS-Split/Refix",
+   "sektion": "OSG",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "anker_faden_geflochten",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "arthrodese_osg": {
+   "name": "OSG-Arthrodese",
+   "sektion": "OSG",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_7_0",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "arthrodese_osg_platte": {
+   "name": "OSG-Arthrodese",
+   "sektion": "OSG",
+   "varianten": {
+    "mit Platte": [
+     {
+      "implantat_id": "schraube_ws_4_5",
+      "anzahl": 2
+     },
+     {
+      "implantat_id": "platte_mini_osg",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "supramal_ot": {
+   "name": "Supramalleolaere Osteotomie",
+   "sektion": "OSG",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "knochenblock_allogen",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "supramal_ot_brostrom": {
+   "name": "Supramalleolaere Osteotomie",
+   "sektion": "OSG",
+   "varianten": {
+    "mit Brostrom": [
+     {
+      "implantat_id": "anker_faden_geflochten",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "arthrodesenagel_retro": {
+   "name": "Arthrodesenagel (retrograd)",
+   "sektion": "OSG",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "nagel_arthrodese_set",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "primaer_inbone": {
+   "name": "OSG-TEP achsgeführt",
+   "sektion": "OSG-Prothese",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "tep_ax_schaft_basis",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_ax_schaft_verl",
+      "anzahl": 2,
+      "hinweis": "zwei Stems — so gewollt (geprüft 07/2026)"
+     },
+     {
+      "implantat_id": "tep_ax_inlay",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_ax_talus",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_ax_talus_schaft",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_ax_tibia",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "primaer_infinity": {
+   "name": "OSG-TEP Low Profile",
+   "sektion": "OSG-Prothese",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "tep_lp_inlay",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_lp_talus",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_lp_tibia",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "primaer_vantage": {
+   "name": "OSG-TEP Mobile Bearing",
+   "sektion": "OSG-Prothese",
+   "varianten": {
+    "Flat Cut": [
+     {
+      "implantat_id": "tep_mb_talus_flat",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_mb_inlay",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_mb_fixschraube",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_mb_tibia",
+      "anzahl": 1
+     }
+    ],
+    "kurviert": [
+     {
+      "implantat_id": "tep_mb_inlay",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_mb_talus_kurv",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_mb_fixschraube",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "tep_mb_tibia",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "fibula_einf": {
+   "name": "Fibula-Osteosynthese",
+   "sektion": "Unfallchirurgie",
+   "varianten": {
+    "einfach": [
+     {
+      "implantat_id": "schraube_kort_3_5",
+      "anzahl": 6
+     },
+     {
+      "implantat_id": "platte_drittelrohr_6l",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "fibula_mehr": {
+   "name": "Fibula-Osteosynthese",
+   "sektion": "Unfallchirurgie",
+   "varianten": {
+    "mehrfragmentaer": [
+     {
+      "implantat_id": "schraube_kort_3_5",
+      "anzahl": 1,
+      "hinweis": "Stückpreis rechnerisch aus einem Paketpreis abgeleitet — bitte prüfen"
+     },
+     {
+      "implantat_id": "platte_drittelrohr_6l",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_3_5",
+      "anzahl": 6,
+      "hinweis": "Stückpreis rechnerisch aus einem Paketpreis abgeleitet — bitte prüfen"
+     }
+    ]
+   }
+  },
+  "fibula_syndesmose": {
+   "name": "Fibula-Osteosynthese",
+   "sektion": "Unfallchirurgie",
+   "varianten": {
+    "mit Syndesmose": [
+     {
+      "implantat_id": "schraube_kort_3_5",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "klav_einf_pl": {
+   "name": "Klavikula-Osteosynthese",
+   "sektion": "Unfallchirurgie",
+   "varianten": {
+    "Kortikalisschrauben": [
+     {
+      "implantat_id": "schraube_kort_3_5_klav",
+      "anzahl": 8
+     },
+     {
+      "implantat_id": "platte_klavikula_ws_8l",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "klav_einf_wsp": {
+   "name": "Klavikula-Osteosynthese",
+   "sektion": "Unfallchirurgie",
+   "varianten": {
+    "winkelstabil": [
+     {
+      "implantat_id": "platte_klavikula_ws_8l",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_3_5_klav",
+      "anzahl": 8
+     }
+    ]
+   }
+  }
+ },
+ "MAPPING_OPS": {
+  "chevron": [
+   "chevron",
+   "Standard"
+  ],
+  "chevron_akin": [
+   "chevron_akin",
+   "Standard"
+  ],
+  "scarf": [
+   "scarf",
+   "Standard"
+  ],
+  "lapidus": [
+   "lapidus",
+   "Standard"
+  ],
+  "mtp1_arthrodese": [
+   "mtp1art",
+   "Standard"
+  ],
+  "dmmo": [
+   "dmmo",
+   "Standard"
+  ],
+  "kleinzehen_pip": [
+   "kleinzehen_pip",
+   "je Zehe"
+  ],
+  "brostrom_gould": [
+   "brostrom_gould",
+   "Standard"
+  ],
+  "brostrom_int_brace": [
+   "brostrom_internal_brace",
+   "mit InternalBrace"
+  ],
+  "bandplastik_autolog": [
+   "bandplastik_autolog",
+   "Standard"
+  ],
+  "amic": [
+   "amic",
+   "Standard"
+  ],
+  "arthrodese_osg": [
+   "arthrodese_osg",
+   "Standard"
+  ],
+  "arthrodesenagel_retro": [
+   "arthrodesenagel_retro",
+   "Standard"
+  ],
+  "tep_infinity": [
+   "primaer_infinity",
+   "Standard"
+  ],
+  "tep_vantage": [
+   "primaer_vantage",
+   "kurviert"
+  ],
+  "tep_inbone": [
+   "primaer_inbone",
+   "Standard"
+  ],
+  "supramal_ot": [
+   "supramal_ot",
+   "Standard"
+  ],
+  "subtalar_arthrodese": [
+   "subtalar",
+   "Standard"
+  ],
+  "tn_arthrodese": [
+   "tn_arthrodese",
+   "Standard"
+  ],
+  "double_arthrodese": [
+   "double_arthrodese",
+   "Standard"
+  ],
+  "triple_arthrodese": [
+   "triple_arthrodese",
+   "Standard"
+  ],
+  "haglund_as_split": [
+   "haglund",
+   "Standard"
+  ],
+  "mdo_offen": [
+   "mdo_offen",
+   "offen"
+  ],
+  "mdo_mini": [
+   "mdo_mini",
+   "minimalinvasiv"
+  ],
+  "cotton": [
+   "allogen",
+   "allogen (Spenderknochen)"
+  ],
+  "lcot": [
+   "coalitio_lcot",
+   "mit LCOT"
+  ],
+  "calcaneus_ot": [
+   "calc_ot_verl",
+   "Standard"
+  ],
+  "arthrodese_tmt": [
+   "arthrodese_tmt",
+   "Standard"
+  ],
+  "arthrorise": [
+   "arthrorise",
+   "Standard"
+  ],
+  "fhl_transfer": [
+   "fhl_transfer",
+   "Standard"
+  ]
+ }
+}
