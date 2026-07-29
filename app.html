@@ -28,9 +28,12 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js" crossorigin></script>
+<!-- Programmbibliotheken lokal aus /lib — keine CDN-Aufrufe (BRAND.md, DSGVO).
+     Stand 07/2026:  React 18.3.1 · ReactDOM 18.3.1 · Babel standalone 7.25.6 · supabase-js 2 (UMD)
+     Aktualisieren: Datei aus derselben Quelle ersetzen und Version hier nachtragen. -->
+<script src="lib/react.production.min.js"></script>
+<script src="lib/react-dom.production.min.js"></script>
+<script src="lib/babel.min.js"></script>
 <script src="lib/xlsx-style.min.js"></script>
 <script>
 /* qr-creator (MIT, https://github.com/nimiq/qr-creator) — inline-embedded */
@@ -63,7 +66,15 @@ d=0;d<a;d+=1)for(var g=0;g<a;g+=1){for(var e=0,t=b.a(d,g),p=-1;1>=p;p+=1)if(!(0>
 typeof e)throw Error("bad rs block @ typeNumber:"+b+"/errorCorrectLevel:"+a);b=e.length/3;a=[];for(var d=0;d<b;d+=1)for(var g=e[3*d],h=e[3*d+1],t=e[3*d+2],p=0;p<g;p+=1){var q=t,f={};f.o=h;f.j=q;a.push(f)}return a}};return e}();return C}());
 
 </script>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<!-- Schriften lokal aus /fonts (woff2, latin-Subset, SIL OFL) — keine externen Font-Server (DSGVO).
+     Laut BRAND.md nutzen App-Oberflächen für Fließtext bewusst Systemschriften;
+     lokal geladen werden nur die Markenschrift (Source Serif 4) und die Zahlen-Schrift (IBM Plex Mono). -->
+<style>
+  @font-face{font-family:'Source Serif 4';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/source-serif-4-600.woff2') format('woff2')}
+  @font-face{font-family:'Source Serif 4';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/source-serif-4-700.woff2') format('woff2')}
+  @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/ibm-plex-mono-400.woff2') format('woff2')}
+  @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/ibm-plex-mono-500.woff2') format('woff2')}
+</style>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { margin: 0; padding: 0; background: #F5F7FA; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
@@ -221,7 +232,7 @@ window.TOOLBOX_AUTH = {
     if(loginBox) return;
     var wrap=document.createElement("div");
     wrap.id="toolbox-login";
-    wrap.style.cssText="position:fixed;inset:0;background:#F5F7FA;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'IBM Plex Sans',system-ui,sans-serif;";
+    wrap.style.cssText="position:fixed;inset:0;background:#F5F7FA;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;";
     var card=document.createElement("div");
     card.style.cssText="background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:32px 28px;width:320px;text-align:center;";
     card.innerHTML='<div style="font-size:34px;margin-bottom:6px;">🦶</div>'
@@ -275,7 +286,7 @@ window.TOOLBOX_AUTH = {
   function showSetPassword(client){
     var wrap=document.createElement("div");
     wrap.id="toolbox-login";
-    wrap.style.cssText="position:fixed;inset:0;background:#F5F7FA;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'IBM Plex Sans',system-ui,sans-serif;";
+    wrap.style.cssText="position:fixed;inset:0;background:#F5F7FA;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;";
     var card=document.createElement("div");
     card.style.cssText="background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:32px 28px;width:320px;text-align:center;";
     card.innerHTML='<div style="font-size:34px;margin-bottom:6px;">🦶</div>'
@@ -317,7 +328,7 @@ window.TOOLBOX_AUTH = {
       var a=document.createElement("div");
       a.textContent="Abmelden";
       a.title="Von der Toolbox abmelden";
-      a.style.cssText="position:fixed;bottom:10px;right:12px;z-index:9999;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:11px;color:#718096;text-decoration:underline;cursor:pointer;";
+      a.style.cssText="position:fixed;bottom:10px;right:12px;z-index:9999;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:11px;color:#718096;text-decoration:underline;cursor:pointer;";
       a.addEventListener("click",function(){ client.auth.signOut().then(function(){ location.href="index.html"; }); });
       document.body.appendChild(a);
     });
@@ -378,7 +389,7 @@ window.TOOLBOX_AUTH = {
     var hashParams=new URLSearchParams((location.hash||"").replace(/^#/,""));
     var linkTyp=hashParams.get("type");                 // "recovery" | "invite" | null
     var linkFehler=hashParams.get("error_description"); // z.B. abgelaufener Link
-    loadScriptTag("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js",function(){
+    loadScriptTag("lib/supabase.js",function(){
       var client=window.supabase.createClient(CFG.url,CFG.anonKey);
       client.auth.getSession().then(function(r){
         var session=r.data&&r.data.session;
@@ -1637,7 +1648,7 @@ var _s = useState, _m = useMemo;
   var diagKeys = Object.keys(DIAG);
 
   return (
-    <div style={{ fontFamily: "'IBM Plex Sans',system-ui,sans-serif", background: "#F5F7FA", minHeight: "100vh", color: "#1A2A3A", padding: "14px 16px" }}>
+    <div style={{ fontFamily: "system-ui,-apple-system,'Segoe UI',Roboto,sans-serif", background: "#F5F7FA", minHeight: "100vh", color: "#1A2A3A", padding: "14px 16px" }}>
       {toast && <div style={{ position: "fixed", bottom: 16, right: 16, padding: "10px 20px", borderRadius: 8, background: "#00897B", color: "#fff", fontSize: 12, fontWeight: 500, zIndex: 99 }}>{toast}</div>}
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, maxWidth: 1120, margin: "0 auto 12px" }}>
@@ -3958,8 +3969,8 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   const zehenOpts=[{id:"pip",l:"PIP-Arthrodese"},{id:"fdl",l:"FDL-Tenotomie"},{id:"ext_teno",l:"Strecksehnen-Tenotomie"},{id:"ext_verl",l:"Strecksehnen-Verlängerung"},{id:"beuge_trans",l:"Beugesehnentransfer"},{id:"kapsulo",l:"Dorsale Kapsulotomie"}];
 
   return (
-    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",minHeight:"100vh",color:"#1A2A3A",padding:"14px 16px"}}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&display=swap');*{box-sizing:border-box;margin:0;padding:0}input,textarea{width:100%;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:7px 10px;color:#2D3748;font-size:12px;font-family:inherit;resize:vertical}input:focus,textarea:focus{outline:0;border-color:rgba(93,173,236,.4)}@media (max-width:480px){input,textarea,select{font-size:16px}}
+    <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",background:"#F5F7FA",minHeight:"100vh",color:"#1A2A3A",padding:"14px 16px"}}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}input,textarea{width:100%;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:7px 10px;color:#2D3748;font-size:12px;font-family:inherit;resize:vertical}input:focus,textarea:focus{outline:0;border-color:rgba(93,173,236,.4)}@media (max-width:480px){input,textarea,select{font-size:16px}}
 .ob-split{max-width:1200px;margin:0 auto}
 .ob-form{max-width:800px;margin:0 auto}
 .ob-preview{display:none}
@@ -5936,7 +5947,7 @@ function AufklaerungstoolView() {
   var CB = function(active){return {cursor:"pointer",padding:"6px 10px",borderRadius:6,fontSize:11,fontWeight:600,border:active?"1px solid #006B6F":"1px solid rgba(0,0,0,.12)",background:active?"rgba(0,107,111,.08)":"#fff",color:active?"#006B6F":"#4A5568",transition:"all .15s",display:"inline-block",margin:"0 6px 6px 0"};};
 
   return (
-    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:760,margin:"0 auto",padding:"20px 16px 40px"}}>
+    <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:760,margin:"0 auto",padding:"20px 16px 40px"}}>
       <div style={{textAlign:"center",marginBottom:20}}>
         <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📋 Aufklärungstexte</div>
         <div style={{fontSize:11,color:"#718096"}}>Eingriff(e) wählen · Risikoliste mit Alternativen · für das Freitextfeld der Aufklärung</div>
@@ -5986,7 +5997,7 @@ function AufklaerungstoolView() {
               {copied? "✓ Kopiert" : "⧉ Kopie"}
             </div>
           </div>
-          <textarea readOnly value={text} style={{width:"100%",minHeight:300,border:"none",outline:"none",padding:"14px",fontSize:12,lineHeight:1.6,color:"#2D3748",fontFamily:"'IBM Plex Sans',system-ui,sans-serif",resize:"vertical",boxSizing:"border-box"}}/>
+          <textarea readOnly value={text} style={{width:"100%",minHeight:300,border:"none",outline:"none",padding:"14px",fontSize:12,lineHeight:1.6,color:"#2D3748",fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",resize:"vertical",boxSizing:"border-box"}}/>
         </div>
       )}
 
@@ -6484,7 +6495,7 @@ function ImplantatpreiseView(){
 
 function LandingPage({onSelect}) {
   return (
-    <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 16px 16px"}}>
+    <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 16px 16px"}}>
       <div style={{textAlign:"center",marginBottom:14}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginBottom:16}}>
           <img src="data:image/jpeg;base64,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" style={{width:56,height:56,borderRadius:12,objectFit:"cover"}} alt=""/>
@@ -6597,7 +6608,7 @@ function App() {
   if (tool === "hdrg") return (
     <div>
       <ToolKopfleiste titel="OPS-Code Zuordnung 2026" onHome={()=>setTool(null)}/>
-      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
+      <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🔍 OPS-Code Zuordnung 2026</div>
           <div style={{fontSize:11,color:"#718096"}}>H-DRG · AOP-Katalog · Kontextprozedur – Zugehörigkeit prüfen</div>
@@ -6613,7 +6624,7 @@ function App() {
   if (tool === "manuale") return (
     <div>
       <ToolKopfleiste titel="OP-Manuale" onHome={()=>setTool(null)}/>
-      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:700,margin:"0 auto",padding:"20px 16px 40px"}}>
+      <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:700,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📚 OP-Manuale</div>
           <div style={{fontSize:11,color:"#718096"}}>Operative Technique Guides · Implantatsysteme · PDF-Bibliothek</div>
@@ -6628,7 +6639,7 @@ function App() {
   if (tool === "klassifikationen") return (
     <div>
       <ToolKopfleiste titel="Klassifikationen" onHome={()=>setTool(null)}/>
-      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
+      <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📊 Klassifikationen</div>
           <div style={{fontSize:11,color:"#718096"}}>Alphabetisch · Suche · Filter nach Krankheitsbild oder Region</div>
@@ -6643,7 +6654,7 @@ function App() {
   if (tool === "preise") return (
     <div>
       <ToolKopfleiste titel="Implantatpreise" onHome={()=>setTool(null)}/>
-      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:1020,margin:"0 auto",padding:"16px 16px 40px"}}>
+      <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:1020,margin:"0 auto",padding:"16px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:18}}>
           <div style={{fontSize:22,fontWeight:700,color:"#10535B",marginBottom:4}}>💶 Implantatpreise</div>
           <div style={{fontSize:11,color:"#718096"}}>Ihre eigene Preisliste · Materialsätze je Eingriff · nur in Ihrem Konto</div>
@@ -6656,7 +6667,7 @@ function App() {
   if (tool === "roentgen") return (
     <div>
       <ToolKopfleiste titel="Röntgen & Messmethoden" onHome={()=>setTool(null)}/>
-      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
+      <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📐 Röntgenbilder mit Messmethoden</div>
           <div style={{fontSize:11,color:"#718096"}}>Standardaufnahmen von Fuß und OSG · Referenzbild · Messmethoden mit Anleitung</div>
@@ -6671,7 +6682,7 @@ function App() {
   if (tool === "codes") return (
     <div>
       <ToolKopfleiste titel="Code-Übersicht" onHome={()=>setTool(null)}/>
-      <div style={{fontFamily:"'IBM Plex Sans',system-ui,sans-serif",maxWidth:1100,margin:"0 auto",padding:"20px 16px 40px"}}>
+      <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:1100,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🧾 Code-Übersicht</div>
           <div style={{fontSize:11,color:"#718096"}}>Alle OPS-Codes im Tool · zentrale Bibliothek · Verwendung pro Eingriff</div>
@@ -6694,7 +6705,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
 </script>
 
-<footer style="text-align:center;padding:16px 12px 22px;font-size:11px;color:#5C6660;font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.6;">
+<footer style="text-align:center;padding:16px 12px 22px;font-size:11px;color:#5C6660;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.6;">
   <div style="max-width:640px;margin:0 auto 8px;">
     Privat betriebenes Angebot von Dr. med. Benjamin Breuer — kein offizielles Angebot des Florence-Nightingale-Krankenhauses oder der Kaiserswerther Diakonie.
   </div>
