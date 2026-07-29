@@ -57,23 +57,20 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ---
 
-## D) Offener Upload-Stand (Stand 29.07.2026)
+## D) Upload-Stand
 
-Diese **sieben** Dateien wurden nach dem letzten Bucket-Upload geändert und müssen **vor dem nächsten Push** hochgeladen werden:
+**Stand 29.07.2026, abends: Repo und Bucket sind synchron.** Der Bucket-Upload der
+sieben geaenderten Inhaltsdateien (`diagnosen`, `aufklaerung`, `opmethoden`,
+`opsteuerung`, `optexte`, `endo`, `preise`) ist erfolgt, der Code ist gepusht,
+die Live-Seite laeuft auf dem neuen Stand.
 
-| Datei | Was sich geändert hat |
-|---|---|
-| `diagnosen.json` | Kennung `t2_nagel` → `arthrodesenagel_retro` |
-| `aufklaerung.json` | dieselbe Umbenennung, Markennamen entfernt |
-| `opmethoden.json` | dieselbe Umbenennung, Prothesennamen generisch |
-| `opsteuerung.json` | dieselbe Umbenennung, alle Paketpreise entfernt |
-| `optexte.json` | dieselbe Umbenennung, `{IMPL:…}`-Platzhalter, Markennamen entfernt |
-| `endo.json` | Implantatlisten generisch, Preise entfernt |
-| `preise.json` | `EINZELPREISE` geleert, UC-Implantate generisch |
+Diesen Abschnitt bei der naechsten Aenderung wieder fuellen: Welche Datei wurde
+geaendert, was steht drin, und ob sie ins Repo oder in den Bucket gehoert.
 
-Unverändert und **nicht** neu hochzuladen: `katalog2026.json`, `erloes2026.json`, `referenz.json`.
-
-> **Warum das zusammengehört:** Die Kennung `arthrodesenagel_retro` steht sowohl in `zuordnung/implantat_zuordnung.json` (Repo) als auch in fünf Bucket-Dateien. Passt eines nicht zum anderen, zeigt die App beim Start eine Warnung mit den betroffenen Kennungen.
+> **Warum das zusammengehoert:** Die Kennung `arthrodesenagel_retro` steht sowohl in
+> `zuordnung/implantat_zuordnung.json` (Repo) als auch in fuenf Bucket-Dateien.
+> Passt eines nicht zum anderen, zeigt die App beim Start eine Warnung mit den
+> betroffenen Kennungen.
 
 ---
 
