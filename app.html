@@ -4186,7 +4186,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={{...row,gap:6}}><div style={chip(lage==="ruecken")} onClick={()=>setLage("ruecken")}>Rückenlage</div><div style={chip(lage==="bauch")} onClick={()=>setLage("bauch")}>Bauchlage</div><div style={tog(ss)} onClick={()=>setSs(!ss)}>💊 Single-Shot</div><div style={tog(bs)} onClick={()=>setBs(!bs)}>🩸 Blutsperre</div><div style={chip(ana==="lokal")} onClick={()=>setAna(ana==="lokal"?"narkose":"lokal")}>💉 LA</div></div>
       </div>
 
-      <div style={{marginBottom:10}}><div style={h3s}>③ OP-Durchführung</div>
+      <div data-tour="ob-eingriff" style={{marginBottom:10}}><div style={h3s}>③ OP-Durchführung</div>
 
       {/* VORFUSS */}
       <OBSec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF} onReset={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);}}>
@@ -4506,7 +4506,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
         <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
       </div>}
-      {erloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {erloesData.label}</div>
+      {erloesData&&<div data-tour="ob-erloes" style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {erloesData.label}</div>
 
         {/* 4 ERLÖS-SPALTEN */}
         {function(){var drgCode=erloesData.drg?erloesData.drg.split(" ")[0]:"";var ugvd=GVD[drgCode]?GVD[drgCode].ugvd:1;var vollAbN=ugvd+1;return <div className="rmob4" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:4,marginBottom:10}}>
@@ -4667,7 +4667,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </div>}
 
       {/* MOBILE PREVIEW (Handy) */}
-      {canExport&&<div className="ob-mobile-preview" style={card}>
+      {canExport&&<div data-tour="ob-export" className="ob-mobile-preview" style={card}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
           <div style={h3s}>Vorschau & Export</div>
           <div style={{display:"flex",gap:4}}>
@@ -7283,8 +7283,9 @@ const RUNDGANG_SB = [
   { titel: "Die Befund-Schalter",
     text: "Jeder Schalter ist ein Textbaustein. Eingeschaltet erscheint der zugehörige Satz im Brief, ausgeschaltet fehlt er. Die Reihenfolge, in der Sie schalten, spielt keine Rolle — der Brief ordnet die Sätze selbst.",
     hinweis: "Sie müssen nichts formulieren. Was Sie anschalten, steht anschließend als fertiger Satz im Text." },
-  { titel: "Der Score rechnet mit",
-    text: "Aus den gesetzten Schaltern entsteht der Score von selbst. Sie tragen keine Punktzahl ein und müssen nichts nachrechnen — ändern Sie einen Befund, ändert sich der Wert mit." },
+  { titel: "Die Scores im Brief",
+    text: "Der Brief führt die gebräuchlichen Scores mit ihren Höchstwerten auf — EFAS, EFAS Sport, AOFAS und die VAS unter Belastung. Die Punktwerte selbst tragen Sie in iMED1 ein; dieses Werkzeug rechnet sie nicht aus.",
+    hinweis: "So steht die Zeile bereits im Brief und Sie müssen sie nicht von Hand anlegen." },
   { ziele:['[data-tour="sb-erloes"]'], titel: "Erlös und Standardversorgung",
     text: "Hier sehen Sie, was der Fall voraussichtlich einbringt und welches Material die Standardversorgung vorsieht. Der Block ist eine Einschätzung für Ihre Planung, keine Abrechnung." },
   { ziele:['[data-tour="sb-export"]'], titel: "Vorschau und Übernahme",
@@ -7294,18 +7295,18 @@ const RUNDGANG_SB = [
 const RUNDGANG_OB = [
   { titel: "Der Weg durch den OP-Bericht",
     text: "Sie stellen den Eingriff zusammen, prüfen Codes und Erlös und passen bei Bedarf das tatsächlich verbrauchte Material an. Am Ende steht der fertige Bericht." },
-  { titel: "Zuerst den Eingriff wählen",
+  { ziele:['[data-tour="ob-eingriff"]'], titel: "Zuerst den Eingriff wählen",
     text: "Wählen Sie oben Sektion und Eingriff. Der Berichtstext, die OPS-Codes und die Erlösrechnung stellen sich daraufhin um." },
-  { titel: "Der OPS- und Erlösblock",
+  { ziele:['[data-tour="ob-erloes"]'], wennFehlt: "Dieser Block erscheint, sobald Sie unter ③ einen Eingriff ausgewählt haben.", titel: "Der OPS- und Erlösblock",
     text: "Die Codes ergeben sich aus dem gewählten Eingriff. Daneben steht, ob der Fall ambulant, als Hybrid-DRG oder stationär abgerechnet wird und welcher Erlös daraus folgt." },
-  { ziele:['[data-tour="versorgung"]'], titel: "Standardversorgung",
+  { ziele:['[data-tour="versorgung"]'], wennFehlt: "Die Materialübersicht erscheint, sobald ein Eingriff gewählt ist.", titel: "Standardversorgung",
     text: "Zunächst sehen Sie den hinterlegten Materialsatz — das, was für diesen Eingriff üblicherweise verbraucht wird, bewertet mit Ihren eigenen Preisen." },
   { ziele:['[data-tour="versorgung"]'], titel: "Auf die tatsächliche Versorgung umschalten",
     text: "Über „tatsächliche Versorgung“ wechseln Sie in die Ansicht für diesen einen Fall. Dort ändern Sie Mengen, nehmen Positionen heraus oder ergänzen welche.",
     hinweis: "Diese Änderung gilt nur für diesen Bericht. Ihr hinterlegter Materialsatz bleibt unverändert." },
   { ziele:['[data-tour="versorgung"]'], titel: "Abweichung im Blick",
     text: "Sobald Sie etwas ändern, zeigt die Ansicht die Differenz zur Standardversorgung. So sehen Sie sofort, ob der Fall teurer oder günstiger ausgefallen ist." },
-  { titel: "Bericht übernehmen",
+  { ziele:['[data-tour="ob-export"]'], wennFehlt: "Vorschau und Word-Export erscheinen, sobald der Bericht Inhalt hat.", titel: "Bericht übernehmen",
     text: "Zum Schluss den Text gegenlesen und über „Word“ oder „Kopieren“ in Ihre Dokumentation übernehmen." }
 ];
 
@@ -7339,6 +7340,7 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
   const [i, setI] = useState(0);
   const [rect, setRect] = useState(null);
   const [blaseHoehe, setBlaseHoehe] = useState(240);
+  const [zielFehlt, setZielFehlt] = useState(false);
   const blaseRef = React.useRef(null);
   const s = schritte[i];
 
@@ -7358,6 +7360,7 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
           : {top:r.top, left:r.left, bottom:r.bottom, right:r.right};
       });
       setRect(kasten);
+      setZielFehlt(!!(s.ziele && s.ziele.length && !kasten));
     }
     // Erst die gesamte Region in den sichtbaren Bereich holen, dann vermessen.
     // Bewusst ohne weiches Rollen: sonst misst man mitten in der Bewegung und
@@ -7475,6 +7478,10 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
             <div style={{fontSize:13,lineHeight:1.65,color:TINTE}}>{s.text}</div>
             {s.hinweis && <div style={{marginTop:8,padding:"7px 10px",background:TINT,borderRadius:8,
                 fontSize:12,color:P,lineHeight:1.55}}>{s.hinweis}</div>}
+            {zielFehlt && <div style={{marginTop:8,padding:"7px 10px",background:"#FBF3DF",
+                borderRadius:8,fontSize:12,color:"#8A5A00",lineHeight:1.55}}>
+              {s.wennFehlt || "Dieser Bereich erscheint erst, sobald Sie oben eine Auswahl getroffen haben."}
+            </div>}
             {s.navBeispiel && <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center"}}>
               <span style={{padding:"5px 10px",borderRadius:6,border:"1px solid "+LINIE,
                 background:"#fff",color:P,fontSize:11,fontWeight:600}}>← Menü</span>
@@ -7501,24 +7508,6 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
   </div>, document.body);
 }
 
-// Kleines Menü hinter dem Fragezeichen
-function HilfeMenue({offen, onSchliessen, onRundgang, onHomescreen, zeigeHomescreen}){
-  const P="#10535B", LINIE="#D6E2E3";
-  if (!offen) return null;
-  return <React.Fragment>
-    <div onClick={onSchliessen} style={{position:"fixed",inset:0,zIndex:9998}}/>
-    <div style={{position:"absolute",top:"100%",right:0,marginTop:6,zIndex:9999,background:"#fff",
-        border:"1px solid "+LINIE,borderRadius:10,boxShadow:"0 6px 20px rgba(16,83,91,.16)",
-        minWidth:230,overflow:"hidden"}}>
-      <div onClick={onRundgang} style={{padding:"10px 14px",fontSize:12,color:P,cursor:"pointer",
-          borderBottom: zeigeHomescreen?("1px solid "+LINIE):"none",whiteSpace:"nowrap"}}>
-        Rundgang starten</div>
-      {zeigeHomescreen && <div onClick={onHomescreen} style={{padding:"10px 14px",fontSize:12,
-          color:P,cursor:"pointer",whiteSpace:"nowrap"}}>
-        Zum Startbildschirm hinzufügen</div>}
-    </div>
-  </React.Fragment>;
-}
 
 
 // ============================================================================
