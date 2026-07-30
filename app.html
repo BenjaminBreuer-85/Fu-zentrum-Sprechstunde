@@ -556,6 +556,13 @@ window.TOOLBOX_AUTH = {
 <script type="text/plain" id="app-src">
 const { useState, useMemo, useEffect, useRef } = React;
 
+// Geldbeträge deutsch: Komma als Dezimaltrenner, Punkt als Tausendertrenner.
+// toFixed liefert englisches Format ("1.00") — deshalb überall diese Funktion.
+function eurBetrag(n){
+  if (n == null || n === "" || !isFinite(n)) return "—";
+  return Number(n).toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
 // ============================================================================
 // DOWNLOADS IM STANDALONE-MODUS
 // Vom Startbildschirm gestartet ignoriert iOS das download-Attribut und
@@ -2748,7 +2755,7 @@ function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fal
       </span>
       <span style={{display:"flex",alignItems:"center",gap:8}}>
         {fehlend === 0
-          ? <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{summe.toFixed(2)} €</span>
+          ? <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{eurBetrag(summe)} €</span>
           : <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>unvollständig — {fehlend} ohne Preis</span>}
         {!readOnly && <span onClick={()=> istModus ? setFall(null) : setFall(standard.map(z=>({...z})))}
           style={{fontSize:10,color:"#fff",textDecoration:"underline",cursor:"pointer"}}>
@@ -2774,9 +2781,9 @@ function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fal
                 : z.anzahl}
             </td>
             <td style={{padding:"4px",textAlign:"right",color:z.stueckpreis==null?"#8A5A00":"#1D2421"}}>
-              {z.stueckpreis==null ? "—" : z.stueckpreis.toFixed(2)+" €"}</td>
+              {z.stueckpreis==null ? "—" : eurBetrag(z.stueckpreis)+" €"}</td>
             <td style={{padding:"4px",textAlign:"right",fontWeight:600,color:z.preis==null?"#8A5A00":"#1D2421"}}>
-              {z.preis==null ? "kein Preis" : z.preis.toFixed(2)+" €"}</td>
+              {z.preis==null ? "kein Preis" : eurBetrag(z.preis)+" €"}</td>
             {istModus && <td style={{padding:"4px",textAlign:"center"}}>
               <span onClick={()=>entferne(i)} title="Zeile entfernen"
                 style={{cursor:"pointer",color:"#8A5A00",fontWeight:700}}>×</span></td>}
@@ -2784,20 +2791,20 @@ function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fal
           <tr style={{borderTop:"2px solid "+HEAD}}>
             <td style={{padding:"4px",fontWeight:700,color:HEAD}} colSpan={istModus?4:3}>Materialsumme</td>
             <td style={{padding:"4px",textAlign:"right",fontWeight:700,fontSize:12,color:HEAD}}
-                colSpan={istModus?1:1}>{fehlend===0 ? summe.toFixed(2)+" €" : "—"}</td>
+                colSpan={istModus?1:1}>{fehlend===0 ? eurBetrag(summe)+" €" : "—"}</td>
           </tr>
           {delta !== null && <tr>
             <td style={{padding:"4px",fontSize:10,color:"#5C6660"}} colSpan={istModus?4:3}>
-              Abweichung zur Standardversorgung ({summeStandard.toFixed(2)} €)</td>
+              Abweichung zur Standardversorgung ({eurBetrag(summeStandard)} €)</td>
             <td style={{padding:"4px",textAlign:"right",fontSize:11,fontWeight:700,
                         color: delta>0 ? "#C62828" : delta<0 ? "#2E7D32" : "#5C6660"}}>
-              {delta>0?"+":""}{delta.toFixed(2)} €</td>
+              {delta>0?"+":""}{eurBetrag(delta)} €</td>
           </tr>}
           {ampel && <tr>
             <td style={{padding:"4px",fontSize:10,color:"#5C6660"}} colSpan={istModus?4:3}>
               InEK-Referenz {drg}</td>
             <td style={{padding:"4px",textAlign:"right",fontSize:10,color:"#5C6660",fontWeight:600}}>
-              {ampel.soll.toFixed(2)} €</td>
+              {eurBetrag(ampel.soll)} €</td>
           </tr>}
           {fehlend>0 && <tr><td colSpan={istModus?5:4} style={{padding:"6px 4px",fontSize:10,color:"#8A5A00"}}>
             {fehlend} von {zeilen.length} Positionen ohne Preis — kein Deckungsbeitrag berechenbar.
@@ -2813,7 +2820,7 @@ function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fal
             style={{padding:"6px 8px",fontSize:11,cursor:"pointer",borderBottom:"1px solid rgba(0,0,0,.04)"}}>
             {implantatBezeichnung(id)}
             <span style={{color:"#5C6660",marginLeft:6}}>
-              {implantatStueckpreis(id)==null ? "· kein Preis hinterlegt" : "· "+implantatStueckpreis(id).toFixed(2)+" €"}</span>
+              {implantatStueckpreis(id)==null ? "· kein Preis hinterlegt" : "· "+eurBetrag(implantatStueckpreis(id))+" €"}</span>
           </div>)}
         </div>}
       </div>}
@@ -2831,26 +2838,26 @@ function MaterialkostenBlock({items, drg, label}){
   return <div style={{marginTop:10,border:"2px solid #1565C0",borderRadius:8,overflow:"hidden"}}>
     <div style={{background:"#1565C0",padding:"6px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
       <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>💶 {label || "Materialkosten (Implantate)"}</span>
-      <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{ist.toFixed(2)} € {ampelIcon}</span>
+      <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{eurBetrag(ist)} € {ampelIcon}</span>
     </div>
     <div style={{padding:"8px 12px",background:"rgba(21,101,192,.04)",overflowX:"auto"}}>
       <table style={{width:"100%",fontSize:11,borderCollapse:"collapse"}}>
         <tbody>{items.map(function(m,i){return <tr key={i} style={{borderBottom:"1px solid rgba(0,0,0,.05)"}}>
           <td style={{padding:"4px"}}>{m.name}</td>
           <td style={{padding:"4px",color:"#718096",fontSize:10}}>{m.lieferant}</td>
-          <td style={{textAlign:"right",padding:"4px",fontWeight:600,color:m.preis?"#2D3748":"#E65100"}}>{m.preis?m.preis.toFixed(2)+" €":m.hinweis||"—"}</td>
+          <td style={{textAlign:"right",padding:"4px",fontWeight:600,color:m.preis?"#2D3748":"#E65100"}}>{m.preis?eurBetrag(m.preis)+" €":m.hinweis||"—"}</td>
         </tr>;})}
         <tr style={{borderTop:"2px solid rgba(21,101,192,.3)",background:"rgba(21,101,192,.04)"}}>
           <td style={{padding:"4px",fontWeight:700,color:a?ampelColor:"#1565C0"}} colSpan={2}>{a?ampelIcon:"💶"} GESAMT</td>
-          <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{ist.toFixed(2)} €</td>
+          <td style={{textAlign:"right",padding:"4px",fontWeight:700,fontSize:12,color:"#1565C0"}}>{eurBetrag(ist)} €</td>
         </tr>
         {a && <tr style={{borderTop:"1px dashed rgba(0,0,0,.1)"}}>
           <td style={{padding:"4px",fontSize:10,color:"#718096"}} colSpan={2}>InEK-Referenz {drg} (Kostenstelle 5, Ø Implantat)</td>
-          <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{a.soll.toFixed(2)} €</td>
+          <td style={{textAlign:"right",padding:"4px",fontSize:10,color:"#718096",fontWeight:600}}>{eurBetrag(a.soll)} €</td>
         </tr>}
         {a && <tr>
           <td style={{padding:"4px",fontSize:10,color:ampelColor,fontWeight:600}} colSpan={2}>{ampelText}</td>
-          <td style={{textAlign:"right",padding:"4px",fontSize:10,color:ampelColor,fontWeight:700}}>{a.delta>=0?"+":""}{a.delta.toFixed(2)} €</td>
+          <td style={{textAlign:"right",padding:"4px",fontSize:10,color:ampelColor,fontWeight:700}}>{a.delta>=0?"+":""}{eurBetrag(a.delta)} €</td>
         </tr>}
         </tbody>
       </table>
@@ -6479,6 +6486,21 @@ function ImplantatpreiseView(){
       setTimeout(function(){ setMeldung(""); }, 3500);
     });
   }
+  // Eine Position aus dem Materialsatz nehmen — mit Rückfrage, weil auch das am
+  // Telefon schnell danebengeht. Der Bestand bleibt davon unberührt.
+  function positionEntfernen(e, index, pos){
+    var name = implantatBezeichnung(pos.implantat_id);
+    if (!window.confirm("„"+name+"“ aus „"+e.anzeige+"“ entfernen?\n\n"
+      +"Die Position bleibt in Ihrer Preisliste erhalten und lässt sich jederzeit "
+      +"wieder hinzufügen.")) return;
+    var neu = materialsatzPositionen(e.eingriffId, e.variante)
+      .map(function(x){ return {implantat_id:x.implantat_id, anzahl:x.anzahl}; });
+    neu.splice(index, 1);
+    materialsatzSpeichern(e.eingriffId, e.variante, neu).then(function(){
+      neuBerechnen(); setMeldung("„"+name+"“ aus „"+e.anzeige+"“ entfernt.");
+      setTimeout(function(){ setMeldung(""); }, 3000);
+    });
+  }
   function mengeUebernehmen(eingriffId, variante, index, neueAnzahl){
     var pos = materialsatzPositionen(eingriffId, variante).map(function(p){ return {implantat_id:p.implantat_id, anzahl:p.anzahl}; });
     if (neueAnzahl <= 0) pos.splice(index, 1); else pos[index].anzahl = neueAnzahl;
@@ -6516,12 +6538,21 @@ function ImplantatpreiseView(){
       setTimeout(function(){ setMeldung(""); }, 4000);
     });
   }
+  // Löschen ist unwiderruflich und am Telefon einen Fehltipp entfernt — deshalb
+  // wird IMMER nachgefragt. Wird die Position verwendet, nennt die Rückfrage die
+  // betroffenen Eingriffe namentlich, nicht nur ihre Anzahl.
   function positionLoeschen(i){
+    var frage;
     if (i.verwendung.length) {
-      if (!window.confirm("„"+i.bezeichnung+"“ wird in "+i.verwendung.length+" Eingriff"
-        +(i.verwendung.length>1?"en":"")+" verwendet.\n\nWirklich löschen? Die Position verschwindet "
-        +"dann auch aus diesen Materialsätzen.")) return;
+      var liste = i.verwendung.map(function(v){ return "  • " + v.anzahl + "× " + v.anzeige; }).join("\n");
+      frage = "„"+i.bezeichnung+"“ wird in "+i.verwendung.length+" Eingriff"
+        +(i.verwendung.length>1?"en":"")+" verwendet:\n\n"+liste
+        +"\n\nWirklich löschen? Die Position verschwindet dann auch aus diesen Materialsätzen.";
+    } else {
+      frage = "„"+i.bezeichnung+"“ endgültig aus Ihrem Bestand löschen?\n\n"
+        +"Die Position wird in keinem Eingriff verwendet. Rückgängig machen lässt sich das nicht.";
     }
+    if (!window.confirm(frage)) return;
     preisLoeschen(i.id).then(function(){
       neuBerechnen(); setMeldung("„"+i.bezeichnung+"“ gelöscht.");
       setTimeout(function(){ setMeldung(""); }, 3000);
@@ -6832,7 +6863,7 @@ function ImplantatpreiseView(){
                 : <span onClick={()=>setBearbeite({id:i.id})} title="Preis bearbeiten"
                     style={{fontSize:13,fontWeight:700,cursor:"pointer",
                             color: i.preis==null?AMBER:"#1D2421",borderBottom:"1px dotted "+LINIE}}>
-                    {i.preis==null ? "kein Preis" : i.preis.toFixed(2)+" €"}</span>}
+                    {i.preis==null ? "kein Preis" : eurBetrag(i.preis)+" €"}</span>}
             </div>
             <div style={{flex:"0 0 130px",textAlign:"right"}}>
               {i.verwendung.length
@@ -6878,7 +6909,7 @@ function ImplantatpreiseView(){
                     return <div key={z.id} onClick={()=>ersetzenZielWaehlen(z.id, z.bezeichnung)}
                       style={{padding:"6px 8px",fontSize:11,cursor:"pointer",borderBottom:"1px solid rgba(0,0,0,.04)"}}>
                       {z.bezeichnung}<span style={{color:"#5C6660",marginLeft:6}}>
-                        {z.preis==null?"· kein Preis hinterlegt":"· "+z.preis.toFixed(2)+" €"}</span>
+                        {z.preis==null?"· kein Preis hinterlegt":"· "+eurBetrag(z.preis)+" €"}</span>
                     </div>;
                   })}
                   <div style={{padding:"7px 8px",display:"flex",gap:7,alignItems:"center",flexWrap:"wrap",
@@ -6965,7 +6996,9 @@ function ImplantatpreiseView(){
       {eingriffeGefiltert.length===0 && <div style={{padding:20,fontSize:12,color:"#5C6660",textAlign:"center",
         background:"#fff",border:"1px solid "+LINIE,borderRadius:12}}>Kein Eingriff gefunden.</div>}
       {eingriffeGefiltert.map(function(e){
-        const maxZ = Math.max.apply(null, [1].concat(e.positionen.map(function(x){ return x.preis||0; })));
+        // Der Balken zeigt den Anteil der Zeile an der Paketsumme — nicht mehr
+        // ihr Verhältnis zur teuersten Einzelposition.
+        const paketSumme = e.positionen.reduce(function(sa,x){ return sa + (x.preis||0); }, 0) || 1;
         return <div key={e.eingriffId+e.variante} style={{background:"#fff",border:"1px solid "+LINIE,
             borderRadius:12,marginBottom:10,overflow:"hidden"}}>
           <div style={{background:TINT,padding:"8px 14px",display:"flex",justifyContent:"space-between",
@@ -6974,11 +7007,11 @@ function ImplantatpreiseView(){
               {e.variante!=="Standard" && <span style={{fontWeight:400,fontStyle:"italic",color:"#5C6660"}}> · {e.variante}</span>}
               <span style={{fontSize:10,color:"#5C6660",fontWeight:400}}> · {e.sektion}</span></span>
             <span style={{fontSize:13,fontWeight:700,color: e.fehlend?AMBER:P}}>
-              {e.fehlend ? "unvollständig — "+e.fehlend+" ohne Preis" : e.summe.toFixed(2)+" €"}</span>
+              {e.fehlend ? "unvollständig — "+e.fehlend+" ohne Preis" : eurBetrag(e.summe)+" €"}</span>
           </div>
           <div style={{padding:"6px 14px 10px"}}>
             {e.positionen.map(function(pos,idx){
-              const anteil = pos.preis ? Math.max(2, Math.round(pos.preis / maxZ * 100)) : 0;
+              const anteil = pos.preis ? Math.max(2, Math.round(pos.preis / paketSumme * 100)) : 0;
               return <div key={idx} style={{padding:"5px 0",borderBottom: idx<e.positionen.length-1?"1px solid #F1F4F3":"none"}}>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <span style={{flex:"1 1 auto",fontSize:12}}>{implantatBezeichnung(pos.implantat_id)}</span>
@@ -6987,13 +7020,24 @@ function ImplantatpreiseView(){
                     style={{flex:"0 0 46px",width:46,padding:"2px 4px",fontSize:11,textAlign:"center",
                             border:"1px solid "+LINIE,borderRadius:4}}/>
                   <span style={{flex:"0 0 78px",textAlign:"right",fontSize:11,color: pos.stueckpreis==null?AMBER:"#5C6660"}}>
-                    {pos.stueckpreis==null?"—":pos.stueckpreis.toFixed(2)+" €"}</span>
+                    {pos.stueckpreis==null?"—":eurBetrag(pos.stueckpreis)+" €"}</span>
                   <span style={{flex:"0 0 82px",textAlign:"right",fontSize:12,fontWeight:600,
                                 color: pos.preis==null?AMBER:"#1D2421"}}>
-                    {pos.preis==null?"kein Preis":pos.preis.toFixed(2)+" €"}</span>
+                    {pos.preis==null?"kein Preis":eurBetrag(pos.preis)+" €"}</span>
+                  {/* Bis hierher liess sich eine Zeile nur durch Eintragen der
+                      Menge 0 entfernen — das findet niemand. Jetzt ausdrücklich. */}
+                  <span onClick={()=>positionEntfernen(e, idx, pos)} role="button"
+                    title={"„"+implantatBezeichnung(pos.implantat_id)+"“ aus diesem Eingriff entfernen"}
+                    aria-label={"Position „"+implantatBezeichnung(pos.implantat_id)+"“ entfernen"}
+                    style={{flex:"0 0 20px",textAlign:"right",cursor:"pointer",fontSize:15,
+                            lineHeight:1,color:"#9AA5A0",userSelect:"none"}}>×</span>
                 </div>
-                <div style={{marginTop:4,height:3,background:"#F1F4F3",borderRadius:2,overflow:"hidden"}}>
-                  <div style={{width:anteil+"%",height:"100%",background:pos.preis?P:"transparent"}}></div>
+                <div style={{marginTop:4,display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{flex:1,height:3,background:"#F1F4F3",borderRadius:2,overflow:"hidden"}}>
+                    <div style={{width:anteil+"%",height:"100%",background:pos.preis?P:"transparent"}}></div>
+                  </div>
+                  {pos.preis!=null && <span style={{flex:"0 0 34px",textAlign:"right",fontSize:9,
+                    color:"#9AA5A0"}}>{anteil}%</span>}
                 </div>
               </div>;
             })}
@@ -7016,7 +7060,7 @@ function ImplantatpreiseView(){
                       style={{padding:"6px 8px",fontSize:11,cursor:"pointer",borderBottom:"1px solid rgba(0,0,0,.04)"}}>
                       {i.bezeichnung}
                       <span style={{color:"#5C6660",marginLeft:6}}>
-                        {i.preis==null ? "· kein Preis hinterlegt" : "· "+i.preis.toFixed(2)+" €"}</span>
+                        {i.preis==null ? "· kein Preis hinterlegt" : "· "+eurBetrag(i.preis)+" €"}</span>
                     </div>;
                   })}
                   {/* Findet die Suche nichts, laesst sich die Position hier direkt anlegen */}
@@ -7052,7 +7096,7 @@ function ImplantatpreiseView(){
             <div style={{display:"flex",justifyContent:"space-between",paddingTop:8,marginTop:4,
                 borderTop:"2px solid "+TINT,fontSize:12,fontWeight:700,color:P}}>
               <span>Paketsumme</span>
-              <span>{e.fehlend ? "—" : e.summe.toFixed(2)+" €"}</span>
+              <span>{e.fehlend ? "—" : eurBetrag(e.summe)+" €"}</span>
             </div>
           </div>
         </div>;
@@ -7490,7 +7534,7 @@ function LandingPage({onSelect, rundgangAnstoss}) {
           </div>
         </a>
       </div>
-      <div style={{marginTop:20,fontSize:10,color:"#A0AEC0"}}>v2.6 · Juni 2026</div>
+      <div style={{marginTop:20,fontSize:10,color:"#A0AEC0"}}>v2.7 · Juli 2026</div>
     </div>
   );
 }
