@@ -6317,7 +6317,9 @@ function ImplantatpreiseView(){
   }
   const [bearbeite, setBearbeite] = React.useState(null);  // {id, wert}
   const [anlegen, setAnlegen] = React.useState(null);      // Formular „Implantat anlegen“
-  const [neuePos, setNeuePos] = React.useState({});        // Auswahl je Eingriff
+  const [posSuche, setPosSuche] = React.useState({});      // Suchtext je Eingriff
+  const [posNeu, setPosNeu] = React.useState({});          // Neuanlage aus dem Eingriff heraus
+  const [ersetzen, setErsetzen] = React.useState(null);    // {vonId, suche, zielId, neuPreis, schritt}
   const [meldung, setMeldung] = React.useState("");
   const dateiRef = React.useRef(null);
 
@@ -6433,9 +6435,21 @@ function ImplantatpreiseView(){
       setTimeout(function(){ setMeldung(""); }, 3000);
     });
   }
+  // --- Bestand durchsuchen (ein Bestand, zwei Wege) -------------------------
+  // Implantate existieren genau einmal. Der Materialsatz verweist nur darauf,
+  // deshalb sucht das Feld im selben Bestand, den die Ansicht „Implantate“ zeigt.
+  function bestandSuchen(text, schonEnthalten){
+    var s = String(text||"").trim().toLowerCase();
+    if (!s) return [];
+    return implantate.filter(function(i){
+      if (schonEnthalten.indexOf(i.id) >= 0) return false;
+      return (i.bezeichnung+" "+i.hersteller+" "+i.artikelnummer).toLowerCase().indexOf(s) >= 0;
+    }).sort(function(a,b){ return a.bezeichnung.localeCompare(b.bezeichnung,"de"); }).slice(0, 8);
+  }
   // --- Position zu einem Materialsatz hinzufuegen ---------------------------
-  function positionHinzufuegen(e){
-    var key = e.eingriffId + "|" + e.variante, id = neuePos[key];
+  // Hinzufuegen ergaenzt immer, es ersetzt nie eine vorhandene Zeile.
+  function positionHinzufuegen(e, id){
+    var key = e.eingriffId + "|" + e.variante;
     if (!id) return;
     var pos = materialsatzPositionen(e.eingriffId, e.variante).map(function(x){
       return {implantat_id:x.implantat_id, anzahl:x.anzahl}; });
@@ -6445,9 +6459,96 @@ function ImplantatpreiseView(){
     }
     pos.push({implantat_id:id, anzahl:1});
     materialsatzSpeichern(e.eingriffId, e.variante, pos).then(function(){
-      setNeuePos(Object.assign({}, neuePos, {[key]:""}));
+      setPosSuche(Object.assign({}, posSuche, {[key]:""}));
+      setPosNeu(Object.assign({}, posNeu, {[key]:null}));
       neuBerechnen(); setMeldung(implantatBezeichnung(id)+" zu „"+e.anzeige+"“ hinzugefügt.");
       setTimeout(function(){ setMeldung(""); }, 3000);
+    });
+  }
+  // Neues Implantat direkt aus dem Eingriff heraus: erst in den Bestand, dann
+  // in den Materialsatz — damit es anschliessend ueberall auffindbar ist.
+  function posNeuAnlegen(e){
+    var key = e.eingriffId + "|" + e.variante, f = posNeu[key];
+    if (!f) return;
+    var bez = (f.bezeichnung||"").trim();
+    var preis = String(f.preis).replace(",", ".").trim();
+    if (!bez) { setMeldung("Bitte eine Bezeichnung eintragen."); return; }
+    if (preis === "" || !isFinite(Number(preis))) { setMeldung("Bitte einen Einzelpreis eintragen."); return; }
+    if (implantate.some(function(i){ return i.bezeichnung.trim().toLowerCase() === bez.toLowerCase(); })) {
+      setMeldung("„"+bez+"“ gibt es bereits im Bestand — bitte aus der Liste wählen."); return;
+    }
+    var id = neueImplantatId(bez);
+    preisSpeichern(id, {bezeichnung:bez, preis:Number(preis), sektion:e.sektion, eigene:true})
+      .then(function(){ positionHinzufuegen(e, id); });
+  }
+
+  // --- Ersetzen: ein Implantat in ALLEN Materialsaetzen austauschen ----------
+  // Mengen bleiben erhalten. Enthaelt ein Eingriff altes und neues Implantat,
+  // werden die Mengen addiert statt eine Zeile stillschweigend zu verlieren.
+  function ersetzenBetroffen(vonId, zielId){
+    var out = [];
+    Object.keys(_ZUORD.EINGRIFFE).forEach(function(eg){
+      var e = _ZUORD.EINGRIFFE[eg];
+      Object.keys(e.varianten).forEach(function(v){
+        var pos = materialsatzPositionen(eg, v);
+        var treffer = pos.filter(function(x){ return x.implantat_id === vonId; });
+        if (!treffer.length) return;
+        out.push({eingriffId:eg, variante:v, anzeige:eingriffAnzeige(e.name, v),
+          anzahl: treffer.reduce(function(s,x){ return s + x.anzahl; }, 0),
+          kollision: !!zielId && pos.some(function(x){ return x.implantat_id === zielId; })});
+      });
+    });
+    return out;
+  }
+  function ersetzenAusfuehren(vonId, zielId){
+    var betroffen = ersetzenBetroffen(vonId, zielId);
+    return Promise.all(betroffen.map(function(b){
+      var pos = materialsatzPositionen(b.eingriffId, b.variante);
+      var neu = [], platz = {};
+      pos.forEach(function(x){
+        var id = x.implantat_id === vonId ? zielId : x.implantat_id;
+        if (platz[id] !== undefined) neu[platz[id]].anzahl += x.anzahl;   // Mengen addieren
+        else { platz[id] = neu.length; neu.push({implantat_id:id, anzahl:x.anzahl}); }
+      });
+      return materialsatzSpeichern(b.eingriffId, b.variante, neu);
+    })).then(function(){ return betroffen.length; });
+  }
+  function ersetzenStarten(id){
+    setErsetzen({vonId:id, suche:"", zielId:"", neuBezeichnung:"", neuPreis:"", schritt:"waehlen", anzahl:0});
+  }
+  function ersetzenZielWaehlen(zielId, bezeichnung){
+    setErsetzen(Object.assign({}, ersetzen, {zielId:zielId, zielName:bezeichnung, schritt:"bestaetigen"}));
+  }
+  // Ziel neu anlegen und danach ersetzen
+  function ersetzenZielNeu(){
+    var bez = (ersetzen.suche||"").trim();
+    var preis = String(ersetzen.neuPreis).replace(",", ".").trim();
+    if (!bez) { setMeldung("Bitte eine Bezeichnung eintragen."); return; }
+    if (preis === "" || !isFinite(Number(preis))) { setMeldung("Bitte einen Einzelpreis eintragen."); return; }
+    if (implantate.some(function(i){ return i.bezeichnung.trim().toLowerCase() === bez.toLowerCase(); })) {
+      setMeldung("„"+bez+"“ gibt es bereits im Bestand — bitte aus der Liste wählen."); return;
+    }
+    var id = neueImplantatId(bez);
+    var alt = implantate.filter(function(i){ return i.id === ersetzen.vonId; })[0] || {};
+    preisSpeichern(id, {bezeichnung:bez, preis:Number(preis), sektion:alt.sektion||"", eigene:true})
+      .then(function(){ neuBerechnen(); ersetzenZielWaehlen(id, bez); });
+  }
+  function ersetzenBestaetigen(){
+    var von = ersetzen.vonId, ziel = ersetzen.zielId;
+    var altName = implantatBezeichnung(von), zielName = implantatBezeichnung(ziel);
+    ersetzenAusfuehren(von, ziel).then(function(n){
+      neuBerechnen();
+      setMeldung(altName+" in "+n+" Eingriff"+(n>1?"en":"")+" durch "+zielName+" ersetzt.");
+      setErsetzen(Object.assign({}, ersetzen, {schritt:"loeschfrage", ersetzteAnzahl:n}));
+    });
+  }
+  function ersetzenAltLoeschen(loeschen){
+    if (!loeschen) { setErsetzen(null); setMeldung(""); return; }
+    var von = ersetzen.vonId, name = implantatBezeichnung(von);
+    preisLoeschen(von).then(function(){
+      setErsetzen(null); neuBerechnen();
+      setMeldung("„"+name+"“ aus dem Bestand gelöscht.");
+      setTimeout(function(){ setMeldung(""); }, 3500);
     });
   }
 

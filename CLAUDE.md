@@ -91,13 +91,13 @@ Implantatpreise sind **Nutzerdaten**, keine Auslieferungsdaten — jeder Nutzer 
 
 ## Workflow für Änderungen
 
-1. **Ändern** in `index.html` (Komponenten/Logik) bzw. `data/*.json` (Inhalte); bei medizinischem Inhalt erst Vorschlag zur Freigabe.
+1. **Ändern** in `app.html` (Komponenten/Logik) bzw. `data/*.json` (Inhalte); bei medizinischem Inhalt erst Vorschlag zur Freigabe.
 2. **Validieren:**
    - JSON: jede geänderte Datei parsen (`python3 -c "import json;json.load(open('data/x.json'))"`).
    - JSX: App-Skript-Block extrahieren und mit Babel transpilieren (kein Node installiert — als JS-Runtime dient macOS-`jsc`: `/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc`; Babel z. B. aus `../Fuss-Track/lib/babel.min.js`).
    - Referenzen: jeder Key in `DIAG[x].opMethoden` existiert in `OPS`; `OP_STEUERUNG`-/`AUFKLAERUNG_MAP`-Keys passen zu `OPS`; DRG-Codes existieren in `_DRG`/`_HDRG`; `__fx`-Marker nur als `{"__fx": "string"}`.
    - Nach Daten-Verschiebungen: `python3 scripts/verify_extraction.py <ref>` — `<ref>` ist ein Git-Stand, der die Daten noch EINGEBETTET in index.html hat (Stufe-1-Vergleich; nach dem Umbau-Commit den Pre-Umbau-Hash angeben, z. B. `2aafcc5`).
-3. **Live-Preview:** Dev-Server (s. u.), `http://localhost:8000/index.html`.
+3. **Live-Preview:** Dev-Server (s. u.), `http://localhost:8000/app.html`.
 4. **Deploy:** **Zuerst `DEPLOY.md` lesen** — Bucket-Upload vor Push. Der Autor lädt manuell auf GitHub hoch — am Ende immer die exakt zu deployenden Dateien benennen. Solange Supabase noch nicht live ist, gehören bei Inhaltsänderungen die betroffenen `data/*.json` mit zum GitHub-Deploy. **Sobald Supabase live ist:** Inhaltsänderungen werden im Supabase-Bucket ersetzt (Storage → Datei überschreiben), `data/` bleibt aus dem GitHub-Repo draußen; zu GitHub geht dann nur noch index.html/Hüllen-Code.
 
 ## Lokaler Dev-Server (Standard bei jeder Arbeitssitzung)
