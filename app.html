@@ -587,8 +587,8 @@ function ToolKopfleiste(props){
     <div onClick={props.onHome} style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:11,fontWeight:600,whiteSpace:"nowrap",boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>← Menü</div>
     <div style={{fontSize:12,fontWeight:700,color:"#006B6F",textAlign:"center",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{props.titel}</div>
     <div onClick={props.onHome} title="Zum Menü" style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:12,fontWeight:600,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>⌂</div>
-    {props.onHilfe && <div onClick={props.onHilfe} title="Rundgang starten"
-      style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:12,fontWeight:700,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>?</div>}
+    {props.onEinstellungen && <div onClick={props.onEinstellungen} title="Einstellungen"
+      style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:13,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>⚙</div>}
   </div>;
 }
 
@@ -1846,7 +1846,7 @@ var _s = useState, _m = useMemo;
           ⚠ <strong>Endo-Pfad im Aufbau (Iteration 1):</strong> Diagnose-Auswahl + BMI funktionsfähig. Klinische Untersuchung, Bildgebung, Therapie und Erlös-Simulation folgen in Iteration 2 + 3.
         </div>}
         {pfad === "fuss" && <>
-        <div style={cat}>Diagnose(n) – max. 2</div>
+        <div data-tour="sb-diagnose" style={cat}>Diagnose(n) – max. 2</div>
         {/* SONDER-FLOW Chips (ME-Modus + Kontrolle) */}
         <div style={{marginBottom:6, display:"flex", gap:8, flexWrap:"wrap"}}>
           <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:meMode?"2px solid #E65100":"1px dashed rgba(230,81,0,.4)",background:meMode?"rgba(230,81,0,.12)":"rgba(230,81,0,.02)",color:meMode?"#E65100":"#BF360C",fontWeight:600,userSelect:"none"}} onClick={function(){var nv=!meMode;setMeMode(nv);if(nv){setKontrolleMode(false);setKontrolleType("");setDiagnosen([]);setOpMethode([]);}}}>🔩 Metallentfernung {meMode?"(aktiv)":"(Sonder-Flow)"}</div>
@@ -2008,7 +2008,7 @@ var _s = useState, _m = useMemo;
             </div>
           </div>}
         </div>}
-        {diagnosen.length > 0 && <div><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
+        {diagnosen.length > 0 && <div data-tour="sb-opmethode"><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
         {aufActive && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 4 }}>Informationsmaterial zu „{aufActive.entry.label}" — als QR-Code im Brief beifügen?</div>
@@ -2064,7 +2064,7 @@ var _s = useState, _m = useMemo;
         {/* Scores: nur Bezeichnungen, Werte werden händisch in iMED1 nachgetragen — keine Eingabefelder im Tool */}
 
         {/* ERLÖSSIMULATION */}
-        {opMethode.length>0&&<div style={{marginTop:10,border:"2px solid #006B6F",borderRadius:10,overflow:"hidden"}}>
+        {opMethode.length>0&&<div data-tour="sb-erloes" style={{marginTop:10,border:"2px solid #006B6F",borderRadius:10,overflow:"hidden"}}>
           <div onClick={function(){togSec("erloes");}} style={{background:"#006B6F",padding:"8px 12px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",userSelect:"none"}}>
             <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>Erlössimulation</span>
             <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{sec.erloes?"▼":"▶"}</span>
@@ -2599,7 +2599,7 @@ var _s = useState, _m = useMemo;
           </div>}
         </div>}
 
-        <div className="sb-mobile-preview">
+        <div className="sb-mobile-preview" data-tour="sb-export">
           <div style={card}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
               <div style={h3s}>Vorschau & Export</div>
@@ -2748,7 +2748,7 @@ function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fal
     </div>;
   }
 
-  return <div style={{marginTop:10,border:"1px solid "+HEAD,borderRadius:8,overflow:"hidden"}}>
+  return <div data-tour="versorgung" style={{marginTop:10,border:"1px solid "+HEAD,borderRadius:8,overflow:"hidden"}}>
     <div style={{background:HEAD,padding:"6px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,flexWrap:"wrap"}}>
       <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>
         {istModus ? "🔧 Tatsächliche Versorgung" : "📦 Standardversorgung"}
@@ -6347,6 +6347,18 @@ function preisExcelEinlesen(datei, fertig){
 // ============================================================================
 const PREIS_SEKTIONEN = ["Vorfuß","Rückfuß","OSG","OSG-Prothese","Unfallchirurgie"];
 
+// Preisliste in der Form, die der Excel-Export erwartet — wird auch aus den
+// Einstellungen heraus gebraucht, wo die Kachel nicht geöffnet ist.
+function preislisteFuerExport(){
+  var ids = new Set([...Object.keys(_ZUORD.KATALOG), ...Object.keys(window._PREISE||{})]);
+  return [...ids].map(function(id){
+    var e = (window._PREISE||{})[id] || {};
+    return {id:id, bezeichnung: implantatBezeichnung(id), hersteller: e.hersteller || "",
+      artikelnummer: e.artikelnummer || "", preis: implantatStueckpreis(id),
+      sektion: implantatSektion(id), eigene: istEigenePosition(id),
+      aktualisiert: e.aktualisiert || null, verwendung: verwendungVon(id)};
+  });
+}
 // Anzeigename eines Eingriffs. Sieben Namen kommen mehrfach vor und sind nur
 // ueber die Variante unterscheidbar ("OSG-TEP Mobile Bearing" gibt es als
 // "Flat Cut" und "kurviert") — deshalb haengen wir sie ueberall dort an, wo
@@ -6704,8 +6716,8 @@ function ImplantatpreiseView(){
           Sprechstundenbrief und OP-Bericht Ihre Materialkosten und Deckungsbeiträge.
         </div>
         <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginBottom:18}}>
-          <div onClick={exportieren} style={Object.assign({},btn(true))}>1 · Vorlage herunterladen</div>
-          <div onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false))}>2 · Ausgefüllte Datei hochladen</div>
+          <div data-tour="preis-export" onClick={exportieren} style={Object.assign({},btn(true))}>1 · Vorlage herunterladen</div>
+          <div data-tour="preis-upload" onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false))}>2 · Ausgefüllte Datei hochladen</div>
         </div>
         <input ref={dateiRef} type="file" accept=".xlsx" onChange={dateiGewaehlt} style={{display:"none"}}/>
         {meldung && <div style={{marginTop:12,fontSize:12,color:AMBER}}>{meldung}</div>}
@@ -6756,8 +6768,8 @@ function ImplantatpreiseView(){
       <div style={{flex:1}}></div>
       {ansicht==="implantate" && <div onClick={()=>setAnlegen(anlegen?null:LEER_FORM)}
         style={Object.assign({},btn(false),{fontSize:11})}>+ Implantat anlegen</div>}
-      <div onClick={exportieren} style={Object.assign({},btn(false),{fontSize:11})}>↓ Als Excel exportieren</div>
-      <div onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false),{fontSize:11})}>↑ Datei hochladen</div>
+      <div data-tour="preis-export" onClick={exportieren} style={Object.assign({},btn(false),{fontSize:11})}>↓ Als Excel exportieren</div>
+      <div data-tour="preis-upload" onClick={()=>dateiRef.current&&dateiRef.current.click()} style={Object.assign({},btn(false),{fontSize:11})}>↑ Datei hochladen</div>
       <input ref={dateiRef} type="file" accept=".xlsx" onChange={dateiGewaehlt} style={{display:"none"}}/>
     </div>
 
@@ -6860,14 +6872,14 @@ function ImplantatpreiseView(){
                         : "wird derzeit in keinem Eingriff verwendet"}
                     </div>
                   </span>
-                : <span onClick={()=>setBearbeite({id:i.id})} title="Preis bearbeiten"
+                : <span data-tour="preis-inline" onClick={()=>setBearbeite({id:i.id})} title="Preis bearbeiten"
                     style={{fontSize:13,fontWeight:700,cursor:"pointer",
                             color: i.preis==null?AMBER:"#1D2421",borderBottom:"1px dotted "+LINIE}}>
                     {i.preis==null ? "kein Preis" : eurBetrag(i.preis)+" €"}</span>}
             </div>
             <div style={{flex:"0 0 130px",textAlign:"right"}}>
               {i.verwendung.length
-                ? <span onClick={()=>setOffen(Object.assign({},offen,{[i.id]:!auf}))}
+                ? <span data-tour="preis-verwendung" onClick={()=>setOffen(Object.assign({},offen,{[i.id]:!auf}))}
                     style={{fontSize:11,color:P,cursor:"pointer",textDecoration:"underline"}}>
                     in {i.verwendung.length} Eingriff{i.verwendung.length>1?"en":""} {auf?"▴":"▾"}</span>
                 : <span style={{fontSize:10,color:"#5C6660",fontStyle:"italic"}}>nicht verwendet</span>}
@@ -7217,6 +7229,20 @@ function HomescreenKarte({onClose, alsSchritt}){
 // Kein fremdes Tour-Programm, nur diese Datei.
 // ============================================================================
 const RUNDGANG_MERKER = "ft-rundgang-gesehen";
+const SCHRIFT_MERKER  = "ft-schriftgroesse";
+
+// Die Oberfläche ist durchgehend in Pixeln gesetzt, deshalb wird der gesamte
+// App-Baum vergrößert statt einzelner Schriftgrade. Der Rundgang hängt bewusst
+// außerhalb dieses Baums (siehe Portal in Rundgang).
+function schriftAnwenden(gross){
+  var w = document.getElementById("root");
+  if (w) w.style.zoom = gross ? "1.15" : "";
+}
+function schriftGelesen(){
+  try{ return localStorage.getItem(SCHRIFT_MERKER) === "gross"; }catch(e){ return false; }
+}
+// Schon beim Laden anwenden, damit nichts springt
+try{ if (schriftGelesen()) setTimeout(function(){ schriftAnwenden(true); }, 0); }catch(e){}
 
 const RUNDGANG_SCHRITTE = [
   { titel: "Willkommen bei Fuss-Track Clinic",
@@ -7236,12 +7262,80 @@ const RUNDGANG_SCHRITTE = [
   { titel: "Immer griffbereit", homescreen: true }
 ];
 
-function Rundgang({onFertig}){
+
+// ============================================================================
+// RUNDGÄNGE JE FUNKTION — gleiche Technik wie der Menü-Rundgang, eigener Merker.
+// Jeder startet automatisch beim ersten Öffnen der Funktion und lässt sich in
+// den Einstellungen erneut aufrufen. Findet ein Schritt sein Element nicht,
+// erscheint er mittig statt hervorgehoben — der Rundgang bricht nie ab.
+// ============================================================================
+const RUNDGANG_SB_MERKER     = "ft-rundgang-sb-gesehen";
+const RUNDGANG_OB_MERKER     = "ft-rundgang-ob-gesehen";
+const RUNDGANG_PREISE_MERKER = "ft-rundgang-preise-gesehen";
+
+const RUNDGANG_SB = [
+  { titel: "Der Weg durch den Sprechstundenbrief",
+    text: "Sie arbeiten von oben nach unten. Alles, was Sie auswählen, landet sofort im Brieftext — Sie schreiben nichts doppelt." },
+  { ziele:['[data-tour="sb-diagnose"]'], titel: "Zuerst die Diagnose",
+    text: "Wählen Sie bis zu zwei Diagnosen. Daran hängt alles Weitere — welche Befunde angeboten werden, welche Operationen infrage kommen und welcher Erlös berechnet wird." },
+  { ziele:['[data-tour="sb-opmethode"]'], titel: "Dann die geplante Operation",
+    text: "Mehrfachauswahl ist möglich. Aus dieser Auswahl entstehen die OPS-Codes und die Erlösrechnung weiter unten." },
+  { titel: "Die Befund-Schalter",
+    text: "Jeder Schalter ist ein Textbaustein. Eingeschaltet erscheint der zugehörige Satz im Brief, ausgeschaltet fehlt er. Die Reihenfolge, in der Sie schalten, spielt keine Rolle — der Brief ordnet die Sätze selbst.",
+    hinweis: "Sie müssen nichts formulieren. Was Sie anschalten, steht anschließend als fertiger Satz im Text." },
+  { titel: "Der Score rechnet mit",
+    text: "Aus den gesetzten Schaltern entsteht der Score von selbst. Sie tragen keine Punktzahl ein und müssen nichts nachrechnen — ändern Sie einen Befund, ändert sich der Wert mit." },
+  { ziele:['[data-tour="sb-erloes"]'], titel: "Erlös und Standardversorgung",
+    text: "Hier sehen Sie, was der Fall voraussichtlich einbringt und welches Material die Standardversorgung vorsieht. Der Block ist eine Einschätzung für Ihre Planung, keine Abrechnung." },
+  { ziele:['[data-tour="sb-export"]'], titel: "Vorschau und Übernahme",
+    text: "Klappen Sie die Vorschau auf und lesen Sie gegen. Passt der Text, geht er über „Word“ in Ihre Dokumentation oder über „Kopieren“ direkt in die Zwischenablage." }
+];
+
+const RUNDGANG_OB = [
+  { titel: "Der Weg durch den OP-Bericht",
+    text: "Sie stellen den Eingriff zusammen, prüfen Codes und Erlös und passen bei Bedarf das tatsächlich verbrauchte Material an. Am Ende steht der fertige Bericht." },
+  { titel: "Zuerst den Eingriff wählen",
+    text: "Wählen Sie oben Sektion und Eingriff. Der Berichtstext, die OPS-Codes und die Erlösrechnung stellen sich daraufhin um." },
+  { titel: "Der OPS- und Erlösblock",
+    text: "Die Codes ergeben sich aus dem gewählten Eingriff. Daneben steht, ob der Fall ambulant, als Hybrid-DRG oder stationär abgerechnet wird und welcher Erlös daraus folgt." },
+  { ziele:['[data-tour="versorgung"]'], titel: "Standardversorgung",
+    text: "Zunächst sehen Sie den hinterlegten Materialsatz — das, was für diesen Eingriff üblicherweise verbraucht wird, bewertet mit Ihren eigenen Preisen." },
+  { ziele:['[data-tour="versorgung"]'], titel: "Auf die tatsächliche Versorgung umschalten",
+    text: "Über „tatsächliche Versorgung“ wechseln Sie in die Ansicht für diesen einen Fall. Dort ändern Sie Mengen, nehmen Positionen heraus oder ergänzen welche.",
+    hinweis: "Diese Änderung gilt nur für diesen Bericht. Ihr hinterlegter Materialsatz bleibt unverändert." },
+  { ziele:['[data-tour="versorgung"]'], titel: "Abweichung im Blick",
+    text: "Sobald Sie etwas ändern, zeigt die Ansicht die Differenz zur Standardversorgung. So sehen Sie sofort, ob der Fall teurer oder günstiger ausgefallen ist." },
+  { titel: "Bericht übernehmen",
+    text: "Zum Schluss den Text gegenlesen und über „Word“ oder „Kopieren“ in Ihre Dokumentation übernehmen." }
+];
+
+const RUNDGANG_PREISE = [
+  { titel: "Ihre eigene Preisliste",
+    text: "Die Preise Ihres Hauses sind vertraulich und werden nicht mitgeliefert. Sie hinterlegen sie einmal selbst, danach rechnen Sprechstundenbrief und OP-Bericht damit.",
+    hinweis: "Die Liste liegt ausschließlich in Ihrem Konto." },
+  { ziele:['[data-tour="preis-export"]'], titel: "Erster Schritt — Vorlage herunterladen",
+    text: "Laden Sie die Excel-Vorlage herunter. Sie enthält bereits alle Positionen, die in den hinterlegten Eingriffen vorkommen, und einen Standard-Materialsatz je Eingriff." },
+  { titel: "Zweiter Schritt — Preise eintragen",
+    text: "Tragen Sie im Blatt „Meine Preise“ in der gelben Spalte den Preis für ein Stück ein. Was Sie nicht wissen, lassen Sie leer.",
+    hinweis: "Die Einkaufspreise bekommen Sie im Regelfall vom Einkauf oder vom Controlling Ihres Hauses." },
+  { ziele:['[data-tour="preis-upload"]'], titel: "Dritter Schritt — Datei hochladen",
+    text: "Laden Sie die ausgefüllte Datei wieder hoch. Vor der Übernahme sehen Sie eine Vorschau, was übernommen wird und was noch offen ist." },
+  { ziele:['[data-tour="preis-inline"]'], titel: "Einzelne Preise ändern",
+    text: "Für eine einzelne Korrektur brauchen Sie kein Excel. Tippen Sie den Betrag an, ändern Sie ihn und bestätigen Sie mit der Eingabetaste — alle betroffenen Eingriffe rechnen sofort neu." },
+  { ziele:['[data-tour="preis-verwendung"]'], titel: "„in n Eingriffen“",
+    text: "Diese Angabe zeigt, in wie vielen Eingriffen die Position steckt. Aufgeklappt sehen Sie welche und in welcher Menge — hilfreich, bevor Sie einen Preis ändern oder eine Position löschen." },
+  { ziele:['[data-tour="preis-export"]'], titel: "Sicherung nicht vergessen",
+    text: "Derselbe Export dient als Sicherung Ihrer Liste. Legen Sie sich die Datei gelegentlich beiseite, dann ist Ihre Arbeit auch bei einem Kontowechsel nicht verloren." }
+];
+
+function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
   const P="#10535B", TINT="#E6F0F1", LINIE="#D6E2E3", GRAU="#5C6660", TINTE="#1D2421";
   // Der Homescreen-Schritt entfällt, wenn die App bereits vom Startbildschirm läuft
+  const istMenueRundgang = !eigeneSchritte;
   const schritte = React.useMemo(function(){
-    return RUNDGANG_SCHRITTE.filter(function(s){ return !(s.homescreen && alsAppGestartet()); });
-  }, []);
+    return (eigeneSchritte || RUNDGANG_SCHRITTE)
+      .filter(function(s){ return !(s.homescreen && alsAppGestartet()); });
+  }, [eigeneSchritte]);
   const [i, setI] = useState(0);
   const [rect, setRect] = useState(null);
   const [blaseHoehe, setBlaseHoehe] = useState(240);
@@ -7303,8 +7397,9 @@ function Rundgang({onFertig}){
   function zurueck(){ if (i>0) setI(i-1); }
   function beenden(){
     try{
-      localStorage.setItem(RUNDGANG_MERKER, "1");
-      localStorage.setItem(HOMESCREEN_MERKER, "1");   // die Karte war Teil des Rundgangs
+      localStorage.setItem(merker || RUNDGANG_MERKER, "1");
+      // Nur im Menü-Rundgang war die Homescreen-Karte ein Schritt
+      if (istMenueRundgang) localStorage.setItem(HOMESCREEN_MERKER, "1");
     }catch(e){}
     onFertig();
   }
@@ -7345,7 +7440,11 @@ function Rundgang({onFertig}){
     border:"1px solid "+(haupt?P:LINIE), background: haupt?P:"#fff", color: haupt?"#fff":GRAU,
     userSelect:"none", whiteSpace:"nowrap"});
 
-  return <div style={{position:"fixed",inset:0,zIndex:100000}} role="dialog" aria-label="Einführungs-Rundgang">
+  // Der Rundgang wird bewusst NEBEN die App gehängt: die Schriftgrößen-Einstellung
+  // skaliert den App-Baum, und in einem skalierten Baum verrutschen fest
+  // positionierte Elemente gegenüber den gemessenen Positionen.
+  return ReactDOM.createPortal(
+    <div style={{position:"fixed",inset:0,zIndex:100000}} role="dialog" aria-label="Einführungs-Rundgang">
     {/* Abdunklung: bei hervorgehobener Region als Ring um das Loch, sonst flächig */}
     {/* Der Ausschnitt springt bewusst ohne Übergang an seine neue Stelle. Eine
         Animation der Geometrie sieht bei jedem Schrittwechsel und nach jedem
@@ -7399,7 +7498,7 @@ function Rundgang({onFertig}){
         <span onClick={weiter} style={knopf(true)}>{letzter ? "Fertig" : "Weiter"}</span>
       </div>
     </div>
-  </div>;
+  </div>, document.body);
 }
 
 // Kleines Menü hinter dem Fragezeichen
@@ -7421,6 +7520,195 @@ function HilfeMenue({offen, onSchliessen, onRundgang, onHomescreen, zeigeHomescr
   </React.Fragment>;
 }
 
+
+// ============================================================================
+// EINSTELLUNGEN — Hilfe, Konto, eigene Daten, Darstellung, Über.
+// Bewusst nur Abschnitte, hinter denen auch etwas steht.
+// ============================================================================
+const APP_VERSION = "v2.7";
+const APP_STAND   = "Juli 2026";
+
+// Hängt an eine Funktion ihren Rundgang. Er läuft beim ERSTEN Öffnen von selbst
+// und danach nur noch, wenn er aus den Einstellungen angestoßen wird.
+function MitRundgang({schritte, merker, anstoss, onVerbraucht, children}){
+  // Zwei Auslöser: das erste Öffnen der Funktion (Merker noch nicht gesetzt)
+  // und ein ausdrücklicher Anstoß aus den Einstellungen. Der Anstoß wirkt auch
+  // beim Einhängen der Komponente — die Funktion wird ja gerade erst geöffnet.
+  const [laeuft, setLaeuft] = useState(function(){
+    if (anstoss) return true;
+    try{ return localStorage.getItem(merker) !== "1"; }catch(e){ return false; }
+  });
+  const letzterAnstoss = React.useRef(anstoss);
+  useEffect(function(){
+    if (anstoss !== letzterAnstoss.current) {
+      letzterAnstoss.current = anstoss;
+      if (anstoss) setLaeuft(true);
+    }
+  }, [anstoss]);
+  function fertig(){
+    setLaeuft(false);
+    // Wunsch zurücksetzen, sonst startet der Rundgang beim nächsten Öffnen erneut
+    if (onVerbraucht) onVerbraucht();
+  }
+  return <React.Fragment>
+    {children}
+    {laeuft && <Rundgang schritte={schritte} merker={merker} onFertig={fertig}/>}
+  </React.Fragment>;
+}
+
+function EinstellungenView({onSelect, onRundgang}){
+  const P="#10535B", TINT="#E6F0F1", LINIE="#D6E2E3", GRAU="#5C6660", TINTE="#1D2421";
+  const [email, setEmail] = useState("");
+  const [gross, setGross] = useState(schriftGelesen());
+  const [zeigeTipp, setZeigeTipp] = useState(false);
+  const [pwOffen, setPwOffen] = useState(false);
+  const [pw1, setPw1] = useState(""), [pw2, setPw2] = useState("");
+  const [meldung, setMeldung] = useState("");
+
+  useEffect(function(){
+    if (!window._SB) { setEmail("lokaler Entwicklungszugang"); return; }
+    window._SB.auth.getUser().then(function(r){
+      var u = r && r.data && r.data.user;
+      setEmail(u && u.email ? u.email : "unbekannt");
+    }).catch(function(){ setEmail("unbekannt"); });
+  }, []);
+
+  function schriftUmschalten(neu){
+    setGross(neu);
+    try{ localStorage.setItem(SCHRIFT_MERKER, neu ? "gross" : "normal"); }catch(e){}
+    schriftAnwenden(neu);
+  }
+  function passwortSpeichern(){
+    if (pw1.length < 8) { setMeldung("Das Passwort braucht mindestens acht Zeichen."); return; }
+    if (pw1 !== pw2)    { setMeldung("Die beiden Eingaben stimmen nicht überein."); return; }
+    if (!window._SB)    { setMeldung("Ohne Anmeldung lässt sich kein Passwort ändern."); return; }
+    setMeldung("Wird gespeichert …");
+    window._SB.auth.updateUser({password: pw1}).then(function(r){
+      if (r && r.error) { setMeldung("Fehlgeschlagen: " + r.error.message); return; }
+      setPw1(""); setPw2(""); setPwOffen(false);
+      setMeldung("Passwort geändert.");
+      setTimeout(function(){ setMeldung(""); }, 4000);
+    }).catch(function(e){ setMeldung("Fehlgeschlagen: " + (e && e.message ? e.message : e)); });
+  }
+  function abmelden(){
+    if (!window.confirm("Von Fuss-Track Clinic abmelden?")) return;
+    if (!window._SB) { setMeldung("Lokal ist keine Anmeldung aktiv."); return; }
+    window._SB.auth.signOut().catch(function(){}).then(function(){
+      if (window._SITZUNG_BEENDET) window._SITZUNG_BEENDET(window._SB, "Sie sind abgemeldet.");
+    });
+  }
+
+  const kasten = {background:"#fff",border:"1px solid "+LINIE,borderRadius:12,overflow:"hidden",marginBottom:14};
+  const kopf   = {background:TINT,padding:"8px 14px",fontFamily:"'Source Serif 4',Georgia,serif",
+                  fontSize:14,fontWeight:700,color:P};
+  const zeile  = (klickbar) => ({padding:"11px 14px",borderTop:"1px solid "+LINIE,fontSize:13,
+                  color:klickbar?P:TINTE,cursor:klickbar?"pointer":"default",
+                  display:"flex",alignItems:"center",justifyContent:"space-between",gap:10});
+
+  return <div style={{maxWidth:640,margin:"0 auto",padding:"14px 14px 40px",
+      fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"}}>
+    <div style={{textAlign:"center",marginBottom:16}}>
+      <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:20,fontWeight:700,color:P}}>
+        Einstellungen</div>
+    </div>
+
+    {meldung && <div style={{marginBottom:12,padding:"8px 12px",background:TINT,border:"1px solid "+P,
+      borderRadius:8,fontSize:12,color:P}}>{meldung}</div>}
+
+    {/* ---- Hilfe & Rundgänge ---- */}
+    <div style={kasten}>
+      <div style={kopf}>Hilfe &amp; Rundgänge</div>
+      <div style={zeile(true)} onClick={()=>onRundgang("menue")}>
+        <span>Überblick über die App</span><span style={{color:GRAU}}>›</span></div>
+      <div style={zeile(true)} onClick={()=>onRundgang("sb")}>
+        <span>Sprechstundenbrief</span><span style={{color:GRAU}}>›</span></div>
+      <div style={zeile(true)} onClick={()=>onRundgang("ob")}>
+        <span>OP-Bericht Generator</span><span style={{color:GRAU}}>›</span></div>
+      <div style={zeile(true)} onClick={()=>onRundgang("preise")}>
+        <span>Implantatpreise</span><span style={{color:GRAU}}>›</span></div>
+      <div style={zeile(true)} onClick={()=>setZeigeTipp(!zeigeTipp)}>
+        <span>Zum Startbildschirm hinzufügen</span><span style={{color:GRAU}}>{zeigeTipp?"▴":"›"}</span></div>
+      {zeigeTipp && <div style={{padding:"10px 14px",borderTop:"1px solid "+LINIE}}>
+        <HomescreenKarte alsSchritt={true} onClose={function(){}}/></div>}
+    </div>
+
+    {/* ---- Konto ---- */}
+    <div style={kasten}>
+      <div style={kopf}>Konto</div>
+      <div style={zeile(false)}>
+        <span style={{color:GRAU}}>Angemeldet als</span>
+        <span style={{fontWeight:600,wordBreak:"break-all",textAlign:"right"}}>{email || "…"}</span></div>
+      <div style={zeile(true)} onClick={()=>{ setPwOffen(!pwOffen); setMeldung(""); }}>
+        <span>Passwort ändern</span><span style={{color:GRAU}}>{pwOffen?"▴":"›"}</span></div>
+      {pwOffen && <div style={{padding:"12px 14px",borderTop:"1px solid "+LINIE}}>
+        <input type="password" value={pw1} onChange={e=>setPw1(e.target.value)}
+          placeholder="Neues Passwort (mindestens 8 Zeichen)" autoComplete="new-password"
+          style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",fontSize:13,marginBottom:8,
+                  border:"1px solid "+LINIE,borderRadius:8}}/>
+        <input type="password" value={pw2} onChange={e=>setPw2(e.target.value)}
+          onKeyDown={e=>{ if(e.key==="Enter") passwortSpeichern(); }}
+          placeholder="Zur Sicherheit wiederholen" autoComplete="new-password"
+          style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",fontSize:13,marginBottom:10,
+                  border:"1px solid "+LINIE,borderRadius:8}}/>
+        <div onClick={passwortSpeichern} style={{display:"inline-block",padding:"7px 16px",borderRadius:8,
+          background:P,color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>Speichern</div>
+      </div>}
+      <div style={zeile(true)} onClick={abmelden}>
+        <span>Abmelden</span><span style={{color:GRAU}}>›</span></div>
+    </div>
+
+    {/* ---- Meine Daten ---- */}
+    <div style={kasten}>
+      <div style={kopf}>Meine Daten</div>
+      <div style={zeile(true)} onClick={()=>onSelect("preise")}>
+        <span>Preisliste öffnen</span><span style={{color:GRAU}}>›</span></div>
+      <div style={zeile(true)} onClick={()=>{
+          if (!window.XLSX) { setMeldung("Excel-Bibliothek nicht geladen."); return; }
+          try{
+            preisExcelBauen(preislisteFuerExport(), alleEingriffe());
+            setMeldung("Datei wird heruntergeladen.");
+            setTimeout(function(){ setMeldung(""); }, 3000);
+          }catch(e){ setMeldung("Sicherung fehlgeschlagen: "+(e&&e.message?e.message:e)); }
+        }}>
+        <span>Preisliste als Excel sichern</span><span style={{color:GRAU}}>›</span></div>
+    </div>
+
+    {/* ---- Darstellung ---- */}
+    <div style={kasten}>
+      <div style={kopf}>Darstellung</div>
+      <div style={{padding:"12px 14px",borderTop:"1px solid "+LINIE}}>
+        <div style={{fontSize:13,marginBottom:8}}>Schriftgröße</div>
+        <div style={{display:"flex",gap:8}}>
+          {[["Normal",false],["Groß",true]].map(function(o){
+            return <div key={o[0]} onClick={()=>schriftUmschalten(o[1])}
+              style={{padding:"7px 18px",borderRadius:8,fontSize:13,cursor:"pointer",fontWeight:600,
+                border:"1px solid "+(gross===o[1]?P:LINIE), background: gross===o[1]?P:"#fff",
+                color: gross===o[1]?"#fff":GRAU}}>{o[0]}</div>;
+          })}
+        </div>
+        <div style={{fontSize:11,color:GRAU,marginTop:8,lineHeight:1.55}}>
+          Gilt für die gesamte Anwendung und bleibt gespeichert.
+        </div>
+      </div>
+    </div>
+
+    {/* ---- Über ---- */}
+    <div style={kasten}>
+      <div style={kopf}>Über</div>
+      <div style={zeile(false)}>
+        <span style={{color:GRAU}}>Version</span>
+        <span style={{fontWeight:600}}>{APP_VERSION} · Stand {APP_STAND}</span></div>
+      <div style={{padding:"11px 14px",borderTop:"1px solid "+LINIE,fontSize:13}}>
+        <a href="impressum.html" style={{color:P,marginRight:14}}>Impressum</a>
+        <a href="datenschutz.html" style={{color:P}}>Datenschutz</a>
+      </div>
+      <div style={zeile(false)}>
+        <span style={{color:GRAU}}>Kontakt</span>
+        <a href="mailto:kontakt@fuss-track.de" style={{color:P,fontWeight:600}}>kontakt@fuss-track.de</a></div>
+    </div>
+  </div>;
+}
+
 function LandingPage({onSelect, rundgangAnstoss}) {
   // Anleitung nur zeigen, wenn im Browser gestartet und noch nicht weggeklickt
   const [zeigeTipp, setZeigeTipp] = useState(function(){
@@ -7436,22 +7724,18 @@ function LandingPage({onSelect, rundgangAnstoss}) {
   const [zeigeRundgang, setZeigeRundgang] = useState(function(){
     try{ return localStorage.getItem(RUNDGANG_MERKER) !== "1"; }catch(e){ return false; }
   });
-  const [hilfeOffen, setHilfeOffen] = useState(false);
   // Wiederaufruf aus einem Werkzeug heraus (Kopfleiste → „?“ → Rundgang starten)
   React.useEffect(function(){
     if (rundgangAnstoss) { setZeigeRundgang(true); setZeigeTipp(false); }
   }, [rundgangAnstoss]);
-  function rundgangStarten(){ setHilfeOffen(false); setZeigeTipp(false); setZeigeRundgang(true); }
+
   return (
     <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 16px 16px"}}>
-      <div style={{width:"100%",maxWidth:640,margin:"0 auto",textAlign:"right",position:"relative"}}>
-        <span onClick={()=>setHilfeOffen(!hilfeOffen)} role="button" title="Hilfe und Rundgang"
-          style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:26,height:26,
+      <div style={{width:"100%",maxWidth:640,margin:"0 auto",textAlign:"right"}}>
+        <span onClick={()=>onSelect("einstellungen")} role="button" title="Einstellungen"
+          style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:28,height:28,
                   borderRadius:"50%",border:"1px solid #D6E2E3",background:"#fff",color:"#10535B",
-                  fontSize:13,fontWeight:700,cursor:"pointer",userSelect:"none"}}>?</span>
-        <HilfeMenue offen={hilfeOffen} onSchliessen={()=>setHilfeOffen(false)}
-          onRundgang={rundgangStarten} zeigeHomescreen={!alsAppGestartet()}
-          onHomescreen={()=>{ setHilfeOffen(false); setZeigeTipp(true); }}/>
+                  fontSize:15,cursor:"pointer",userSelect:"none"}}>⚙</span>
       </div>
       {zeigeTipp && !zeigeRundgang && <HomescreenKarte onClose={tippSchliessen}/>}
       {zeigeRundgang && <Rundgang onFertig={()=>{ setZeigeRundgang(false); setZeigeTipp(false); }}/>}
@@ -7534,43 +7818,60 @@ function LandingPage({onSelect, rundgangAnstoss}) {
           </div>
         </a>
       </div>
-      <div style={{marginTop:20,fontSize:10,color:"#A0AEC0"}}>v2.7 · Juli 2026</div>
+
     </div>
   );
 }
 
 function App() {
   const [tool, setTool] = React.useState(null);
-  // Zähler statt Schalter: jeder Klick auf „?“ in einem Werkzeug stößt den
-  // Rundgang erneut an, auch wenn er vorher schon einmal lief.
+  // Zähler statt Schalter: ein erneuter Aufruf desselben Rundgangs muss ihn
+  // wieder anstoßen, auch wenn er vorher schon lief.
   const [rundgangAnstoss, setRundgangAnstoss] = React.useState(0);
-  function rundgangAusWerkzeug(){ setTool(null); setRundgangAnstoss(function(n){ return n+1; }); }
+  // Welcher Funktions-Rundgang soll beim nächsten Öffnen laufen? null = keiner,
+  // "auto" = nur beim ersten Mal, "erzwingen" = aus den Einstellungen heraus.
+  const [tourWunsch, setTourWunsch] = React.useState({});
+
+  function zurEinstellung(){ setTool("einstellungen"); }
+  // Aus den Einstellungen heraus: Funktion öffnen und dort den Rundgang starten
+  function rundgangStarten(welcher){
+    if (welcher === "menue") { setTool(null); setRundgangAnstoss(function(n){ return n+1; }); return; }
+    setTourWunsch(function(w){ var n=Object.assign({},w); n[welcher]=(n[welcher]||0)+1; return n; });
+    setTool(welcher === "sb" ? "sb" : welcher === "ob" ? "ob" : "preise");
+  }
+  const kopf = function(titel){
+    return {titel:titel, onHome:()=>setTool(null), onEinstellungen:zurEinstellung};
+  };
   
   if (tool === "sb") return (
     <div>
-      <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
-      <SprechstundenbriefApp />
+      <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <MitRundgang schritte={RUNDGANG_SB} merker={RUNDGANG_SB_MERKER} anstoss={tourWunsch.sb} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.sb=0; return n; })}>
+        <SprechstundenbriefApp />
+      </MitRundgang>
     </div>
   );
   
   if (tool === "ob") return (
     <div>
-      <ToolKopfleiste titel="OP-Bericht Generator" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
-      <OPBerichtApp />
+      <ToolKopfleiste titel="OP-Bericht Generator" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <MitRundgang schritte={RUNDGANG_OB} merker={RUNDGANG_OB_MERKER} anstoss={tourWunsch.ob} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.ob=0; return n; })}>
+        <OPBerichtApp />
+      </MitRundgang>
     </div>
   );
   
   
   if (tool === "aufklaerung") return (
     <div>
-      <ToolKopfleiste titel="Aufklärungstexte" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
+      <ToolKopfleiste titel="Aufklärungstexte" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
       <AufklaerungstoolView />
     </div>
   );
 
   if (tool === "hdrg") return (
     <div>
-      <ToolKopfleiste titel="OPS-Code Zuordnung 2026" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
+      <ToolKopfleiste titel="OPS-Code Zuordnung 2026" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🔍 OPS-Code Zuordnung 2026</div>
@@ -7586,7 +7887,7 @@ function App() {
 
   if (tool === "manuale") return (
     <div>
-      <ToolKopfleiste titel="OP-Manuale" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
+      <ToolKopfleiste titel="OP-Manuale" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:700,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📚 OP-Manuale</div>
@@ -7601,7 +7902,7 @@ function App() {
 
   if (tool === "klassifikationen") return (
     <div>
-      <ToolKopfleiste titel="Klassifikationen" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
+      <ToolKopfleiste titel="Klassifikationen" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📊 Klassifikationen</div>
@@ -7616,7 +7917,8 @@ function App() {
 
   if (tool === "preise") return (
     <div>
-      <ToolKopfleiste titel="Implantatpreise" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
+      <ToolKopfleiste titel="Implantatpreise" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <MitRundgang schritte={RUNDGANG_PREISE} merker={RUNDGANG_PREISE_MERKER} anstoss={tourWunsch.preise} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.preise=0; return n; })}>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:1020,margin:"0 auto",padding:"16px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:18}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#10535B",marginBottom:4}}>💶 Implantatpreise</div>
@@ -7624,12 +7926,13 @@ function App() {
         </div>
         <ImplantatpreiseView/>
       </div>
+      </MitRundgang>
     </div>
   );
 
   if (tool === "roentgen") return (
     <div>
-      <ToolKopfleiste titel="Röntgen & Messmethoden" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
+      <ToolKopfleiste titel="Röntgen & Messmethoden" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📐 Röntgenbilder mit Messmethoden</div>
@@ -7644,7 +7947,7 @@ function App() {
 
   if (tool === "codes") return (
     <div>
-      <ToolKopfleiste titel="Code-Übersicht" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
+      <ToolKopfleiste titel="Code-Übersicht" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:1100,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🧾 Code-Übersicht</div>
@@ -7657,6 +7960,13 @@ function App() {
     </div>
   );
 
+
+    if (tool === "einstellungen") return (
+      <div>
+        <ToolKopfleiste titel="Einstellungen" onHome={()=>setTool(null)}/>
+        <EinstellungenView onSelect={setTool} onRundgang={rundgangStarten}/>
+      </div>
+    );
 
     return <LandingPage onSelect={setTool} rundgangAnstoss={rundgangAnstoss} />;
 }
