@@ -171,6 +171,15 @@ window.TOOLBOX_AUTH = {
   var domReady=new Promise(function(res){ if(document.readyState!=="loading"){res();} else {document.addEventListener("DOMContentLoaded",function(){res();});} });
   var CFG=window.TOOLBOX_AUTH;
   var isLocal=/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  // Als App vom Startbildschirm gestartet? Dann gibt es keine Adressleiste und
+  // keinen Zurueck-Knopf — jede Navigation aus der App heraus ist eine Sackgasse
+  // und wird von iOS als letzter Ort der Verknuepfung gemerkt.
+  function imStandalone(){
+    try{ return window.navigator.standalone === true
+      || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches); }
+    catch(e){ return false; }
+  }
+  window._IM_STANDALONE = imStandalone;
   var useSupabase=!isLocal || /[?&]auth=1/.test(location.search); // ?auth=1 = Supabase-Pfad lokal testen
 
   function fail(e){
@@ -185,6 +194,18 @@ window.TOOLBOX_AUTH = {
     var e = new Error("Datendatei „"+datei+"“ konnte nicht geladen werden.\n"+wo+
       (urspruenglich ? "\nTechnische Meldung: "+urspruenglich : ""));
     return e;
+  }
+
+  // Storage-Fehler einordnen: fehlende Anmeldung oder wirklich fehlende Datei?
+  // Supabase verbirgt den Bucket vor Unbefugten und meldet dann „Bucket not found“
+  // — ohne diese Unterscheidung liest sich ein Sitzungsablauf wie ein Deploy-Fehler.
+  function speicherFehler(datei, err){
+    var status = err && (err.statusCode || err.status);
+    var text = String((err && err.message) || "");
+    var istAuth = status==401 || status==403 || status=="401" || status=="403"
+      || /jwt|token|unauthor|not authenticated|invalid claim|bucket not found/i.test(text);
+    if (istAuth) { var a=new Error("Anmeldung abgelaufen"); a.__auth=true; return a; }
+    return datenFehler(datei, "bucket", text);
   }
 
   // Gemeinsame Pipeline (Stufe 1): Globale setzen, __fx-Reviver, App-Skript aktivieren
@@ -369,15 +390,47 @@ window.TOOLBOX_AUTH = {
 
   function removeLogin(){ if(loginBox){loginBox.remove();loginBox=null;} }
 
+  // Sitzung beendet (anderes Geraet, Abmeldung, widerrufener Token): die App
+  // zeigt die Anmeldung IN SICH. Kein location-Wechsel — im Standalone-Modus
+  // waere das eine Sackgasse, und iOS merkt sich das Ziel fuer den naechsten Start.
+  var sitzungBeendetGezeigt=false;
+  function sitzungBeendet(client, text){
+    if(sitzungBeendetGezeigt) return;
+    sitzungBeendetGezeigt=true;
+    var d=document.getElementById("err-display");
+    if(d){ d.style.display="none"; d.textContent=""; }      // irrefuehrende Datei-Meldung weg
+    showLogin(client, text || "Ihre Sitzung wurde beendet, weil sich Ihr Konto auf einem anderen Gerät angemeldet hat.");
+  }
+  window._SITZUNG_BEENDET=sitzungBeendet;
+
   function addLogoutLink(client){
     domReady.then(function(){
       var a=document.createElement("div");
       a.textContent="Abmelden";
       a.title="Von der Toolbox abmelden";
       a.style.cssText="position:fixed;bottom:10px;right:12px;z-index:9999;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:11px;color:#718096;text-decoration:underline;cursor:pointer;";
-      a.addEventListener("click",function(){ client.auth.signOut().then(function(){ location.href="index.html"; }); });
+      a.addEventListener("click",function(){
+        client.auth.signOut().catch(function(){}).then(function(){
+          // Vom Startbildschirm gestartet gibt es keinen Weg zurueck — deshalb
+          // bleibt die App stehen und zeigt die Anmeldung in sich.
+          if(imStandalone()){ sitzungBeendet(client,"Sie sind abgemeldet."); return; }
+          location.href="index.html";
+        });
+      });
       document.body.appendChild(a);
     });
+  }
+
+  // Stirbt die Sitzung waehrend der Benutzung (anderes Geraet), meldet supabase-js
+  // das hier — auch dann bleibt die App stehen, statt irgendwohin zu navigieren.
+  function sitzungUeberwachen(client){
+    try{
+      client.auth.onAuthStateChange(function(ereignis, session){
+        if((ereignis==="SIGNED_OUT" || ereignis==="TOKEN_REFRESHED") && !session){
+          sitzungBeendet(client);
+        }
+      });
+    }catch(e){}
   }
 
   // Nutzerpreise + Materialsätze aus Supabase nachladen (nach dem Login)
@@ -431,18 +484,22 @@ window.TOOLBOX_AUTH = {
     Promise.all(GROUPS.map(function(g){
       var dn=(DATEI[g]||g);
       return client.storage.from(CFG.bucket).download(dn+".json").then(function(r){
-        if(r.error) throw datenFehler(dn+".json", "bucket", r.error.message);
+        if(r.error) throw speicherFehler(dn+".json", r.error);
         return r.data.text().then(function(t){ return JSON.parse(t); });
       });
     }).concat([ladeZuordnung(client)])).then(function(res){
       removeLogin();
       addLogoutLink(client);
+      sitzungUeberwachen(client);
       ladePreise(client);
       var D={}; GROUPS.forEach(function(g,i){D[g]=res[i];});
       D.zuordnung=res[GROUPS.length];
       start(D);
     }).catch(function(e){
       if(loginBtn){loginBtn.disabled=false;loginBtn.textContent="Anmelden";}
+      // Bricht der Download ab, weil die Sitzung zwischenzeitlich beendet wurde,
+      // ist das kein Deploy-Problem — dann fehlt nicht die Datei, sondern die Anmeldung.
+      if(e && e.__auth){ sitzungBeendet(client); return; }
       fail(e);
     });
   }
@@ -459,17 +516,36 @@ window.TOOLBOX_AUTH = {
     var linkFehler=hashParams.get("error_description"); // z.B. abgelaufener Link
     loadScriptTag("lib/supabase.js",function(){
       var client=window.supabase.createClient(CFG.url,CFG.anonKey);
+      // Eine beendete Sitzung liegt lokal weiter im Zwischenspeicher: das JWT ist
+      // noch nicht abgelaufen, serverseitig gilt es aber nicht mehr. getSession()
+      // meldet sie deshalb als gueltig. getUser() fragt den Server und ist die
+      // einzige verlaessliche Auskunft.
+      function sitzungPruefen(){
+        return client.auth.getUser().then(function(r){
+          return !!(r && r.data && r.data.user && !r.error);
+        }).catch(function(){ return false; });
+      }
       client.auth.getSession().then(function(r){
         var session=r.data&&r.data.session;
         if(session&&(linkTyp==="recovery"||linkTyp==="invite")){
           domReady.then(function(){ showSetPassword(client); });
         } else if(session){
-          download(client);
+          sitzungPruefen().then(function(gueltig){
+            if(gueltig){ download(client); return; }
+            // Sitzung ist tot — lokalen Rest wegraeumen und IN DER APP anmelden lassen
+            client.auth.signOut({scope:"local"}).catch(function(){}).then(function(){
+              domReady.then(function(){ sitzungBeendet(client); });
+            });
+          });
         } else if(linkTyp||linkFehler){
           domReady.then(function(){ showLogin(client,"Der Link ist ungültig oder abgelaufen — bitte über „Passwort vergessen?“ einen neuen anfordern."); });
         } else {
           domReady.then(function(){ showLogin(client); });
         }
+      }).catch(function(e){
+        // Auch ein Fehlschlag der Sitzungsabfrage darf nicht in einer leeren
+        // Seite enden — dann eben die Anmeldemaske.
+        domReady.then(function(){ showLogin(client,"Die Anmeldung konnte nicht geprüft werden — bitte erneut anmelden."); });
       });
     });
   }
@@ -479,6 +555,22 @@ window.TOOLBOX_AUTH = {
 </script>
 <script type="text/plain" id="app-src">
 const { useState, useMemo, useEffect, useRef } = React;
+
+// ============================================================================
+// DOWNLOADS IM STANDALONE-MODUS
+// Vom Startbildschirm gestartet ignoriert iOS das download-Attribut und
+// n a v i g i e r t  zur blob:- bzw. data:-Adresse. Die Verknuepfung merkt sich
+// dieses Ziel; beim naechsten Start meldet Safari „Adresse ungueltig". Deshalb
+// bekommen Download-Links dort ein eigenes Ziel und ersetzen nie die App.
+// ============================================================================
+function downloadKlick(a){
+  var standalone = window._IM_STANDALONE ? window._IM_STANDALONE() : false;
+  if (standalone) { a.target = "_blank"; a.rel = "noopener"; }
+  if (!a.parentNode) document.body.appendChild(a);
+  a.click();
+  if (a.parentNode === document.body) document.body.removeChild(a);
+}
+
 
 /* ============================================================
    P2: Gemeinsame Bausteine (Kopfleiste + InEK-Kostenbaum)
@@ -1608,7 +1700,7 @@ var _s = useState, _m = useMemo;
         // Fallback: Download wie zuvor
         var a = document.createElement("a");
         a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        downloadKlick(a);
         showToast("🖼 Browser unterstützt kein Kopieren — heruntergeladen");
         return;
       }
@@ -1622,7 +1714,7 @@ var _s = useState, _m = useMemo;
         // Fallback Download bei Fehler (z.B. fehlende Permission)
         var a = document.createElement("a");
         a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        downloadKlick(a);
         showToast("🖼 Kopieren fehlgeschlagen — heruntergeladen");
       });
     } catch (e) { showToast("Fehler beim QR-Kopieren"); }
@@ -1676,9 +1768,7 @@ var _s = useState, _m = useMemo;
       var a = document.createElement("a");
       a.href = url;
       a.download = "Sprechstundenbrief.doc";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      downloadKlick(a);
       URL.revokeObjectURL(url);
       showToast("📄 Word-Datei heruntergeladen!");
     } catch (e) { showToast("Fehler beim Download"); }
@@ -4000,7 +4090,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         const link=document.createElement('a');
         link.href=url;
         link.download=`OP-Bericht_${side}_${gender}.docx`;
-        link.click();
+        downloadKlick(link);
         setTimeout(()=>URL.revokeObjectURL(url),5000);
         showToast("✓ Word generiert!");
         return;
@@ -4011,7 +4101,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         const link=document.createElement('a');
         link.href=`data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${b64}`;
         link.download=`OP-Bericht_${side}_${gender}.docx`;
-        link.click();
+        downloadKlick(link);
         showToast("✓ Word generiert!");
         return;
       }catch(e2){}
@@ -4964,7 +5054,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{ucFullText}</div>
           <div style={{display:"flex",gap:6,marginTop:8}}>
             <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{obFallbackCopy(ucFullText+ucErloesText)}}>📋 Kopieren</div>
-            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{try{var icdT="";if(icdCodes.length>0){icdT="\n\nICD-10 DIAGNOSEN:\n";icdCodes.forEach(function(c){icdT+=(c.hd?"HD: ":"ND: ")+c.code+" "+c.desc+"\n";});}var f=buildDocx(ucFullText+icdT,ucErloesText);var z=createZip(f);var bytes=new Uint8Array(z);var b="";for(var i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]);var d="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,"+btoa(b);var a=document.createElement("a");a.href=d;a.download="UC_OP_Bericht.docx";document.body.appendChild(a);a.click();document.body.removeChild(a);showToast("📄 Word heruntergeladen!");}catch(e){console.error(e);showToast("⚠ Fehler beim Download");}}}>📄 Word</div>
+            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{try{var icdT="";if(icdCodes.length>0){icdT="\n\nICD-10 DIAGNOSEN:\n";icdCodes.forEach(function(c){icdT+=(c.hd?"HD: ":"ND: ")+c.code+" "+c.desc+"\n";});}var f=buildDocx(ucFullText+icdT,ucErloesText);var z=createZip(f);var bytes=new Uint8Array(z);var b="";for(var i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]);var d="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,"+btoa(b);var a=document.createElement("a");a.href=d;a.download="UC_OP_Bericht.docx";downloadKlick(a);showToast("📄 Word heruntergeladen!");}catch(e){console.error(e);showToast("⚠ Fehler beim Download");}}}>📄 Word</div>
           </div>
         </div>}
         {ucOp&&!UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12,fontSize:10,color:"#718096",fontStyle:"italic"}}>OP-Text für diesen Eingriff noch nicht hinterlegt.</div>}
