@@ -580,6 +580,8 @@ function ToolKopfleiste(props){
     <div onClick={props.onHome} style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:11,fontWeight:600,whiteSpace:"nowrap",boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>← Menü</div>
     <div style={{fontSize:12,fontWeight:700,color:"#006B6F",textAlign:"center",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{props.titel}</div>
     <div onClick={props.onHome} title="Zum Menü" style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:12,fontWeight:600,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>⌂</div>
+    {props.onHilfe && <div onClick={props.onHilfe} title="Rundgang starten"
+      style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:12,fontWeight:700,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>?</div>}
   </div>;
 }
 
@@ -7107,7 +7109,7 @@ function SymbolMenue(){    // Android: drei Punkte übereinander
   </svg>;
 }
 
-function HomescreenKarte({onClose}){
+function HomescreenKarte({onClose, alsSchritt}){
   const art = geraeteArt();
   const P="#10535B", TINT="#E6F0F1", LINIE="#D6E2E3", GRAU="#5C6660";
   const istMac = /Mac/.test(navigator.platform||"");
@@ -7145,23 +7147,237 @@ function HomescreenKarte({onClose}){
         justifyContent:"space-between",gap:10}}>
       <span style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:14,fontWeight:700,color:P}}>
         Immer griffbereit</span>
-      <span onClick={onClose} title="Nicht mehr anzeigen" role="button"
-        style={{cursor:"pointer",fontSize:17,lineHeight:1,color:GRAU,padding:"0 2px"}}>×</span>
+      {!alsSchritt && <span onClick={onClose} title="Nicht mehr anzeigen" role="button"
+        style={{cursor:"pointer",fontSize:17,lineHeight:1,color:GRAU,padding:"0 2px"}}>×</span>}
     </div>
     <div style={{padding:"12px 16px 14px",fontSize:13,lineHeight:1.65,color:"#1D2421"}}>
       <p style={{margin:"0 0 8px",color:GRAU}}>
         So öffnen Sie Fuss-Track Clinic künftig mit einem Tipp — wie eine App, ohne App-Store.
       </p>
       {schritte}
-      <div style={{marginTop:12,textAlign:"right"}}>
+      {!alsSchritt && <div style={{marginTop:12,textAlign:"right"}}>
         <span onClick={onClose} style={{fontSize:12,color:P,textDecoration:"underline",cursor:"pointer"}}>
           Verstanden, nicht mehr anzeigen</span>
+      </div>}
+    </div>
+  </div>;
+}
+
+
+// ============================================================================
+// GEFÜHRTER RUNDGANG
+// Legt sich über die echte Oberfläche: der Hintergrund wird abgedunkelt, die
+// erklärte Kachel bleibt hell. Die Hervorhebung wird aus der tatsächlichen
+// Position des Elements berechnet und bei jeder Größenänderung neu vermessen —
+// deshalb sitzt sie auf dem Telefon genauso wie am Rechner.
+// Kein fremdes Tour-Programm, nur diese Datei.
+// ============================================================================
+const RUNDGANG_MERKER = "ft-rundgang-gesehen";
+
+const RUNDGANG_SCHRITTE = [
+  { titel: "Willkommen bei Fuss-Track Clinic",
+    text: "Diese Anwendung bündelt die Schreibarbeit rund um Fuß- und Sprunggelenkeingriffe — Arztbriefe, OP-Berichte, Aufklärung und die Kalkulation Ihrer Materialkosten. Der Rundgang zeigt Ihnen in einer Minute, was wo liegt." },
+  { ziele: ['[data-tour="sb"]'], titel: "Sprechstundenbrief",
+    text: "Hier entstehen die Briefe aus der Sprechstunde. Sie wählen Diagnose und Befunde, die Anwendung errechnet den passenden Score, und den fertigen Text übernehmen Sie nach Word." },
+  { ziele: ['[data-tour="ob"]'], titel: "OP-Bericht Generator",
+    text: "Für den Operationsbericht stellen Sie den Eingriff zusammen und erhalten den ausformulierten Text, die zugehörigen OPS-Codes und eine Übersicht der Erlöse." },
+  { ziele: ['[data-tour="preise"]'], titel: "Implantatpreise",
+    text: "Ihre eigene Preisliste. Sie hinterlegen Einkaufspreise, ordnen sie den Eingriffen zu und sehen für jeden Eingriff den Deckungsbeitrag.",
+    hinweis: "Diese Preise sind vertraulich und liegen ausschließlich in Ihrem Konto." },
+  { ziele: ['[data-tour="manuale"]','[data-tour="klassifikationen"]','[data-tour="roentgen"]','[data-tour="aufklaerung"]','[data-tour="hdrg"]'],
+    titel: "Zum Nachschlagen",
+    text: "Hier finden Sie die OP-Manuale, die Klassifikationen der Fußchirurgie, Röntgenaufnahmen mit ihren Messmethoden und fertige Aufklärungstexte. Die OPS-Code-Zuordnung beantwortet Fragen zu AOP und Hybrid-DRG." },
+  { titel: "Zurechtfinden", navBeispiel: true,
+    text: "Sobald Sie ein Werkzeug geöffnet haben, führt Sie „← Menü“ einen Schritt zurück, das Haus bringt Sie sofort hierher. Über das Fragezeichen oben rechts starten Sie diesen Rundgang jederzeit erneut." },
+  { titel: "Immer griffbereit", homescreen: true }
+];
+
+function Rundgang({onFertig}){
+  const P="#10535B", TINT="#E6F0F1", LINIE="#D6E2E3", GRAU="#5C6660", TINTE="#1D2421";
+  // Der Homescreen-Schritt entfällt, wenn die App bereits vom Startbildschirm läuft
+  const schritte = React.useMemo(function(){
+    return RUNDGANG_SCHRITTE.filter(function(s){ return !(s.homescreen && alsAppGestartet()); });
+  }, []);
+  const [i, setI] = useState(0);
+  const [rect, setRect] = useState(null);
+  const [blaseHoehe, setBlaseHoehe] = useState(240);
+  const blaseRef = React.useRef(null);
+  const s = schritte[i];
+
+  // Position der erklärten Region aus den echten Elementen berechnen
+  React.useEffect(function(){
+    function messen(){
+      if (!s.ziele) { setRect(null); return; }
+      var kasten = null;
+      s.ziele.forEach(function(sel){
+        var el = document.querySelector(sel);
+        if (!el) return;
+        var r = el.getBoundingClientRect();
+        if (!r.width && !r.height) return;
+        kasten = kasten
+          ? {top:Math.min(kasten.top,r.top), left:Math.min(kasten.left,r.left),
+             bottom:Math.max(kasten.bottom,r.bottom), right:Math.max(kasten.right,r.right)}
+          : {top:r.top, left:r.left, bottom:r.bottom, right:r.right};
+      });
+      setRect(kasten);
+    }
+    // Erst die gesamte Region in den sichtbaren Bereich holen, dann vermessen.
+    // Bewusst ohne weiches Rollen: sonst misst man mitten in der Bewegung und
+    // die Hervorhebung sitzt auf halbem Weg fest.
+    if (s.ziele && s.ziele.length) {
+      var el0 = document.querySelector(s.ziele[0]);
+      var elN = document.querySelector(s.ziele[s.ziele.length-1]) || el0;
+      if (el0) {
+        var o = el0.getBoundingClientRect(), u = elN.getBoundingClientRect();
+        var mitteRegion = (Math.min(o.top,u.top) + Math.max(o.bottom,u.bottom)) / 2;
+        var versatz = mitteRegion - (window.innerHeight||640)/2;
+        // Nur rollen, wenn die Region nicht ohnehin gut sichtbar ist
+        if (Math.abs(versatz) > 40) window.scrollBy({top:versatz, behavior:"auto"});
+      }
+    }
+    var t1 = setTimeout(messen, 0), t2 = setTimeout(messen, 120);
+    window.addEventListener("resize", messen);
+    window.addEventListener("orientationchange", messen);
+    window.addEventListener("scroll", messen, true);
+    return function(){
+      clearTimeout(t1); clearTimeout(t2);
+      window.removeEventListener("resize", messen);
+      window.removeEventListener("orientationchange", messen);
+      window.removeEventListener("scroll", messen, true);
+    };
+  }, [i]);
+
+  React.useLayoutEffect(function(){
+    if (blaseRef.current) {
+      var h = blaseRef.current.offsetHeight;
+      if (h && Math.abs(h - blaseHoehe) > 2) setBlaseHoehe(h);
+    }
+  });
+
+  const letzter = i === schritte.length - 1;
+  function weiter(){ if (letzter) beenden(); else setI(i+1); }
+  function zurueck(){ if (i>0) setI(i-1); }
+  function beenden(){
+    try{
+      localStorage.setItem(RUNDGANG_MERKER, "1");
+      localStorage.setItem(HOMESCREEN_MERKER, "1");   // die Karte war Teil des Rundgangs
+    }catch(e){}
+    onFertig();
+  }
+
+  // Pfeiltasten am Rechner
+  React.useEffect(function(){
+    function taste(ev){
+      if (ev.key === "ArrowRight" || ev.key === "Enter") { ev.preventDefault(); weiter(); }
+      else if (ev.key === "ArrowLeft") { ev.preventDefault(); zurueck(); }
+      else if (ev.key === "Escape") { ev.preventDefault(); beenden(); }
+    }
+    window.addEventListener("keydown", taste);
+    return function(){ window.removeEventListener("keydown", taste); };
+  }, [i, letzter]);
+
+  // ---- Sprechblase platzieren: unter der Region, sonst darüber, sonst mittig
+  const rand = 12;
+  const breite = Math.min(340, (window.innerWidth || 360) - 2*rand);
+  // Die Blase wird immer mit einem numerischen top platziert und anschliessend
+  // in den Bildschirm geklemmt. Ihre echte Hoehe kennen wir aus der Messung —
+  // sonst rutscht sie bei tief liegenden Regionen nach oben aus dem Bild.
+  const vh = window.innerHeight || 640, vw = window.innerWidth || 360;
+  var oben;
+  if (rect) {
+    const platzUnten = vh - rect.bottom, platzOben = rect.top;
+    if (platzUnten >= blaseHoehe + 20)     oben = rect.bottom + 14;
+    else if (platzOben >= blaseHoehe + 20) oben = rect.top - blaseHoehe - 14;
+    else                                    oben = vh - blaseHoehe - rand;   // Region zu gross
+  } else {
+    oben = (vh - blaseHoehe) / 2;
+  }
+  oben = Math.max(rand, Math.min(oben, vh - blaseHoehe - rand));
+  var links = rect ? ((rect.left + rect.right)/2 - breite/2) : (vw - breite)/2;
+  links = Math.max(rand, Math.min(links, vw - breite - rand));
+  const blase = {top: Math.round(oben), left: Math.round(links)};
+
+  const knopf = (haupt) => ({padding:"8px 16px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",
+    border:"1px solid "+(haupt?P:LINIE), background: haupt?P:"#fff", color: haupt?"#fff":GRAU,
+    userSelect:"none", whiteSpace:"nowrap"});
+
+  return <div style={{position:"fixed",inset:0,zIndex:100000}} role="dialog" aria-label="Einführungs-Rundgang">
+    {/* Abdunklung: bei hervorgehobener Region als Ring um das Loch, sonst flächig */}
+    {/* Der Ausschnitt springt bewusst ohne Übergang an seine neue Stelle. Eine
+        Animation der Geometrie sieht bei jedem Schrittwechsel und nach jedem
+        Drehen des Geräts so aus, als flöge der Rahmen über die Seite. */}
+    {rect
+      ? <div key="ausschnitt" style={{position:"fixed", top:rect.top-6, left:rect.left-6,
+          width:(rect.right-rect.left)+12, height:(rect.bottom-rect.top)+12,
+          borderRadius:14, pointerEvents:"none", border:"2px solid "+P,
+          boxShadow:"0 0 0 9999px rgba(11,62,69,.72)"}}/>
+      : <div key="vollflaeche" style={{position:"fixed",inset:0,background:"rgba(11,62,69,.72)"}}/>}
+
+    {/* Überspringen */}
+    {!letzter && <div onClick={beenden} role="button"
+      style={{position:"fixed",top:12,right:12,zIndex:2,padding:"6px 12px",borderRadius:8,
+              background:"rgba(255,255,255,.92)",border:"1px solid "+LINIE,color:GRAU,
+              fontSize:12,cursor:"pointer",userSelect:"none"}}>Überspringen</div>}
+
+    {/* Sprechblase */}
+    <div ref={blaseRef} style={Object.assign({position:"fixed", width:breite, zIndex:2, background:"#fff",
+        border:"1px solid "+LINIE, borderRadius:12, boxShadow:"0 6px 24px rgba(16,83,91,.22)",
+        maxHeight:"84vh", overflowY:"auto"}, blase)}>
+
+      {s.homescreen
+        ? <div style={{padding:"4px 4px 0"}}><HomescreenKarte alsSchritt={true} onClose={function(){}}/></div>
+        : <div style={{padding:"16px 18px 4px"}}>
+            <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:16,fontWeight:700,
+                color:P, marginBottom:6}}>{s.titel}</div>
+            <div style={{fontSize:13,lineHeight:1.65,color:TINTE}}>{s.text}</div>
+            {s.hinweis && <div style={{marginTop:8,padding:"7px 10px",background:TINT,borderRadius:8,
+                fontSize:12,color:P,lineHeight:1.55}}>{s.hinweis}</div>}
+            {s.navBeispiel && <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center"}}>
+              <span style={{padding:"5px 10px",borderRadius:6,border:"1px solid "+LINIE,
+                background:"#fff",color:P,fontSize:11,fontWeight:600}}>← Menü</span>
+              <span style={{padding:"5px 10px",borderRadius:6,border:"1px solid "+LINIE,
+                background:"#fff",color:P,fontSize:12,fontWeight:600}}>⌂</span>
+              <span style={{padding:"5px 10px",borderRadius:6,border:"1px solid "+LINIE,
+                background:"#fff",color:P,fontSize:12,fontWeight:600}}>?</span>
+            </div>}
+          </div>}
+
+      {/* Fortschritt und Steuerung */}
+      <div style={{display:"flex",alignItems:"center",gap:10,padding:"12px 18px 14px",flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:5,flex:"1 1 auto"}}>
+          {schritte.map(function(_,k){
+            return <span key={k} onClick={()=>setI(k)} title={"Schritt "+(k+1)}
+              style={{width:k===i?18:7,height:7,borderRadius:4,cursor:"pointer",
+                      background:k===i?P:(k<i?"#9DBFC2":LINIE),transition:"all .2s"}}/>;
+          })}
+        </div>
+        {i>0 && <span onClick={zurueck} style={knopf(false)}>Zurück</span>}
+        <span onClick={weiter} style={knopf(true)}>{letzter ? "Fertig" : "Weiter"}</span>
       </div>
     </div>
   </div>;
 }
 
-function LandingPage({onSelect}) {
+// Kleines Menü hinter dem Fragezeichen
+function HilfeMenue({offen, onSchliessen, onRundgang, onHomescreen, zeigeHomescreen}){
+  const P="#10535B", LINIE="#D6E2E3";
+  if (!offen) return null;
+  return <React.Fragment>
+    <div onClick={onSchliessen} style={{position:"fixed",inset:0,zIndex:9998}}/>
+    <div style={{position:"absolute",top:"100%",right:0,marginTop:6,zIndex:9999,background:"#fff",
+        border:"1px solid "+LINIE,borderRadius:10,boxShadow:"0 6px 20px rgba(16,83,91,.16)",
+        minWidth:230,overflow:"hidden"}}>
+      <div onClick={onRundgang} style={{padding:"10px 14px",fontSize:12,color:P,cursor:"pointer",
+          borderBottom: zeigeHomescreen?("1px solid "+LINIE):"none",whiteSpace:"nowrap"}}>
+        Rundgang starten</div>
+      {zeigeHomescreen && <div onClick={onHomescreen} style={{padding:"10px 14px",fontSize:12,
+          color:P,cursor:"pointer",whiteSpace:"nowrap"}}>
+        Zum Startbildschirm hinzufügen</div>}
+    </div>
+  </React.Fragment>;
+}
+
+function LandingPage({onSelect, rundgangAnstoss}) {
   // Anleitung nur zeigen, wenn im Browser gestartet und noch nicht weggeklickt
   const [zeigeTipp, setZeigeTipp] = useState(function(){
     try{ return !alsAppGestartet() && localStorage.getItem(HOMESCREEN_MERKER) !== "1"; }
@@ -7171,14 +7387,30 @@ function LandingPage({onSelect}) {
     try{ localStorage.setItem(HOMESCREEN_MERKER, "1"); }catch(e){}
     setZeigeTipp(false);
   }
+  // Der Rundgang läuft automatisch genau einmal — und nur hier im Menü,
+  // nie über einer bereits geöffneten Funktion.
+  const [zeigeRundgang, setZeigeRundgang] = useState(function(){
+    try{ return localStorage.getItem(RUNDGANG_MERKER) !== "1"; }catch(e){ return false; }
+  });
+  const [hilfeOffen, setHilfeOffen] = useState(false);
+  // Wiederaufruf aus einem Werkzeug heraus (Kopfleiste → „?“ → Rundgang starten)
+  React.useEffect(function(){
+    if (rundgangAnstoss) { setZeigeRundgang(true); setZeigeTipp(false); }
+  }, [rundgangAnstoss]);
+  function rundgangStarten(){ setHilfeOffen(false); setZeigeTipp(false); setZeigeRundgang(true); }
   return (
     <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 16px 16px"}}>
-      {!alsAppGestartet() && <div style={{width:"100%",maxWidth:640,margin:"0 auto",textAlign:"right"}}>
-        <span onClick={()=>setZeigeTipp(true)} title="Auf dem Startbildschirm ablegen"
-          style={{cursor:"pointer",fontSize:11,color:"#5C6660",textDecoration:"underline"}}>
-          ⌂ Zum Startbildschirm hinzufügen</span>
-      </div>}
-      {zeigeTipp && <HomescreenKarte onClose={tippSchliessen}/>}
+      <div style={{width:"100%",maxWidth:640,margin:"0 auto",textAlign:"right",position:"relative"}}>
+        <span onClick={()=>setHilfeOffen(!hilfeOffen)} role="button" title="Hilfe und Rundgang"
+          style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:26,height:26,
+                  borderRadius:"50%",border:"1px solid #D6E2E3",background:"#fff",color:"#10535B",
+                  fontSize:13,fontWeight:700,cursor:"pointer",userSelect:"none"}}>?</span>
+        <HilfeMenue offen={hilfeOffen} onSchliessen={()=>setHilfeOffen(false)}
+          onRundgang={rundgangStarten} zeigeHomescreen={!alsAppGestartet()}
+          onHomescreen={()=>{ setHilfeOffen(false); setZeigeTipp(true); }}/>
+      </div>
+      {zeigeTipp && !zeigeRundgang && <HomescreenKarte onClose={tippSchliessen}/>}
+      {zeigeRundgang && <Rundgang onFertig={()=>{ setZeigeRundgang(false); setZeigeTipp(false); }}/>}
       <div style={{textAlign:"center",marginBottom:14}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginBottom:16}}>
           <img src="data:image/jpeg;base64,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" style={{width:56,height:56,borderRadius:12,objectFit:"cover"}} alt=""/>
@@ -7192,56 +7424,56 @@ function LandingPage({onSelect}) {
         
       </div>
       <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center",maxWidth:430}}>
-        <div onClick={()=>onSelect("sb")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
+        <div data-tour="sb" onClick={()=>onSelect("sb")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📝</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Sprechstundenbrief</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Arztbriefe mit Score & Word-Export</div>
         </div>
-        <div onClick={()=>onSelect("ob")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
+        <div data-tour="ob" onClick={()=>onSelect("ob")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📋</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>OP-Bericht Generator</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>OP-Texte, OPS, Hybrid-DRG-Erlös</div>
         </div>
-        <div onClick={()=>onSelect("hdrg")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+        <div data-tour="hdrg" onClick={()=>onSelect("hdrg")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>🔍</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>OPS-Code Zuordnung</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>H-DRG / AOP / Kontext prüfen</div>
         </div>
-        <div onClick={()=>onSelect("manuale")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
+        <div data-tour="manuale" onClick={()=>onSelect("manuale")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📚</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>OP-Manuale</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>OP-Technik- & Implantat-PDFs</div>
         </div>
-        <div onClick={()=>onSelect("klassifikationen")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
+        <div data-tour="klassifikationen" onClick={()=>onSelect("klassifikationen")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📊</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Klassifikationen</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Klassifikationen der Fußchirurgie</div>
         </div>
-        <div onClick={()=>onSelect("preise")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
+        <div data-tour="preise" onClick={()=>onSelect("preise")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #10535B";e.currentTarget.style.boxShadow="0 4px 12px rgba(16,83,91,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>💶</div>
           <div style={{fontSize:14,fontWeight:700,color:"#10535B",marginBottom:3,lineHeight:1.2}}>Implantatpreise</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Eigene Preisliste · Materialsätze</div>
         </div>
-        <div onClick={()=>onSelect("roentgen")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
+        <div data-tour="roentgen" onClick={()=>onSelect("roentgen")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📐</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Röntgen & Messmethoden</div>
           <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Aufnahmen mit Messmethoden</div>
         </div>
-        <div onClick={()=>onSelect("aufklaerung")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
+        <div data-tour="aufklaerung" onClick={()=>onSelect("aufklaerung")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📋</div>
@@ -7265,17 +7497,21 @@ function LandingPage({onSelect}) {
 
 function App() {
   const [tool, setTool] = React.useState(null);
+  // Zähler statt Schalter: jeder Klick auf „?“ in einem Werkzeug stößt den
+  // Rundgang erneut an, auch wenn er vorher schon einmal lief.
+  const [rundgangAnstoss, setRundgangAnstoss] = React.useState(0);
+  function rundgangAusWerkzeug(){ setTool(null); setRundgangAnstoss(function(n){ return n+1; }); }
   
   if (tool === "sb") return (
     <div>
-      <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <SprechstundenbriefApp />
     </div>
   );
   
   if (tool === "ob") return (
     <div>
-      <ToolKopfleiste titel="OP-Bericht Generator" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="OP-Bericht Generator" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <OPBerichtApp />
     </div>
   );
@@ -7283,14 +7519,14 @@ function App() {
   
   if (tool === "aufklaerung") return (
     <div>
-      <ToolKopfleiste titel="Aufklärungstexte" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="Aufklärungstexte" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <AufklaerungstoolView />
     </div>
   );
 
   if (tool === "hdrg") return (
     <div>
-      <ToolKopfleiste titel="OPS-Code Zuordnung 2026" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="OPS-Code Zuordnung 2026" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🔍 OPS-Code Zuordnung 2026</div>
@@ -7306,7 +7542,7 @@ function App() {
 
   if (tool === "manuale") return (
     <div>
-      <ToolKopfleiste titel="OP-Manuale" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="OP-Manuale" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:700,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📚 OP-Manuale</div>
@@ -7321,7 +7557,7 @@ function App() {
 
   if (tool === "klassifikationen") return (
     <div>
-      <ToolKopfleiste titel="Klassifikationen" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="Klassifikationen" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📊 Klassifikationen</div>
@@ -7336,7 +7572,7 @@ function App() {
 
   if (tool === "preise") return (
     <div>
-      <ToolKopfleiste titel="Implantatpreise" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="Implantatpreise" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:1020,margin:"0 auto",padding:"16px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:18}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#10535B",marginBottom:4}}>💶 Implantatpreise</div>
@@ -7349,7 +7585,7 @@ function App() {
 
   if (tool === "roentgen") return (
     <div>
-      <ToolKopfleiste titel="Röntgen & Messmethoden" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="Röntgen & Messmethoden" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>📐 Röntgenbilder mit Messmethoden</div>
@@ -7364,7 +7600,7 @@ function App() {
 
   if (tool === "codes") return (
     <div>
-      <ToolKopfleiste titel="Code-Übersicht" onHome={()=>setTool(null)}/>
+      <ToolKopfleiste titel="Code-Übersicht" onHome={()=>setTool(null)} onHilfe={rundgangAusWerkzeug}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:1100,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🧾 Code-Übersicht</div>
@@ -7378,7 +7614,7 @@ function App() {
   );
 
 
-    return <LandingPage onSelect={setTool} />;
+    return <LandingPage onSelect={setTool} rundgangAnstoss={rundgangAnstoss} />;
 }
 
 
