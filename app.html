@@ -2317,11 +2317,11 @@ var _s = useState, _m = useMemo;
           <textarea placeholder="Freitext..." value={freitextRisiko} onChange={function(e) { setFreitextRisiko(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
         </Sec>
 
-        <Sec title="③ Klinische Untersuchung" open={sec.unters} onToggle={function() { togSec("unters"); }}>
+        <div data-tour="sb-befunde"><Sec title="③ Klinische Untersuchung" open={sec.unters} onToggle={function() { togSec("unters"); }}>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 6 }}>Klicken: — → ✓ (positiv) → ✗ (negativ) → —</div>
           {availBef.map(function(b) { return <BefTog key={b.id} b={b} state={befState[b.id] || null} onTog={function() { togBef(b.id); }} val={befInputs[b.id]} onVal={function(v) { setBefInputs(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[b.id] = v; return n; }); }} />; })}
           <textarea placeholder="Freitext Befund..." value={freitextUnters} onChange={function(e) { setFreitextUnters(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
-        </Sec>
+        </Sec></div>
 
         <Sec title="④ Bildgebung" open={sec.bild} onToggle={function() { togSec("bild"); }}>
           {bilder.map(function(b, i) {
@@ -7280,10 +7280,12 @@ const RUNDGANG_SB = [
     text: "Wählen Sie bis zu zwei Diagnosen. Daran hängt alles Weitere — welche Befunde angeboten werden, welche Operationen infrage kommen und welcher Erlös berechnet wird." },
   { ziele:['[data-tour="sb-opmethode"]'], titel: "Dann die geplante Operation",
     text: "Mehrfachauswahl ist möglich. Aus dieser Auswahl entstehen die OPS-Codes und die Erlösrechnung weiter unten." },
-  { titel: "Die Befund-Schalter",
+  { ziele:['[data-tour="sb-befunde"]'], titel: "Die Befund-Schalter",
     text: "Jeder Schalter ist ein Textbaustein. Eingeschaltet erscheint der zugehörige Satz im Brief, ausgeschaltet fehlt er. Die Reihenfolge, in der Sie schalten, spielt keine Rolle — der Brief ordnet die Sätze selbst.",
     hinweis: "Sie müssen nichts formulieren. Was Sie anschalten, steht anschließend als fertiger Satz im Text." },
-  { titel: "Die Scores im Brief",
+  { ziele:['[data-tour="sb-export"]'],
+    wennFehlt: "Die Vorschau erscheint, sobald der Brief Inhalt hat.",
+    titel: "Die Scores im Brief",
     text: "Der Brief führt die gebräuchlichen Scores mit ihren Höchstwerten auf — EFAS, EFAS Sport, AOFAS und die VAS unter Belastung. Die Punktwerte selbst tragen Sie in iMED1 ein; dieses Werkzeug rechnet sie nicht aus.",
     hinweis: "So steht die Zeile bereits im Brief und Sie müssen sie nicht von Hand anlegen." },
   { ziele:['[data-tour="sb-erloes"]'], titel: "Erlös und Standardversorgung",
@@ -7514,7 +7516,7 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
 // EINSTELLUNGEN — Hilfe, Konto, eigene Daten, Darstellung, Über.
 // Bewusst nur Abschnitte, hinter denen auch etwas steht.
 // ============================================================================
-const APP_VERSION = "v2.7";
+const APP_VERSION = "v2.8";
 const APP_STAND   = "Juli 2026";
 
 // Hängt an eine Funktion ihren Rundgang. Er läuft beim ERSTEN Öffnen von selbst
