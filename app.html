@@ -6749,6 +6749,11 @@ function ImplantatpreiseView(){
                     in {i.verwendung.length} Eingriff{i.verwendung.length>1?"en":""} {auf?"▴":"▾"}</span>
                 : <span style={{fontSize:10,color:"#5C6660",fontStyle:"italic"}}>nicht verwendet</span>}
             </div>
+            <div style={{flex:"0 0 74px",textAlign:"right"}}>
+              <span onClick={()=>ersetzenStarten(i.id)} role="button"
+                title="Dieses Implantat in allen Materialsätzen austauschen"
+                style={{fontSize:10,color:"#5C6660",cursor:"pointer",textDecoration:"underline"}}>Ersetzen</span>
+            </div>
             <div style={{flex:"0 0 18px",textAlign:"right"}}>
               {i.eigene && <span onClick={()=>positionLoeschen(i)} role="button" title="Eigene Position löschen"
                 style={{cursor:"pointer",fontSize:15,lineHeight:1,color:"#9AA5A0",padding:"0 2px"}}>×</span>}
@@ -6757,6 +6762,100 @@ function ImplantatpreiseView(){
           <div style={{marginTop:6,height:4,background:"#F1F4F3",borderRadius:3,overflow:"hidden"}}>
             <div style={{width:anteil+"%",height:"100%",background:i.preis?P:"transparent",borderRadius:3}}></div>
           </div>
+          {ersetzen && ersetzen.vonId===i.id && (function(){
+            const betroffen = ersetzenBetroffen(i.id, ersetzen.zielId);
+            const drin = [i.id];
+            const treffer = bestandSuchen(ersetzen.suche, drin);
+            return <div style={{marginTop:8,padding:"12px 14px",border:"1px solid "+P,borderRadius:10,background:"#FAFCFC"}}>
+              {/* Schritt 1: Ziel waehlen */}
+              {ersetzen.schritt==="waehlen" && <div>
+                <div style={{fontSize:12,fontWeight:700,color:P,marginBottom:2}}>
+                  „{i.bezeichnung}“ ersetzen durch …</div>
+                <div style={{fontSize:11,color:"#5C6660",marginBottom:9,lineHeight:1.55}}>
+                  {betroffen.length
+                    ? "Der Austausch betrifft "+betroffen.length+" Eingriff"+(betroffen.length>1?"e":"")+". Die Mengen bleiben unverändert."
+                    : "Dieses Implantat wird derzeit in keinem Eingriff verwendet."}
+                </div>
+                <input autoFocus value={ersetzen.suche} placeholder="Ersatz suchen oder neuen Namen eingeben…"
+                  onChange={ev=>setErsetzen(Object.assign({},ersetzen,{suche:ev.target.value}))}
+                  style={{width:"100%",boxSizing:"border-box",padding:"6px 8px",fontSize:11,
+                          border:"1px solid "+LINIE,borderRadius:6}}/>
+                {ersetzen.suche.trim() && <div style={{marginTop:4,border:"1px solid "+LINIE,borderRadius:6,
+                    background:"#fff",overflow:"hidden"}}>
+                  {treffer.map(function(z){
+                    return <div key={z.id} onClick={()=>ersetzenZielWaehlen(z.id, z.bezeichnung)}
+                      style={{padding:"6px 8px",fontSize:11,cursor:"pointer",borderBottom:"1px solid rgba(0,0,0,.04)"}}>
+                      {z.bezeichnung}<span style={{color:"#5C6660",marginLeft:6}}>
+                        {z.preis==null?"· kein Preis hinterlegt":"· "+z.preis.toFixed(2)+" €"}</span>
+                    </div>;
+                  })}
+                  <div style={{padding:"7px 8px",display:"flex",gap:7,alignItems:"center",flexWrap:"wrap",
+                      background: treffer.length?"#FAFCFC":"#fff"}}>
+                    <span style={{fontSize:11,color:P,fontWeight:600,flex:"1 1 150px"}}>
+                      + „{ersetzen.suche.trim()}“ neu anlegen
+                      {treffer.length===0 && <span style={{fontWeight:400,color:"#5C6660"}}> — nichts im Bestand gefunden</span>}</span>
+                    <input value={ersetzen.neuPreis} inputMode="decimal" placeholder="Einzelpreis (€)"
+                      onChange={ev=>setErsetzen(Object.assign({},ersetzen,{neuPreis:ev.target.value}))}
+                      onKeyDown={ev=>{ if(ev.key==="Enter") ersetzenZielNeu(); }}
+                      style={{flex:"0 0 104px",padding:"4px 6px",fontSize:11,textAlign:"right",
+                              border:"1px solid "+LINIE,borderRadius:6}}/>
+                    <span onClick={ersetzenZielNeu}
+                      style={{fontSize:11,padding:"4px 10px",borderRadius:6,cursor:"pointer",
+                              border:"1px solid "+P,background:"#fff",color:P,fontWeight:600}}>Anlegen</span>
+                  </div>
+                </div>}
+                <div style={{marginTop:9}}>
+                  <span onClick={()=>setErsetzen(null)}
+                    style={{fontSize:11,color:"#5C6660",cursor:"pointer"}}>Abbrechen</span>
+                </div>
+              </div>}
+
+              {/* Schritt 2: Vorschau und Bestaetigung */}
+              {ersetzen.schritt==="bestaetigen" && <div>
+                <div style={{fontSize:12,fontWeight:700,color:P,marginBottom:6}}>
+                  „{i.bezeichnung}“ → „{implantatBezeichnung(ersetzen.zielId)}“</div>
+                {betroffen.length===0
+                  ? <div style={{fontSize:11,color:"#5C6660",marginBottom:9}}>
+                      Kein Eingriff verwendet dieses Implantat — es gibt nichts zu ersetzen.</div>
+                  : <div style={{marginBottom:9}}>
+                      <div style={{fontSize:11,color:"#5C6660",marginBottom:5}}>
+                        Betroffen sind {betroffen.length} Eingriff{betroffen.length>1?"e":""}:</div>
+                      <div style={{maxHeight:150,overflowY:"auto",border:"1px solid "+LINIE,borderRadius:6,background:"#fff"}}>
+                        {betroffen.map(function(b,k){
+                          return <div key={k} style={{padding:"4px 8px",fontSize:11,
+                              borderBottom: k<betroffen.length-1?"1px solid rgba(0,0,0,.04)":"none"}}>
+                            <span style={{fontWeight:600}}>{b.anzahl}×</span> {b.anzeige}
+                            {b.kollision && <span style={{color:AMBER}}> · enthält beide — Mengen werden addiert</span>}
+                          </div>;
+                        })}
+                      </div>
+                    </div>}
+                <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                  {betroffen.length>0 && <span onClick={ersetzenBestaetigen} style={btn(true)}>
+                    In {betroffen.length} Eingriff{betroffen.length>1?"en":""} ersetzen</span>}
+                  <span onClick={()=>setErsetzen(Object.assign({},ersetzen,{schritt:"waehlen",zielId:""}))}
+                    style={btn(false)}>Zurück</span>
+                  <span onClick={()=>setErsetzen(null)}
+                    style={{fontSize:11,color:"#5C6660",cursor:"pointer"}}>Abbrechen</span>
+                </div>
+              </div>}
+
+              {/* Schritt 3: separate Frage nach dem alten Implantat */}
+              {ersetzen.schritt==="loeschfrage" && <div>
+                <div style={{fontSize:12,fontWeight:700,color:"#2E7D32",marginBottom:4}}>
+                  Ersetzt in {ersetzen.ersetzteAnzahl} Eingriff{ersetzen.ersetzteAnzahl>1?"en":""}.</div>
+                <div style={{fontSize:11,color:"#5C6660",marginBottom:9,lineHeight:1.55}}>
+                  „{i.bezeichnung}“ wird jetzt in keinem Materialsatz mehr verwendet.
+                  Soll die Position auch aus dem Bestand gelöscht werden? Sie können sie
+                  ebenso gut behalten, falls Sie sie später wieder brauchen.
+                </div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  <span onClick={()=>ersetzenAltLoeschen(true)} style={btn(false)}>Aus dem Bestand löschen</span>
+                  <span onClick={()=>ersetzenAltLoeschen(false)} style={btn(true)}>Im Bestand behalten</span>
+                </div>
+              </div>}
+            </div>;
+          })()}
           {auf && <div style={{marginTop:8,paddingLeft:10,borderLeft:"2px solid "+TINT}}>
             {i.verwendung.map(function(v,k){
               return <div key={k} style={{fontSize:11,color:"#5C6660",padding:"2px 0"}}>
@@ -6806,20 +6905,58 @@ function ImplantatpreiseView(){
                 </div>
               </div>;
             })}
-            <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8,flexWrap:"wrap"}}>
-              <select value={neuePos[e.eingriffId+"|"+e.variante] || ""}
-                onChange={ev=>setNeuePos(Object.assign({},neuePos,{[e.eingriffId+"|"+e.variante]:ev.target.value}))}
-                style={{flex:"1 1 200px",padding:"5px 7px",fontSize:11,border:"1px solid "+LINIE,
-                        borderRadius:6,background:"#fff",color:"#5C6660"}}>
-                <option value="">Position hinzufügen …</option>
-                {implantate.slice().sort(function(a,b){ return a.bezeichnung.localeCompare(b.bezeichnung,"de"); })
-                  .map(function(i){ return <option key={i.id} value={i.id}>
-                    {i.bezeichnung}{i.preis==null?" (kein Preis)":""}</option>; })}
-              </select>
-              <span onClick={()=>positionHinzufuegen(e)}
-                style={{fontSize:11,padding:"5px 12px",borderRadius:6,cursor:"pointer",
-                        border:"1px solid "+LINIE,background:"#fff",color:P,fontWeight:600}}>+ Hinzufügen</span>
-            </div>
+            {(function(){
+              const key = e.eingriffId+"|"+e.variante;
+              const txt = posSuche[key] || "";
+              const drin = e.positionen.map(function(x){ return x.implantat_id; });
+              const treffer = bestandSuchen(txt, drin);
+              const neuForm = posNeu[key];
+              return <div style={{marginTop:8,position:"relative"}}>
+                <input value={txt} placeholder="Position hinzufügen — Bezeichnung eingeben…"
+                  onChange={ev=>{ setPosSuche(Object.assign({},posSuche,{[key]:ev.target.value}));
+                                  setPosNeu(Object.assign({},posNeu,{[key]:null})); }}
+                  style={{width:"100%",boxSizing:"border-box",padding:"6px 8px",fontSize:11,
+                          border:"1px solid "+LINIE,borderRadius:6}}/>
+                {txt.trim() && !neuForm && <div style={{position:"absolute",zIndex:20,left:0,right:0,background:"#fff",
+                    border:"1px solid "+LINIE,borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,.08)",marginTop:2}}>
+                  {treffer.map(function(i){
+                    return <div key={i.id} onClick={()=>positionHinzufuegen(e, i.id)}
+                      style={{padding:"6px 8px",fontSize:11,cursor:"pointer",borderBottom:"1px solid rgba(0,0,0,.04)"}}>
+                      {i.bezeichnung}
+                      <span style={{color:"#5C6660",marginLeft:6}}>
+                        {i.preis==null ? "· kein Preis hinterlegt" : "· "+i.preis.toFixed(2)+" €"}</span>
+                    </div>;
+                  })}
+                  {/* Findet die Suche nichts, laesst sich die Position hier direkt anlegen */}
+                  <div onClick={()=>setPosNeu(Object.assign({},posNeu,{[key]:{bezeichnung:txt.trim(),preis:""}}))}
+                    style={{padding:"6px 8px",fontSize:11,cursor:"pointer",color:P,fontWeight:600,
+                            background: treffer.length?"#FAFCFC":"#fff"}}>
+                    + „{txt.trim()}“ als neues Implantat anlegen
+                    {treffer.length===0 && <span style={{fontWeight:400,color:"#5C6660"}}> — nichts im Bestand gefunden</span>}
+                  </div>
+                </div>}
+                {neuForm && <div style={{marginTop:6,padding:"8px 10px",border:"1px solid "+P,borderRadius:8,
+                    background:"#FAFCFC",display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                  <span style={{fontSize:11,flex:"1 1 160px"}}>Neu: <strong>{neuForm.bezeichnung}</strong>
+                    <span style={{color:"#5C6660"}}> · {e.sektion}</span></span>
+                  <input autoFocus value={neuForm.preis} inputMode="decimal" placeholder="Einzelpreis (€)"
+                    onChange={ev=>setPosNeu(Object.assign({},posNeu,{[key]:Object.assign({},neuForm,{preis:ev.target.value})}))}
+                    onKeyDown={ev=>{ if(ev.key==="Enter") posNeuAnlegen(e); if(ev.key==="Escape") setPosNeu(Object.assign({},posNeu,{[key]:null})); }}
+                    style={{flex:"0 0 110px",padding:"5px 7px",fontSize:11,textAlign:"right",
+                            border:"1px solid "+LINIE,borderRadius:6}}/>
+                  <span onClick={()=>posNeuAnlegen(e)}
+                    style={{fontSize:11,padding:"5px 12px",borderRadius:6,cursor:"pointer",
+                            border:"1px solid "+P,background:P,color:"#fff",fontWeight:600}}>Anlegen &amp; hinzufügen</span>
+                  <span onClick={()=>setPosNeu(Object.assign({},posNeu,{[key]:null}))}
+                    style={{fontSize:11,color:"#5C6660",cursor:"pointer"}}>Abbrechen</span>
+                </div>}
+                {/* Nichts wird automatisch geloescht — der Nutzer entscheidet ueber die alte Zeile */}
+                {e.positionen.length>0 && <div style={{marginTop:5,fontSize:10,color:"#9AA5A0",lineHeight:1.5}}>
+                  Falls die neue Position eine vorhandene ersetzt, entfernen Sie die alte Zeile selbst —
+                  automatisch wird nichts gelöscht.
+                </div>}
+              </div>;
+            })()}
             <div style={{display:"flex",justifyContent:"space-between",paddingTop:8,marginTop:4,
                 borderTop:"2px solid "+TINT,fontSize:12,fontWeight:700,color:P}}>
               <span>Paketsumme</span>
