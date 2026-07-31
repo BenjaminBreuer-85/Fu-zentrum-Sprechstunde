@@ -61,8 +61,15 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 29.07.2026: kein Bucket-Upload offen.** Keine Datei in `data/` wurde
-veraendert; die letzten Aenderungen betreffen ausschliesslich `app.html`.
+**Stand 31.07.2026: EIN Bucket-Upload OFFEN.**
+
+`data/opmethoden.json` wurde geaendert (Etappe 3: PATIENT_EINGRIFF_MAP von 6 auf
+43 Eintraege erweitert, neue PATIENT_DIAGNOSE_MAP mit 12 Eintraegen). Die Datei
+liegt lokal bereit und muss in den Bucket `toolbox-data` hochgeladen werden.
+
+**Reihenfolge beachten: erst Upload, dann Push.** Die neuen Kurzlinks in
+`kurzlinks.json` (Repo) verweisen auf Ziele, welche die App erst kennt, wenn die
+neue `opmethoden.json` im Bucket liegt.
 
 **Offen ist dagegen ein einmaliger SQL-Befehl in Supabase.** Die Funktion
 „Implantat anlegen" speichert eine Sektion je Position und braucht dafuer eine
