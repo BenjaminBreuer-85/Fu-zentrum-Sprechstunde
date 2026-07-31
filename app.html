@@ -806,7 +806,10 @@ function paketPreis(eingriffId, variante, faktor){
 }
 
 // ============================================================
-// AUFKLAERUNG_MAP — Online-Aufklärung pro OP-Methode
+// AUFKLAERUNG_MAP — Bezeichnung der Online-Information pro OP-Methode.
+// Bewusst "Information", nicht "Aufklärung": die Seite ist Informationsmaterial
+// für Patientinnen und Patienten und ersetzt das Aufklärungsgespräch nicht.
+// Der alte Schlüsselname der Map bleibt, um die Datendatei nicht zu brechen.
 // Migration 19.05.2026: Ein-QR-Modell auf Fuß-Track-Patient-App.
 // URL wird zur Laufzeit aus FUSSTRACK_BASE_URL (unten definiert) +
 // dem OP-Key gebaut: FUSSTRACK_BASE_URL + "?op=<key>&modus=aufklaerung"
@@ -1181,7 +1184,7 @@ var _s = useState, _m = useMemo;
   var kms = _s(false), kontrolleMode = kms[0], setKontrolleMode = kms[1];
   var kts = _s(""), kontrolleType = kts[0], setKontrolleType = kts[1];
 
-  // Online-Aufklärung — QR-Code-Beigabe (Ein-QR-Modell, Migration 19.05.2026).
+  // Online-Information — QR-Code-Beigabe (Ein-QR-Modell, Migration 19.05.2026).
   // Die URL wird in aufUrl (siehe unten) aus FUSSTRACK_BASE_URL gebaut.
   var aups = _s(true), aufQrAktiv = aups[0], setAufQrAktiv = aups[1];
   // Variante (einfach/komplex) für den Patient-Begleit-Flow. Wird vom Behandler manuell gewählt.
@@ -1690,7 +1693,7 @@ var _s = useState, _m = useMemo;
     }
     // Online-Information: Hinweis im Brief, wenn QR-Code beigefügt wird
     if (aufShowQr) {
-      ab += "\n\nWeitere Informationen Online:\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht eine interaktive Online-Aufklärung mit Darstellung des OP-Verfahrens und Informationen zum Krankheitsbild zur Verfügung. Sie können diese über folgenden Link aufrufen:\n\n" + aufUrl + "\n\nKurzadresse zum Abtippen: fuss-track.de/i/" + kurzlinkId(PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) +
+      ab += "\n\nWeitere Informationen Online:\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht eine Online-Information mit Darstellung des OP-Verfahrens und Erläuterungen zum Krankheitsbild zur Verfügung. Sie ersetzt das ärztliche Aufklärungsgespräch nicht. Sie können sie über folgenden Link aufrufen:\n\n" + aufUrl + "\n\nKurzadresse zum Abtippen: fuss-track.de/i/" + kurzlinkId(PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) +
         "\n\nAlternativ können Sie den separat beigefügten QR-Code mit Ihrem Handy scannen.";
     }
     ab += "\n\nMit freundlichen Grüßen,";
@@ -1813,7 +1816,7 @@ var _s = useState, _m = useMemo;
         var qrData = getQrDataUrl(aufUrl, 300);
         if (qrData) {
           htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code Online-Information'/></p>";
-          htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code für die Online-Aufklärungsseite. Diese ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.</p>";
+          htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code zur Online-Information. Diese ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.</p>";
         }
       }
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>@page{margin:2.5cm}</style></head><body>" + htmlBody + "</body></html>";
