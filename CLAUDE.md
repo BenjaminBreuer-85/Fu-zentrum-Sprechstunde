@@ -87,6 +87,24 @@ Implantatpreise sind **Nutzerdaten**, keine Auslieferungsdaten — jeder Nutzer 
 
 **Wann gepusht wird:** Benjamin pusht **nur dann, wenn die Sitzung den Stand ausdrücklich als „deploybar" bezeichnet hat** — nie zwischendurch. „Deploybar" heißt: validiert (JSON/JSX), lokal im Dev-Server geprüft, und die Reihenfolge aus `DEPLOY.md` ist berücksichtigt (Bucket-Upload vor Push). Ein Push mitten in einer laufenden Änderung kann die Live-Seite brechen — genau so entstand die Panne vom 29.07.2026.
 
+**Vor jeder „deploybar"-Meldung — Preis-Wächter:** Betrifft eine Änderung die
+Implantatpreise, die Materialsätze oder die Ladekette, wird die Kachel
+„Implantatpreise" geöffnet und die Statistik geprüft: **stehen dort alle 43
+Eingriffe als vollständig bepreist?**
+
+Zwingend dabei: **Diese Prüfung läuft gegen ECHTE Kontodaten, niemals gegen
+eingespielte Testwerte.** Werden Preise per `window._PREISE = {…}` in den Browser
+geschrieben, prüft man die eigene Testfüllung und nicht die Anwendung. Genau
+diese Lücke hat die Fehlmeldung „43/43 verifiziert" vom 30.07.2026 erzeugt —
+gemessen wurden synthetische Preise, während der Zustand des echten Kontos
+ungeprüft blieb. Sind keine echten Kontodaten verfügbar, lautet die Meldung
+„nicht gegen echte Daten geprüft", nicht „verifiziert".
+
+Ebenfalls zu prüfen, weil ein stiller Fehlschlag hier wie ein Datenverlust
+aussieht: Schlägt der Konto-Abruf fehl, muss die Kachel den Lade- oder
+Fehlerzustand zeigen — **niemals Zahlen**. Eine halbe Preisliste ergibt falsche
+Summen.
+
 **Vor jeder Deploy-Aussage:** Die Sitzung prüft den **tatsächlichen Remote-Stand mit `git fetch`** (dann `git status -sb` / `git log --oneline origin/main`), statt aus dem Gedächtnis zu argumentieren. Der eigene Kontext kann veraltet sein, weil Benjamin zwischendurch selbst gepusht hat. Erst nach dieser Prüfung werden die zu deployenden Dateien benannt.
 
 ## Workflow für Änderungen
