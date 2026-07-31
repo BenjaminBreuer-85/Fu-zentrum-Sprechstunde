@@ -835,6 +835,21 @@ const PATIENT_EINGRIFF_MAP = window._DATA.opmethoden.PATIENT_EINGRIFF_MAP;
 // ============================================================
 const PATIENT_VARIANTEN = window._DATA.opmethoden.PATIENT_VARIANTEN;
 
+// ============================================================
+// Mapping: Toolbox-Diagnose-Key → Patient-App-Krankheitsbild-Key.
+// Zweiter QR-Code im Sprechstundenbrief (Entscheidung 31.07.2026: zwei
+// getrennte Codes — einer zum Krankheitsbild, einer zum Eingriff; bewusst
+// keine kombinierten Seiten pro Diagnose-Eingriff-Paar).
+// 12 der 15 Diagnosen aus DIAG haben ein Ziel; die übrigen zeigen in der UI
+// den deaktivierten Hinweis, genau wie Eingriffe ohne Patienten-Inhalt.
+// ============================================================
+const PATIENT_DIAGNOSE_MAP = window._DATA.opmethoden.PATIENT_DIAGNOSE_MAP;
+
+// Steht im Brief über jedem QR-Code. Word- und Rich-Text-Export erkennen die
+// Zeile daran und setzen das Bild direkt darunter — Reihenfolge im Brief:
+// erst Krankheitsbild, dann Eingriff.
+const QR_SATZ = "Sie können sie über folgenden Code aufrufen:";
+
 const KONSERV = window._DATA.diagnosen.KONSERV;
 const RISIKEN = window._DATA.diagnosen.RISIKEN;
 // Endo-spezifische Risikofaktoren (zusätzlich zu RISIKEN bei pfad="endo")
@@ -1231,6 +1246,37 @@ var _s = useState, _m = useMemo;
   }, [aufActive, aufVariante]);
   // Soll der QR-Code im Brief erscheinen? Nur wenn: Aktiv UND OP-Methode passt UND URL vollständig
   var aufShowQr = aufQrAktiv && aufActive && aufUrl;
+
+  // Online-Information zum Krankheitsbild — zweiter QR-Code (Entscheidung 31.07.2026).
+  // Läuft unabhängig vom Eingriffs-Code: bei rein konservativem Vorgehen steht
+  // dieser Absatz allein, bei Sonder-Flows (ME, Kontrolle, Endo) ist diagnosen
+  // leer und es entsteht kein Block.
+  var dqs = _s(true), diagQrAktiv = dqs[0], setDiagQrAktiv = dqs[1];
+  // Erste gewählte Diagnose mit Patienten-Ziel — diagnosen ist auf zwei gedeckelt,
+  // der Brief bekommt aber nur einen Krankheitsbild-Code (analog zu aufActive).
+  var diagActive = _m(function() {
+    if (!diagnosen || diagnosen.length === 0) return null;
+    for (var i = 0; i < diagnosen.length; i++) {
+      var d = diagnosen[i];
+      if (PATIENT_DIAGNOSE_MAP[d]) {
+        return { key: d, label: (DIAG[d] && DIAG[d].label) || d };
+      }
+    }
+    return null;
+  }, [diagnosen]);
+  // Gewählte Diagnosen ohne Patienten-Inhalt. Wird ausdrücklich angezeigt,
+  // damit der fehlende Code nicht stillschweigend verschwindet.
+  var diagOhneZiel = _m(function() {
+    if (!diagnosen || diagnosen.length === 0) return [];
+    return diagnosen.filter(function(d){ return !PATIENT_DIAGNOSE_MAP[d]; })
+                    .map(function(d){ return (DIAG[d] && DIAG[d].label) || d; });
+  }, [diagnosen]);
+  // Kein var-Parameter: Varianten (einfach/komplex) gibt es nur für Eingriffe.
+  var diagUrl = _m(function() {
+    if (!diagActive) return "";
+    return FUSSTRACK_BASE_URL + "?op=" + PATIENT_DIAGNOSE_MAP[diagActive.key] + "&modus=aufklaerung";
+  }, [diagActive]);
+  var diagShowQr = diagQrAktiv && diagActive && diagUrl;
 
   function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
   function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
@@ -1691,23 +1737,43 @@ var _s = useState, _m = useMemo;
     } else {
       ab += "\n\nNach gründlicher Abwägung raten wir zu konservativer weiterer Therapie.";
     }
-    // Online-Information: Hinweis im Brief, wenn QR-Code beigefügt wird
-    if (aufShowQr) {
-      ab += "\n\nWeitere Informationen Online:\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht eine Online-Information mit Darstellung des OP-Verfahrens und Erläuterungen zum Krankheitsbild zur Verfügung. Sie ersetzt das ärztliche Aufklärungsgespräch nicht. Sie können sie über folgenden Link aufrufen:\n\n" + aufUrl + "\n\nKurzadresse zum Abtippen: fuss-track.de/i/" + kurzlinkId(PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) +
-        "\n\nAlternativ können Sie den separat beigefügten QR-Code mit Ihrem Handy scannen.";
+    // Online-Information: eine Überschrift, darunter je ein Absatz für
+    // Krankheitsbild und Eingriff — jeweils nur Kurzadresse und QR-Code,
+    // die lange URL steht nicht mehr im Brief (Kürzung 31.07.2026).
+    if (diagShowQr || aufShowQr) {
+      ab += "\n\nWeitere Informationen Online:";
+      if (diagShowQr) {
+        ab += "\n\nZu Ihrem Krankheitsbild (" + diagActive.label + ") steht eine Online-Information zur Verfügung." +
+          "\n\nKurzadresse zum Abtippen: fuss-track.de/i/" + kurzlinkId(PATIENT_DIAGNOSE_MAP[diagActive.key]) +
+          "\n\n" + QR_SATZ;
+      }
+      if (aufShowQr) {
+        ab += "\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht eine Online-Information mit Darstellung des OP-Verfahrens und Erläuterungen zum Krankheitsbild zur Verfügung. Sie ersetzt das ärztliche Aufklärungsgespräch nicht." +
+          "\n\nKurzadresse zum Abtippen: fuss-track.de/i/" + kurzlinkId(PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) +
+          "\n\n" + QR_SATZ;
+      }
     }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return rawOut.replace(/\bundefined\b/g, "___");
-  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl]);
+  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl, diagShowQr, diagActive, diagUrl]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
+  // Die aktiven Codes in Brief-Reihenfolge: erst Krankheitsbild, dann Eingriff.
+  // Beide Export-Wege setzen die Bilder in genau dieser Reihenfolge hinter die
+  // QR_SATZ-Zeilen — der Brieftext und diese Liste müssen deshalb gleich sortiert bleiben.
+  function qrListe() {
+    var out = [];
+    if (diagShowQr) out.push({ url: diagUrl, alt: "QR-Code Krankheitsbild" });
+    if (aufShowQr) out.push({ url: aufUrl, alt: "QR-Code Eingriff" });
+    return out;
+  }
   function copy() {
-    // Wenn QR-Code aktiv: versuche Rich-Text mit eingebettetem Bild (für Word/Outlook).
+    // Wenn ein QR-Code aktiv ist: versuche Rich-Text mit eingebetteten Bildern (für Word/Outlook).
     // Fallback: Plain Text (für Software ohne Bild-Support).
-    if (aufShowQr && aufUrl) {
+    if (qrListe().length > 0) {
       copyWithQr();
     } else {
       fallbackCopy(fullText);
@@ -1715,18 +1781,21 @@ var _s = useState, _m = useMemo;
   }
   function copyWithQr() {
     try {
-      var qrData = getQrDataUrl(aufUrl, 300);
-      if (!qrData) { fallbackCopy(fullText); return; }
-      // HTML-Version: Brieftext + QR-Bild
+      var queue = qrListe().map(function(q) { return getQrDataUrl(q.url, 300); });
+      if (!queue.length || queue.indexOf("") >= 0) { fallbackCopy(fullText); return; }
+      // HTML-Version: Brieftext mit QR-Bild direkt unter der jeweiligen QR_SATZ-Zeile
+      var qi = 0;
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "<br>";
         // Escape HTML-relevante Zeichen
         var safe = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        if (line === QR_SATZ && qi < queue.length) {
+          return safe + "<br><br><img src='" + queue[qi++] + "' width='130' height='130' style='display:block' alt='QR-Code'/><br>";
+        }
         return safe + "<br>";
       }).join("\n");
-      var html = "<div style='font-family:Arial,sans-serif;font-size:11pt'>" + htmlBody +
-                 "<br><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code'/></div>";
+      var html = "<div style='font-family:Arial,sans-serif;font-size:11pt'>" + htmlBody + "</div>";
       // Plain-Text-Variante als Fallback
       var plain = fullText;
       // ClipboardItem API (Chrome, Edge, neuere Safari/Firefox)
@@ -1735,7 +1804,7 @@ var _s = useState, _m = useMemo;
         var blobText = new Blob([plain], { type: "text/plain" });
         var item = new ClipboardItem({ "text/html": blobHtml, "text/plain": blobText });
         navigator.clipboard.write([item]).then(function() {
-          showToast("📋 Brief mit QR-Code kopiert!");
+          showToast(queue.length > 1 ? "📋 Brief mit beiden QR-Codes kopiert!" : "📋 Brief mit QR-Code kopiert!");
         }).catch(function(e) {
           // Fallback: nur Plain Text
           fallbackCopy(plain);
@@ -1747,16 +1816,18 @@ var _s = useState, _m = useMemo;
       fallbackCopy(fullText);
     }
   }
-  function copyQrToClipboard() {
-    if (!aufShowQr || !aufUrl) { showToast("Kein QR-Code aktiv"); return; }
+  // url/dateiname werden übergeben, weil es seit dem 31.07.2026 zwei Codes gibt
+  // (Krankheitsbild und Eingriff) mit je eigenem Button.
+  function copyQrToClipboard(url, dateiname) {
+    if (!url) { showToast("Kein QR-Code aktiv"); return; }
     try {
-      var qrData = getQrDataUrl(aufUrl, 600); // höhere Auflösung
+      var qrData = getQrDataUrl(url, 600); // höhere Auflösung
       if (!qrData) { showToast("QR-Erstellung fehlgeschlagen"); return; }
       // ClipboardItem-API für Bild-in-Clipboard (Chrome/Edge/Safari/Firefox modern)
       if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
         // Fallback: Download wie zuvor
         var a = document.createElement("a");
-        a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
+        a.href = qrData; a.download = dateiname;
         downloadKlick(a);
         showToast("🖼 Browser unterstützt kein Kopieren — heruntergeladen");
         return;
@@ -1770,7 +1841,7 @@ var _s = useState, _m = useMemo;
       }).catch(function(err) {
         // Fallback Download bei Fehler (z.B. fehlende Permission)
         var a = document.createElement("a");
-        a.href = qrData; a.download = "QR-Code-Aufklaerung.png";
+        a.href = qrData; a.download = dateiname;
         downloadKlick(a);
         showToast("🖼 Kopieren fehlgeschlagen — heruntergeladen");
       });
@@ -1800,6 +1871,10 @@ var _s = useState, _m = useMemo;
   }
   function downloadWord() {
     try {
+      // Die Codes stehen im Brief direkt unter ihrer QR_SATZ-Zeile, nicht mehr
+      // am Dokumentende — sonst zeigt „folgenden Code" ins Leere.
+      var queue = qrListe().map(function(q) { return { data: getQrDataUrl(q.url, 300), alt: q.alt }; });
+      var qi = 0;
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "";
@@ -1809,16 +1884,16 @@ var _s = useState, _m = useMemo;
         if (line.startsWith("Zur weiteren Information")) {
           return "<p style='margin:6pt 0 0;font-size:9pt;font-family:Arial;color:#555'>" + line + "</p>";
         }
+        if (line === QR_SATZ && qi < queue.length) {
+          var q = queue[qi++];
+          var abs = "<p style='margin:2pt 0;font-size:11pt;font-family:Arial'>" + line + "</p>";
+          if (q.data) {
+            abs += "<p style='margin:8pt 0 10pt;font-family:Arial'><img src='" + q.data + "' width='130' height='130' style='display:block' alt='" + q.alt + "'/></p>";
+          }
+          return abs;
+        }
         return "<p style='margin:2pt 0;font-size:11pt;font-family:Arial'>" + line + "</p>";
       }).join("");
-      // QR-Code als Bild anhängen, falls vorhanden
-      if (aufShowQr) {
-        var qrData = getQrDataUrl(aufUrl, 300);
-        if (qrData) {
-          htmlBody += "<p style='margin:12pt 0 4pt;font-family:Arial'><img src='" + qrData + "' width='130' height='130' style='display:block' alt='QR-Code Online-Information'/></p>";
-          htmlBody += "<p style='margin:0 0 6pt;font-size:9pt;font-family:Arial;color:#555'>QR-Code zur Online-Information. Diese ergänzt das ärztliche Aufklärungsgespräch und ersetzt es nicht.</p>";
-        }
-      }
       var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>@page{margin:2.5cm}</style></head><body>" + htmlBody + "</body></html>";
       var blob = new Blob(["\ufeff" + html], { type: "application/msword" });
       var url = URL.createObjectURL(blob);
@@ -2057,23 +2132,42 @@ var _s = useState, _m = useMemo;
           </div>}
         </div>}
         {diagnosen.length > 0 && <div data-tour="sb-opmethode"><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
-        {!aufActive && aufOhneZiel.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
+        {!diagActive && diagOhneZiel.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#8A5A00", fontWeight: 600, marginBottom: 4 }}>📱 Keine Online-Information</div>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 4, lineHeight: 1.5 }}>
-            Für {aufOhneZiel.length > 1 ? "diese Eingriffe" : "diesen Eingriff"} gibt es noch keinen
-            Patienten-Inhalt — der Brief enthält keinen QR-Code.
+            Für {diagOhneZiel.length > 1 ? "diese Diagnosen" : "diese Diagnose"} gibt es noch keinen
+            Patienten-Inhalt — der Brief enthält keinen QR-Code zum Krankheitsbild.
           </div>
           <div style={row}>
             <div style={{ padding: "4px 10px", borderRadius: 4, fontSize: 10, background: "#F1F4F3",
                           color: "#9AA5A0", border: "1px solid #D6E2E3", cursor: "not-allowed" }}
-                 title="Kein Ziel in der Patienten-App hinterlegt">QR-Code beifügen</div>
+                 title="Kein Ziel in der Patienten-App hinterlegt">QR-Code Krankheitsbild</div>
+          </div>
+        </div>}
+        {diagActive && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+          <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
+          <div style={{ fontSize: 10, color: "#718096", marginBottom: 4 }}>Informationsmaterial zum Krankheitsbild „{diagActive.label}" — als QR-Code im Brief beifügen?</div>
+          <div style={row}>
+            <div style={CB(diagQrAktiv)} onClick={function() { setDiagQrAktiv(!diagQrAktiv); }}>QR-Code Krankheitsbild</div>
+          </div>
+        </div>}
+        {!aufActive && aufOhneZiel.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
+          <div style={{ fontSize: 10, color: "#8A5A00", fontWeight: 600, marginBottom: 4 }}>📱 Keine Online-Information</div>
+          <div style={{ fontSize: 10, color: "#718096", marginBottom: 4, lineHeight: 1.5 }}>
+            Für {aufOhneZiel.length > 1 ? "diese Eingriffe" : "diesen Eingriff"} gibt es noch keinen
+            Patienten-Inhalt — der Brief enthält keinen QR-Code zum Eingriff.
+          </div>
+          <div style={row}>
+            <div style={{ padding: "4px 10px", borderRadius: 4, fontSize: 10, background: "#F1F4F3",
+                          color: "#9AA5A0", border: "1px solid #D6E2E3", cursor: "not-allowed" }}
+                 title="Kein Ziel in der Patienten-App hinterlegt">QR-Code Eingriff</div>
           </div>
         </div>}
         {aufActive && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 4 }}>Informationsmaterial zu „{aufActive.entry.label}" — als QR-Code im Brief beifügen?</div>
           <div style={row}>
-            <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code beifügen</div>
+            <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code Eingriff</div>
           </div>
           {aufQrAktiv && (function() {
             var patientOp = PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key;
@@ -2666,16 +2760,24 @@ var _s = useState, _m = useMemo;
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
-                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copyQrToClipboard}>📋 QR-Code</div>}
+                {diagShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(diagUrl, "QR-Code-Krankheitsbild.png"); }}>📋 QR Krankheitsbild</div>}
+                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "QR-Code-Eingriff.png"); }}>📋 QR Eingriff</div>}
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
             {showPv && <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
+            {showPv && diagShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
+              <QRCanvas text={diagUrl} size={120} />
+              <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.4 }}>
+                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Krankheitsbild</div>
+                <div>{diagActive.label}</div>
+              </div>
+            </div>}
             {showPv && aufShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
               <QRCanvas text={aufUrl} size={120} />
               <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.4 }}>
-                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Online-Information</div>
-                <div>QR-Code für den Patienten zum Scannen.</div>
+                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Eingriff</div>
+                <div>{aufActive.entry.label}</div>
               </div>
             </div>}
           </div>
@@ -2690,14 +2792,22 @@ var _s = useState, _m = useMemo;
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
-              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copyQrToClipboard}>📋 QR-Code</div>}
+              {diagShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(diagUrl, "QR-Code-Krankheitsbild.png"); }}>📋 QR Krankheitsbild</div>}
+              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "QR-Code-Eingriff.png"); }}>📋 QR Eingriff</div>}
             </div>
           </div>
           <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
+          {diagShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
+            <QRCanvas text={diagUrl} size={140} />
+            <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
+              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Krankheitsbild</div>
+              <div>{diagActive.label}</div>
+            </div>
+          </div>}
           {aufShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
             <QRCanvas text={aufUrl} size={140} />
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
-              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Online-Information</div>
+              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Eingriff</div>
               <div>{aufActive.entry.label}</div>
             </div>
           </div>}
