@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Fuss-Track</title>
+<!--
+  404-Router. GitHub Pages liefert diese Seite bei jedem unbekannten Pfad aus.
+  Sie hat zwei Aufgaben:
+    1. Kurzlinks  /i/<id>  gegen kurzlinks.json aufloesen und weiterleiten.
+    2. Alles andere als freundliche "nicht gefunden"-Seite darstellen.
+  Keine externen Ressourcen — Schriften liegen lokal im Repo (DSGVO, BRAND.md).
+-->
+<style>
+  @font-face{font-family:"Source Serif 4";src:url("/fonts/source-serif-4-700.woff2") format("woff2");
+             font-weight:700;font-display:swap}
+  :root{--petrol:#10535B;--petrol-dunkel:#0B3E45;--tint:#E6F0F1;--papier:#FAFAF7;
+        --tinte:#1D2421;--grau:#5C6660;--linie:#D6E2E3}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+       background:var(--papier);color:var(--tinte);padding:24px;
+       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.65}
+  .karte{max-width:520px;width:100%;background:#fff;border:1px solid var(--linie);
+         border-radius:12px;padding:32px 28px;text-align:center;
+         box-shadow:0 2px 12px rgba(16,83,91,.07)}
+  h1{font-family:"Source Serif 4",Georgia,serif;font-weight:700;font-size:21px;
+     color:var(--petrol);margin:0 0 10px}
+  p{font-size:14px;color:var(--tinte);margin:0 0 20px}
+  .leise{font-size:12px;color:var(--grau);margin-top:18px}
+  a.knopf{display:inline-block;padding:11px 22px;border-radius:8px;background:var(--petrol);
+          color:#fff;text-decoration:none;font-size:14px;font-weight:600}
+  a.knopf:hover{background:var(--petrol-dunkel)}
+  a.leiselink{color:var(--petrol)}
+  .marke{font-size:30px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="karte" id="karte" hidden>
+  <div class="marke">🦶</div>
+  <h1 id="titel"></h1>
+  <p id="text"></p>
+  <a class="knopf" id="ziel" href="https://fuss-track.de/">Zur Startseite</a>
+  <div class="leise" id="leise"></div>
+</div>
+
+<script>
+(function(){
+  var karte = document.getElementById("karte");
+  function zeige(titel, text, knopfText, knopfUrl, leise){
+    document.getElementById("titel").textContent = titel;
+    document.getElementById("text").textContent  = text;
+    var z = document.getElementById("ziel");
+    z.textContent = knopfText; z.href = knopfUrl;
+    document.getElementById("leise").innerHTML = leise || "";
+    karte.hidden = false;
+  }
+
+  var pfad = location.pathname || "";
+  var treffer = pfad.match(/^\/i\/([^\/?#]+)\/?$/);
+
+  // ---------- Normale "nicht gefunden"-Seite ----------
+  if (!treffer) {
+    zeige("Seite nicht gefunden",
+          "Diese Adresse gibt es nicht. Möglicherweise hat sich ein Tippfehler eingeschlichen.",
+          "Zur Startseite", "https://fuss-track.de/");
+    return;
+  }
+
+  // ---------- Kurzlink /i/<id> ----------
+  var id = decodeURIComponent(treffer[1]).toLowerCase();
+  var ungueltig = function(){
+    zeige("Dieser Link ist nicht mehr gültig",
+          "Zu dieser Kurzadresse gibt es keinen Inhalt (mehr). Die Informationen zu Ihrem Eingriff finden Sie über die Startseite der Patienten-App.",
+          "Zur Patienten-App", "https://patienten.fuss-track.de/",
+          'Maßgeblich sind die Angaben in dem Brief, den Sie erhalten haben.');
+  };
+
+  fetch("/kurzlinks.json?v=" + Date.now())
+    .then(function(r){ if(!r.ok) throw new Error("nicht ladbar"); return r.json(); })
+    .then(function(d){
+      var eintrag = d && d.ZIELE ? d.ZIELE[id] : null;
+      if (eintrag && eintrag.url) { location.replace(eintrag.url); return; }
+      ungueltig();
+    })
+    .catch(ungueltig);
+})();
+</script>
+</body>
+</html>

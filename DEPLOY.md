@@ -25,6 +25,8 @@ Die App lädt ihre Daten aus **zwei getrennten Quellen**. Wer nur eine davon akt
 | `icons/` (6 Dateien) | Favicon, App-Icon, Logo-Quelle |
 | `CNAME` | Custom Domain `fuss-track.de` — **niemals löschen** |
 | `manifest.json` | Web-App-Manifest (Homescreen startet in `app.html`) |
+| `404.html` | Auffang- und Kurzlink-Router (`/i/<id>`) — wirkt nur live |
+| `kurzlinks.json` | ID-Tabelle der Kurzlinks; IDs nur ergaenzen, nie aendern |
 | `scripts/`, `*.md` | Werkzeuge und Dokumentation |
 
 **Nicht im Repo** (steht in `.gitignore`): `data/` und `meine-preise/`.
@@ -88,6 +90,27 @@ cd data && ls -lT *.json | awk '{print $9, $6, $7, $8}'
 > betroffenen Kennungen.
 
 ---
+
+## D2) Kurzlinks /i/<id> — Gegenprobe erst LIVE
+
+Die Weiterleitung `fuss-track.de/i/<id>` laeuft ueber `404.html`. GitHub Pages
+liefert diese Datei bei unbekannten Pfaden aus — **lokal tut der Dev-Server das
+nicht**. Die Funktion laesst sich deshalb erst nach dem Push pruefen, nie vorher.
+
+Nach jedem Push, der `404.html` oder `kurzlinks.json` beruehrt, diese drei
+Adressen im Browser aufrufen:
+
+| Adresse | Erwartung |
+|---|---|
+| `https://fuss-track.de/i/chevron` | leitet sofort in die Patienten-App weiter |
+| `https://fuss-track.de/i/quatsch` | „Dieser Link ist nicht mehr gueltig" + Link zur Patienten-App |
+| `https://fuss-track.de/tippfehler` | normale „Seite nicht gefunden" + Link zur Startseite |
+
+**Regel zu den IDs:** Eine einmal vergebene ID wird nie geaendert und nie
+wiederverwendet — sie steht in bereits ausgehaendigten Arztbriefen. Details im
+Kopf von `kurzlinks.json`.
+
+Beide Dateien gehoeren ins **Repo** (Push), nicht in den Bucket.
 
 ## E) Wenn doch etwas fehlt
 

@@ -1,0 +1,31 @@
+{
+  "_REGEL": [
+    "VERBINDLICH: Eine einmal vergebene ID wird NIE geändert und NIE wiederverwendet.",
+    "IDs werden ausschliesslich ergaenzt. Grund: Die IDs stehen als Kurzadresse",
+    "(fuss-track.de/i/<id>) in bereits ausgedruckten und ausgehaendigten Arztbriefen.",
+    "Wird eine ID umgehaengt, fuehrt ein alter Brief zu einem falschen Inhalt —",
+    "schlimmer als ein toter Link. Soll ein Ziel nicht mehr erreichbar sein, wird",
+    "der Eintrag entfernt; die ID bleibt danach dauerhaft unbenutzt.",
+    "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter."
+  ],
+  "_STAND": "2026-07-31",
+  "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
+
+  "ZIELE": {
+    "chevron": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=chevron&modus=aufklaerung",
+      "titel": "Chevron-/Akin-Osteotomie",
+      "art": "op"
+    },
+    "osg-arthrodese": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=osg_arthrodese&modus=aufklaerung",
+      "titel": "Versteifung des oberen Sprunggelenks",
+      "art": "op"
+    },
+    "osg-tep": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=osg_tep&modus=aufklaerung",
+      "titel": "Sprunggelenkprothese",
+      "art": "op"
+    }
+  }
+}
