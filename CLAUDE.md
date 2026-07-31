@@ -10,6 +10,19 @@ Klinische Dokumentations-Toolbox des Departments Spezielle Fußchirurgie (Floren
 - **Preismodell: Jahres-Abo pro Nutzer** mit 30 Tagen kostenlosem Test; Preishöhe wird nach der Beta festgelegt (Korridor 150–300 €/Jahr).
 - **Reihenfolge:** Erst Landingpage + Rechtstexte (Paddle prüft die Produktseite vor Konto-Freischaltung), dann Paddle-Konto, dann Webhook-Automatik (Zahlung → Supabase Edge Function → Invite; Abo-Ende → Sperrung). Bis dahin läuft Onboarding ausschließlich über das Invite-Verfahren im Supabase-Dashboard.
 
+**QR-Verknüpfung zur Patienten-App — Entscheidung vom 31.07.2026: ZWEI getrennte Codes.**
+Ein QR-Code für die Diagnose, ein zweiter für den Eingriff. Bewusst *keine* kombinierte
+Seite pro Diagnose-Eingriff-Paar: die Zahl solcher Kombinationen wächst multiplikativ,
+und es müssten hunderte hypothetische Seiten entstehen, die niemand geprüft hat. Die
+getrennten Zielseiten existieren dagegen bereits und sind inhaltlich geprüft. Der Preis
+dafür — zwei Codes müssen kopiert werden — ist bewusst in Kauf genommen.
+Zuordnungen: `PATIENT_EINGRIFF_MAP` (43 Eingriffe) und `PATIENT_DIAGNOSE_MAP`
+(12 Diagnosen) in `data/opmethoden.json`; Kurzadressen in `kurzlinks.json`.
+**Sprachregelung (forensisch):** Das Material heißt gegenüber Patientinnen und Patienten
+**„Information"**, niemals „Aufklärung" — sonst entsteht der Eindruck, das
+Aufklärungsgespräch sei damit erfolgt. Der URL-Parameter `modus=aufklaerung` bleibt
+technisch bestehen, weil er in bereits ausgehändigten Briefen steht.
+
 Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.html`), auf die die Toolbox per QR-Code/Deep-Links verweist (`FUSSTRACK_BASE_URL`). Für beide Apps gilt die Skill `fusstrack-toolbox` (Schreibstil-Regeln, PubMed-Recherche-Pflicht, Workflow).
 
 **Wichtig:** Seit dem Umbau funktioniert index.html NICHT mehr per Doppelklick (`file://`) — fetch braucht einen Webserver (lokal: Dev-Server, produktiv: GitHub Pages).
