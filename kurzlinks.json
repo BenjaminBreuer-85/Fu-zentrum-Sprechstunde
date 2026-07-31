@@ -156,36 +156,6 @@
       "titel": "MTP1-Arthrodese (Versteifung, Hallux-rigidus-Behandlung)",
       "art": "op"
     },
-    "nonop-hallux-rigidus": {
-      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=hallux_rigidus",
-      "titel": "hallux_rigidus",
-      "art": "konservativ"
-    },
-    "nonop-hallux-valgus": {
-      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=hallux_valgus",
-      "titel": "hallux_valgus",
-      "art": "konservativ"
-    },
-    "nonop-knicksenkfuss": {
-      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=knicksenkfuss",
-      "titel": "knicksenkfuss",
-      "art": "konservativ"
-    },
-    "nonop-plantarfasziitis": {
-      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=plantarfasziitis",
-      "titel": "plantarfasziitis",
-      "art": "konservativ"
-    },
-    "nonop-sprunggelenk-arthrose": {
-      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=sprunggelenk_arthrose",
-      "titel": "sprunggelenk_arthrose",
-      "art": "konservativ"
-    },
-    "nonop-sprunggelenk-instabilitaet": {
-      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=sprunggelenk_instabilitaet",
-      "titel": "sprunggelenk_instabilitaet",
-      "art": "konservativ"
-    },
     "olt": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=olt_kb&modus=aufklaerung",
       "titel": "Osteochondrale Läsion des Talus",
