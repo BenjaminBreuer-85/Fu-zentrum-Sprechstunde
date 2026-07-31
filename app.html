@@ -434,12 +434,22 @@ window.TOOLBOX_AUTH = {
   }
 
   // Nutzerpreise + Materialsätze aus Supabase nachladen (nach dem Login)
-  function ladePreise(client){
+  // Zustand des Konto-Abrufs. Solange er nicht "ok" ist, darf nichts gerechnet
+  // oder als Zahl angezeigt werden — sonst entsteht aus einem leeren Ergebnis
+  // eine falsche Statistik ("4 von 43"), ohne dass ein Fehler sichtbar wird.
+  window._KONTO_STATUS = "laedt";
+  function ladePreise(client, zweiterVersuch){
     window._SB = client;
+    window._KONTO_STATUS = "laedt";
+    if (window._onPreiseGeladen) window._onPreiseGeladen();
     return Promise.all([
       client.from("implantatpreise").select("*"),
       client.from("materialsatz").select("*")
     ]).then(function(res){
+      // supabase-js wirft bei 401 nicht, sondern liefert {data:null, error}.
+      // Ohne diese Pruefung wird ein abgelehnter Abruf zu einer leeren Liste.
+      var fehler = (res[0] && res[0].error) || (res[1] && res[1].error);
+      if (fehler) throw fehler;
       var pr = {}, ms = {};
       (res[0].data || []).forEach(function(r){
         pr[r.implantat_id] = {bezeichnung:r.bezeichnung, hersteller:r.hersteller,
@@ -455,9 +465,22 @@ window.TOOLBOX_AUTH = {
         ms[e][v].sort(function(a,b){ return a._sort - b._sort; }); }); });
       window._PREISE = pr;
       window._MATSATZ = ms;
+      window._KONTO_STATUS = "ok";
       geisterEntfernen(client, pr);
       if (window._onPreiseGeladen) window._onPreiseGeladen();
-    }).catch(function(e){ console.warn("Preise konnten nicht geladen werden:", e && e.message); });
+    }).catch(function(e){
+      // Genau EIN Wiederholversuch, nachdem die Sitzung aufgefrischt wurde.
+      if (!zweiterVersuch) {
+        return client.auth.refreshSession().catch(function(){}).then(function(){
+          return ladePreise(client, true);
+        });
+      }
+      window._PREISE = {}; window._MATSATZ = {};
+      window._KONTO_STATUS = "fehler";
+      window._KONTO_FEHLER = (e && e.message) ? e.message : String(e);
+      console.warn("Preise konnten nicht geladen werden:", window._KONTO_FEHLER);
+      if (window._onPreiseGeladen) window._onPreiseGeladen();
+    });
   }
 
   // Aufraeumen: Ueberschriftszeilen der Excel-Vorlage, die ein frueherer Import
@@ -6704,6 +6727,40 @@ function ImplantatpreiseView(){
   const feld = {width:"100%",marginTop:3,padding:"7px 9px",fontSize:12,color:"#1D2421",
     border:"1px solid "+LINIE,borderRadius:7,boxSizing:"border-box"};
 
+  // ------------------------------------------------- Konto noch nicht geladen
+  // Erst rechnen, wenn der Abruf vollstaendig und erfolgreich war. Ein leeres
+  // Ergebnis sieht sonst aus wie "fast nichts bepreist".
+  const kontoStatus = window._SB ? (window._KONTO_STATUS || "laedt") : "ok";
+  if (kontoStatus === "laedt") {
+    return <div style={{maxWidth:760,margin:"0 auto",padding:"8px 4px"}}>
+      <div style={{background:"#fff",border:"1px solid "+LINIE,borderRadius:12,
+          padding:"30px 24px",textAlign:"center"}}>
+        <div style={{fontSize:13,color:"#5C6660"}}>Ihre Preisliste wird geladen …</div>
+      </div>
+    </div>;
+  }
+  if (kontoStatus === "fehler") {
+    return <div style={{maxWidth:760,margin:"0 auto",padding:"8px 4px"}}>
+      <div style={{background:AMBERBG,border:"1px solid "+AMBER,borderRadius:12,padding:"26px 24px"}}>
+        <div style={{fontSize:16,fontWeight:700,color:AMBER,marginBottom:8}}>
+          Ihre Preisliste konnte nicht geladen werden</div>
+        <div style={{fontSize:13,color:"#1D2421",lineHeight:1.65,marginBottom:16}}>
+          Bitte laden Sie die Seite neu oder melden Sie sich erneut an. Es werden
+          bewusst keine Zahlen angezeigt, solange die Daten unvollständig sind —
+          eine halbe Preisliste ergäbe falsche Summen.
+        </div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          <span onClick={()=>location.reload()} style={btn(true)}>Neu laden</span>
+          <span onClick={()=>{ if(window._SITZUNG_BEENDET && window._SB)
+              window._SITZUNG_BEENDET(window._SB, "Bitte melden Sie sich erneut an."); }}
+            style={btn(false)}>Neu anmelden</span>
+        </div>
+        {window._KONTO_FEHLER && <div style={{marginTop:12,fontSize:11,color:"#5C6660"}}>
+          Technische Meldung: {window._KONTO_FEHLER}</div>}
+      </div>
+    </div>;
+  }
+
   // ---------------------------------------------------------------- Leerzustand
   if (!hatPreise) {
     return <div style={{maxWidth:760,margin:"0 auto",padding:"8px 4px"}}>
@@ -7700,7 +7757,7 @@ function EinstellungenView({onSelect, onRundgang}){
   </div>;
 }
 
-function LandingPage({onSelect, rundgangAnstoss}) {
+function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
   // Anleitung nur zeigen, wenn im Browser gestartet und noch nicht weggeklickt
   const [zeigeTipp, setZeigeTipp] = useState(function(){
     try{ return !alsAppGestartet() && localStorage.getItem(HOMESCREEN_MERKER) !== "1"; }
@@ -7715,10 +7772,15 @@ function LandingPage({onSelect, rundgangAnstoss}) {
   const [zeigeRundgang, setZeigeRundgang] = useState(function(){
     try{ return localStorage.getItem(RUNDGANG_MERKER) !== "1"; }catch(e){ return false; }
   });
-  // Wiederaufruf aus einem Werkzeug heraus (Kopfleiste → „?“ → Rundgang starten)
+  // Wiederaufruf aus den Einstellungen. Der Effekt laeuft auch beim Einhaengen
+  // der Komponente — und die haengt sich bei jeder Rueckkehr aus einem Werkzeug
+  // neu ein. Ohne den Merker unten startete der Rundgang deshalb jedes Mal von
+  // vorn, sobald er einmal ueber die Einstellungen aufgerufen worden war.
   React.useEffect(function(){
-    if (rundgangAnstoss) { setZeigeRundgang(true); setZeigeTipp(false); }
-  }, [rundgangAnstoss]);
+    if (!rundgangWunsch) return;
+    setZeigeRundgang(true); setZeigeTipp(false);
+    if (onWunschVerbraucht) onWunschVerbraucht();   // Signal einmalig verbrauchen
+  }, [rundgangWunsch]);
 
   return (
     <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",background:"#F5F7FA",color:"#1A2A3A",display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 16px 16px"}}>
@@ -7818,7 +7880,11 @@ function App() {
   const [tool, setTool] = React.useState(null);
   // Zähler statt Schalter: ein erneuter Aufruf desselben Rundgangs muss ihn
   // wieder anstoßen, auch wenn er vorher schon lief.
-  const [rundgangAnstoss, setRundgangAnstoss] = React.useState(0);
+  // Verbrauchbares Signal. Ein Zaehler taugt hier nicht: LandingPage haengt
+  // sich bei jeder Rueckkehr aus einem Werkzeug neu ein, und beim Einhaengen
+  // laesst sich ein "neuer" Zaehlerstand nicht von einem alten unterscheiden —
+  // der Rundgang startete dann bei jeder Rueckkehr erneut.
+  const [menueRundgangWunsch, setMenueRundgangWunsch] = React.useState(false);
   // Welcher Funktions-Rundgang soll beim nächsten Öffnen laufen? null = keiner,
   // "auto" = nur beim ersten Mal, "erzwingen" = aus den Einstellungen heraus.
   const [tourWunsch, setTourWunsch] = React.useState({});
@@ -7826,7 +7892,7 @@ function App() {
   function zurEinstellung(){ setTool("einstellungen"); }
   // Aus den Einstellungen heraus: Funktion öffnen und dort den Rundgang starten
   function rundgangStarten(welcher){
-    if (welcher === "menue") { setTool(null); setRundgangAnstoss(function(n){ return n+1; }); return; }
+    if (welcher === "menue") { setTool(null); setMenueRundgangWunsch(true); return; }
     setTourWunsch(function(w){ var n=Object.assign({},w); n[welcher]=(n[welcher]||0)+1; return n; });
     setTool(welcher === "sb" ? "sb" : welcher === "ob" ? "ob" : "preise");
   }
@@ -7959,7 +8025,8 @@ function App() {
       </div>
     );
 
-    return <LandingPage onSelect={setTool} rundgangAnstoss={rundgangAnstoss} />;
+    return <LandingPage onSelect={setTool} rundgangWunsch={menueRundgangWunsch}
+             onWunschVerbraucht={()=>setMenueRundgangWunsch(false)} />;
 }
 
 
