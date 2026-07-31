@@ -10,21 +10,285 @@
   ],
   "_STAND": "2026-07-31",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
-
   "ZIELE": {
+    "achilles-insertional": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=achilles_insertional_kb&modus=aufklaerung",
+      "titel": "Achillessehne — insertionsnahe Tendinopathie",
+      "art": "diagnose"
+    },
+    "achilles-naht": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=achilles_naht&modus=aufklaerung",
+      "titel": "Achillessehnen-Naht (offen)",
+      "art": "op"
+    },
+    "achilles-riss": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=achilles_riss_kb&modus=aufklaerung",
+      "titel": "Achillessehnenriss (akute Ruptur)",
+      "art": "diagnose"
+    },
+    "arthrorise": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=arthrorise&modus=aufklaerung",
+      "titel": "Arthrorise (Kind)",
+      "art": "op"
+    },
+    "brostrom": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=brostrom&modus=aufklaerung",
+      "titel": "Außenbandreparatur nach Broström",
+      "art": "op"
+    },
+    "calc-medial": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=calc_medial&modus=aufklaerung",
+      "titel": "Medialisierende Calcaneus-Verschiebe-Osteotomie",
+      "art": "op"
+    },
+    "calc-verlaengerung": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=calc_verlaengerung&modus=aufklaerung",
+      "titel": "Calcaneus-Verlängerungs-Osteotomie",
+      "art": "op"
+    },
+    "calcaneoplastie": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=calcaneoplastie&modus=aufklaerung",
+      "titel": "Calcaneoplastie (endoskopisch oder mini-open)",
+      "art": "op"
+    },
+    "cheilektomie": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=cheilektomie&modus=aufklaerung",
+      "titel": "Cheilektomie (Hallux-rigidus-Behandlung)",
+      "art": "op"
+    },
     "chevron": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=chevron&modus=aufklaerung",
       "titel": "Chevron-/Akin-Osteotomie",
       "art": "op"
+    },
+    "chevron-akin": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=chevron_akin&modus=aufklaerung",
+      "titel": "Chevron-Akin-Osteotomie (Hallux-valgus-Korrektur)",
+      "art": "op"
+    },
+    "clai": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=clai_kb&modus=aufklaerung",
+      "titel": "Chronische OSG-Instabilität",
+      "art": "diagnose"
+    },
+    "coalitio-cn": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=coalitio_cn&modus=aufklaerung",
+      "titel": "Coalitio calcaneonavicular — Resektion",
+      "art": "op"
+    },
+    "cotton": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=cotton&modus=aufklaerung",
+      "titel": "Cotton-Osteotomie",
+      "art": "op"
+    },
+    "dmmo": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=dmmo&modus=aufklaerung",
+      "titel": "DMMO – Mittelfuß-Osteotomie",
+      "art": "op"
+    },
+    "double-arthrodese": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=double_arthrodese&modus=aufklaerung",
+      "titel": "Double-Arthrodese",
+      "art": "op"
+    },
+    "fhl": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=fhl&modus=aufklaerung",
+      "titel": "FHL-Sehnentransfer",
+      "art": "op"
+    },
+    "gastroc": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=gastroc&modus=aufklaerung",
+      "titel": "Wadenmuskel-Verlängerung",
+      "art": "op"
+    },
+    "haglund-split": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=haglund_split&modus=aufklaerung",
+      "titel": "Haglund-Abtragung mit Achillessehnen-Split und Refixation",
+      "art": "op"
+    },
+    "hallux-limitus": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=hallux_limitus_kb&modus=aufklaerung",
+      "titel": "Hallux limitus",
+      "art": "diagnose"
+    },
+    "juveniler-hv": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=juveniler_hv_kb&modus=aufklaerung",
+      "titel": "Kindlicher/juveniler Hallux valgus",
+      "art": "diagnose"
+    },
+    "kindl-ppv": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=kindl_ppv_kb&modus=aufklaerung",
+      "titel": "Kindlicher Knick-Senk-Fuß (Pes planovalgus)",
+      "art": "diagnose"
+    },
+    "kleinzehen-pip": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=kleinzehen_pip&modus=aufklaerung",
+      "titel": "Korrektur bei Fehlstellungen der Kleinzehen",
+      "art": "op"
+    },
+    "knorpel-osg": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=knorpel_osg&modus=aufklaerung",
+      "titel": "Knorpelchirurgie am OSG",
+      "art": "op"
+    },
+    "lapidus": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=lapidus&modus=aufklaerung",
+      "titel": "Lapidus-Arthrodese (Hallux-valgus-Korrektur)",
+      "art": "op"
+    },
+    "lat-stabil": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=lat_stabil&modus=aufklaerung",
+      "titel": "Laterale anatomische Stabilisierung",
+      "art": "op"
+    },
+    "metatarsalgie": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=metatarsalgie_kb&modus=aufklaerung",
+      "titel": "Metatarsalgie",
+      "art": "diagnose"
+    },
+    "morton": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=morton&modus=aufklaerung",
+      "titel": "Entfernung Morton-Neurom",
+      "art": "op"
+    },
+    "mtp1-arthrodese": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=mtp1_arthrodese&modus=aufklaerung",
+      "titel": "MTP1-Arthrodese (Versteifung, Hallux-rigidus-Behandlung)",
+      "art": "op"
+    },
+    "nonop-hallux-rigidus": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=hallux_rigidus",
+      "titel": "hallux_rigidus",
+      "art": "konservativ"
+    },
+    "nonop-hallux-valgus": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=hallux_valgus",
+      "titel": "hallux_valgus",
+      "art": "konservativ"
+    },
+    "nonop-knicksenkfuss": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=knicksenkfuss",
+      "titel": "knicksenkfuss",
+      "art": "konservativ"
+    },
+    "nonop-plantarfasziitis": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=plantarfasziitis",
+      "titel": "plantarfasziitis",
+      "art": "konservativ"
+    },
+    "nonop-sprunggelenk-arthrose": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=sprunggelenk_arthrose",
+      "titel": "sprunggelenk_arthrose",
+      "art": "konservativ"
+    },
+    "nonop-sprunggelenk-instabilitaet": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?kb=sprunggelenk_instabilitaet",
+      "titel": "sprunggelenk_instabilitaet",
+      "art": "konservativ"
+    },
+    "olt": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=olt_kb&modus=aufklaerung",
+      "titel": "Osteochondrale Läsion des Talus",
+      "art": "diagnose"
     },
     "osg-arthrodese": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=osg_arthrodese&modus=aufklaerung",
       "titel": "Versteifung des oberen Sprunggelenks",
       "art": "op"
     },
+    "osg-arthrodese-op": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=osg_arthrodese_op&modus=aufklaerung",
+      "titel": "OSG-Versteifung (Arthrodese)",
+      "art": "op"
+    },
+    "osg-arthrose": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=osg_arthrose&modus=aufklaerung",
+      "titel": "OSG-Arthrose",
+      "art": "diagnose"
+    },
+    "osg-arthroskopie": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=osg_arthroskopie&modus=aufklaerung",
+      "titel": "Arthroskopie des OSG",
+      "art": "op"
+    },
     "osg-tep": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=osg_tep&modus=aufklaerung",
       "titel": "Sprunggelenkprothese",
+      "art": "op"
+    },
+    "osg-tep-op": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=osg_tep_op&modus=aufklaerung",
+      "titel": "OSG-Prothese (Endoprothese)",
+      "art": "op"
+    },
+    "peroneal-instab": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=peroneal_instab&modus=aufklaerung",
+      "titel": "Peronealsehnen-Instabilität",
+      "art": "op"
+    },
+    "peroneal-luxation": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=peroneal_luxation_kb&modus=aufklaerung",
+      "titel": "Peronealsehnen-Luxation",
+      "art": "diagnose"
+    },
+    "peroneal-riss": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=peroneal_riss&modus=aufklaerung",
+      "titel": "Peronealsehnen-Riss",
+      "art": "op"
+    },
+    "plantarfascie": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=plantarfascie&modus=aufklaerung",
+      "titel": "Plantarfaszien-Release",
+      "art": "op"
+    },
+    "plantarfasziitis": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=plantarfasziitis_kb&modus=aufklaerung",
+      "titel": "Plantarfasziitis (Fersensporn)",
+      "art": "diagnose"
+    },
+    "scarf": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=scarf&modus=aufklaerung",
+      "titel": "Scarf-Osteotomie (Hallux-valgus-Korrektur)",
+      "art": "op"
+    },
+    "smot-valgus": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=smot_valgus&modus=aufklaerung",
+      "titel": "Supramalleoläre Osteotomie (Valgus)",
+      "art": "op"
+    },
+    "subtalar": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=subtalar&modus=aufklaerung",
+      "titel": "Subtalararthrodese",
+      "art": "op"
+    },
+    "tmt": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=tmt&modus=aufklaerung",
+      "titel": "TMT-Arthrodese",
+      "art": "op"
+    },
+    "tn": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=tn&modus=aufklaerung",
+      "titel": "TN-Arthrodese",
+      "art": "op"
+    },
+    "triple": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=triple&modus=aufklaerung",
+      "titel": "Triple-/Double-Arthrodese",
+      "art": "op"
+    },
+    "ttc": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=ttc&modus=aufklaerung",
+      "titel": "Tibio-talo-calcaneare Arthrodese",
+      "art": "op"
+    },
+    "usg-arthrose": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=usg_arthrose&modus=aufklaerung",
+      "titel": "Arthrose des unteren Sprunggelenks",
+      "art": "diagnose"
+    },
+    "weil": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=weil&modus=aufklaerung",
+      "titel": "Weil-Osteotomie",
       "art": "op"
     }
   }
