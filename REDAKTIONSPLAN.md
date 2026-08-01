@@ -1,21 +1,37 @@
 # Redaktionsplan — offene Patienten-Inhalte
 
-Stand 31.07.2026, erzeugt aus `data/opmethoden.json` gegen `infomaterial.json`
+Stand 01.08.2026, erzeugt aus `data/opmethoden.json` gegen `infomaterial.json`
 der Patienten-App.
+
+**Achtung bei der Neuerzeugung:** Der Stand vom 31.07.2026 war fehlerhaft, weil
+er gegen `PATIENT_DIAGNOSE_MAP` statt gegen den tatsächlichen Seitenbestand
+geprüft hat. `hallux_valgus` stand dort als „ohne Krankheitsbild-Seite", obwohl
+die Seite existierte — es fehlte nur die Zuordnung. Maßgeblich ist immer, ob der
+Schlüssel in `INFOMATERIAL` vorkommt, nicht ob er in der Map steht.
 
 ## OP-Methoden
 
-**Alle 43 OP-Methoden haben ein Ziel.** Hier ist nichts offen.
+**Alle 44 OP-Methoden haben ein Ziel.** Hier ist nichts offen.
 
 ## Diagnosen ohne Krankheitsbild-Seite
 
-| Diagnose (Kennung) | Bezeichnung |
-|---|---|
-| `diffuse_beschwerden` | Diffuse Beschwerden |
-| `hallux_valgus` | Hallux valgus |
-| `mittelfuss_arthrose` | Mittelfußarthrose |
+| Diagnose (Kennung) | Bezeichnung | Anmerkung |
+|---|---|---|
+| `lisfranc_arthrose` | Lisfranc-Arthrose | **offen** — in der Patienten-App gibt es dazu nur die OP-Technik „TMT-Arthrodese" und `tmt1_instabilitaet_kb` (Instabilität des ersten Strahls, nicht Arthrose). Eine Krankheitsbild-Seite muss angelegt werden; die Texte kommen laut CLAUDE.md des Fuss-Track-Repos von außen. |
+| `diffuse_beschwerden` | Diffuse Beschwerden | Sammelposten, bewusst ohne Ziel |
 
-**Offen: 3 von 15 Diagnosen.**
+**Offen: 1 von 16 Diagnosen** (`diffuse_beschwerden` nicht mitgezählt).
+
+## Erledigt am 01.08.2026
+
+- `hallux_valgus` → `hallux_valgus`: Zuordnung ergänzt, Seite existierte bereits.
+- `hallux_rigidus` → `hallux_rigidus`: zeigte zuvor auf `hallux_limitus_kb`, also
+  auf die Frühform statt auf das eigene Krankheitsbild.
+- `hallux_limitus` als eigene Diagnose angelegt, zeigt auf `hallux_limitus_kb`.
+- `youngswick` als OP-Methode angelegt, zeigt auf die vorhandene Technikseite.
+- `mittelfuss_arthrose` in `lisfranc_arthrose` umbenannt, Label „Mittelfußarthrose"
+  → „Lisfranc-Arthrose". Reine Umbenennung: `diagnoseText`, Befunde, OP-Methode
+  und Bildbefund waren bereits durchgehend auf die Tarsometatarsalgelenke bezogen.
 
 ## Konservative Pfade — zurueckgestellt
 

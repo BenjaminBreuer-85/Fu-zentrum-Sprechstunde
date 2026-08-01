@@ -111,6 +111,16 @@
       "titel": "Hallux limitus",
       "art": "diagnose"
     },
+    "hallux-rigidus": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=hallux_rigidus&modus=aufklaerung",
+      "titel": "Hallux rigidus",
+      "art": "diagnose"
+    },
+    "hallux-valgus": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=hallux_valgus&modus=aufklaerung",
+      "titel": "Hallux valgus",
+      "art": "diagnose"
+    },
     "juveniler-hv": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=juveniler_hv_kb&modus=aufklaerung",
       "titel": "Kindlicher/juveniler Hallux valgus",
@@ -259,6 +269,11 @@
     "weil": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=weil&modus=aufklaerung",
       "titel": "Weil-Osteotomie",
+      "art": "op"
+    },
+    "youngswick": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=youngswick&modus=aufklaerung",
+      "titel": "Youngswick-Osteotomie",
       "art": "op"
     }
   }
