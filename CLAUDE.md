@@ -162,6 +162,24 @@ aussieht: Schlägt der Konto-Abruf fehl, muss die Kachel den Lade- oder
 Fehlerzustand zeigen — **niemals Zahlen**. Eine halbe Preisliste ergibt falsche
 Summen.
 
+**Die Konto-Sperre (seit 01.08.2026) ist die technische Absicherung dieser
+Regel — sie ersetzt die Prüfung nicht.** In `app.html` gilt: `kontoBereit()` ist
+nur wahr, wenn der Abruf von Preisen **und** Materialsätzen vollständig und
+fehlerfrei durchgelaufen ist. Solange nicht, liefert `paketPreis()` den Marker
+`{nichtGeladen:true}`, und jede Preisdarstellung zeigt `<KontoSperre>` statt
+einer Zahl — Implantatpreise-Kachel, Materialsatz-Ansicht und die
+Erlössimulationen in Sprechstundenbrief und OP-Bericht. Schlägt der Abruf fehl,
+läuft **genau ein** automatischer Wiederholversuch nach `refreshSession()`;
+danach steht die Meldung „Ihre Preisliste konnte nicht geladen werden — bitte
+neu laden oder neu anmelden". Der Zustandswechsel wird über
+`window._KONTO_HORCHER` an alle montierten Ansichten gemeldet; ein einzelner
+Rückruf-Platz reichte nicht, weil sich die Komponenten gegenseitig überschrieben.
+
+Beim Erweitern gilt: **jede neue Stelle, die einen Betrag aus Nutzerpreisen
+zeigt, prüft zuerst `kontoBereit()`.** Wer das vergisst, baut die Fehlmeldung
+„4 von 43" wieder ein — dort entstand aus einem leeren Abruf eine Statistik, die
+wie eine lückenhafte Preisliste aussah.
+
 **Vor jeder Deploy-Aussage:** Die Sitzung prüft den **tatsächlichen Remote-Stand mit `git fetch`** (dann `git status -sb` / `git log --oneline origin/main`), statt aus dem Gedächtnis zu argumentieren. Der eigene Kontext kann veraltet sein, weil Benjamin zwischendurch selbst gepusht hat. Erst nach dieser Prüfung werden die zu deployenden Dateien benannt.
 
 ## Workflow für Änderungen

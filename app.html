@@ -438,6 +438,16 @@ window.TOOLBOX_AUTH = {
   // oder als Zahl angezeigt werden — sonst entsteht aus einem leeren Ergebnis
   // eine falsche Statistik ("4 von 43"), ohne dass ein Fehler sichtbar wird.
   window._KONTO_STATUS = "laedt";
+  // Mehrere Ansichten warten auf denselben Abruf (Implantatpreise,
+  // Sprechstundenbrief, OP-Bericht). Frueher gab es nur EINEN Rueckruf-Platz,
+  // den sich die Komponenten gegenseitig ueberschrieben haben — wer zuletzt
+  // montiert wurde, gewann, alle anderen zeigten weiter den alten Stand.
+  // Deshalb eine Liste; _onPreiseGeladen bleibt als Einzelplatz erhalten.
+  window._KONTO_HORCHER = window._KONTO_HORCHER || [];
+  window._kontoGeaendert = function(){
+    if (window._onPreiseGeladen) { try { window._onPreiseGeladen(); } catch(e){} }
+    window._KONTO_HORCHER.slice().forEach(function(fn){ try { fn(); } catch(e){} });
+  };
   function ladePreise(client, zweiterVersuch){
     window._SB = client;
     window._KONTO_STATUS = "laedt";
@@ -467,7 +477,7 @@ window.TOOLBOX_AUTH = {
       window._MATSATZ = ms;
       window._KONTO_STATUS = "ok";
       geisterEntfernen(client, pr);
-      if (window._onPreiseGeladen) window._onPreiseGeladen();
+      window._kontoGeaendert();
     }).catch(function(e){
       // Genau EIN Wiederholversuch, nachdem die Sitzung aufgefrischt wurde.
       if (!zweiterVersuch) {
@@ -479,7 +489,7 @@ window.TOOLBOX_AUTH = {
       window._KONTO_STATUS = "fehler";
       window._KONTO_FEHLER = (e && e.message) ? e.message : String(e);
       console.warn("Preise konnten nicht geladen werden:", window._KONTO_FEHLER);
-      if (window._onPreiseGeladen) window._onPreiseGeladen();
+      window._kontoGeaendert();
     });
   }
 
@@ -726,6 +736,45 @@ function materialsatzSpeichern(eingriffId, variante, positionen){
 // bewertet mit den PREISEN DES NUTZERS (Supabase). Keine Preise im Code.
 // ============================================================================
 const _ZUORD = window._DATA.zuordnung;
+
+// ---------------------------------------------------------------------------
+// Konto-Sperre: ohne vollstaendigen, erfolgreichen Abruf wird NICHTS gerechnet
+// und keine Zahl angezeigt. Waehrend des Ladens ist window._PREISE leer — ohne
+// diese Sperre meldeten die Erloes- und Materialbloecke dann "unvollstaendig —
+// X ohne Preis" und sahen aus wie eine lueckenhafte Preisliste des Nutzers.
+// Genau so entstand die Fehlmeldung "4 von 43" vom 31.07.2026.
+// Ohne Supabase (lokaler Dev-Server) gibt es kein Konto — dann ist alles bereit.
+// ---------------------------------------------------------------------------
+function kontoStatus(){ return window._SB ? (window._KONTO_STATUS || "laedt") : "ok"; }
+function kontoBereit(){ return kontoStatus() === "ok"; }
+// Rendert neu, sobald der Abruf seinen Zustand wechselt.
+function useKontoStatus(){
+  var st = React.useState(kontoStatus()), wert = st[0], setWert = st[1];
+  React.useEffect(function(){
+    function melde(){ setWert(kontoStatus()); }
+    window._KONTO_HORCHER = window._KONTO_HORCHER || [];
+    window._KONTO_HORCHER.push(melde);
+    melde();
+    return function(){
+      window._KONTO_HORCHER = window._KONTO_HORCHER.filter(function(f){ return f !== melde; });
+    };
+  }, []);
+  return wert;
+}
+// Einheitlicher Hinweis anstelle von Zahlen, solange das Konto nicht steht.
+function KontoSperre(props){
+  var st = props.status;
+  var laedt = st === "laedt";
+  return <div style={{marginTop:10,padding:"10px 12px",borderRadius:8,fontSize:11,lineHeight:1.55,
+      border:"1px solid "+(laedt?"#D6E2E3":"#E0A800"),
+      background:laedt?"#FAFAF7":"#FBF3DF", color:laedt?"#5C6660":"#8A5A00"}}>
+    {laedt
+      ? "Ihre Preisliste wird geladen … Materialkosten und Deckungsbeitrag erscheinen, sobald die Daten vollständig sind."
+      : <span><strong>Ihre Preisliste konnte nicht geladen werden</strong> — bitte neu laden oder neu anmelden.
+          Es werden bewusst keine Zahlen angezeigt, solange die Daten unvollständig sind.</span>}
+  </div>;
+}
+
 function _preisEintrag(id){ return (window._PREISE && window._PREISE[id]) || null; }
 function implantatBezeichnung(id){
   var e = _preisEintrag(id);
@@ -798,6 +847,9 @@ function implKostenFuer(opsKey){
   return r == null ? 0 : r;
 }
 function paketPreis(eingriffId, variante, faktor){
+  // Solange das Konto nicht vollstaendig geladen ist, gibt es KEINEN Betrag und
+  // auch kein "unvollstaendig" — die Aufrufer zeigen stattdessen KontoSperre.
+  if (!kontoBereit()) return { nichtGeladen: true, status: kontoStatus() };
   var pos = MATPOS(eingriffId, variante, faktor);
   if (!pos.length) return null;
   var offen = pos.filter(function(x){ return x.preis == null; });
@@ -2358,7 +2410,11 @@ var _s = useState, _m = useMemo;
               // Implantat-Ampel vs. InEK-Sachkostenreferenz
               // Materialkosten aus den hinterlegten Nutzerpreisen (nicht mehr aus den Stammdaten)
               var implWert=implKostenFuer(bestKey);
-              var implUnvoll=(implWert && typeof implWert==="object" && implWert.unvollstaendig)?implWert:null;
+              // Konto noch nicht vollstaendig geladen: keine Materialzahl und
+              // ausdruecklich auch kein "unvollstaendig" — das waere eine Aussage
+              // ueber die Preisliste des Nutzers, die hier niemand treffen kann.
+              var implGesperrt=(implWert && typeof implWert==="object" && implWert.nichtGeladen)?implWert:null;
+              var implUnvoll=(!implGesperrt && implWert && typeof implWert==="object" && implWert.unvollstaendig)?implWert:null;
               var implZahl=(typeof implWert==="number")?implWert:null;
               var ampel=implAmpel(implZahl,drg);
               var ampelColor=ampel?(ampel.state==="gruen"?"#2E7D32":ampel.state==="gelb"?"#E65100":"#C62828"):null;
@@ -2366,6 +2422,7 @@ var _s = useState, _m = useMemo;
               var ampelText=ampel?(ampel.state==="gruen"?(ampel.ist<=ampel.soll?"im InEK-Rahmen":"bis 20% über InEK — akzeptabel"):ampel.state==="gelb"?ampel.pct+"% über InEK":ampel.pct+"% über InEK — kritisch"):null;
               return <div>
                 <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:8}}>Fallsteuerung – {OPS[bestKey]?OPS[bestKey].k:bestKey}{extraNote}</div>
+                {implGesperrt && <KontoSperre status={implGesperrt.status} />}
                 <div style={{display:"grid",gridTemplateColumns:hasStat?"1fr 1fr":"1fr",gap:8,marginBottom:10}}>
                   {/* AMBULANT-BOX — drei Zustände */}
                   {function(){
@@ -2970,6 +3027,9 @@ function OBSec({title,open,onToggle,active,onReset,children}){
 // ============================================================================
 function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fall, setFall, readOnly}){
   const [suche, setSuche] = React.useState("");
+  // Sperre zuerst: ohne vollstaendig geladenes Konto keine Summe, kein
+  // "unvollstaendig — X ohne Preis". Der Hook rendert neu, sobald der Abruf steht.
+  const kStatus = useKontoStatus();
   // Entweder fertige Positionsliste (OP-Bericht, mehrere Eingriffe) oder ein Eingriff
   const standard = React.useMemo(
     () => positionen ? positionen : (eingriffId ? MATPOS(eingriffId, variante, faktor) : []),
@@ -3011,6 +3071,8 @@ function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fal
 
   const HEAD = istModus ? "#8A5A00" : "#10535B";
   const HEADBG = istModus ? "#FBF3DF" : "#E6F0F1";
+
+  if (kStatus !== "ok") return <KontoSperre status={kStatus} />;
 
   if (!zeilen.length && !istModus) {
     return <div style={{marginTop:10,padding:"10px 12px",border:"1px dashed #D6E2E3",borderRadius:8,
@@ -8133,6 +8195,10 @@ function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
 
 function App() {
   const [tool, setTool] = React.useState(null);
+  // Ein Abonnent an der Wurzel: wechselt der Konto-Abruf seinen Zustand, rendert
+  // der ganze Baum neu. Sonst haengen Werkzeuge, die schon montiert waren, auf
+  // dem Ladezustand fest, obwohl die Preise laengst da sind.
+  useKontoStatus();
   // Zähler statt Schalter: ein erneuter Aufruf desselben Rundgangs muss ihn
   // wieder anstoßen, auch wenn er vorher schon lief.
   // Verbrauchbares Signal. Ein Zaehler taugt hier nicht: LandingPage haengt
