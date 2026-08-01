@@ -29,6 +29,7 @@ Schlüssel in `INFOMATERIAL` vorkommt, nicht ob er in der Map steht.
   auf die Frühform statt auf das eigene Krankheitsbild.
 - `hallux_limitus` als eigene Diagnose angelegt, zeigt auf `hallux_limitus_kb`.
 - `youngswick` als OP-Methode angelegt, zeigt auf die vorhandene Technikseite.
+  Abrechnungssteuerung auf Anweisung wertgleich von `chevron` uebernommen.
 - `mittelfuss_arthrose` in `lisfranc_arthrose` umbenannt, Label „Mittelfußarthrose"
   → „Lisfranc-Arthrose". Reine Umbenennung: `diagnoseText`, Befunde, OP-Methode
   und Bildbefund waren bereits durchgehend auf die Tarsometatarsalgelenke bezogen.

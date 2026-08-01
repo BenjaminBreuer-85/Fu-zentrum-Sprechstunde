@@ -61,27 +61,29 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 01.08.2026: ZWEI Bucket-Uploads OFFEN.**
+**Stand 01.08.2026: EIN Bucket-Upload OFFEN.**
 
-`data/opmethoden.json` — enthaelt (a) den Stand vom 31.07.: PATIENT_EINGRIFF_MAP
-von 6 auf 43 Eintraege, neue PATIENT_DIAGNOSE_MAP; (b) den Stand vom 01.08.: neue
-OP-Methode `youngswick` (44 gesamt), PATIENT_DIAGNOSE_MAP auf 14 Eintraege
-(`hallux_valgus` und `hallux_limitus` ergaenzt, `hallux_rigidus` von der Frueh-
-form auf das eigene Krankheitsbild korrigiert).
+`data/opsteuerung.json` — neuer Eintrag `youngswick`. Die Abrechnungssteuerung
+wurde auf Anweisung des Autors **wertgleich von `chevron` uebernommen** (hdrg
+I20O, drg I20E, Hebel 5-854.2c, Aufwertung I20N, gleiche Ausschluss-Trigger).
+Der Akin-Code 5-788.56, der `chevron` von `chevron_akin` unterscheidet, spielt
+hier keine Rolle — beide Eintraege sind ohnehin identisch. Der OPS-Code des
+Eingriffs steht bereits als `5-788.51` in `OPS_LABELS`. Ohne diesen Upload
+erscheint Youngswick im Brief, aber ohne Erloessimulation.
 
-`data/diagnosen.json` — neue Diagnose `hallux_limitus` (16 gesamt).
+**Erledigt am 01.08.2026** (bereits hochgeladen und gepusht):
+`data/opmethoden.json` (OP-Methode `youngswick`, 44 gesamt; PATIENT_DIAGNOSE_MAP
+auf 14 Eintraege) und `data/diagnosen.json` (neue Diagnose `hallux_limitus`,
+`mittelfuss_arthrose` → `lisfranc_arthrose`, 16 gesamt).
 
-**Reihenfolge beachten: erst Upload, dann Push.** Die neuen Kurzlinks in
+**Reihenfolge beachten: erst Upload, dann Push.** Die Kurzlinks in
 `kurzlinks.json` (Repo) verweisen auf Ziele, welche die App erst kennt, wenn die
-neuen Dateien im Bucket liegen. Betroffen sind diesmal `hallux-valgus`,
-`hallux-rigidus` und `youngswick`.
+Datendateien im Bucket liegen.
 
-**Hinweis zu `youngswick`:** Der Eingriff hat bewusst noch keinen Eintrag in
-`data/opsteuerung.json` — H-DRG/DRG sind Abrechnungsdaten und werden nicht
-abgeleitet, sondern nur uebernommen. Bis sie nachgetragen sind, erscheint der
-Eingriff im Sprechstundenbrief, aber nicht in der Erloessimulation. Das ist
-derselbe Zustand wie bei `morton_neurom`, `peroneal_rek` und `peroneal_lux`.
-Die DATEN-WARNUNG loest das nicht aus, weil sie ueber `MAPPING_OPS` prueft.
+**Netz seit 01.08.2026:** `PATIENT_DIAGNOSE_MAP`, `PATIENT_EINGRIFF_MAP` und
+`PATIENT_VARIANTEN` fallen in `app.html` auf ein leeres Objekt zurueck. Wird
+versehentlich vor dem Upload gepusht, entfallen nur die QR-Bloecke, statt dass
+die App beim Start in einen TypeError laeuft. Das ersetzt die Reihenfolge nicht.
 
 **Offen ist dagegen ein einmaliger SQL-Befehl in Supabase.** Die Funktion
 „Implantat anlegen" speichert eine Sektion je Position und braucht dafuer eine
