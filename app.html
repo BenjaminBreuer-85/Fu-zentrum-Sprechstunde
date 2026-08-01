@@ -2065,7 +2065,7 @@ var _s = useState, _m = useMemo;
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, maxWidth: 1120, margin: "0 auto 12px" }}>
         <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#006B6F,#006B6F)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
-        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#006B6F" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 10, color: "#718096" }}>Fußchirurgie · v5 · August 2026</div></div>
+        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#006B6F" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 10, color: "#718096" }}>Fußchirurgie · {APP_VERSION} · {APP_STAND}</div></div>
         <div style={{ marginLeft: "auto", padding: "6px 14px", border: "1px solid rgba(231,76,60,.3)", borderRadius: 6, background: "rgba(231,76,60,.08)", color: "#C62828", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={resetAll}>🔄 Reset</div>
       </div>
 
@@ -7903,8 +7903,11 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
 // EINSTELLUNGEN — Hilfe, Konto, eigene Daten, Darstellung, Über.
 // Bewusst nur Abschnitte, hinter denen auch etwas steht.
 // ============================================================================
+// Einzige Quelle der Versionsangabe. Der Sprechstundenbrief-Kopf hatte lange
+// eine eigene, fest eingetippte Zeile und lief dadurch auf eine abweichende
+// Zaehlung ("v4"/"v5") — beide Stellen lesen jetzt von hier.
 const APP_VERSION = "v2.8";
-const APP_STAND   = "Juli 2026";
+const APP_STAND   = "August 2026";
 
 // Hängt an eine Funktion ihren Rundgang. Er läuft beim ERSTEN Öffnen von selbst
 // und danach nur noch, wenn er aus den Einstellungen angestoßen wird.
@@ -8168,7 +8171,6 @@ function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📊</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Klassifikationen</div>
-          <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Klassifikationen der Fußchirurgie</div>
         </div>
         <div data-tour="preise" onClick={()=>onSelect("preise")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #10535B";e.currentTarget.style.boxShadow="0 4px 12px rgba(16,83,91,.12)"}}
@@ -8182,7 +8184,6 @@ function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📐</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Röntgen & Messmethoden</div>
-          <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Aufnahmen mit Messmethoden</div>
         </div>
         <div data-tour="aufklaerung" onClick={()=>onSelect("aufklaerung")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
