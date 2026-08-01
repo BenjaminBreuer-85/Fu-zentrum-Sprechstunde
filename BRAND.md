@@ -35,7 +35,9 @@ Regeln: Petrol ist die einzige Markenfarbe — kein zweites Blau/Grün daneben. 
 
 - **Codes/Zahlenwerte (OPS, Beträge):** IBM Plex Mono (400/500) — Fallback: `ui-monospace, monospace`. Liegt die Datei in einem Repo nicht lokal vor, ist `ui-monospace` zulässig; nachgeladen wird nichts.
 - Schriften stets **lokal gehostet** (woff2 im Repo), niemals von externen Servern (DSGVO).
-- Dasselbe gilt für **alle übrigen Ressourcen**: Programmbibliotheken, Skripte, Symbole und Videos werden ausschließlich lokal ausgeliefert. Keine CDN-Einbindungen, keine iframes fremder Anbieter. Ausgenommen sind allein die funktionsnotwendigen Verbindungen zur Supabase-API und zum Paddle-Bezahlvorgang.
+- Dasselbe gilt für **alle übrigen Ressourcen**: Programmbibliotheken, Skripte, Symbole und Videos werden ausschließlich lokal ausgeliefert. Keine CDN-Einbindungen, keine iframes fremder Anbieter. Ausgenommen sind allein zwei funktionsnotwendige Verbindungen:
+  - **Supabase-API** — Anmeldung und Nutzerdaten (Preise, Materialsätze).
+  - **Paddle (nur Kaufstrecke, Nachladen erst bei Klick)** — Paddle.js wird nicht beim Seitenaufruf geladen, sondern erst, wenn jemand den Kauf-Knopf drückt. Bis zur Kaufabsicht bleibt die Landingpage frei von externen Verbindungen. Danach gilt die Ausnahme nur für den Checkout selbst; alles Übrige bleibt lokal.
 - Keine weiteren Schriftfamilien, kein Kursiv als Dauerstil, Fettung sparsam.
 
 ## 3. Logo & Bildsprache
