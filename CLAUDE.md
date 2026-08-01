@@ -36,6 +36,23 @@ Kürzung **nicht mehr im Brief** (Entscheidung des Autors: an anderer Stelle
 ausreichend erwähnt, wird hier nicht vorgegeben) — die Patienten-App trägt ihn
 selbst auf jeder Seite.
 
+**Patientenbegleiter am Eingriffs-Code (01.08.2026) — kein weiterer Code.**
+Es gibt zwei Namensräume in die Patienten-App, die man nicht verwechseln darf:
+`PATIENT_EINGRIFF_MAP` zeigt auf die **Infomaterial-Seite** (`chevron_akin`,
+`osg_tep_op` …), `PATIENT_BEGLEITER_MAP` auf den **Begleiter-Flow** (`chevron`,
+`osg_arthrodese`, `osg_tep`). Beide Ziele zeigen denselben Aufklärungstext; der
+Begleiter-Schlüssel blendet zusätzlich „→ Zum Patientenbegleiter" ein, und das
+nur mit gültigem `var`-Parameter. Der Brief hat deshalb weiterhin **einen**
+Eingriffs-Code — der Schalter „Patientenbegleiter freischalten" entscheidet nur,
+auf welches der beiden Ziele er zeigt. Standard: an, weil rein additiv.
+
+Weil die Namensräume seit der Erweiterung auf 43 Eingriffe (07/2026)
+auseinanderliefen, traf `PATIENT_VARIANTEN[…]` nie: die Variantenwahl war
+wirkungslos und **kein Brief bot mehr den Begleiter an**. Repariert am
+01.08.2026. Ein weiteres Nachbehandlungsschema braucht je einen Eintrag in
+`PATIENT_BEGLEITER_MAP` und `PATIENT_VARIANTEN` — Chips, URL und QR-Code folgen
+automatisch, im Code ist nichts zu ändern.
+
 **Dritter Code: konservativ (01.08.2026).** Rät der Brief primär zu konservativer
 Therapie, kommt ein Feld `Zu den konservativen Maßnahmen: patienten.fuss-track.de`
 hinzu. Ziel ist bewusst die **Startseite** der Patienten-App, kein Deep-Link auf
