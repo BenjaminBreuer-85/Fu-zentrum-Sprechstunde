@@ -33,7 +33,18 @@ läuft über den Text, nicht über eine Reihenfolge-Annahme. Beide Codes laufen
 unabhängig: bei rein konservativem Vorgehen steht das Krankheitsbild-Feld allein.
 Der Satz „Sie ersetzt das ärztliche Aufklärungsgespräch nicht." steht seit dieser
 Kürzung **nicht mehr im Brief** (Entscheidung des Autors: an anderer Stelle
-ausreichend erwähnt, wird hier nicht vorgegeben).
+ausreichend erwähnt, wird hier nicht vorgegeben) — die Patienten-App trägt ihn
+selbst auf jeder Seite.
+
+**Dritter Code: konservativ (01.08.2026).** Rät der Brief primär zu konservativer
+Therapie, kommt ein Feld `Zu den konservativen Maßnahmen: patienten.fuss-track.de`
+hinzu. Ziel ist bewusst die **Startseite** der Patienten-App, kein Deep-Link auf
+eine einzelne Maßnahme: konservativ wird fast immer kombiniert, ein Link auf nur
+eine davon wäre irreführend. Deshalb auch keine `/i/`-Kurzadresse — die Domain ist
+kurz genug und braucht keine ID, die nie mehr geändert werden darf. Bedingung im
+Code (`konsRat`) ist identisch mit dem Satz „Nach gründlicher Abwägung raten wir
+zu konservativer weiterer Therapie."; beide müssen zusammen bleiben. Der
+Einleitungssatz baut sich aus den aktiven Teilen und passt Singular/Plural an.
 **Sprachregelung (forensisch):** Das Material heißt gegenüber Patientinnen und Patienten
 **„Information"**, niemals „Aufklärung" — sonst entsteht der Eindruck, das
 Aufklärungsgespräch sei damit erfolgt. Der URL-Parameter `modus=aufklaerung` bleibt
