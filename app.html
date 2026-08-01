@@ -857,6 +857,15 @@ const PATIENT_DIAGNOSE_MAP = window._DATA.opmethoden.PATIENT_DIAGNOSE_MAP || {};
 const QR_LABEL_DIAG = "Zum Krankheitsbild: fuss-track.de/i/";
 const QR_LABEL_OP = "Zum Eingriff: fuss-track.de/i/";
 
+// Konservativ-Code: bewusst KEIN Deep-Link auf eine einzelne Massnahme, sondern
+// die Startseite der Patienten-App. Beim konservativen Vorgehen werden mehrere
+// Massnahmen kombiniert — ein Link auf nur eine davon waere irrefuehrend.
+// Die Startseite fuehrt die konservativen Themen als eigenen Bereich.
+// Deshalb auch keine /i/-Kurzadresse: die Domain ist bereits kurz genug und
+// braucht keine ID, die spaeter nie geaendert werden darf.
+const KONSERV_URL = "https://patienten.fuss-track.de/";
+const QR_LABEL_KONS = "Zu den konservativen Maßnahmen: patienten.fuss-track.de";
+
 const KONSERV = window._DATA.diagnosen.KONSERV;
 const RISIKEN = window._DATA.diagnosen.RISIKEN;
 // Endo-spezifische Risikofaktoren (zusätzlich zu RISIKEN bei pfad="endo")
@@ -1284,6 +1293,15 @@ var _s = useState, _m = useMemo;
     return FUSSTRACK_BASE_URL + "?op=" + PATIENT_DIAGNOSE_MAP[diagActive.key] + "&modus=aufklaerung";
   }, [diagActive]);
   var diagShowQr = diagQrAktiv && diagActive && diagUrl;
+
+  // Konservativ-Code — nur wenn der Brief primaer zu konservativer Therapie
+  // raet. Dieselbe Bedingung wie der Satz "Nach gruendlicher Abwaegung raten
+  // wir zu konservativer weiterer Therapie." weiter unten im Brieftext; beide
+  // muessen zusammen bleiben, sonst verspricht der Brief etwas anderes als er
+  // empfiehlt.
+  var kqs = _s(true), konsQrAktiv = kqs[0], setKonsQrAktiv = kqs[1];
+  var konsRat = !nurDiagnostik && !(opEmpfohlen && opMethode.filter(function(m) { return OPS[m]; }).length > 0);
+  var konsShowQr = konsQrAktiv && konsRat && diagnosen.length > 0;
 
   function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
   function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
@@ -1747,10 +1765,18 @@ var _s = useState, _m = useMemo;
     // Online-Information: ein einleitender Satz, darunter die beiden Code-Felder.
     // Um welche Diagnose und welchen Eingriff es geht, steht bereits weiter oben
     // im Brief — hier wird es nicht wiederholt (Kürzung 31.07.2026).
-    if (diagShowQr || aufShowQr) {
-      var qrWas = (diagShowQr && aufShowQr) ? "Zu Ihrer Diagnose und zum geplanten Eingriff"
-                : diagShowQr ? "Zu Ihrer Diagnose" : "Zum geplanten Eingriff";
-      var qrCodes = (diagShowQr && aufShowQr) ? "die folgenden Codes" : "den folgenden Code";
+    if (diagShowQr || aufShowQr || konsShowQr) {
+      // Einleitungssatz aus den aktiven Teilen bauen — Reihenfolge wie die
+      // Code-Felder darunter: Krankheitsbild, Eingriff, konservativ.
+      var qrTeile = [];
+      if (diagShowQr) qrTeile.push("zu Ihrer Diagnose");
+      if (aufShowQr) qrTeile.push("zum geplanten Eingriff");
+      if (konsShowQr) qrTeile.push("zu den konservativen Behandlungsmöglichkeiten");
+      var qrWas = qrTeile.length > 1
+        ? qrTeile.slice(0, -1).join(", ") + " und " + qrTeile[qrTeile.length - 1]
+        : qrTeile[0];
+      qrWas = qrWas.charAt(0).toUpperCase() + qrWas.slice(1);
+      var qrCodes = qrTeile.length > 1 ? "die folgenden Codes" : "den folgenden Code";
       ab += "\n\nWeitere Informationen Online:" +
         "\n\n" + qrWas + " liegen in der Fuss-Track-App weitere Informationen für Sie bereit. Sie können sie über " + qrCodes + " aufrufen.";
       if (diagShowQr) {
@@ -1759,13 +1785,16 @@ var _s = useState, _m = useMemo;
       if (aufShowQr) {
         ab += "\n\n" + QR_LABEL_OP + kurzlinkId(PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key);
       }
+      if (konsShowQr) {
+        ab += "\n\n" + QR_LABEL_KONS;
+      }
     }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return rawOut.replace(/\bundefined\b/g, "___");
-  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl, diagShowQr, diagActive, diagUrl]);
+  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl, diagShowQr, diagActive, diagUrl, konsShowQr]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
@@ -1775,6 +1804,7 @@ var _s = useState, _m = useMemo;
     var out = [];
     if (diagShowQr) out.push({ url: diagUrl, alt: "QR-Code Krankheitsbild", marker: QR_LABEL_DIAG });
     if (aufShowQr) out.push({ url: aufUrl, alt: "QR-Code Eingriff", marker: QR_LABEL_OP });
+    if (konsShowQr) out.push({ url: KONSERV_URL, alt: "QR-Code konservative Maßnahmen", marker: QR_LABEL_KONS });
     return out;
   }
   function copy() {
@@ -2194,6 +2224,16 @@ var _s = useState, _m = useMemo;
               </div>
             </div>;
           })()}
+        </div>}
+        {konsRat && diagnosen.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+          <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
+          <div style={{ fontSize: 10, color: "#718096", marginBottom: 4, lineHeight: 1.5 }}>
+            Der Brief rät zu konservativer Therapie. Der Code führt auf die Startseite der
+            Patienten-App, nicht auf eine einzelne Maßnahme — konservativ wird meist kombiniert.
+          </div>
+          <div style={row}>
+            <div style={CB(konsQrAktiv)} onClick={function() { setKonsQrAktiv(!konsQrAktiv); }}>QR-Code konservativ</div>
+          </div>
         </div>}
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
@@ -2768,6 +2808,7 @@ var _s = useState, _m = useMemo;
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
                 {diagShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(diagUrl, "QR-Code-Krankheitsbild.png"); }}>📋 QR Krankheitsbild</div>}
                 {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "QR-Code-Eingriff.png"); }}>📋 QR Eingriff</div>}
+                {konsShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(KONSERV_URL, "QR-Code-konservativ.png"); }}>📋 QR konservativ</div>}
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
@@ -2786,6 +2827,13 @@ var _s = useState, _m = useMemo;
                 <div>{aufActive.entry.label}</div>
               </div>
             </div>}
+            {showPv && konsShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
+              <QRCanvas text={KONSERV_URL} size={120} />
+              <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.4 }}>
+                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Konservativ</div>
+                <div>Startseite der Patienten-App</div>
+              </div>
+            </div>}
           </div>
         </div>
       </div>}
@@ -2800,6 +2848,7 @@ var _s = useState, _m = useMemo;
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
               {diagShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(diagUrl, "QR-Code-Krankheitsbild.png"); }}>📋 QR Krankheitsbild</div>}
               {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "QR-Code-Eingriff.png"); }}>📋 QR Eingriff</div>}
+                {konsShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(KONSERV_URL, "QR-Code-konservativ.png"); }}>📋 QR konservativ</div>}
             </div>
           </div>
           <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
@@ -2815,6 +2864,13 @@ var _s = useState, _m = useMemo;
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
               <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Eingriff</div>
               <div>{aufActive.entry.label}</div>
+            </div>
+          </div>}
+          {konsShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
+            <QRCanvas text={KONSERV_URL} size={140} />
+            <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
+              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Konservativ</div>
+              <div>Startseite der Patienten-App</div>
             </div>
           </div>}
         </div>
