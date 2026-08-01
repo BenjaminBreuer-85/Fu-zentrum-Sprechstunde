@@ -827,23 +827,28 @@ const FUSSTRACK_BASE_URL = "https://patienten.fuss-track.de/fusstrack.html";
 // Wichtig: Die Patient-App kennt nur Sammelnamen (chevron, osg_arthrodese, osg_tep),
 // während die Toolbox feingranulare Codes verwendet (chevron_akin, tep_infinity, ...).
 // ============================================================
-const PATIENT_EINGRIFF_MAP = window._DATA.opmethoden.PATIENT_EINGRIFF_MAP;
+// ||-Fallback wie bei PATIENT_DIAGNOSE_MAP: fehlt die Map im Bucket, entfällt
+// nur der QR-Block, statt dass die App beim Start stirbt.
+const PATIENT_EINGRIFF_MAP = window._DATA.opmethoden.PATIENT_EINGRIFF_MAP || {};
 
 // ============================================================
 // Patient-App-Varianten pro Eingriff: Label + Info-Text für die Chip-Auswahl.
 // Wird in der UI neben dem QR-Code-Toggle angezeigt — der Behandler wählt manuell.
 // ============================================================
-const PATIENT_VARIANTEN = window._DATA.opmethoden.PATIENT_VARIANTEN;
+const PATIENT_VARIANTEN = window._DATA.opmethoden.PATIENT_VARIANTEN || {};
 
 // ============================================================
 // Mapping: Toolbox-Diagnose-Key → Patient-App-Krankheitsbild-Key.
 // Zweiter QR-Code im Sprechstundenbrief (Entscheidung 31.07.2026: zwei
 // getrennte Codes — einer zum Krankheitsbild, einer zum Eingriff; bewusst
 // keine kombinierten Seiten pro Diagnose-Eingriff-Paar).
-// 12 der 15 Diagnosen aus DIAG haben ein Ziel; die übrigen zeigen in der UI
+// 14 der 16 Diagnosen aus DIAG haben ein Ziel; die übrigen zeigen in der UI
 // den deaktivierten Hinweis, genau wie Eingriffe ohne Patienten-Inhalt.
+// Der ||-Fallback ist Absicht: liegt im Bucket noch eine opmethoden.json ohne
+// diese Map (Push vor Upload — die Reihenfolge aus DEPLOY.md), fehlt nur der
+// Krankheitsbild-Code. Ohne den Fallback stirbt stattdessen die ganze App.
 // ============================================================
-const PATIENT_DIAGNOSE_MAP = window._DATA.opmethoden.PATIENT_DIAGNOSE_MAP;
+const PATIENT_DIAGNOSE_MAP = window._DATA.opmethoden.PATIENT_DIAGNOSE_MAP || {};
 
 // Beschriftung der beiden Code-Felder im Brief. Diagnose und Eingriff sind
 // weiter oben im Brief bereits benannt — hier genügt die Zuordnung, welcher
