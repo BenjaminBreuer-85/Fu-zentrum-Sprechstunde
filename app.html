@@ -7771,6 +7771,19 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
     }
   });
 
+  // Der Rundgang gilt als gesehen, sobald er einmal auf dem Schirm war — auch
+  // wenn er nicht ueber "Fertig" oder "Ueberspringen" verlassen wurde.
+  // Grund: bei hervorgehobenen Schritten liegt ueber der Seite nur ein Element
+  // mit pointerEvents:"none" (die Abdunklung ist dessen Schlagschatten), also
+  // sind alle Kacheln weiter anklickbar. Wer waehrend des Rundgangs eine
+  // Funktion oeffnet, haengt diese Komponente aus, ohne dass beenden() laeuft —
+  // der Merker fehlte, und im Menue startete der Rundgang wieder von vorn.
+  React.useEffect(function(){
+    return function(){
+      try{ localStorage.setItem(merker || RUNDGANG_MERKER, "1"); }catch(e){}
+    };
+  }, [merker]);
+
   const letzter = i === schritte.length - 1;
   function weiter(){ if (letzter) beenden(); else setI(i+1); }
   function zurueck(){ if (i>0) setI(i-1); }
