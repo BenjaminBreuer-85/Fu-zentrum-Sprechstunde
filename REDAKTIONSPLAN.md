@@ -1,5 +1,31 @@
 # Redaktionsplan — offene Patienten-Inhalte
 
+## Etappenplan der QR-Strecke (abgeschlossen 01.08.2026)
+
+Der Plan stand bis zum 01.08.2026 nur in Commit-Betreffs und war nirgends
+festgehalten. Hier der Stand nach Abschluss.
+
+| Etappe | Inhalt | Stand |
+|---|---|---|
+| 1 | `404.html` als Router für `/i/<id>`, `kurzlinks.json` als einzige ID-Tabelle | erledigt; die drei Live-Gegenproben am 01.08. nachgeholt (siehe DEPLOY.md D2) |
+| 2 | `data-tour`-Anker an Befund-Schaltern, Score, Eingriffswahl, OPS-/Erlösblock | erledigt |
+| 3a | Deaktivierter Hinweis statt stillem Verschwinden, wenn kein Ziel existiert | erledigt, gilt inzwischen auch für Diagnosen |
+| 3b | Ziel-Abdeckung: Eingriffe, Diagnosen, konservativ | erledigt — Diagnosen über eine eigene `PATIENT_DIAGNOSE_MAP` (Entscheidung 31.07.: zwei getrennte Codes), konservativ als Verweis auf die Startseite statt als Deep-Link |
+| 3c | Kurzlink-Tabelle um alle Ziele ergänzt, IDs sprechend | erledigt, 53 IDs |
+| 3d | Restliste ohne Ziel im Repo | erledigt — diese Datei (heißt `REDAKTIONSPLAN.md`, nicht `redaktionsplan-qr.md`) |
+| 4 | Kurzadresse `fuss-track.de/i/<id>` als Textzeile im Brief | erledigt. **Abweichung:** der Plan sah vor, Brief-Einbettung und `copyWithQr` unangetastet zu lassen; beide wurden geändert, weil die Kürzung vom 01.08. die QR-Bilder von das Briefende unter das jeweilige Code-Feld verschoben hat |
+| 5 | QR-Schritt im Rundgang, Versionszeile, Gesamt-Gegenprobe | erledigt am 01.08.2026 |
+
+**Abweichungen in Etappe 5 gegenüber dem ursprünglichen Plan:** Die Versionszeile
+steht auf **v5 · August 2026**; die geplante v2.8 wäre ein Rückschritt gewesen, weil
+die App zwischenzeitlich auf v4 stand. Die geplante Gegenprobe „ein Brief für
+Lapidus, Hinweis statt QR" ist nicht mehr möglich — seit 3b haben alle 44
+OP-Methoden ein Ziel. An ihre Stelle tritt die Lisfranc/TMT-Arthrose als Diagnose
+ohne Ziel; geprüft wurden Chevron (zwei Codes, Begleiter, Varianten) und
+Lisfranc/TMT (deaktivierter Hinweis plus Konservativ-Code).
+
+
+
 Stand 01.08.2026, erzeugt aus `data/opmethoden.json` gegen `infomaterial.json`
 der Patienten-App.
 
