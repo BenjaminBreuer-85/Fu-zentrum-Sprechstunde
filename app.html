@@ -845,10 +845,12 @@ const PATIENT_VARIANTEN = window._DATA.opmethoden.PATIENT_VARIANTEN;
 // ============================================================
 const PATIENT_DIAGNOSE_MAP = window._DATA.opmethoden.PATIENT_DIAGNOSE_MAP;
 
-// Steht im Brief über jedem QR-Code. Word- und Rich-Text-Export erkennen die
-// Zeile daran und setzen das Bild direkt darunter — Reihenfolge im Brief:
-// erst Krankheitsbild, dann Eingriff.
-const QR_SATZ = "Sie können sie über folgenden Code aufrufen:";
+// Beschriftung der beiden Code-Felder im Brief. Diagnose und Eingriff sind
+// weiter oben im Brief bereits benannt — hier genügt die Zuordnung, welcher
+// Code wohin führt. Word- und Rich-Text-Export erkennen die Zeilen an diesem
+// Präfix und setzen das jeweilige QR-Bild direkt darunter.
+const QR_LABEL_DIAG = "Zum Krankheitsbild: fuss-track.de/i/";
+const QR_LABEL_OP = "Zum Eingriff: fuss-track.de/i/";
 
 const KONSERV = window._DATA.diagnosen.KONSERV;
 const RISIKEN = window._DATA.diagnosen.RISIKEN;
@@ -1737,20 +1739,20 @@ var _s = useState, _m = useMemo;
     } else {
       ab += "\n\nNach gründlicher Abwägung raten wir zu konservativer weiterer Therapie.";
     }
-    // Online-Information: eine Überschrift, darunter je ein Absatz für
-    // Krankheitsbild und Eingriff — jeweils nur Kurzadresse und QR-Code,
-    // die lange URL steht nicht mehr im Brief (Kürzung 31.07.2026).
+    // Online-Information: ein einleitender Satz, darunter die beiden Code-Felder.
+    // Um welche Diagnose und welchen Eingriff es geht, steht bereits weiter oben
+    // im Brief — hier wird es nicht wiederholt (Kürzung 31.07.2026).
     if (diagShowQr || aufShowQr) {
-      ab += "\n\nWeitere Informationen Online:";
+      var qrWas = (diagShowQr && aufShowQr) ? "Zu Ihrer Diagnose und zum geplanten Eingriff"
+                : diagShowQr ? "Zu Ihrer Diagnose" : "Zum geplanten Eingriff";
+      var qrCodes = (diagShowQr && aufShowQr) ? "die folgenden Codes" : "den folgenden Code";
+      ab += "\n\nWeitere Informationen Online:" +
+        "\n\n" + qrWas + " liegen in der Fuss-Track-App weitere Informationen für Sie bereit. Sie können sie über " + qrCodes + " aufrufen.";
       if (diagShowQr) {
-        ab += "\n\nZu Ihrem Krankheitsbild (" + diagActive.label + ") steht eine Online-Information zur Verfügung." +
-          "\n\nKurzadresse zum Abtippen: fuss-track.de/i/" + kurzlinkId(PATIENT_DIAGNOSE_MAP[diagActive.key]) +
-          "\n\n" + QR_SATZ;
+        ab += "\n\n" + QR_LABEL_DIAG + kurzlinkId(PATIENT_DIAGNOSE_MAP[diagActive.key]);
       }
       if (aufShowQr) {
-        ab += "\n\nFür eine vorbereitende Information zum geplanten Eingriff (" + aufActive.entry.label + ") steht eine Online-Information mit Darstellung des OP-Verfahrens und Erläuterungen zum Krankheitsbild zur Verfügung. Sie ersetzt das ärztliche Aufklärungsgespräch nicht." +
-          "\n\nKurzadresse zum Abtippen: fuss-track.de/i/" + kurzlinkId(PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) +
-          "\n\n" + QR_SATZ;
+        ab += "\n\n" + QR_LABEL_OP + kurzlinkId(PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key);
       }
     }
     ab += "\n\nMit freundlichen Grüßen,";
@@ -1761,13 +1763,13 @@ var _s = useState, _m = useMemo;
   }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl, diagShowQr, diagActive, diagUrl]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
-  // Die aktiven Codes in Brief-Reihenfolge: erst Krankheitsbild, dann Eingriff.
-  // Beide Export-Wege setzen die Bilder in genau dieser Reihenfolge hinter die
-  // QR_SATZ-Zeilen — der Brieftext und diese Liste müssen deshalb gleich sortiert bleiben.
+  // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
+  // suchen die Zeile mit dem passenden marker-Präfix und setzen das Bild darunter —
+  // die Zuordnung läuft also über den Text, nicht über eine Reihenfolge-Annahme.
   function qrListe() {
     var out = [];
-    if (diagShowQr) out.push({ url: diagUrl, alt: "QR-Code Krankheitsbild" });
-    if (aufShowQr) out.push({ url: aufUrl, alt: "QR-Code Eingriff" });
+    if (diagShowQr) out.push({ url: diagUrl, alt: "QR-Code Krankheitsbild", marker: QR_LABEL_DIAG });
+    if (aufShowQr) out.push({ url: aufUrl, alt: "QR-Code Eingriff", marker: QR_LABEL_OP });
     return out;
   }
   function copy() {
@@ -1781,17 +1783,17 @@ var _s = useState, _m = useMemo;
   }
   function copyWithQr() {
     try {
-      var queue = qrListe().map(function(q) { return getQrDataUrl(q.url, 300); });
-      if (!queue.length || queue.indexOf("") >= 0) { fallbackCopy(fullText); return; }
-      // HTML-Version: Brieftext mit QR-Bild direkt unter der jeweiligen QR_SATZ-Zeile
-      var qi = 0;
+      var queue = qrListe().map(function(q) { return { data: getQrDataUrl(q.url, 300), alt: q.alt, marker: q.marker }; });
+      if (!queue.length || queue.filter(function(q) { return !q.data; }).length) { fallbackCopy(fullText); return; }
+      // HTML-Version: Brieftext mit QR-Bild direkt unter dem jeweiligen Code-Feld
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "<br>";
         // Escape HTML-relevante Zeichen
         var safe = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        if (line === QR_SATZ && qi < queue.length) {
-          return safe + "<br><br><img src='" + queue[qi++] + "' width='130' height='130' style='display:block' alt='QR-Code'/><br>";
+        var q = queue.filter(function(x) { return line.indexOf(x.marker) === 0; })[0];
+        if (q) {
+          return safe + "<br><br><img src='" + q.data + "' width='130' height='130' style='display:block' alt='" + q.alt + "'/><br>";
         }
         return safe + "<br>";
       }).join("\n");
@@ -1871,10 +1873,9 @@ var _s = useState, _m = useMemo;
   }
   function downloadWord() {
     try {
-      // Die Codes stehen im Brief direkt unter ihrer QR_SATZ-Zeile, nicht mehr
-      // am Dokumentende — sonst zeigt „folgenden Code" ins Leere.
-      var queue = qrListe().map(function(q) { return { data: getQrDataUrl(q.url, 300), alt: q.alt }; });
-      var qi = 0;
+      // Die Codes stehen im Brief direkt unter ihrem Code-Feld, nicht mehr am
+      // Dokumentende — sonst zeigt „die folgenden Codes" ins Leere.
+      var queue = qrListe().map(function(q) { return { data: getQrDataUrl(q.url, 300), alt: q.alt, marker: q.marker }; });
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
         if (!line.trim()) return "";
@@ -1884,8 +1885,8 @@ var _s = useState, _m = useMemo;
         if (line.startsWith("Zur weiteren Information")) {
           return "<p style='margin:6pt 0 0;font-size:9pt;font-family:Arial;color:#555'>" + line + "</p>";
         }
-        if (line === QR_SATZ && qi < queue.length) {
-          var q = queue[qi++];
+        var q = queue.filter(function(x) { return line.indexOf(x.marker) === 0; })[0];
+        if (q) {
           var abs = "<p style='margin:2pt 0;font-size:11pt;font-family:Arial'>" + line + "</p>";
           if (q.data) {
             abs += "<p style='margin:8pt 0 10pt;font-family:Arial'><img src='" + q.data + "' width='130' height='130' style='display:block' alt='" + q.alt + "'/></p>";

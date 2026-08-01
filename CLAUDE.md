@@ -18,6 +18,22 @@ getrennten Zielseiten existieren dagegen bereits und sind inhaltlich geprüft. D
 dafür — zwei Codes müssen kopiert werden — ist bewusst in Kauf genommen.
 Zuordnungen: `PATIENT_EINGRIFF_MAP` (43 Eingriffe) und `PATIENT_DIAGNOSE_MAP`
 (12 Diagnosen) in `data/opmethoden.json`; Kurzadressen in `kurzlinks.json`.
+**Darstellung im Brief (umgesetzt 31.07.2026):** Bewusst knapp gehalten — welche
+Diagnose und welcher Eingriff gemeint sind, steht bereits weiter oben im Brief
+(„Diagnosen: …", „Elektive operative Option: …") und wird hier nicht wiederholt.
+Aufbau: Überschrift „Weitere Informationen Online:", ein einleitender Satz
+(„Zu Ihrer Diagnose und zum geplanten Eingriff liegen in der Fuss-Track-App weitere
+Informationen für Sie bereit. Sie können sie über die folgenden Codes aufrufen."),
+darunter die beiden Code-Felder `Zum Krankheitsbild: fuss-track.de/i/<id>` und
+`Zum Eingriff: fuss-track.de/i/<id>`. Lange URLs stehen nicht im Brief.
+Einleitungssatz und Singular/Plural passen sich an, wenn nur ein Code aktiv ist.
+Word- und Rich-Text-Export erkennen die Code-Felder an den Präfixen `QR_LABEL_DIAG`
+/ `QR_LABEL_OP` und setzen das jeweilige QR-Bild direkt darunter — die Zuordnung
+läuft über den Text, nicht über eine Reihenfolge-Annahme. Beide Codes laufen
+unabhängig: bei rein konservativem Vorgehen steht das Krankheitsbild-Feld allein.
+Der Satz „Sie ersetzt das ärztliche Aufklärungsgespräch nicht." steht seit dieser
+Kürzung **nicht mehr im Brief** (Entscheidung des Autors: an anderer Stelle
+ausreichend erwähnt, wird hier nicht vorgegeben).
 **Sprachregelung (forensisch):** Das Material heißt gegenüber Patientinnen und Patienten
 **„Information"**, niemals „Aufklärung" — sonst entsteht der Eindruck, das
 Aufklärungsgespräch sei damit erfolgt. Der URL-Parameter `modus=aufklaerung` bleibt
@@ -40,7 +56,7 @@ Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.ht
 | `data/katalog2026.json` | `_KATALOG_META`, `_KX`, `_HD` = OPS-Katalog 2026 (Bitmaske f: 1=AOP, 2=Hybrid-DRG, 4=Kontextprozedur). **NICHT von Hand editieren** — Quelle: OPS_Katalogdaten_2026_MASTER.xlsx |
 | `data/erloes2026.json` | `_ERLOES_META` (u. a. `lbfw`), `_DRG`, `_HDRG`, `_KURZ`, `GVD`. **NICHT von Hand editieren** — Quelle: Erloesdaten_2026_MASTER.xlsx; Jahres-Update = Datei komplett ersetzen |
 | `data/diagnosen.json` | `DIAG` (15 Diagnosen), `COALITIO_BEFUNDE`, `KONSERV`, `RISIKEN`, `RISIKEN_ENDO`, `KONTROLLE_TEXT`, `KONTROLLE_LABEL` |
-| `data/opmethoden.json` | `OPS` (~43 OP-Methoden `{k,b,r,t}`), `OPS_LABELS`, `AUFKLAERUNG_MAP`, `PATIENT_EINGRIFF_MAP`, `PATIENT_VARIANTEN` |
+| `data/opmethoden.json` | `OPS` (~43 OP-Methoden `{k,b,r,t}`), `OPS_LABELS`, `AUFKLAERUNG_MAP`, `PATIENT_EINGRIFF_MAP`, `PATIENT_VARIANTEN`, `PATIENT_DIAGNOSE_MAP` (12 Diagnosen → Krankheitsbild-Seite der Patienten-App) |
 | `data/opsteuerung.json` | `OP_STEUERUNG` (Abrechnungslogik je Eingriff), `UGVD_ABSCHLAG`, `ME_REGIONEN` |
 | `data/endo.json` | `ENDO_DRG`, `ENDO_KONSTELLATIONEN`, `ENDO_BEF_*`, `ENDO_ZE`, `ENDO_*_IMPL`, `ENDO_EINGRIFFE` |
 | `data/preise.json` | `EINZELPREISE` (145 Implantat-/Materialpreise), `UC_IMPL_*` |
