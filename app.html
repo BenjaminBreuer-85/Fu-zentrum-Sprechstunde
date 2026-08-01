@@ -838,6 +838,20 @@ const PATIENT_EINGRIFF_MAP = window._DATA.opmethoden.PATIENT_EINGRIFF_MAP || {};
 const PATIENT_VARIANTEN = window._DATA.opmethoden.PATIENT_VARIANTEN || {};
 
 // ============================================================
+// Mapping: Toolbox-OP-Key → Begleiter-Schlüssel der Patienten-App.
+// ZWEITER NAMENSRAUM, nicht mit PATIENT_EINGRIFF_MAP verwechseln:
+//   PATIENT_EINGRIFF_MAP → Infomaterial-Seite (chevron_akin, osg_tep_op …)
+//   PATIENT_BEGLEITER_MAP → Begleiter-Flow    (chevron, osg_tep …)
+// Beide Ziele zeigen denselben Aufklärungstext; nur der Begleiter-Schlüssel
+// blendet zusätzlich den Einstieg „→ Zum Patientenbegleiter" ein, und das
+// auch nur mit gültigem var-Parameter.
+// Weil die beiden Namensräume seit der Erweiterung auf 43 Eingriffe (07/2026)
+// auseinanderliefen, traf PATIENT_VARIANTEN[…] nie — die Variantenwahl war
+// wirkungslos und kein Brief bot mehr den Begleiter an.
+// ============================================================
+const PATIENT_BEGLEITER_MAP = window._DATA.opmethoden.PATIENT_BEGLEITER_MAP || {};
+
+// ============================================================
 // Mapping: Toolbox-Diagnose-Key → Patient-App-Krankheitsbild-Key.
 // Zweiter QR-Code im Sprechstundenbrief (Entscheidung 31.07.2026: zwei
 // getrennte Codes — einer zum Krankheitsbild, einer zum Eingriff; bewusst
@@ -1255,22 +1269,31 @@ var _s = useState, _m = useMemo;
   // Der op-Parameter ist der Patient-App-Eingriff-Key (chevron, osg_arthrodese, osg_tep) —
   // nicht der feingranulare Toolbox-Key. Mapping via PATIENT_EINGRIFF_MAP.
   // Mit "var" kann der Patient nach der Aufklärung direkt in den Begleit-Flow wechseln.
-  // "var" wird NUR angehaengt, wenn der Eingriff in PATIENT_VARIANTEN
-  // Nachbehandlungsschemata hat — bisher chevron, osg_arthrodese und osg_tep.
-  // Fuer die uebrigen Eingriffe ignoriert die Patienten-App den Parameter
-  // ohnehin (isValidEingriffsAuswahl verlangt einen Treffer in EINGRIFFE), er
-  // liesse QR-Code und Kurzadresse aber unnoetig auseinanderlaufen.
-  // Geruest fuer spaeter: sobald ein weiterer Eingriff Schemata bekommt (etwa
-  // mit und ohne Teilbelastung), genuegt ein Eintrag in PATIENT_VARIANTEN —
-  // Chips, URL und QR-Code folgen automatisch, hier ist nichts zu aendern.
+  // Begleiter-Schluessel des gewaehlten Eingriffs, falls es einen gibt.
+  var aufBegleiterKey = aufActive ? (PATIENT_BEGLEITER_MAP[aufActive.key] || "") : "";
+  // Soll der Code zusaetzlich den Patientenbegleiter freischalten? Nur dort
+  // waehlbar, wo ein Begleiter existiert — bisher Chevron/Akin, OSG-Arthrodese
+  // und OSG-TEP. Standard: an, weil der Begleiter rein additiv ist (gleiche
+  // Informationsseite, zusaetzlich der Einstieg in die Nachbehandlung).
+  var abs_ = _s(true), aufBegleiter = abs_[0], setAufBegleiter = abs_[1];
+  var aufBegleiterAn = !!aufBegleiterKey && aufBegleiter;
+  // Varianten gehoeren zum Begleiter, nicht zur Informationsseite.
+  var aufVarianten = aufBegleiterAn ? (PATIENT_VARIANTEN[aufBegleiterKey] || null) : null;
+  // Zwei Ziele, ein Code:
+  //   Begleiter an  -> ?op=<begleiter>&var=<variante>&modus=aufklaerung
+  //   Begleiter aus -> ?op=<infomaterial>&modus=aufklaerung
+  // Beide zeigen denselben Text; "var" ist die Freischaltung des Begleiters
+  // und wird ohne ihn nicht angehaengt, sonst liefen QR und Kurzadresse
+  // auseinander. Geruest fuer weitere Nachbehandlungsschemata: je ein Eintrag
+  // in PATIENT_BEGLEITER_MAP und PATIENT_VARIANTEN, sonst nichts.
+  var aufZielKey = aufBegleiterAn ? aufBegleiterKey
+                 : (aufActive ? (PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) : "");
   var aufUrl = _m(function() {
-    if (!aufActive) return "";
-    var patientOp = PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key;
-    var hatVarianten = !!PATIENT_VARIANTEN[patientOp];
-    return FUSSTRACK_BASE_URL + "?op=" + patientOp
-         + (hatVarianten ? "&var=" + aufVariante : "")
+    if (!aufActive || !aufZielKey) return "";
+    return FUSSTRACK_BASE_URL + "?op=" + aufZielKey
+         + (aufVarianten ? "&var=" + aufVariante : "")
          + "&modus=aufklaerung";
-  }, [aufActive, aufVariante]);
+  }, [aufActive, aufZielKey, aufVarianten, aufVariante]);
   // Soll der QR-Code im Brief erscheinen? Nur wenn: Aktiv UND OP-Methode passt UND URL vollständig
   var aufShowQr = aufQrAktiv && aufActive && aufUrl;
 
@@ -1794,7 +1817,7 @@ var _s = useState, _m = useMemo;
         ab += "\n\n" + QR_LABEL_DIAG + kurzlinkId(PATIENT_DIAGNOSE_MAP[diagActive.key]);
       }
       if (aufShowQr) {
-        ab += "\n\n" + QR_LABEL_OP + kurzlinkId(PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key);
+        ab += "\n\n" + QR_LABEL_OP + kurzlinkId(aufZielKey);
       }
       if (konsShowQr) {
         ab += "\n\n" + QR_LABEL_KONS;
@@ -2216,25 +2239,30 @@ var _s = useState, _m = useMemo;
           <div style={row}>
             <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code Eingriff</div>
           </div>
-          {aufQrAktiv && (function() {
-            var patientOp = PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key;
-            var varianten = PATIENT_VARIANTEN[patientOp];
-            if (!varianten) return null;
-            return <div style={{ marginTop: 6 }}>
-              <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Variante für die Patient-Begleitung (Flow nach OP)</div>
-              <div style={row}>
-                {Object.keys(varianten).map(function(vk) {
-                  var v = varianten[vk];
-                  return <div key={vk} style={CB(aufVariante === vk)} onClick={function() { setAufVariante(vk); }} title={v.info}>
-                    {v.label}
-                  </div>;
-                })}
-              </div>
-              <div style={{ fontSize: 10, color: "#a0aec0", marginTop: 2, fontStyle: "italic" }}>
-                {varianten[aufVariante] ? varianten[aufVariante].info : ""}
-              </div>
-            </div>;
-          })()}
+          {aufQrAktiv && aufBegleiterKey && <div style={{ marginTop: 6 }}>
+            <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>
+              Für diesen Eingriff gibt es einen Patientenbegleiter. Derselbe Code führt
+              dann auf dieselbe Informationsseite und schaltet zusätzlich die Begleitung
+              nach der OP frei — es kommt kein zweiter Code hinzu.
+            </div>
+            <div style={row}>
+              <div style={CB(aufBegleiter)} onClick={function() { setAufBegleiter(!aufBegleiter); }}>Patientenbegleiter freischalten</div>
+            </div>
+          </div>}
+          {aufQrAktiv && aufVarianten && <div style={{ marginTop: 6 }}>
+            <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Nachbehandlungsschema für die Begleitung</div>
+            <div style={row}>
+              {Object.keys(aufVarianten).map(function(vk) {
+                var v = aufVarianten[vk];
+                return <div key={vk} style={CB(aufVariante === vk)} onClick={function() { setAufVariante(vk); }} title={v.info}>
+                  {v.label}
+                </div>;
+              })}
+            </div>
+            <div style={{ fontSize: 10, color: "#a0aec0", marginTop: 2, fontStyle: "italic" }}>
+              {aufVarianten[aufVariante] ? aufVarianten[aufVariante].info : ""}
+            </div>
+          </div>}
         </div>}
         {konsRat && diagnosen.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
