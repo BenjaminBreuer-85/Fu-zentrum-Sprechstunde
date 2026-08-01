@@ -61,20 +61,26 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 01.08.2026: EIN Bucket-Upload OFFEN.**
+**Stand 01.08.2026: NICHTS OFFEN.** Repo und Bucket sind auf demselben Stand.
 
-`data/opsteuerung.json` — neuer Eintrag `youngswick`. Die Abrechnungssteuerung
-wurde auf Anweisung des Autors **wertgleich von `chevron` uebernommen** (hdrg
-I20O, drg I20E, Hebel 5-854.2c, Aufwertung I20N, gleiche Ausschluss-Trigger).
-Der Akin-Code 5-788.56, der `chevron` von `chevron_akin` unterscheidet, spielt
-hier keine Rolle — beide Eintraege sind ohnehin identisch. Der OPS-Code des
-Eingriffs steht bereits als `5-788.51` in `OPS_LABELS`. Ohne diesen Upload
-erscheint Youngswick im Brief, aber ohne Erloessimulation.
+**Erledigt am 01.08.2026** — drei Bucket-Dateien, alle hochgeladen:
 
-**Erledigt am 01.08.2026** (bereits hochgeladen und gepusht):
-`data/opmethoden.json` (OP-Methode `youngswick`, 44 gesamt; PATIENT_DIAGNOSE_MAP
-auf 14 Eintraege) und `data/diagnosen.json` (neue Diagnose `hallux_limitus`,
-`mittelfuss_arthrose` → `lisfranc_arthrose`, 16 gesamt).
+- `data/opmethoden.json` — neue OP-Methode `youngswick` (44 gesamt);
+  PATIENT_DIAGNOSE_MAP auf 14 Eintraege (`hallux_valgus` und `hallux_limitus`
+  ergaenzt, `hallux_rigidus` von der Fruehform auf das eigene Krankheitsbild
+  korrigiert).
+- `data/diagnosen.json` — neue Diagnose `hallux_limitus`, `mittelfuss_arthrose`
+  → `lisfranc_arthrose` umbenannt (16 gesamt).
+- `data/opsteuerung.json` — Eintrag `youngswick`. Die Abrechnungssteuerung wurde
+  auf Anweisung des Autors **wertgleich von `chevron` uebernommen** (hdrg I20O,
+  drg I20E, Hebel 5-854.2c, Aufwertung I20N, gleiche Ausschluss-Trigger). Der
+  Akin-Code 5-788.56, der `chevron` von `chevron_akin` unterscheidet, spielt hier
+  keine Rolle — beide Eintraege sind ohnehin identisch. Der OPS-Code des
+  Eingriffs steht bereits als `5-788.51` in `OPS_LABELS`.
+
+Repo-Seite gepusht und live gegengeprueft: `app.html` byte-identisch mit lokal,
+`kurzlinks.json` mit 53 IDs, D2-Gegenprobe fuer die drei neuen Kurzadressen
+bestanden (siehe unten).
 
 **Reihenfolge beachten: erst Upload, dann Push.** Die Kurzlinks in
 `kurzlinks.json` (Repo) verweisen auf Ziele, welche die App erst kennt, wenn die
@@ -126,6 +132,11 @@ Adressen im Browser aufrufen:
 | `https://fuss-track.de/i/chevron` | leitet sofort in die Patienten-App weiter |
 | `https://fuss-track.de/i/quatsch` | „Dieser Link ist nicht mehr gueltig" + Link zur Patienten-App |
 | `https://fuss-track.de/tippfehler` | normale „Seite nicht gefunden" + Link zur Startseite |
+
+**Zuletzt geprueft am 01.08.2026** nach dem Push der drei neuen IDs — alle vier
+Zeilen bestanden, zusaetzlich `fuss-track.de/i/hallux-valgus` und
+`fuss-track.de/i/youngswick` (beide leiten korrekt in die Patienten-App weiter).
+Live-Tabelle: 53 IDs.
 
 **Regel zu den IDs:** Eine einmal vergebene ID wird nie geaendert und nie
 wiederverwendet — sie steht in bereits ausgehaendigten Arztbriefen. Details im
