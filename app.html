@@ -2013,7 +2013,7 @@ var _s = useState, _m = useMemo;
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, maxWidth: 1120, margin: "0 auto 12px" }}>
         <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#006B6F,#006B6F)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
-        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#006B6F" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 10, color: "#718096" }}>Fußchirurgie · v4</div></div>
+        <div><div style={{ fontSize: 15, fontWeight: 700, color: "#006B6F" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 10, color: "#718096" }}>Fußchirurgie · v5 · August 2026</div></div>
         <div style={{ marginLeft: "auto", padding: "6px 14px", border: "1px solid rgba(231,76,60,.3)", borderRadius: 6, background: "rgba(231,76,60,.08)", color: "#C62828", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={resetAll}>🔄 Reset</div>
       </div>
 
@@ -2202,6 +2202,7 @@ var _s = useState, _m = useMemo;
           </div>}
         </div>}
         {diagnosen.length > 0 && <div data-tour="sb-opmethode"><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
+        <div data-tour="sb-qr">
         {!diagActive && diagOhneZiel.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#8A5A00", fontWeight: 600, marginBottom: 4 }}>📱 Keine Online-Information</div>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 4, lineHeight: 1.5 }}>
@@ -2274,6 +2275,7 @@ var _s = useState, _m = useMemo;
             <div style={CB(konsQrAktiv)} onClick={function() { setKonsQrAktiv(!konsQrAktiv); }}>QR-Code konservativ</div>
           </div>
         </div>}
+        </div>
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
         </div>}
@@ -7585,6 +7587,11 @@ const RUNDGANG_SB = [
     text: "Wählen Sie bis zu zwei Diagnosen. Daran hängt alles Weitere — welche Befunde angeboten werden, welche Operationen infrage kommen und welcher Erlös berechnet wird." },
   { ziele:['[data-tour="sb-opmethode"]'], titel: "Dann die geplante Operation",
     text: "Mehrfachauswahl ist möglich. Aus dieser Auswahl entstehen die OPS-Codes und die Erlösrechnung weiter unten." },
+  { ziele:['[data-tour="sb-qr"]'],
+    wennFehlt: "Die Codes erscheinen, sobald eine Diagnose gewählt ist.",
+    titel: "Die Codes für Ihre Patienten",
+    text: "Der Brief kann bis zu drei QR-Codes mitführen — zum Krankheitsbild, zum geplanten Eingriff und, wenn Sie konservativ raten, zu den nicht-operativen Möglichkeiten. Jeder steht im Brief zusätzlich als kurze Adresse zum Abtippen. Gibt es zu einer Diagnose oder einem Eingriff noch kein Patientenmaterial, sagt der Block das ausdrücklich und der Brief bleibt ohne diesen Code.",
+    hinweis: "Wo ein Patientenbegleiter existiert, schaltet ihn derselbe Eingriffs-Code zusätzlich frei — ein weiterer Code entsteht dadurch nicht." },
   { ziele:['[data-tour="sb-befunde"]'], titel: "Die Befund-Schalter",
     text: "Jeder Schalter ist ein Textbaustein. Eingeschaltet erscheint der zugehörige Satz im Brief, ausgeschaltet fehlt er. Die Reihenfolge, in der Sie schalten, spielt keine Rolle — der Brief ordnet die Sätze selbst.",
     hinweis: "Sie müssen nichts formulieren. Was Sie anschalten, steht anschließend als fertiger Satz im Text." },
