@@ -148,6 +148,38 @@ Der Befehl ist gefahrlos wiederholbar und ändert an vorhandenen Zeilen nichts. 
 2. Lokal testen (`http://localhost:8000/index.html`).
 3. Datei im Supabase-Bucket ersetzen (Storage → Datei überschreiben). **Nicht** mehr zu GitHub hochladen.
 
+## Paddle: Ziel steht auf „Simulation only" — die teuerste Falle
+
+**Wenn echte Käufe keinen Webhook auslösen, zuerst hier nachsehen.** Ein
+Notification-Ziel hat in Paddle eine Einstellung *Usage*. Wer den Simulator
+benutzt, stellt sie leicht auf **„Simulation only"** — danach kommen
+Simulator-Ereignisse weiter an, **echte Käufe aber nie**. Das Notification-Log
+bleibt dabei komplett leer, es gibt also keinen Fehler, den man finden könnte.
+
+Genau das ist am 02.08.2026 passiert und hat mehrere Fehlversuche gekostet.
+Richtige Einstellung für den Betrieb: **„Platform and simulation"**.
+
+Merksatz für die Fehlersuche: *leeres* Notification-Log heißt „Paddle hat gar
+nicht erst zugestellt" — also Ziel-Einstellung prüfen. Ein Log *mit* Fehlercode
+heißt „zugestellt, aber unsere Seite hat abgelehnt" — dann in die
+Function-Logs schauen.
+
+## Vor dem Live-Gang zu klären
+
+- **Paddle-Kundenmails.** In der Sandbox gehen Abo-Bestätigungen an die
+  Verkäufer-Adresse statt an den Kunden. Vor dem Verkaufsstart prüfen, dass im
+  Live-Konto die Kundenmails tatsächlich beim Käufer landen.
+- **Einladungen landen im Spam.** Bei GMX bisher jedes Mal, trotz bestandener
+  DKIM/SPF/DMARC-Prüfung — die Domain ist neu und hat noch keinen Ruf. Deshalb
+  steht der Spam-Hinweis fest in der Dankeansicht der Landingpage.
+- **`paddle_abos.status` bleibt `null`,** solange nur `transaction.completed`
+  abonniert ist. Der Wert wird erst bei `subscription.activated` gesetzt. Für
+  die spätere Kündigungs-Behandlung sind die Abo-Ereignisse zusätzlich
+  anzuhaken.
+- **Live-Umstellung der Landingpage:** in `index.html` im Paddle-Block `MODUS`
+  auf `"live"` und die beiden Live-Werte eintragen. Der Testbetrieb-Hinweis
+  über dem Kauf-Knopf verschwindet dann von selbst.
+
 ## Paddle-Webhook — Stand 02.08.2026
 
 **Ausgerollt.** Projekt `nfvrdhrxfgclczllzwzz` („Toolbox", eu-central-1) ist
