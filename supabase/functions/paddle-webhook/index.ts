@@ -97,8 +97,10 @@ async function signaturGueltig(
 }
 
 // Paddle legt die Kaeufer-Adresse je nach Ereignis an unterschiedliche Stellen.
-// Wir sehen der Reihe nach nach und melden ausdruecklich, wenn keine dabei ist —
-// ein bezahlter Kauf ohne Adresse darf nicht stillschweigend verfallen.
+// WICHTIG (gemessen am 02.08.2026 an einem echten Simulator-Ereignis):
+// transaction.completed enthaelt die Adresse GAR NICHT — 23 Felder in data,
+// darunter customer_id, aber nirgends ein "@". Diese Suche ist deshalb nur der
+// guenstige Sonderfall; der Regelweg ist die Abfrage ueber die Paddle-API.
 function emailLesen(daten: Record<string, unknown>): string | null {
   const kandidaten: unknown[] = [
     (daten?.customer as Record<string, unknown> | undefined)?.email,
@@ -110,6 +112,58 @@ function emailLesen(daten: Record<string, unknown>): string | null {
     if (typeof k === "string" && k.includes("@")) return k.trim().toLowerCase();
   }
   return null;
+}
+
+// Adresse zur customer_id nachschlagen.
+// Die Umgebung ergibt sich aus dem Schluessel selbst: Sandbox-Schluessel tragen
+// das Praefix pdl_sdbx_. Damit braucht es keine zweite Einstellung, die man beim
+// Umschalten auf Live vergessen koennte.
+//
+// Rueckgabe:
+//   {email}            Adresse gefunden
+//   {email:null,…}     Kunde ohne Adresse oder unbekannt — Wiederholung zwecklos
+//   {wiederholbar}     Netz-/Serverfehler — Anspruch freigeben, Paddle wiederholt
+async function emailNachschlagen(customerId: string): Promise<
+  { email: string | null; wiederholbar: boolean; grund?: string }
+> {
+  const key = Deno.env.get("PADDLE_API_KEY");
+  if (!key) {
+    return { email: null, wiederholbar: false, grund: "PADDLE_API_KEY ist nicht gesetzt" };
+  }
+  const basis = key.startsWith("pdl_sdbx_")
+    ? "https://sandbox-api.paddle.com"
+    : "https://api.paddle.com";
+
+  let antwort: Response;
+  try {
+    antwort = await fetch(`${basis}/customers/${encodeURIComponent(customerId)}`, {
+      headers: { "Authorization": `Bearer ${key}`, "Accept": "application/json" },
+    });
+  } catch (e) {
+    return { email: null, wiederholbar: true, grund: `Paddle-API nicht erreichbar: ${e}` };
+  }
+
+  if (antwort.status === 404) {
+    return { email: null, wiederholbar: false, grund: `Kunde ${customerId} bei Paddle unbekannt` };
+  }
+  if (antwort.status === 401 || antwort.status === 403) {
+    // Schluessel falsch oder ohne Recht customer:read — Wiederholen hilft nicht.
+    return { email: null, wiederholbar: false, grund: `Paddle-API weist ab (${antwort.status})` };
+  }
+  if (!antwort.ok) {
+    return { email: null, wiederholbar: true, grund: `Paddle-API antwortet ${antwort.status}` };
+  }
+
+  try {
+    const koerper = await antwort.json();
+    const email = koerper?.data?.email;
+    if (typeof email === "string" && email.includes("@")) {
+      return { email: email.trim().toLowerCase(), wiederholbar: false };
+    }
+    return { email: null, wiederholbar: false, grund: `Kunde ${customerId} hat keine Adresse` };
+  } catch (e) {
+    return { email: null, wiederholbar: true, grund: `Antwort unlesbar: ${e}` };
+  }
 }
 
 function antwort(status: number, koerper: Record<string, unknown>): Response {
@@ -197,17 +251,36 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
 
     const daten = (ereignis.data ?? {}) as Record<string, unknown>;
-    const email = emailLesen(daten);
+    let email = emailLesen(daten);
     const subscriptionId = typeof daten.subscription_id === "string"
       ? daten.subscription_id
       : (eventType === "subscription.activated" && typeof daten.id === "string" ? daten.id : null);
     const customerId = typeof daten.customer_id === "string" ? daten.customer_id : null;
 
+    // Regelfall: das Ereignis nennt nur die customer_id. Dann bei Paddle
+    // nachschlagen. Der Aufruf entfaellt, wenn die Adresse schon dabei war.
+    let nachschlagGrund: string | undefined;
+    if (!email && customerId) {
+      const nach = await emailNachschlagen(customerId);
+      if (nach.wiederholbar) {
+        // Voruebergehende Stoerung: Anspruch freigeben, damit Paddles
+        // Wiederholung den Kauf noch retten kann.
+        console.error("Adress-Abfrage voruebergehend gescheitert:", nach.grund);
+        await anspruchFreigeben();
+        return antwort(500, { fehler: "Adresse konnte nicht ermittelt werden" });
+      }
+      email = nach.email;
+      nachschlagGrund = nach.grund;
+    }
+
     if (!email) {
       // Sichtbar ablegen statt verwerfen. 200, damit Paddle nicht endlos
       // wiederholt — der Fall braucht eine Hand, keine Zustellwiederholung.
-      console.error("Kaeufer-E-Mail fehlt im Ereignis", eventId);
-      await abschliessen("email_fehlt", null, "Keine E-Mail im Ereignis gefunden — bitte manuell einladen");
+      const grund = nachschlagGrund
+        ? `Keine E-Mail ermittelbar — ${nachschlagGrund}`
+        : "Keine E-Mail im Ereignis und keine customer_id — bitte manuell einladen";
+      console.error("Kaeufer-E-Mail nicht ermittelbar", eventId, grund);
+      await abschliessen("email_fehlt", null, grund);
       return antwort(200, { ok: true, hinweis: "E-Mail fehlt, Ereignis protokolliert" });
     }
 

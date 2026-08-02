@@ -56,19 +56,44 @@ def senden(url: str, roh: bytes, kopf: str):
         return None, f"{type(e).__name__}: {e}"
 
 
-def ereignis_bauen(email: str, event_id: str) -> bytes:
-    """Nachbau eines transaction.completed, so knapp wie moeglich."""
+def ereignis_bauen(email, event_id, customer_id):
+    """Nachbau eines transaction.completed.
+
+    ACHTUNG, am 02.08.2026 an einem echten Simulator-Ereignis gemessen:
+    Paddle liefert bei transaction.completed die Kaeufer-Adresse NICHT mit.
+    In `data` stehen 23 Felder, darunter customer_id — aber nirgends ein "@".
+    Die erste Fassung dieses Skripts hat ein "customer"-Objekt mitgeschickt und
+    damit gegen eine Wunschvorstellung geprueft statt gegen Paddles Schema.
+
+    Zwei Betriebsarten:
+
+    - ohne --customer-id: die Adresse reist in custom_data mit. Das prueft die
+      Einladungskette, OHNE die Paddle-API zu belasten — aber eben auch ohne
+      den Weg zu pruefen, den ein echter Kauf nimmt.
+    - mit --customer-id <ctm_…>: keine Adresse im Ereignis, nur die ID. Damit
+      laeuft genau der Regelweg: die Function schlaegt die Adresse bei Paddle
+      nach. Dafuer eine ECHTE customer_id aus der Sandbox verwenden.
+    """
+    daten = {
+        "id": "txn_" + uuid.uuid4().hex[:20],
+        "status": "completed",
+        "customer_id": customer_id or ("ctm_" + uuid.uuid4().hex[:20]),
+        "subscription_id": "sub_" + uuid.uuid4().hex[:20],
+        "address_id": "add_" + uuid.uuid4().hex[:20],
+        "currency_code": "EUR",
+        "collection_mode": "automatic",
+        "billing_details": None,
+        "custom_data": None,
+    }
+    if not customer_id:
+        # Nur im Bequemlichkeits-Modus: Adresse mitgeben, damit die Function
+        # sie ohne API-Aufruf findet.
+        daten["custom_data"] = {"email": email}
     return json.dumps({
         "event_id": event_id,
         "event_type": "transaction.completed",
         "occurred_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "data": {
-            "id": "txn_" + uuid.uuid4().hex[:20],
-            "status": "completed",
-            "customer_id": "ctm_" + uuid.uuid4().hex[:20],
-            "subscription_id": "sub_" + uuid.uuid4().hex[:20],
-            "customer": {"email": email},
-        },
+        "data": daten,
     }, separators=(",", ":")).encode("utf-8")
 
 
@@ -85,6 +110,10 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--url", required=True, help="Adresse der deployten Function")
     p.add_argument("--email", default="test@fuss-track.de")
+    p.add_argument("--customer-id", default=None,
+                   help="Echte Sandbox-customer_id (ctm_…). Dann reist KEINE Adresse "
+                        "im Ereignis mit und die Function muss sie bei Paddle nachschlagen "
+                        "— das ist der Weg, den ein echter Kauf nimmt.")
     args = p.parse_args()
 
     secret = os.environ.get("PADDLE_WEBHOOK_SECRET")
@@ -94,12 +123,15 @@ def main() -> int:
         return 2
 
     event_id = "evt_" + uuid.uuid4().hex[:24]
-    roh = ereignis_bauen(args.email, event_id)
+    roh = ereignis_bauen(args.email, event_id, args.customer_id)
     ts = int(time.time())
     echt = signieren(roh, secret, ts)
 
     print(f"Ziel:      {args.url}")
     print(f"E-Mail:    {args.email}")
+    print(f"Modus:     " + ("Adresse via Paddle-API nachschlagen (customer_id="
+                            + args.customer_id + ")" if args.customer_id
+                            else "Adresse reist in custom_data mit — API wird NICHT geprueft"))
     print(f"event_id:  {event_id}")
     print()
 
@@ -113,7 +145,7 @@ def main() -> int:
 
     # 2) falsche Signatur — anderes Ereignis, damit Fall 3 sauber bleibt
     event_id2 = "evt_" + uuid.uuid4().hex[:24]
-    roh2 = ereignis_bauen(args.email, event_id2)
+    roh2 = ereignis_bauen(args.email, event_id2, args.customer_id)
     ts2 = int(time.time())
     falsch = signieren(roh2, secret + "x", ts2)
     code, koerper = senden(args.url, roh2, f"ts={ts2};h1={falsch}")
