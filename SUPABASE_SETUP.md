@@ -148,6 +148,26 @@ Der Befehl ist gefahrlos wiederholbar und ändert an vorhandenen Zeilen nichts. 
 2. Lokal testen (`http://localhost:8000/index.html`).
 3. Datei im Supabase-Bucket ersetzen (Storage → Datei überschreiben). **Nicht** mehr zu GitHub hochladen.
 
+## Paddle-Webhook — Stand 02.08.2026
+
+**Ausgerollt.** Projekt `nfvrdhrxfgclczllzwzz` („Toolbox", eu-central-1) ist
+gelinkt, die Migration ist eingespielt, die Function ist deployt.
+
+Geprüft nach dem Ausrollen:
+
+- `paddle_events` und `paddle_abos` existieren, beide mit **RLS aktiv und
+  null Policies** — nur die `service_role` kommt heran.
+- `GET` auf die Function → 405 aus eigenem Code.
+- `POST` ohne Plattform-JWT wird **nicht** von Supabase abgewiesen —
+  `--no-verify-jwt` sitzt.
+
+**Offen: `PADDLE_WEBHOOK_SECRET` ist noch nicht gesetzt.** Solange antwortet die
+Function auf jede Zustellung mit `500 {"fehler":"Webhook-Secret fehlt in der
+Konfiguration"}`. Das ist Absicht — ein fehlendes Secret darf sich nicht als
+„Signatur ungültig" tarnen, sonst sucht man an der falschen Stelle. Nach
+`supabase secrets set PADDLE_WEBHOOK_SECRET=…` die Function einmal neu deployen,
+dann greift Gegenprobe 1e.
+
 ## Paddle-Webhook ausrollen (Etappe 1, 02.08.2026)
 
 Der Webhook liegt als Edge Function im Repo: `supabase/functions/paddle-webhook/`.

@@ -3,3 +3,7 @@ data/
 
 # Vertrauliche Preisdaten — nie ins Repo
 meine-preise/
+
+# Lokaler Zustand der Supabase-CLI (entsteht bei "supabase link")
+supabase/.temp/
+supabase/.branches/
