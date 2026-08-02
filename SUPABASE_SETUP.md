@@ -147,3 +147,66 @@ Der Befehl ist gefahrlos wiederholbar und ändert an vorhandenen Zeilen nichts. 
 1. Neue JSON lokal in `data/` ablegen (aus den Master-Excel-Dateien, 1:1-Regel!).
 2. Lokal testen (`http://localhost:8000/index.html`).
 3. Datei im Supabase-Bucket ersetzen (Storage → Datei überschreiben). **Nicht** mehr zu GitHub hochladen.
+
+## Paddle-Webhook ausrollen (Etappe 1, 02.08.2026)
+
+Der Webhook liegt als Edge Function im Repo: `supabase/functions/paddle-webhook/`.
+Die Tabellen kommen aus `supabase/migrations/20260802090000_paddle_webhook.sql`.
+
+**Die CLI ist auf diesem Rechner nicht global installiert** — `brew` steht in der
+Arbeitsumgebung nicht zur Verfügung. Das offizielle Release-Binary liegt unter
+`…/scratchpad/bin/supabase` (v2.111.0). Wer es dauerhaft will, installiert es
+normal per `brew install supabase/tap/supabase` in einem eigenen Terminal.
+
+Reihenfolge — **Schritt 2 tippt Benjamin selbst**, das Secret gehört in kein
+Protokoll und in keinen Chat:
+
+```
+supabase login                                   # einmalig, interaktiv
+supabase link --project-ref <projekt-ref>        # Ref steht in der Projekt-URL
+supabase secrets set PADDLE_WEBHOOK_SECRET=...   # aus Paddle → Notifications
+supabase db push                                 # legt die beiden Tabellen an
+supabase functions deploy paddle-webhook --no-verify-jwt
+```
+
+**`--no-verify-jwt` ist zwingend.** Paddle kann keinen Supabase-JWT mitschicken.
+Ohne den Schalter weist die Plattform jede Zustellung mit 401 ab, bevor unser
+Code überhaupt läuft. Die Absicherung übernimmt stattdessen die Signaturprüfung
+in der Function — ohne gültige `Paddle-Signature` wird nichts verarbeitet.
+
+Danach im **Paddle-Sandbox-Dashboard** unter *Developer Tools → Notifications*
+ein Ziel anlegen:
+
+- Adresse: `https://<projekt-ref>.supabase.co/functions/v1/paddle-webhook`
+- Ereignisse: `transaction.completed` und `subscription.activated`
+- Das dort angezeigte **Secret** ist genau das, was oben gesetzt wird.
+
+### Gegenprobe (1e)
+
+```
+export PADDLE_WEBHOOK_SECRET='...'
+python3 scripts/paddle_webhook_pruefen.py \
+    --url https://<projekt-ref>.supabase.co/functions/v1/paddle-webhook \
+    --email test@fuss-track.de
+```
+
+Das Skript fährt drei Fälle: korrekt signiert → 200 „eingeladen"; falsche
+Signatur → 401; dasselbe Ereignis erneut → 200 „bereits verarbeitet". Zusätzlich
+sind die echten Ereignisse aus dem **Webhook-Simulator** von Paddle zu schicken —
+das Skript baut die Nutzlast nur nach.
+
+Was das Skript nicht sehen kann und von Hand zu prüfen ist: **genau eine**
+Einladungsmail (nicht zwei), eine Zeile in `paddle_events` mit Status
+`eingeladen`, und die `subscription_id` in `paddle_abos`.
+
+### Wenn etwas schiefgeht
+
+`supabase functions logs paddle-webhook` zeigt die Protokollzeilen. Häufige Fälle:
+
+- **401 bei korrektem Secret** — meist `--no-verify-jwt` vergessen.
+- **500 „Webhook-Secret fehlt"** — `supabase secrets set` lief nicht oder die
+  Function wurde davor deployt; nach dem Setzen erneut deployen.
+- **Status `email_fehlt` in `paddle_events`** — das Ereignis enthielt keine
+  Kaufadresse. Der Fall wird ausdrücklich protokolliert statt verworfen und
+  braucht eine manuelle Einladung; die Zeile in `paddle_events` nennt die
+  Ereignis-ID.
