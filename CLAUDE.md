@@ -92,7 +92,8 @@ Schwester-Projekt: die Patienten-App **Fuss-Track** (`../Fuss-Track/fusstrack.ht
 | `data/aufklaerung.json` | `AUFKLAERUNG_RISIKEN` (43 Eingriffe) |
 | `data/referenz.json` | `KLASSIFIKATIONEN` (47), `ROENTGEN` (14), `MESSMETHODEN` (32), `MANUALE` |
 | `landing.html` | Öffentliche Produktseite „Fuss-Track Clinic" (Voraussetzung für Paddle-Prüfung; `noindex` bis Rechtstexte final) |
-| `impressum.html`, `datenschutz.html`, `agb.html`, `widerruf.html` | Rechtstexte-Gerüst mit [PLATZHALTER]-Blöcken — Inhalte kommen von Anwalt/Generator, nie von Claude formulieren |
+| `impressum.html`, `datenschutz.html` | Rechtstexte-Gerüst mit [PLATZHALTER]-Blöcken — Inhalte kommen von Anwalt/Generator, nie von Claude formulieren |
+| `nutzungsbedingungen.html` | Nutzungsbedingungen (Lizenz/EULA), Stand 02.08.2026. Wortlaut extern erarbeitet und 1:1 übernommen — **nie umformulieren**. Anwaltliche Prüfung folgt bei Umsatz. `agb.html` und `widerruf.html` wurden am 02.08.2026 gelöscht: die AGB waren ein öffentlich erreichbarer Platzhalter-Entwurf, und eine eigene Widerrufsbelehrung widerspricht dem Merchant-of-Record-Modell — Widerruf und Kündigung wickelt Paddle ab, die Belehrung erscheint in dessen Checkout. |
 | `DEPLOY.md` | **Deploy-Checkliste**: was ins Repo, was in den Bucket, in welcher Reihenfolge — vor jedem Deploy lesen |
 | `zuordnung/implantat_zuordnung.json` | Standard-Materialsatz (Eingriff → Implantattyp → Anzahl), preis- und markenfrei — liegt bewusst offen im Repo, nicht im Bucket |
 | `SUPABASE_SETUP.md` | Einrichtungs- und Betriebsanleitung für den Login (Stufe 2) |

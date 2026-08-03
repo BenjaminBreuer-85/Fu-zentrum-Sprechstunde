@@ -17,7 +17,7 @@ Die App lädt ihre Daten aus **zwei getrennten Quellen**. Wer nur eine davon akt
 |---|---|
 | `index.html` | Öffentliche Landingpage |
 | `app.html` | Die App (Hülle, Loader, alle Komponenten) |
-| `impressum.html`, `datenschutz.html`, `agb.html`, `widerruf.html` | Rechtstexte |
+| `impressum.html`, `datenschutz.html`, `nutzungsbedingungen.html` | Rechtstexte |
 | `landing.html` | Produktseite (Vorstufe, noindex) |
 | **`zuordnung/implantat_zuordnung.json`** | **Standard-Materialsatz** — enthält keine Preise, keine Marken, keine Artikelnummern und darf deshalb öffentlich liegen |
 | `lib/` (5 Dateien) | React, ReactDOM, Babel, supabase-js, xlsx-js-style — lokal statt CDN |
