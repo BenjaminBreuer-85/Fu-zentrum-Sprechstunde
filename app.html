@@ -571,7 +571,11 @@ window.TOOLBOX_AUTH = {
             });
           });
         } else if(linkTyp||linkFehler){
-          domReady.then(function(){ showLogin(client,"Der Link ist ungültig oder abgelaufen — bitte über „Passwort vergessen?“ einen neuen anfordern."); });
+          // Der haeufigste Grund ist NICHT Nutzerverschulden: manche Anbieter
+          // (bei GMX belegt) rufen Links in Nachrichten vorab zur Pruefung auf
+          // und verbrauchen sie dabei. Das sagt die Meldung ausdruecklich,
+          // sonst sucht die Person den Fehler bei sich.
+          domReady.then(function(){ showLogin(client,"Der Link ist ungültig oder abgelaufen. Das passiert auch, wenn Sie ihn selbst noch nicht benutzt haben — manche E-Mail-Anbieter öffnen Links automatisch zur Sicherheitsprüfung und verbrauchen sie dabei. Kein Fehler Ihrerseits: Fordern Sie über „Passwort vergessen?“ einfach einen neuen an."); });
         } else {
           domReady.then(function(){ showLogin(client); });
         }

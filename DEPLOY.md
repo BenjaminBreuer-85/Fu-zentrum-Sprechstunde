@@ -18,6 +18,7 @@ Die App lädt ihre Daten aus **zwei getrennten Quellen**. Wer nur eine davon akt
 | `index.html` | Öffentliche Landingpage |
 | `app.html` | Die App (Hülle, Loader, alle Komponenten) |
 | `impressum.html`, `datenschutz.html`, `nutzungsbedingungen.html` | Rechtstexte |
+| `zugang.html` | Zwischenseite für Einladungs- und Passwort-Links. Löst den Token **erst auf Knopfdruck** ein, damit Mail-Scanner ihn nicht vorab verbrauchen. Muss zusammen mit den E-Mail-Vorlagen aus `supabase/vorlagen/` live gehen — die Vorlagen verweisen darauf |
 | `landing.html` | Produktseite (Vorstufe, noindex) |
 | **`zuordnung/implantat_zuordnung.json`** | **Standard-Materialsatz** — enthält keine Preise, keine Marken, keine Artikelnummern und darf deshalb öffentlich liegen |
 | `lib/` (5 Dateien) | React, ReactDOM, Babel, supabase-js, xlsx-js-style — lokal statt CDN |

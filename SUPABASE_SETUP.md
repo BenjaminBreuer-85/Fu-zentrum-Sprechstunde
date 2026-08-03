@@ -262,3 +262,45 @@ Einladungsmail (nicht zwei), eine Zeile in `paddle_events` mit Status
   Kaufadresse. Der Fall wird ausdrücklich protokolliert statt verworfen und
   braucht eine manuelle Einladung; die Zeile in `paddle_events` nennt die
   Ereignis-ID.
+
+## Einladungslinks: warum sie „ungültig" waren (Beta-Befund 02.08.2026)
+
+Die erste echte Testperson (GMX) bekam beim Klick auf den Einladungslink
+„ungültig oder abgelaufen" — ohne den Link vorher benutzt zu haben.
+
+**Ursache:** Der Standard-Link zeigt auf `/auth/v1/verify`. Dieser Aufruf löst
+den Token **serverseitig beim Abruf** ein. GMX ruft Links in Nachrichten vorab
+zur Sicherheitsprüfung auf; der Token war damit verbraucht, bevor die
+Empfängerin ihn benutzen konnte. Das Brevo-Log zeigte Klick-Ereignisse vor der
+echten Nutzung. Verschärfend kommt Brevos Klick-Tracking hinzu, das die Links
+umschreibt.
+
+**Härtung, in dieser Reihenfolge:**
+
+1. **`zugang.html` als Zwischenseite** (im Repo, erledigt). Beim Aufruf passiert
+   nichts — supabase-js wird nicht einmal geladen. Der Token wird erst durch den
+   Klick auf „Passwort festlegen" per `verifyOtp` eingelöst. Ein automatischer
+   Abruf verbraucht ihn damit nicht mehr.
+2. **Eigene deutsche E-Mail-Vorlagen** aus `supabase/vorlagen/` eintragen unter
+   *Authentication → Emails*: `einladung.html` bei **Invite user**,
+   `passwort-zuruecksetzen.html` bei **Reset password**.
+   **Ohne diesen Schritt wirkt Schritt 1 nicht** — die Standardvorlage benutzt
+   `{{ .ConfirmationURL }}` und zeigt weiter auf `/auth/v1/verify`. Die neuen
+   Vorlagen geben stattdessen `{{ .TokenHash }}` an `zugang.html` weiter.
+3. **Brevo-Klick-Tracking abschalten** für diese Transaktionsmails. Die
+   umgeschriebenen Tracking-Adressen laden Scanner geradezu ein und sind ein
+   zusätzlicher Fehlerpunkt.
+4. **Token-Gültigkeit großzügig setzen** unter *Authentication → Emails →
+   Email OTP Expiration*. Der Standard von 3600 s ist für Beta-Tester knapp,
+   die nicht binnen Minuten klicken; 24 h sind hier angemessen.
+5. **Meldung in der App** nennt den Scanner-Fall ausdrücklich (erledigt) — sonst
+   sucht die Person den Fehler bei sich.
+
+**Alte Links bleiben gültig.** `app.html` verarbeitet den bisherigen
+`#access_token`-Rückweg unverändert weiter; nur neu verschickte Mails nehmen den
+neuen Weg. Die Umstellung ist also ohne Stichtag möglich.
+
+**Nicht benutzen: `supabase config push`.** Der Befehl schiebt die gesamte lokale
+`config.toml` hoch. Ohne vollständige Abbildung des Ist-Zustands würde er
+Site-URL, Redirect-URLs und die Brevo-SMTP-Einstellungen mit Standardwerten
+überschreiben. Auth-Einstellungen und Vorlagen deshalb im Dashboard pflegen.
