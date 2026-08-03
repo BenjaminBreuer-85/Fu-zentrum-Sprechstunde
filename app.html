@@ -8095,9 +8095,17 @@ function EinstellungenView({onSelect, onRundgang}){
 }
 
 function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
-  // Anleitung nur zeigen, wenn im Browser gestartet und noch nicht weggeklickt
+  // Anleitung nur zeigen, wenn im Browser gestartet und noch nicht weggeklickt.
+  // Ausnahme: ?tipp=homescreen zeigt sie auch dann, wenn sie schon weggeklickt
+  // wurde. Damit ist die vorhandene Anleitung von aussen verlinkbar — zugang.html
+  // schickt frisch eingerichtete Nutzer nach dem Passwortsetzen genau hierher,
+  // statt den Text ein zweites Mal zu schreiben.
   const [zeigeTipp, setZeigeTipp] = useState(function(){
-    try{ return !alsAppGestartet() && localStorage.getItem(HOMESCREEN_MERKER) !== "1"; }
+    try{
+      if (alsAppGestartet()) return false;   // laeuft schon vom Startbildschirm
+      if (/[?&]tipp=homescreen/.test(location.search)) return true;
+      return localStorage.getItem(HOMESCREEN_MERKER) !== "1";
+    }
     catch(e){ return !alsAppGestartet(); }
   });
   function tippSchliessen(){

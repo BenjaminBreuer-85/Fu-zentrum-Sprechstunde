@@ -56,6 +56,28 @@
       <button id="knopf-speichern" class="knopf" type="button">Passwort speichern und anmelden</button>
     </div>
 
+    <!-- Nach dem Speichern. Der Homescreen-Hinweis steht bewusst HIER und nicht
+         erst in der App: direkt nach dem Einrichten ist der Moment, in dem
+         jemand das Geraet ohnehin in der Hand hat. Die Anleitung selbst wird
+         nicht wiederholt — der Knopf oeffnet die vorhandene in der App. -->
+    <div id="schritt-fertig" class="verborgen">
+      <p><strong>Ihr Passwort ist gespeichert.</strong> Sie sind angemeldet.</p>
+      <div style="background:#E6F0F1;border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin:16px 0;">
+        <p style="margin:0 0 10px;font-size:15px;">
+          <strong>Tipp:</strong> Fuss-Track Clinic ist eine Web-App — sie installiert sich
+          nicht von selbst. Legen Sie sie jetzt auf Ihren Startbildschirm, dann öffnen Sie
+          sie künftig mit einem Tipp wie jede andere App.
+        </p>
+        <a class="knopf" href="app.html?tipp=homescreen" style="text-decoration:none;">
+          Auf den Startbildschirm legen
+        </a>
+      </div>
+      <p class="klein" style="margin-bottom:0">
+        Lieber später? <a href="app.html">Direkt zur App</a> — die Anleitung finden Sie
+        jederzeit unter „Einstellungen → Zum Startbildschirm hinzufügen".
+      </p>
+    </div>
+
     <div id="meldung" class="verborgen"></div>
     <p id="fuss" class="klein verborgen" style="margin-top:18px">
       <a href="app.html">Zur Anmeldung</a>
@@ -161,7 +183,9 @@
     speichern.textContent = "Wird gespeichert …";
     client.auth.updateUser({ password: p1 }).then(function(r){
       if (r.error) throw r.error;
-      location.replace("app.html");
+      verbirg(elPw);
+      verbirg(elMeldung);
+      zeige(document.getElementById("schritt-fertig"));
     }).catch(function(e){
       speichern.disabled = false;
       speichern.textContent = "Passwort speichern und anmelden";
