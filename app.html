@@ -893,19 +893,6 @@ const PATIENT_EINGRIFF_MAP = window._DATA.opmethoden.PATIENT_EINGRIFF_MAP || {};
 // ============================================================
 const PATIENT_VARIANTEN = window._DATA.opmethoden.PATIENT_VARIANTEN || {};
 
-// ============================================================
-// Mapping: Toolbox-OP-Key → Begleiter-Schlüssel der Patienten-App.
-// ZWEITER NAMENSRAUM, nicht mit PATIENT_EINGRIFF_MAP verwechseln:
-//   PATIENT_EINGRIFF_MAP → Infomaterial-Seite (chevron_akin, osg_tep_op …)
-//   PATIENT_BEGLEITER_MAP → Begleiter-Flow    (chevron, osg_tep …)
-// Beide Ziele zeigen denselben Aufklärungstext; nur der Begleiter-Schlüssel
-// blendet zusätzlich den Einstieg „→ Zum Patientenbegleiter" ein, und das
-// auch nur mit gültigem var-Parameter.
-// Weil die beiden Namensräume seit der Erweiterung auf 43 Eingriffe (07/2026)
-// auseinanderliefen, traf PATIENT_VARIANTEN[…] nie — die Variantenwahl war
-// wirkungslos und kein Brief bot mehr den Begleiter an.
-// ============================================================
-const PATIENT_BEGLEITER_MAP = window._DATA.opmethoden.PATIENT_BEGLEITER_MAP || {};
 
 // ============================================================
 // Mapping: Toolbox-Diagnose-Key → Patient-App-Krankheitsbild-Key.
@@ -919,22 +906,12 @@ const PATIENT_BEGLEITER_MAP = window._DATA.opmethoden.PATIENT_BEGLEITER_MAP || {
 // Krankheitsbild-Code. Ohne den Fallback stirbt stattdessen die ganze App.
 // ============================================================
 const PATIENT_DIAGNOSE_MAP = window._DATA.opmethoden.PATIENT_DIAGNOSE_MAP || {};
+// Krankheitsbild-Artikel -> Anker des konservativen Abschnitts (alle 47).
+const KB_THEMA = window._DATA.opmethoden.KB_THEMA || {};
 
-// Beschriftung der beiden Code-Felder im Brief. Diagnose und Eingriff sind
-// weiter oben im Brief bereits benannt — hier genügt die Zuordnung, welcher
-// Code wohin führt. Word- und Rich-Text-Export erkennen die Zeilen an diesem
-// Präfix und setzen das jeweilige QR-Bild direkt darunter.
-const QR_LABEL_DIAG = "Zum Krankheitsbild: fuss-track.de/i/";
-const QR_LABEL_OP = "Zum Eingriff: fuss-track.de/i/";
-
-// Konservativ-Code: bewusst KEIN Deep-Link auf eine einzelne Massnahme, sondern
-// die Startseite der Patienten-App. Beim konservativen Vorgehen werden mehrere
-// Massnahmen kombiniert — ein Link auf nur eine davon waere irrefuehrend.
-// Die Startseite fuehrt die konservativen Themen als eigenen Bereich.
-// Deshalb auch keine /i/-Kurzadresse: die Domain ist bereits kurz genug und
-// braucht keine ID, die spaeter nie geaendert werden darf.
-const KONSERV_URL = "https://patienten.fuss-track.de/";
-const QR_LABEL_KONS = "Zu den konservativen Maßnahmen: patienten.fuss-track.de";
+// Beschriftung des einen Code-Felds im Brief. Word- und Rich-Text-Export
+// erkennen die Zeile an diesem Praefix und setzen das QR-Bild darunter.
+const QR_LABEL = "Ihr Code: fuss-track.de/i/";
 
 const KONSERV = window._DATA.diagnosen.KONSERV;
 const RISIKEN = window._DATA.diagnosen.RISIKEN;
@@ -1285,15 +1262,28 @@ var _s = useState, _m = useMemo;
   var kms = _s(false), kontrolleMode = kms[0], setKontrolleMode = kms[1];
   var kts = _s(""), kontrolleType = kts[0], setKontrolleType = kts[1];
 
-  // Online-Information — QR-Code-Beigabe (Ein-QR-Modell, Migration 19.05.2026).
-  // Die URL wird in aufUrl (siehe unten) aus FUSSTRACK_BASE_URL gebaut.
-  var aups = _s(true), aufQrAktiv = aups[0], setAufQrAktiv = aups[1];
-  // Variante (einfach/komplex) für den Patient-Begleit-Flow. Wird vom Behandler manuell gewählt.
+  // ==========================================================================
+  // EIN CODE PRO PATIENT (Leitkonzept, umgesetzt 04.08.2026)
+  //
+  // Der Abschluss-Haken entscheidet, wohin der eine Code zeigt:
+  //   OP gewaehlt UND empfohlen -> Fokus-Aufklaerung des Eingriffs
+  //         ?op=<ziel>[&var=<variante>]&modus=aufklaerung&kbinfo=<kb-artikel>
+  //         var schaltet den Patientenbegleiter frei, kbinfo erzeugt den
+  //         Rueckweg "<- Zum Krankheitsbild" und wandert in den Begleiter mit.
+  //   sonst -> Krankheitsbild-Artikel am konservativen Abschnitt
+  //         ?op=<kb-artikel>&modus=aufklaerung&thema=<anker>
+  //
+  // Damit gibt es keinen eigenen Krankheitsbild-Code neben dem OP-Code mehr
+  // und keinen Konservativ-Code auf die Startseite. Der Begleiter bekommt nie
+  // einen eigenen Code — er haengt am Eingriffs-Code.
+  // Grundlage der Ziele: ../Fuss-Track/nonop-ziele.md (Uebergabetabelle).
+  // ==========================================================================
+  var aups = _s(true), qrAktiv = aups[0], setQrAktiv = aups[1];
+  // Nachbehandlungsschema. Nur dort waehlbar, wo die Patienten-App Varianten
+  // kennt (chevron, osg_arthrodese, osg_tep).
   var avs = _s("einfach"), aufVariante = avs[0], setAufVariante = avs[1];
-  // Maßgeblich ist PATIENT_EINGRIFF_MAP — dort stehen die tatsächlichen Ziele
-  // in der Patienten-App (43 Eingriffe). AUFKLAERUNG_MAP liefert nur für sechs
-  // davon eine schönere Bezeichnung; sonst nimmt der Hinweis den Namen aus dem
-  // Werkzeug selbst.
+
+  // Erster gewaehlter Eingriff mit Patientenziel.
   var aufActive = _m(function() {
     if (!opMethode || opMethode.length === 0) return null;
     for (var i = 0; i < opMethode.length; i++) {
@@ -1306,60 +1296,16 @@ var _s = useState, _m = useMemo;
     }
     return null;
   }, [opMethode]);
-  // Gewählte Eingriffe OHNE Patienten-Inhalt. Früher verschwand der QR-Block
-  // hier stillschweigend — der Brief versprach dann nichts, sagte es aber auch
-  // nicht. Jetzt wird der Fall ausdrücklich angezeigt.
+  // Gewaehlte Eingriffe ohne Patienten-Inhalt — ausdruecklich anzeigen statt
+  // den Block stillschweigend verschwinden zu lassen.
   var aufOhneZiel = _m(function() {
     if (!opMethode || opMethode.length === 0) return [];
     return opMethode.filter(function(k){ return !PATIENT_EINGRIFF_MAP[k]; })
                     .map(function(k){ return (OPS[k] && OPS[k].k) || k; });
   }, [opMethode]);
-  // Kurzadresse fuss-track.de/i/<id>. Die Regel muss zu kurzlinks.json passen:
-  // Unterstriche werden zu Bindestrichen, ein angehängtes -kb entfällt.
-  function kurzlinkId(patientOp){
-    return String(patientOp).replace(/_/g, "-").replace(/-kb$/, "");
-  }
-  // Vollständige URL für QR-Code (Ein-QR-Modell, Migration 19.05.2026).
-  // Zeigt auf die Fuß-Track-Patient-App im Aufklärungs-Modus:
-  // FUSSTRACK_BASE_URL + "?op=<patient-eingriff>&var=<variante>&modus=aufklaerung"
-  // Der op-Parameter ist der Patient-App-Eingriff-Key (chevron, osg_arthrodese, osg_tep) —
-  // nicht der feingranulare Toolbox-Key. Mapping via PATIENT_EINGRIFF_MAP.
-  // Mit "var" kann der Patient nach der Aufklärung direkt in den Begleit-Flow wechseln.
-  // Begleiter-Schluessel des gewaehlten Eingriffs, falls es einen gibt.
-  var aufBegleiterKey = aufActive ? (PATIENT_BEGLEITER_MAP[aufActive.key] || "") : "";
-  // Soll der Code zusaetzlich den Patientenbegleiter freischalten? Nur dort
-  // waehlbar, wo ein Begleiter existiert — bisher Chevron/Akin, OSG-Arthrodese
-  // und OSG-TEP. Standard: an, weil der Begleiter rein additiv ist (gleiche
-  // Informationsseite, zusaetzlich der Einstieg in die Nachbehandlung).
-  var abs_ = _s(true), aufBegleiter = abs_[0], setAufBegleiter = abs_[1];
-  var aufBegleiterAn = !!aufBegleiterKey && aufBegleiter;
-  // Varianten gehoeren zum Begleiter, nicht zur Informationsseite.
-  var aufVarianten = aufBegleiterAn ? (PATIENT_VARIANTEN[aufBegleiterKey] || null) : null;
-  // Zwei Ziele, ein Code:
-  //   Begleiter an  -> ?op=<begleiter>&var=<variante>&modus=aufklaerung
-  //   Begleiter aus -> ?op=<infomaterial>&modus=aufklaerung
-  // Beide zeigen denselben Text; "var" ist die Freischaltung des Begleiters
-  // und wird ohne ihn nicht angehaengt, sonst liefen QR und Kurzadresse
-  // auseinander. Geruest fuer weitere Nachbehandlungsschemata: je ein Eintrag
-  // in PATIENT_BEGLEITER_MAP und PATIENT_VARIANTEN, sonst nichts.
-  var aufZielKey = aufBegleiterAn ? aufBegleiterKey
-                 : (aufActive ? (PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) : "");
-  var aufUrl = _m(function() {
-    if (!aufActive || !aufZielKey) return "";
-    return FUSSTRACK_BASE_URL + "?op=" + aufZielKey
-         + (aufVarianten ? "&var=" + aufVariante : "")
-         + "&modus=aufklaerung";
-  }, [aufActive, aufZielKey, aufVarianten, aufVariante]);
-  // Soll der QR-Code im Brief erscheinen? Nur wenn: Aktiv UND OP-Methode passt UND URL vollständig
-  var aufShowQr = aufQrAktiv && aufActive && aufUrl;
 
-  // Online-Information zum Krankheitsbild — zweiter QR-Code (Entscheidung 31.07.2026).
-  // Läuft unabhängig vom Eingriffs-Code: bei rein konservativem Vorgehen steht
-  // dieser Absatz allein, bei Sonder-Flows (ME, Kontrolle, Endo) ist diagnosen
-  // leer und es entsteht kein Block.
-  var dqs = _s(true), diagQrAktiv = dqs[0], setDiagQrAktiv = dqs[1];
-  // Erste gewählte Diagnose mit Patienten-Ziel — diagnosen ist auf zwei gedeckelt,
-  // der Brief bekommt aber nur einen Krankheitsbild-Code (analog zu aufActive).
+  // Erste gewaehlte Diagnose mit Krankheitsbild-Artikel. Liefert im OP-Weg das
+  // kbinfo und im konservativen Weg das Ziel selbst.
   var diagActive = _m(function() {
     if (!diagnosen || diagnosen.length === 0) return null;
     for (var i = 0; i < diagnosen.length; i++) {
@@ -1370,28 +1316,55 @@ var _s = useState, _m = useMemo;
     }
     return null;
   }, [diagnosen]);
-  // Gewählte Diagnosen ohne Patienten-Inhalt. Wird ausdrücklich angezeigt,
-  // damit der fehlende Code nicht stillschweigend verschwindet.
   var diagOhneZiel = _m(function() {
     if (!diagnosen || diagnosen.length === 0) return [];
     return diagnosen.filter(function(d){ return !PATIENT_DIAGNOSE_MAP[d]; })
                     .map(function(d){ return (DIAG[d] && DIAG[d].label) || d; });
   }, [diagnosen]);
-  // Kein var-Parameter: Varianten (einfach/komplex) gibt es nur für Eingriffe.
-  var diagUrl = _m(function() {
-    if (!diagActive) return "";
-    return FUSSTRACK_BASE_URL + "?op=" + PATIENT_DIAGNOSE_MAP[diagActive.key] + "&modus=aufklaerung";
-  }, [diagActive]);
-  var diagShowQr = diagQrAktiv && diagActive && diagUrl;
 
-  // Konservativ-Code — nur wenn der Brief primaer zu konservativer Therapie
-  // raet. Dieselbe Bedingung wie der Satz "Nach gruendlicher Abwaegung raten
-  // wir zu konservativer weiterer Therapie." weiter unten im Brieftext; beide
-  // muessen zusammen bleiben, sonst verspricht der Brief etwas anderes als er
-  // empfiehlt.
-  var kqs = _s(true), konsQrAktiv = kqs[0], setKonsQrAktiv = kqs[1];
-  var konsRat = !nurDiagnostik && !(opEmpfohlen && opMethode.filter(function(m) { return OPS[m]; }).length > 0);
-  var konsShowQr = konsQrAktiv && konsRat && diagnosen.length > 0;
+  // Kurzadresse fuss-track.de/i/<id>. Die Regel muss zu kurzlinks.json passen:
+  // Unterstriche werden zu Bindestrichen, ein angehaengtes -kb entfaellt.
+  function kurzlinkId(ziel){
+    return String(ziel).replace(/_/g, "-").replace(/-kb$/, "");
+  }
+
+  var kbArtikel = diagActive ? PATIENT_DIAGNOSE_MAP[diagActive.key] : "";
+
+  // Weicht der Brief auf konservativ aus, faellt der OP-Weg weg — auch wenn
+  // eine OP-Methode angeklickt ist. Dieselbe Bedingung wie der Satz
+  // "Nach gruendlicher Abwaegung raten wir zu konservativer weiterer Therapie."
+  var opGewaehlt = opMethode.filter(function(m) { return OPS[m]; }).length > 0;
+  var opWeg = !nurDiagnostik && opEmpfohlen && opGewaehlt && !!aufActive;
+
+  var aufZielKey = aufActive ? (PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) : "";
+  // Varianten haengen am ZIEL, nicht am Toolbox-Schluessel.
+  var aufVarianten = opWeg ? (PATIENT_VARIANTEN[aufZielKey] || null) : null;
+
+  // Der eine Code: Ziel, Kurzadresse und Beschriftung in einem Stueck.
+  var qr = _m(function() {
+    if (opWeg) {
+      return {
+        art: "eingriff",
+        ziel: aufZielKey,
+        url: FUSSTRACK_BASE_URL + "?op=" + aufZielKey
+             + (PATIENT_VARIANTEN[aufZielKey] ? "&var=" + aufVariante : "")
+             + "&modus=aufklaerung"
+             + (kbArtikel ? "&kbinfo=" + kbArtikel : "")
+      };
+    }
+    if (kbArtikel) {
+      var anker = KB_THEMA[kbArtikel] || "";
+      return {
+        art: "krankheitsbild",
+        ziel: kbArtikel,
+        url: FUSSTRACK_BASE_URL + "?op=" + kbArtikel + "&modus=aufklaerung"
+             + (anker ? "&thema=" + anker : "")
+      };
+    }
+    return null;
+  }, [opWeg, aufZielKey, aufVariante, kbArtikel]);
+
+  var qrShow = qrAktiv && !!qr;
 
   function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
   function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
@@ -1855,47 +1828,33 @@ var _s = useState, _m = useMemo;
     // Online-Information: ein einleitender Satz, darunter die beiden Code-Felder.
     // Um welche Diagnose und welchen Eingriff es geht, steht bereits weiter oben
     // im Brief — hier wird es nicht wiederholt (Kürzung 31.07.2026).
-    if (diagShowQr || aufShowQr || konsShowQr) {
-      // Einleitungssatz aus den aktiven Teilen bauen — Reihenfolge wie die
-      // Code-Felder darunter: Krankheitsbild, Eingriff, konservativ.
-      var qrTeile = [];
-      if (diagShowQr) qrTeile.push("zu Ihrer Diagnose");
-      if (aufShowQr) qrTeile.push("zum geplanten Eingriff");
-      if (konsShowQr) qrTeile.push("zu den konservativen Behandlungsmöglichkeiten");
-      var qrWas = qrTeile.length > 1
-        ? qrTeile.slice(0, -1).join(", ") + " und " + qrTeile[qrTeile.length - 1]
-        : qrTeile[0];
-      qrWas = qrWas.charAt(0).toUpperCase() + qrWas.slice(1);
-      var qrCodes = qrTeile.length > 1 ? "die folgenden Codes" : "den folgenden Code";
+    // EIN Code. Welche Diagnose und welcher Eingriff gemeint sind, steht bereits
+    // weiter oben im Brief und wird hier nicht wiederholt.
+    if (qrShow) {
+      var qrWas = qr.art === "eingriff"
+        ? "Zum geplanten Eingriff"
+        : "Zu Ihrer Diagnose";
       ab += "\n\nWeitere Informationen Online:" +
-        "\n\n" + qrWas + " liegen in der Fuss-Track-App weitere Informationen für Sie bereit. Sie können sie über " + qrCodes + " aufrufen.";
-      if (diagShowQr) {
-        ab += "\n\n" + QR_LABEL_DIAG + kurzlinkId(PATIENT_DIAGNOSE_MAP[diagActive.key]);
-      }
-      if (aufShowQr) {
-        ab += "\n\n" + QR_LABEL_OP + kurzlinkId(aufZielKey);
-      }
-      if (konsShowQr) {
-        ab += "\n\n" + QR_LABEL_KONS;
-      }
+        "\n\n" + qrWas + " liegen in der Fuss-Track-App weitere Informationen für Sie bereit. " +
+        "Sie können sie über den folgenden Code aufrufen." +
+        "\n\n" + QR_LABEL + kurzlinkId(qr.ziel);
     }
     ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return rawOut.replace(/\bundefined\b/g, "___");
-  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, aufShowQr, aufActive, aufUrl, diagShowQr, diagActive, diagUrl, konsShowQr]);
+  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
   // suchen die Zeile mit dem passenden marker-Präfix und setzen das Bild darunter —
   // die Zuordnung läuft also über den Text, nicht über eine Reihenfolge-Annahme.
+  // Der eine Code. Beide Export-Wege suchen die Zeile mit dem QR_LABEL-Praefix
+  // und setzen das Bild darunter.
   function qrListe() {
-    var out = [];
-    if (diagShowQr) out.push({ url: diagUrl, alt: "QR-Code Krankheitsbild", marker: QR_LABEL_DIAG });
-    if (aufShowQr) out.push({ url: aufUrl, alt: "QR-Code Eingriff", marker: QR_LABEL_OP });
-    if (konsShowQr) out.push({ url: KONSERV_URL, alt: "QR-Code konservative Maßnahmen", marker: QR_LABEL_KONS });
-    return out;
+    if (!qrShow) return [];
+    return [{ url: qr.url, alt: "QR-Code Fuss-Track", marker: QR_LABEL }];
   }
   function copy() {
     // Wenn ein QR-Code aktiv ist: versuche Rich-Text mit eingebetteten Bildern (für Word/Outlook).
@@ -2259,54 +2218,28 @@ var _s = useState, _m = useMemo;
         </div>}
         {diagnosen.length > 0 && <div data-tour="sb-opmethode"><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
         <div data-tour="sb-qr">
-        {!diagActive && diagOhneZiel.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
+        {!qr && (diagOhneZiel.length > 0 || aufOhneZiel.length > 0) && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#8A5A00", fontWeight: 600, marginBottom: 4 }}>📱 Keine Online-Information</div>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 4, lineHeight: 1.5 }}>
-            Für {diagOhneZiel.length > 1 ? "diese Diagnosen" : "diese Diagnose"} gibt es noch keinen
-            Patienten-Inhalt — der Brief enthält keinen QR-Code zum Krankheitsbild.
+            Dafür gibt es noch keinen Patienten-Inhalt — der Brief enthält keinen QR-Code.
           </div>
           <div style={row}>
             <div style={{ padding: "4px 10px", borderRadius: 4, fontSize: 10, background: "#F1F4F3",
                           color: "#9AA5A0", border: "1px solid #D6E2E3", cursor: "not-allowed" }}
-                 title="Kein Ziel in der Patienten-App hinterlegt">QR-Code Krankheitsbild</div>
+                 title="Kein Ziel in der Patienten-App hinterlegt">QR-Code beifügen</div>
           </div>
         </div>}
-        {diagActive && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+        {qr && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
-          <div style={{ fontSize: 10, color: "#718096", marginBottom: 4 }}>Informationsmaterial zum Krankheitsbild „{diagActive.label}" — als QR-Code im Brief beifügen?</div>
-          <div style={row}>
-            <div style={CB(diagQrAktiv)} onClick={function() { setDiagQrAktiv(!diagQrAktiv); }}>QR-Code Krankheitsbild</div>
-          </div>
-        </div>}
-        {!aufActive && aufOhneZiel.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#8A5A00", fontWeight: 600, marginBottom: 4 }}>📱 Keine Online-Information</div>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 4, lineHeight: 1.5 }}>
-            Für {aufOhneZiel.length > 1 ? "diese Eingriffe" : "diesen Eingriff"} gibt es noch keinen
-            Patienten-Inhalt — der Brief enthält keinen QR-Code zum Eingriff.
+            {qr.art === "eingriff"
+              ? <span>Ein Code zur Aufklärung über „{aufActive.entry.label}". {aufVarianten ? "Der Patientenbegleiter ist darüber erreichbar. " : ""}Das Krankheitsbild ist von dort verlinkt.</span>
+              : <span>Ein Code zum Krankheitsbild „{diagActive.label}", geöffnet beim Abschnitt zur nicht-operativen Behandlung.</span>}
           </div>
           <div style={row}>
-            <div style={{ padding: "4px 10px", borderRadius: 4, fontSize: 10, background: "#F1F4F3",
-                          color: "#9AA5A0", border: "1px solid #D6E2E3", cursor: "not-allowed" }}
-                 title="Kein Ziel in der Patienten-App hinterlegt">QR-Code Eingriff</div>
+            <div style={CB(qrAktiv)} onClick={function() { setQrAktiv(!qrAktiv); }}>QR-Code beifügen</div>
           </div>
-        </div>}
-        {aufActive && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
-          <div style={{ fontSize: 10, color: "#718096", marginBottom: 4 }}>Informationsmaterial zu „{aufActive.entry.label}" — als QR-Code im Brief beifügen?</div>
-          <div style={row}>
-            <div style={CB(aufQrAktiv)} onClick={function() { setAufQrAktiv(!aufQrAktiv); }}>QR-Code Eingriff</div>
-          </div>
-          {aufQrAktiv && aufBegleiterKey && <div style={{ marginTop: 6 }}>
-            <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>
-              Für diesen Eingriff gibt es einen Patientenbegleiter. Derselbe Code führt
-              dann auf dieselbe Informationsseite und schaltet zusätzlich die Begleitung
-              nach der OP frei — es kommt kein zweiter Code hinzu.
-            </div>
-            <div style={row}>
-              <div style={CB(aufBegleiter)} onClick={function() { setAufBegleiter(!aufBegleiter); }}>Patientenbegleiter freischalten</div>
-            </div>
-          </div>}
-          {aufQrAktiv && aufVarianten && <div style={{ marginTop: 6 }}>
+          {qrAktiv && aufVarianten && <div style={{ marginTop: 6 }}>
             <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Nachbehandlungsschema für die Begleitung</div>
             <div style={row}>
               {Object.keys(aufVarianten).map(function(vk) {
@@ -2320,16 +2253,6 @@ var _s = useState, _m = useMemo;
               {aufVarianten[aufVariante] ? aufVarianten[aufVariante].info : ""}
             </div>
           </div>}
-        </div>}
-        {konsRat && diagnosen.length > 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#00897B", fontWeight: 600, marginBottom: 4 }}>📱 Online-Information verfügbar</div>
-          <div style={{ fontSize: 10, color: "#718096", marginBottom: 4, lineHeight: 1.5 }}>
-            Der Brief rät zu konservativer Therapie. Der Code führt auf die Startseite der
-            Patienten-App, nicht auf eine einzelne Maßnahme — konservativ wird meist kombiniert.
-          </div>
-          <div style={row}>
-            <div style={CB(konsQrAktiv)} onClick={function() { setKonsQrAktiv(!konsQrAktiv); }}>QR-Code konservativ</div>
-          </div>
         </div>}
         </div>
         {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
@@ -2908,32 +2831,16 @@ var _s = useState, _m = useMemo;
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
-                {diagShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(diagUrl, "QR-Code-Krankheitsbild.png"); }}>📋 QR Krankheitsbild</div>}
-                {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "QR-Code-Eingriff.png"); }}>📋 QR Eingriff</div>}
-                {konsShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(KONSERV_URL, "QR-Code-konservativ.png"); }}>📋 QR konservativ</div>}
+                {qrShow && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(qr.url, "QR-Code-Fuss-Track.png"); }}>📋 QR-Code</div>}
               </div>
             </div>
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
             {showPv && <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
-            {showPv && diagShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
-              <QRCanvas text={diagUrl} size={120} />
+            {showPv && qrShow && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
+              <QRCanvas text={qr.url} size={120} />
               <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.4 }}>
-                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Krankheitsbild</div>
-                <div>{diagActive.label}</div>
-              </div>
-            </div>}
-            {showPv && aufShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
-              <QRCanvas text={aufUrl} size={120} />
-              <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.4 }}>
-                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Eingriff</div>
-                <div>{aufActive.entry.label}</div>
-              </div>
-            </div>}
-            {showPv && konsShowQr && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
-              <QRCanvas text={KONSERV_URL} size={120} />
-              <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.4 }}>
-                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Konservativ</div>
-                <div>Startseite der Patienten-App</div>
+                <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 2 }}>📱 Ihr Code</div>
+                <div>{qr.art === "eingriff" ? aufActive.entry.label : diagActive.label}</div>
               </div>
             </div>}
           </div>
@@ -2948,31 +2855,15 @@ var _s = useState, _m = useMemo;
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
-              {diagShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(diagUrl, "QR-Code-Krankheitsbild.png"); }}>📋 QR Krankheitsbild</div>}
-              {aufShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(aufUrl, "QR-Code-Eingriff.png"); }}>📋 QR Eingriff</div>}
-                {konsShowQr && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(KONSERV_URL, "QR-Code-konservativ.png"); }}>📋 QR konservativ</div>}
+              {qrShow && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(qr.url, "QR-Code-Fuss-Track.png"); }}>📋 QR-Code</div>}
             </div>
           </div>
           <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
-          {diagShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
-            <QRCanvas text={diagUrl} size={140} />
+          {qrShow && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
+            <QRCanvas text={qr.url} size={140} />
             <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
-              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Krankheitsbild</div>
-              <div>{diagActive.label}</div>
-            </div>
-          </div>}
-          {aufShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
-            <QRCanvas text={aufUrl} size={140} />
-            <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
-              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Eingriff</div>
-              <div>{aufActive.entry.label}</div>
-            </div>
-          </div>}
-          {konsShowQr && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
-            <QRCanvas text={KONSERV_URL} size={140} />
-            <div style={{ flex: 1, fontSize: 10, color: "#4A5568", lineHeight: 1.5 }}>
-              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Konservativ</div>
-              <div>Startseite der Patienten-App</div>
+              <div style={{ fontWeight: 700, color: "#00897B", marginBottom: 4, fontSize: 11 }}>📱 Ihr Code</div>
+              <div>{qr.art === "eingriff" ? aufActive.entry.label : diagActive.label}</div>
             </div>
           </div>}
         </div>
@@ -7656,8 +7547,8 @@ const RUNDGANG_SB = [
   { ziele:['[data-tour="sb-qr"]'],
     wennFehlt: "Die Codes erscheinen, sobald eine Diagnose gewählt ist.",
     titel: "Die Codes für Ihre Patienten",
-    text: "Der Brief kann bis zu drei QR-Codes mitführen — zum Krankheitsbild, zum geplanten Eingriff und, wenn Sie konservativ raten, zu den nicht-operativen Möglichkeiten. Jeder steht im Brief zusätzlich als kurze Adresse zum Abtippen. Gibt es zu einer Diagnose oder einem Eingriff noch kein Patientenmaterial, sagt der Block das ausdrücklich und der Brief bleibt ohne diesen Code.",
-    hinweis: "Wo ein Patientenbegleiter existiert, schaltet ihn derselbe Eingriffs-Code zusätzlich frei — ein weiterer Code entsteht dadurch nicht." },
+    text: "Der Brief führt einen Code pro Patient. Raten Sie zur Operation, zeigt er auf die Aufklärung zum Eingriff; das Krankheitsbild ist von dort verlinkt. Raten Sie konservativ, zeigt er auf das Krankheitsbild, geöffnet beim Abschnitt zur nicht-operativen Behandlung. Der Haken im Abschluss entscheidet. Die Adresse steht zusätzlich zum Abtippen im Brief.",
+    hinweis: "Beim Eingriffs-Code ist der Patientenbegleiter enthalten — ein zweiter Code ist nicht nötig." },
   { ziele:['[data-tour="sb-befunde"]'], titel: "Die Befund-Schalter",
     text: "Jeder Schalter ist ein Textbaustein. Eingeschaltet erscheint der zugehörige Satz im Brief, ausgeschaltet fehlt er. Die Reihenfolge, in der Sie schalten, spielt keine Rolle — der Brief ordnet die Sätze selbst.",
     hinweis: "Sie müssen nichts formulieren. Was Sie anschalten, steht anschließend als fertiger Satz im Text." },
