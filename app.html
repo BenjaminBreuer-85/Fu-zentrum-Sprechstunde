@@ -437,6 +437,111 @@ window.TOOLBOX_AUTH = {
   // Zustand des Konto-Abrufs. Solange er nicht "ok" ist, darf nichts gerechnet
   // oder als Zahl angezeigt werden — sonst entsteht aus einem leeren Ergebnis
   // eine falsche Statistik ("4 von 43"), ohne dass ein Fehler sichtbar wird.
+  // ==========================================================================
+  // RUNDGANG-MERKER — kontogebunden statt geraetegebunden
+  //
+  // localStorage haengt an Geraet und Browser. Derselbe Nutzer bekam den
+  // Rundgang deshalb auf jedem neuen Geraet erneut. Kuenftig ist die Tabelle
+  // nutzer_einstellungen die Wahrheit; localStorage bleibt Zwischenspeicher
+  // und Rueckfall, wenn der Server gerade nicht erreichbar ist.
+  //
+  // null = noch nicht geladen. Solange darf KEIN Rundgang starten, sonst
+  // blitzt er bei einem Nutzer auf, der ihn laengst kennt.
+  // ==========================================================================
+  window._RUNDGANG_STATUS = null;
+  window._RUNDGANG_HORCHER = window._RUNDGANG_HORCHER || [];
+  // localStorage-Schluessel <-> Feldname in der jsonb-Spalte
+  window._RUNDGANG_FELDER = {
+    "ft-rundgang-gesehen":        "menue",
+    "ft-rundgang-sb-gesehen":     "sb",
+    "ft-rundgang-ob-gesehen":     "ob",
+    "ft-rundgang-preise-gesehen": "preise"
+  };
+  var RUNDGANG_KONTO_SCHLUESSEL = "ft-konto";
+
+  function rundgangMelden(){
+    window._RUNDGANG_HORCHER.slice().forEach(function(fn){ try { fn(); } catch(e){} });
+  }
+
+  function rundgaengeLaden(client, userId){
+    // Kontowechsel am selben Geraet: die lokalen Merker gehoeren dem vorigen
+    // Nutzer. Verwerfen, damit ein Zweit- oder Testkonto seinen eigenen
+    // Rundgang bekommt. Homescreen und Schriftgroesse bleiben unangetastet —
+    // die sind geraetegebunden und vom Konto unabhaengig.
+    try {
+      if (localStorage.getItem(RUNDGANG_KONTO_SCHLUESSEL) !== userId) {
+        Object.keys(window._RUNDGANG_FELDER).forEach(function(k){ localStorage.removeItem(k); });
+        localStorage.setItem(RUNDGANG_KONTO_SCHLUESSEL, userId);
+      }
+    } catch(e){}
+
+    return client.from("nutzer_einstellungen").select("rundgaenge").eq("user_id", userId).maybeSingle()
+      .then(function(res){
+        if (res.error) throw res.error;
+        var server = (res.data && res.data.rundgaenge) || {};
+
+        // Bestandsnutzer uebernehmen: was lokal als gesehen steht, dem Server
+        // aber fehlt, wird einmalig hochgeschrieben. Sonst liefe der Rundgang
+        // nach dem Update noch einmal, obwohl die Person ihn kennt.
+        var nachzutragen = false, zusammen = {};
+        Object.keys(server).forEach(function(f){ zusammen[f] = server[f]; });
+        Object.keys(window._RUNDGANG_FELDER).forEach(function(k){
+          var feld = window._RUNDGANG_FELDER[k];
+          var lokal = false;
+          try { lokal = localStorage.getItem(k) === "1"; } catch(e){}
+          if (lokal && !zusammen[feld]) { zusammen[feld] = 1; nachzutragen = true; }
+        });
+
+        window._RUNDGANG_STATUS = zusammen;
+        // Zwischenspeicher an den Serverstand angleichen.
+        try {
+          Object.keys(window._RUNDGANG_FELDER).forEach(function(k){
+            if (zusammen[window._RUNDGANG_FELDER[k]]) localStorage.setItem(k, "1");
+          });
+        } catch(e){}
+        rundgangMelden();
+
+        if (nachzutragen) rundgangSchreiben(client, userId);
+      })
+      .catch(function(e){
+        // Kein Serverstand: auf den lokalen zurueckfallen, damit der Rundgang
+        // nicht bei jedem Ladefehler erneut startet.
+        console.warn("Rundgang-Merker konnten nicht geladen werden:", e && e.message);
+        var ersatz = {};
+        try {
+          Object.keys(window._RUNDGANG_FELDER).forEach(function(k){
+            if (localStorage.getItem(k) === "1") ersatz[window._RUNDGANG_FELDER[k]] = 1;
+          });
+        } catch(e2){}
+        window._RUNDGANG_STATUS = ersatz;
+        rundgangMelden();
+      });
+  }
+
+  function rundgangSchreiben(client, userId){
+    return client.from("nutzer_einstellungen").upsert({
+      user_id: userId,
+      rundgaenge: window._RUNDGANG_STATUS || {},
+      aktualisiert_am: new Date().toISOString()
+    }, { onConflict: "user_id" }).then(function(res){
+      if (res.error) console.warn("Rundgang-Merker nicht gespeichert:", res.error.message);
+    }).catch(function(e){
+      // Offline: der localStorage-Eintrag bleibt und wird beim naechsten
+      // Start mit Netz nachgetragen.
+      console.warn("Rundgang-Merker nicht gespeichert:", e && e.message);
+    });
+  }
+
+  // Wird aus der App heraus aufgerufen, wenn ein Rundgang beendet wurde.
+  window._rundgangGesehen = function(lsSchluessel){
+    var feld = window._RUNDGANG_FELDER[lsSchluessel];
+    if (!feld) return;                       // Homescreen o. ae. — bleibt lokal
+    if (!window._RUNDGANG_STATUS) window._RUNDGANG_STATUS = {};
+    if (window._RUNDGANG_STATUS[feld]) return;
+    window._RUNDGANG_STATUS[feld] = 1;
+    if (window._SB && window._KONTO_USER) rundgangSchreiben(window._SB, window._KONTO_USER);
+  };
+
   window._KONTO_STATUS = "laedt";
   // Mehrere Ansichten warten auf denselben Abruf (Implantatpreise,
   // Sprechstundenbrief, OP-Bericht). Frueher gab es nur EINEN Rueckruf-Platz,
@@ -450,6 +555,17 @@ window.TOOLBOX_AUTH = {
   };
   function ladePreise(client, zweiterVersuch){
     window._SB = client;
+    // Rundgang-Merker laufen unabhaengig von den Preisen: ein Preisfehler darf
+    // nicht dazu fuehren, dass der Rundgang erneut startet. Nur einmal, auch
+    // wenn ladePreise wegen des Wiederholversuchs ein zweites Mal laeuft.
+    if (!zweiterVersuch && !window._KONTO_USER) {
+      client.auth.getUser().then(function(r){
+        var u = r && r.data && r.data.user;
+        if (!u) return;
+        window._KONTO_USER = u.id;
+        rundgaengeLaden(client, u.id);
+      }).catch(function(){});
+    }
     window._KONTO_STATUS = "laedt";
     if (window._onPreiseGeladen) window._onPreiseGeladen();
     return Promise.all([
@@ -7493,6 +7609,53 @@ function HomescreenKarte({onClose, alsSchritt}){
 // Kein fremdes Tour-Programm, nur diese Datei.
 // ============================================================================
 const RUNDGANG_MERKER = "ft-rundgang-gesehen";
+
+// ---------------------------------------------------------------------------
+// Rundgang-Zustand: kontogebunden (Server) statt geraetegebunden (localStorage).
+//
+// rundgangStand() liefert
+//   null           — noch nicht geladen; dann darf KEIN Rundgang starten,
+//                    sonst blitzt er bei Nutzern auf, die ihn laengst kennen
+//   {feld: 1, …}   — die gesehenen Rundgaenge
+//
+// Ohne Supabase (lokaler Dev-Server) gibt es kein Konto — dann gilt sofort der
+// localStorage-Stand, damit sich lokal nichts anders verhaelt als vorher.
+// ---------------------------------------------------------------------------
+function rundgangStand(){
+  if (!window._SB) {
+    var lokal = {};
+    try {
+      var f = window._RUNDGANG_FELDER || {};
+      Object.keys(f).forEach(function(k){
+        if (localStorage.getItem(k) === "1") lokal[f[k]] = 1;
+      });
+    } catch(e){}
+    return lokal;
+  }
+  return window._RUNDGANG_STATUS;      // null, solange der Abruf laeuft
+}
+// Wurde dieser Rundgang schon gesehen? null = noch unbekannt.
+function rundgangSchonGesehen(lsSchluessel){
+  var stand = rundgangStand();
+  if (!stand) return null;
+  var feld = (window._RUNDGANG_FELDER || {})[lsSchluessel];
+  if (!feld) {                          // z. B. Homescreen — bleibt geraetegebunden
+    try { return localStorage.getItem(lsSchluessel) === "1"; } catch(e){ return true; }
+  }
+  return !!stand[feld];
+}
+// Rendert neu, sobald der Serverstand eintrifft.
+function useRundgangStand(){
+  var st = React.useState(0), setTick = st[1];
+  React.useEffect(function(){
+    function melde(){ setTick(function(x){ return x + 1; }); }
+    window._RUNDGANG_HORCHER = window._RUNDGANG_HORCHER || [];
+    window._RUNDGANG_HORCHER.push(melde);
+    return function(){
+      window._RUNDGANG_HORCHER = window._RUNDGANG_HORCHER.filter(function(f){ return f !== melde; });
+    };
+  }, []);
+}
 const SCHRIFT_MERKER  = "ft-schriftgroesse";
 
 // Die Oberfläche ist durchgehend in Pixeln gesetzt, deshalb wird der gesamte
@@ -7676,6 +7839,7 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
   React.useEffect(function(){
     return function(){
       try{ localStorage.setItem(merker || RUNDGANG_MERKER, "1"); }catch(e){}
+      if (window._rundgangGesehen) window._rundgangGesehen(merker || RUNDGANG_MERKER);
     };
   }, [merker]);
 
@@ -7688,6 +7852,9 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
       // Nur im Menü-Rundgang war die Homescreen-Karte ein Schritt
       if (istMenueRundgang) localStorage.setItem(HOMESCREEN_MERKER, "1");
     }catch(e){}
+    // Kontogebunden merken. HOMESCREEN_MERKER bewusst NICHT — der Hinweis muss
+    // auf einem neuen Geraet wieder erscheinen.
+    if (window._rundgangGesehen) window._rundgangGesehen(merker || RUNDGANG_MERKER);
     onFertig();
   }
 
@@ -7810,9 +7977,17 @@ function MitRundgang({schritte, merker, anstoss, onVerbraucht, children}){
   // Zwei Auslöser: das erste Öffnen der Funktion (Merker noch nicht gesetzt)
   // und ein ausdrücklicher Anstoß aus den Einstellungen. Der Anstoß wirkt auch
   // beim Einhängen der Komponente — die Funktion wird ja gerade erst geöffnet.
-  const [laeuft, setLaeuft] = useState(function(){
-    if (anstoss) return true;
-    try{ return localStorage.getItem(merker) !== "1"; }catch(e){ return false; }
+  // Kein Automatikstart, solange der Serverstand nicht da ist (null). Sonst
+  // blitzt der Rundgang bei Nutzern auf, die ihn laengst gesehen haben.
+  useRundgangStand();
+  const [laeuft, setLaeuft] = useState(function(){ return !!anstoss; });
+  const [autoGeprueft, setAutoGeprueft] = React.useState(false);
+  useEffect(function(){
+    if (autoGeprueft) return;
+    var gesehen = rundgangSchonGesehen(merker);
+    if (gesehen === null) return;              // noch unbekannt, spaeter erneut
+    setAutoGeprueft(true);
+    if (!gesehen) setLaeuft(true);
   });
   const letzterAnstoss = React.useRef(anstoss);
   useEffect(function(){
@@ -8005,8 +8180,16 @@ function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
   }
   // Der Rundgang läuft automatisch genau einmal — und nur hier im Menü,
   // nie über einer bereits geöffneten Funktion.
-  const [zeigeRundgang, setZeigeRundgang] = useState(function(){
-    try{ return localStorage.getItem(RUNDGANG_MERKER) !== "1"; }catch(e){ return false; }
+  // Wie in MitRundgang: erst laden, dann entscheiden.
+  useRundgangStand();
+  const [zeigeRundgang, setZeigeRundgang] = useState(false);
+  const [autoGeprueft, setAutoGeprueft] = React.useState(false);
+  React.useEffect(function(){
+    if (autoGeprueft) return;
+    var gesehen = rundgangSchonGesehen(RUNDGANG_MERKER);
+    if (gesehen === null) return;
+    setAutoGeprueft(true);
+    if (!gesehen) setZeigeRundgang(true);
   });
   // Wiederaufruf aus den Einstellungen. Der Effekt laeuft auch beim Einhaengen
   // der Komponente — und die haengt sich bei jeder Rueckkehr aus einem Werkzeug
