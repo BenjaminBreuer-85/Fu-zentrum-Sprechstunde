@@ -3316,7 +3316,7 @@ function OPBerichtApp(){
   const [nanoSeite,setNanoSeite]=useState("medial");
   const [coalTyp,setCoalTyp]=useState("");
   const [mdoTyp,setMdoTyp]=useState("");
-  const [mdoFDL,setMdoFDL]=useState(false);
+  const [fdlTransfer,setFdlTransfer]=useState(false);
   const [mdoCotton,setMdoCotton]=useState("");
   const [t2Length,setT2Length]=useState("200");
   const [t2Width,setT2Width]=useState("11");
@@ -3419,12 +3419,50 @@ function OPBerichtApp(){
   const hasTEP=!!tepType;
   const hasRF=rfOp.length>0;
   const hasMF=mfCotton||mfTmt.length>0;
-  const hasME=meOp.length>0;
+  // meOp wird seit dem Umbau auf den MEPicker nirgends mehr gefuellt — der
+  // Picker schreibt meRegion/meImpl/meZusatz. hasME war damit dauerhaft false,
+  // und eine ALLEINE gewaehlte Metallentfernung erzeugte gar keinen Bericht
+  // (hasAny false -> frueher Ausstieg) und keinen Export. Dasselbe Muster wie
+  // im Unfallchirurgie-Zweig, der sein Flag beim Waehlen der Region setzt.
+  const hasME=meOp.length>0||(!!meRegion&&!!meImpl);
   const hasUM=umOp.length>0;
   const hasFX=fxOp.length>0;
   const hasASnaht=rfOp.includes("as_naht");
   const hasRFarthrodese=rfOp.includes("subtalar")||rfOp.includes("tn_arthrodese")||rfOp.includes("double_arthrodese")||rfOp.includes("triple_arthrodese")||(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi");
   const hasCalcOT=rfOp.includes("calc_ot_verl");
+  // FDL-Transfer und Cotton-OT gehoeren zum erworbenen Knick-Senkfuss und
+  // damit zu JEDER der drei Osteotomien — nicht nur zur MDO. Frueher hing der
+  // Schalter allein an den MDO-Varianten, obwohl Text, OPS-Code und
+  // Implantatzuordnung schon immer unabhaengig davon griffen.
+  const KSF_OSTEOTOMIEN=["mdo_mini","mdo_offen","calc_ot_verl"];
+  const hatKsfOsteotomie=rfOp.some(function(o){return KSF_OSTEOTOMIEN.includes(o);});
+
+  // Verwaiste Unter-Zustaende aufraeumen.
+  // Wer eine OP abwaehlt, deren Zusatz-Schalter er vorher gesetzt hat, sieht
+  // den Schalter zwar nicht mehr — der Zustand blieb aber stehen und schrieb
+  // weiter Absatz und OPS-Code in den Bericht. Ein Bericht, der einen nicht
+  // durchgefuehrten Eingriff beschreibt, ist kein kosmetisches Problem.
+  React.useEffect(function(){
+    if(!hatKsfOsteotomie){ if(fdlTransfer)setFdlTransfer(false); if(mdoCotton)setMdoCotton(""); }
+  },[hatKsfOsteotomie]);
+  React.useEffect(function(){
+    if(!rfOp.includes("hohlfuss")&&(dwyerSteindler||dwyerElevMT1||dwyerJones||dwyerPeroneal)){
+      setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);
+    }
+  },[rfOp]);
+  React.useEffect(function(){
+    if(!rfOp.includes("supramal_ot")&&(supramalTyp||supramalFibula||supramalBrostrom||supramalStabi)){
+      setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);
+    }
+  },[rfOp]);
+  React.useEffect(function(){
+    if(!rfOp.includes("peroneal")&&(peronealTyp||peronealLongus||luxNaht||luxRinne||luxQuartus)){
+      setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);
+    }
+  },[rfOp]);
+  React.useEffect(function(){
+    if(!rfOp.includes("os_tib_ext")&&osTibMDO) setOsTibMDO(false);
+  },[rfOp]);
   const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||Object.values(zc).some(a=>a.length>0));
   const hasDMMOover2=dmmo.length>2;
   const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasMF||hasME||hasUM||hasFX||coalTyp!=="";
@@ -3488,7 +3526,7 @@ function OPBerichtApp(){
       if(op==="fhl_transfer")PZ("fhl_transfer");
     });
     // FDL-Transfer Toggle unter MDO
-    if(mdoFDL)PZ("mdo_fdl_transfer","mit FDL-Transfer");
+    if(fdlTransfer)PZ("mdo_fdl_transfer","mit FDL-Transfer");
     // Cotton-OT als Toggle unter MDO (allogen)
     if(mdoCotton==="allogen")PZ("allogen","allogen (Spenderknochen)");
     // Hohlfuß
@@ -3509,7 +3547,7 @@ function OPBerichtApp(){
     });
     if(fxSyndes)PZ("fibula_syndesmose","mit Syndesmose");
     return items;
-  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,tepTalCut,rfOp,peronealTyp,hohlfussTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,mdoFDL,mdoCotton]);
+  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,tepTalCut,rfOp,peronealTyp,hohlfussTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,fdlTransfer,mdoCotton]);
 
     // ============================================================
   // ICD-10 CODES – automatisch pro Eingriff
@@ -3666,10 +3704,16 @@ function OPBerichtApp(){
       if(op==="as_naht")o.push("5-855.19","5-855.39");
       if(op==="fhl_transfer")o.push("5-854.49","5-869.2","5-855.39","5-855.19");
     })
-    if(mdoFDL)o.push("5-854.2b");  // FDL-Transfer Rückfuß (nicht 5-854.2c = Vorfuß!)
+    if(fdlTransfer)o.push("5-854.2b");  // FDL-Transfer Rückfuß (nicht 5-854.2c = Vorfuß!)
     if(mdoCotton==="autolog")o.push("5-781.6t");
     if(mdoCotton==="allogen")o.push("5-781.6t");;
-    // ME: keine automatische OPS-Zuordnung (manuelle Kodierung je nach Region/Material)
+    // Metallentfernung: Region und Material sind eindeutig gewaehlt, der Code
+    // laesst sich also ableiten — der MEPicker zeigt ihn ohnehin schon an.
+    // Zusammen mit dem Zusatzcode ist genau das der H-DRG-Hebel (I20O); ihn von
+    // Hand nachtragen zu muessen war die fehleranfaelligste Stelle des Ablaufs.
+    if(meRegion&&meImpl&&ME_REGIONEN[meRegion]&&ME_REGIONEN[meRegion].codes[meImpl])
+      o.push(ME_REGIONEN[meRegion].codes[meImpl]);
+    if(meZusatz&&meZusatz!=="none")o.push(meZusatz);
     // Coalitio
     if(coalTyp==="tc")o.push("5-781.at","5-856.4a","5-852.g9");  // Coalitio TC
     if(coalTyp==="cn")o.push("5-781.at","5-856.4a","5-852.g9");  // Coalitio CN  
@@ -3707,6 +3751,10 @@ function OPBerichtApp(){
     if(rfOp.includes("os_tib_ext"))_candidates.push({p:"os_tib",cm:0.707});
     if(rfOp.includes("peroneal"))_candidates.push({p:"peroneal",cm:peronealTyp==="luxation"?(luxRinne?0.995:(luxNaht?0.743:0.707)):0.743});
     if(rfOp.includes("fhl_transfer"))_candidates.push({p:"fhl_transfer",cm:0.95});
+    // LCOT teilt sich die DRG I20C mit MDO und Dwyer (siehe Kodierhinweis
+    // unten). Ohne diesen Kandidaten blieb _prio bei einer isolierten LCOT
+    // leer — es gab OPS und ICD, aber keine Fallsteuerung.
+    if(hasCalcOT)_candidates.push({p:"mdo",cm:1.111});
     if(mfCotton)_candidates.push({p:"cotton",cm:1.111});
     if(mfTmt.length>0){var _tmtCm=mfTmt.includes("tmt1_3")?1.111:1.033;_candidates.push({p:"tmt",cm:_tmtCm});}
     if(rfOp.includes("supramal_ot"))_candidates.push({p:"supramal",cm:1.278});
@@ -3942,7 +3990,7 @@ function OPBerichtApp(){
       hdrg:"—",ebm:"EBM je nach Region",kurz:"—",drg:"—",hdrg_n1:"—",empf:"amb",
       ziel:window._fx("ME allein triggert keine H-DRG und meist keine attraktive DRG.\nAmbulant in LA möglich → EBM-Abrechnung (niedrig vergütet).\n\n💡 H-DRG-TRIGGER (I20O ~1.007 €): Wenn klinisch indiziert, Zusatzeingriff derselben Region kombinieren:"),
       kodier:"⚠ Keine automatische Codierung – manuell setzen:\n\n• OPS: 5-787.x nach Lokalisation + Materialart (Schraube/Draht/Platte/winkelstab. Platte/Nagel/Fixateur)\n• ICD-HD: Z47.0 (Entfernung einer Metallplatte/Fixationsvorrichtung)\n• ND bei Komplikation: T84.6 (Infektion), M84.1 (Pseudarthrose)\n\n💡 H-DRG-TRIGGER I20O (Zusatzeingriff, nur wenn klinisch gerechtfertigt und im OP-Bericht dokumentiert):\n\n▸ Exostosenabtragung:\n  5-788.00 (MT I) · 5-788.06–09 (MT II–V, 1–4 Knochen)\n  5-788.0a (Dig I) · 5-788.0b–0f (Dig II–V, 1–5 Phalangen)\n\n▸ Bursektomie Fuß:\n  5-859.1a (totale Resektion Schleimbeutel Fuß)\n  5-859.0a (Inzision Schleimbeutel Fuß)\n\n▸ Tenolyse/Tenotomie Fuß:\n  5-851.1a (Tenotomie offen chir.) · 5-851.2a (perkutan)\n  5-852.2a (Exzision Sehnenscheide, partiell)\n\n▸ Revision/Wechsel OSE:\n  Wird als 5-78a.* kodiert (höher bewertet, NICHT als reine ME einstufen)"}];
-    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,mdoFDL,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,hohlfussTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa]);
+    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,hohlfussTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // Text version for Word export
   const icdText=useMemo(()=>{
@@ -4199,9 +4247,6 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     // MDO
     if(rfOp.includes("mdo_mini"))p.push("\n\n"+T.mdo_mini);
     if(rfOp.includes("mdo_offen"))p.push("\n\n"+T.mdo_offen);
-    if(mdoFDL)p.push("\n\n"+T.mdo_fdl);
-    if(mdoCotton==="autolog")p.push("\n\n"+T.cotton_ot_autolog);
-    if(mdoCotton==="allogen")p.push("\n\n"+T.cotton_ot_allogen);
 
     // Coalitio TC
     if(coalTyp==="tc"){
@@ -4345,13 +4390,19 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         }
       }
       else if(op==="calc_ot_verl")p.push("\n\nZuwendung zur verlängernden Calcaneus-Osteotomie.\n"+T.coal_lcot);
-      else if(!["arthrorise","haglund_mini","haglund","as_naht","fhl_transfer","subtalar","tn_arthrodese","double_arthrodese","triple_arthrodese","hohlfuss","os_tib_ext","supramal_ot"].includes(op)) p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
+      // mdo_mini/mdo_offen stehen bereits weiter oben (ausserhalb dieser Schleife).
+      // Ohne sie hier auszunehmen bekam jeder MDO-Bericht zusaetzlich die Zeile
+      // "[MDO_OFFEN – Text wird ergänzt]", obwohl der Text schon vollstaendig da war.
+      else if(!["arthrorise","haglund_mini","haglund","as_naht","fhl_transfer","subtalar","tn_arthrodese","double_arthrodese","triple_arthrodese","hohlfuss","os_tib_ext","supramal_ot","mdo_mini","mdo_offen"].includes(op)) p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
     });
+    // Knick-Senkfuß-Zusaetze NACH den Osteotomien — sie beziehen sich darauf.
+    if(fdlTransfer)p.push("\n\n"+T.mdo_fdl);
+    // Cotton nur EINMAL, auch wenn beide Einstiege (Rueckfuss und Mittelfuss)
+    // angeklickt sind — sonst stand der Absatz zweimal im Bericht.
+    var cottonArt = mdoCotton || (mfCotton ? (mfCottonKnochen==="allogen"?"allogen":"autolog") : "");
+    if(cottonArt==="autolog")p.push("\n\n"+T.cotton_ot_autolog);
+    if(cottonArt==="allogen")p.push("\n\n"+T.cotton_ot_allogen);
     // Mittelfuß
-    if(mfCotton){
-      if(mfCottonKnochen==="allogen")p.push("\n\n"+T.cotton_ot_allogen);
-      else p.push("\n\n"+T.cotton_ot_autolog);
-    }
     if(mfTmt.length>0){
       const tmtLabel=mfTmt.map(t=>t==="tmt1"?"TMT 1":t==="tmt1_3"?"TMT 1–3":t==="tmt2_3"?"TMT 2–3":"TMT 2").join(", ");
       if(mfTmt.length===1&&mfTmt[0]==="tmt2"){
@@ -4394,7 +4445,10 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     p.push("\n\n"+buildVerband(hasVF,bs,r));
     if(entlassGespr)p.push("\n\nPostoperativ erfolgt ein ausführliches Entlassgespräch über den Eingriff und die Nachbehandlung. Aufklärung über Zeichen von Infekt, Thrombose oder andere postoperative Komplikationen mit Verhaltensmaßgaben. Kontrolltermine werden besprochen und abgestimmt. Häusliche Versorgung und Betreuung am OP-Tag ist anamnestisch gewährleistet. Recap der Zehen ist intakt, Belastungsvorgaben können umgesetzt werden, Verband ist trocken.");
     return textPlatzhalter(p.join(""));
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT]);
+  // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
+  // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
+  // Cotton liessen sich so anklicken, ohne dass der Text erschien.
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,hohlfussTyp,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -4692,7 +4746,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </OBSec>
 
       {/* RÜCKFUSS */}
-      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);}}>
+      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);setFdlTransfer(false);setMdoCotton("");}}>
         <div style={row}>
           {[["haglund_mini","Calcaneoplastie"],["haglund","Haglund + AS-Split/Refix"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL-Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
@@ -4753,13 +4807,13 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           </div>
           <div style={{fontSize:10,color:"#718096",marginTop:2}}>{arthroBds?"Arthrorise bds (links zuerst, dann rechts)":"Arthrorise einseitig ("+(side||"Seite wählen")+")"}</div>
         </div>}
-{(rfOp.includes("mdo_mini")||rfOp.includes("mdo_offen"))&&<div style={{marginTop:6}}>
+{hatKsfOsteotomie&&<div style={{marginTop:6}}>
           <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-            <div style={tog(mdoFDL)} onClick={()=>setMdoFDL(!mdoFDL)}>+ FDL-Transfer</div>
+            <div style={tog(fdlTransfer)} onClick={()=>setFdlTransfer(!fdlTransfer)}>+ FDL-Transfer</div>
             <div style={tog(mdoCotton==="autolog")} onClick={()=>setMdoCotton(mdoCotton==="autolog"?"":"autolog")}>+ Cotton autolog</div>
             <div style={tog(mdoCotton==="allogen")} onClick={()=>setMdoCotton(mdoCotton==="allogen"?"":"allogen")}>+ Cotton allogen</div>
           </div>
-          <div style={{fontSize:10,color:"#718096",marginTop:4}}>MDO {rfOp.includes("mdo_mini")?"minimalinvasiv":"offen"}{mdoFDL?", FDL-Transfer":""}{mdoCotton?", Cotton-OT ("+mdoCotton+")":""}</div>
+          <div style={{fontSize:10,color:"#718096",marginTop:4}}>{rfOp.filter(function(o){return KSF_OSTEOTOMIEN.includes(o);}).map(function(o){return o==="mdo_mini"?"MDO minimalinvasiv":o==="mdo_offen"?"MDO offen":"LCOT";}).join(" + ")}{fdlTransfer?", FDL-Transfer":""}{mdoCotton?", Cotton-OT ("+mdoCotton+")":""}</div>
         </div>}
         
       </OBSec>
@@ -4823,7 +4877,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         {meRegion&&meImpl&&meZusatz&&meZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
           <div style={{fontSize:10,fontWeight:700,color:"#E65100",marginBottom:3}}>⚠ Zusatzeingriff im OP-Bericht zwingend dokumentieren</div>
           <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-            Der Zusatzcode <b>{meZusatz}</b> triggert die H-DRG nur, wenn er im OP-Bericht ausdrücklich beschrieben ist. Der Text dazu wird als Platzhalter-Abschnitt generiert — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
+            Der Zusatzcode <b>{meZusatz}</b> triggert die H-DRG nur, wenn er im OP-Bericht ausdrücklich beschrieben ist. Der Text dazu wird als ausformulierter Abschnitt eingefügt — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
           </div>
         </div>}
       </OBSec>
@@ -5017,7 +5071,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
           <div style={h3s}>Vorschau & Export</div>
           <div style={{display:"flex",gap:4}}>
-            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setFxSyndes(false);setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");setRuhig("keine");setEntlassGespr(false);setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);setMdoTyp("");setMdoFDL(false);setMdoCotton("");setT2Length("200");setT2Width("11");setT2Becken(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);}}>Reset</div>
+            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setFxSyndes(false);setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");setRuhig("keine");setEntlassGespr(false);setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);setMdoTyp("");setFdlTransfer(false);setMdoCotton("");setT2Length("200");setT2Width("11");setT2Becken(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);}}>Reset</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#006B6F",color:"#F5F7FA",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={copy}>📋</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#005F63",color:"#fff",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
           </div>
@@ -5180,7 +5234,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             {ucMeRegion&&ucMeImpl&&ucMeZusatz&&ucMeZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
               <div style={{fontSize:10,fontWeight:700,color:"#E65100",marginBottom:3}}>⚠ Zusatzeingriff im OP-Bericht zwingend dokumentieren</div>
               <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-                Der Zusatzcode <b>{ucMeZusatz}</b> triggert die H-DRG nur, wenn er im OP-Bericht ausdrücklich beschrieben ist. Der Text dazu wird als Platzhalter-Abschnitt generiert — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
+                Der Zusatzcode <b>{ucMeZusatz}</b> triggert die H-DRG nur, wenn er im OP-Bericht ausdrücklich beschrieben ist. Der Text dazu wird als ausformulierter Abschnitt eingefügt — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
               </div>
             </div>}
           </OBSec>
