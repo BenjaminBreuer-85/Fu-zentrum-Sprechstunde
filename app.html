@@ -2409,7 +2409,19 @@ var _s = useState, _m = useMemo;
             {function(){
               var best=null;var bestKey="";
               opMethode.forEach(function(m){var s=OP_STEUERUNG[m];if(s&&s.cm>(best?best.cm:0)){best=s;bestKey=m;}});
-              if(!best)return null;
+              if(!best){
+                // Fruehere Fassung gab hier null zurueck — der Block blieb leer und las sich
+                // wie "keine H-DRG". Jetzt wird ausgesprochen, warum keine Pauschale bestimmt
+                // werden kann. Betrifft Begleiteingriffe und Eintraege ohne OP_STEUERUNG.
+                var ohneZuordnung=opMethode.filter(function(m){var e=OP_STEUERUNG[m];return !e||!e.cm;})
+                                           .map(function(m){return (OPS[m]&&OPS[m].k)||m;});
+                var nurBegleit=opMethode.every(function(m){var e=OP_STEUERUNG[m];return e&&e.begleitend;});
+                return <div style={{fontSize:11,color:"#4A5568",lineHeight:1.6}}>
+                  {nurBegleit
+                    ? "Für "+ohneZuordnung.join(", ")+" wird die Fallpauschale vom führenden Eingriff bestimmt. Bitte den führenden Eingriff mit auswählen."
+                    : "Für "+ohneZuordnung.join(", ")+" ist keine eigene Fallpauschale hinterlegt. Die Kodierung muss hier manuell erfolgen."}
+                </div>;
+              }
               // Override-Logik: Upgrade und Destruktiv
               var override=null;
               var isChevGroup=["chevron","chevron_akin","scarf"].indexOf(bestKey)>=0;
@@ -3367,7 +3379,6 @@ function OPBerichtApp(){
   const [luxNaht,setLuxNaht]=useState(false);
   const [luxRinne,setLuxRinne]=useState(false);
   const [luxQuartus,setLuxQuartus]=useState(false);
-  const [hohlfussTyp,setHohlfussTyp]=useState("");
   const [dwyerSteindler,setDwyerSteindler]=useState(false);
   const [dwyerElevMT1,setDwyerElevMT1]=useState(false);
   const [dwyerJones,setDwyerJones]=useState(false);
@@ -3428,7 +3439,7 @@ function OPBerichtApp(){
   const hasUM=umOp.length>0;
   const hasFX=fxOp.length>0;
   const hasASnaht=rfOp.includes("as_naht");
-  const hasRFarthrodese=rfOp.includes("subtalar")||rfOp.includes("tn_arthrodese")||rfOp.includes("double_arthrodese")||rfOp.includes("triple_arthrodese")||(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi");
+  const hasRFarthrodese=rfOp.includes("subtalar")||rfOp.includes("tn_arthrodese")||rfOp.includes("double_arthrodese")||rfOp.includes("triple_arthrodese")||rfOp.includes("lambrinudi");
   const hasCalcOT=rfOp.includes("calc_ot_verl");
   // FDL-Transfer und Cotton-OT gehoeren zum erworbenen Knick-Senkfuss und
   // damit zu JEDER der drei Osteotomien — nicht nur zur MDO. Frueher hing der
@@ -3446,7 +3457,7 @@ function OPBerichtApp(){
     if(!hatKsfOsteotomie){ if(fdlTransfer)setFdlTransfer(false); if(mdoCotton)setMdoCotton(""); }
   },[hatKsfOsteotomie]);
   React.useEffect(function(){
-    if(!rfOp.includes("hohlfuss")&&(dwyerSteindler||dwyerElevMT1||dwyerJones||dwyerPeroneal)){
+    if(!rfOp.includes("dwyer")&&(dwyerSteindler||dwyerElevMT1||dwyerJones||dwyerPeroneal)){
       setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);
     }
   },[rfOp]);
@@ -3530,8 +3541,8 @@ function OPBerichtApp(){
     // Cotton-OT als Toggle unter MDO (allogen)
     if(mdoCotton==="allogen")PZ("allogen","allogen (Spenderknochen)");
     // Hohlfuß
-    if(hohlfussTyp==="dwyer")PZ("dwyer");
-    if(hohlfussTyp==="lambrinudi")PZ("lambrinudi");
+    if(rfOp.includes("dwyer"))PZ("dwyer");
+    if(rfOp.includes("lambrinudi"))PZ("lambrinudi");
     // Supramal
     if(rfOp.includes("supramal_ot")&&(supramalTyp==="wedge"))PZ("supramal_ot","Standard");
     if(supramalBrostrom)PZ("supramal_ot_brostrom","mit Brostrom");
@@ -3547,7 +3558,7 @@ function OPBerichtApp(){
     });
     if(fxSyndes)PZ("fibula_syndesmose","mit Syndesmose");
     return items;
-  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,tepTalCut,rfOp,peronealTyp,hohlfussTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,fdlTransfer,mdoCotton]);
+  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,tepTalCut,rfOp,peronealTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,fdlTransfer,mdoCotton]);
 
     // ============================================================
   // ICD-10 CODES – automatisch pro Eingriff
@@ -3599,7 +3610,7 @@ function OPBerichtApp(){
         if(supramalTyp==="closed")codes.push({hd:codes.length===0,code:"M21.17"+s,desc:"Varusdeformität Unterschenkel/OSG"});
         else codes.push({hd:codes.length===0,code:"M21.07"+s,desc:"Valgusdeformität Unterschenkel/OSG"});
       }
-      if(op==="hohlfuss")codes.push({hd:codes.length===0,code:"Q66.7"+s,desc:"Pes cavus"});
+      if(op==="dwyer"||(op==="lambrinudi"&&!rfOp.includes("dwyer")))codes.push({hd:codes.length===0,code:"Q66.7"+s,desc:"Pes cavus"});
     });
     // COALITIO
     if(coalTyp)codes.push({hd:codes.length===0,code:"Q66.5"+s,desc:"Tarsale Coalitio"});
@@ -3625,7 +3636,7 @@ function OPBerichtApp(){
       if(ucOp==="humerus_schaft_targon")codes.push({hd:true,code:"S42.3"+s,desc:"Fraktur des Humerusschaftes"});
     }
     return codes;
-  },[gz,mitAkin,hoffTill,zc,dmmo,osgOp,tepType,rfOp,peronealTyp,supramalTyp,hohlfussTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side]);
+  },[gz,mitAkin,hoffTill,zc,dmmo,osgOp,tepType,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side]);
 
     // Collected OPS codes
   const [allOPS,erloesData]=useMemo(()=>{
@@ -3689,14 +3700,12 @@ function OPBerichtApp(){
       if(op==="double_arthrodese")o.push("5-808.81","5-93b.0","5-784.1t","5-783.2d");
       if(op==="triple_arthrodese")o.push("5-808.82","5-93b.0","5-784.1t","5-783.2d");
                         if(op==="calc_ot_verl")o.push("5-781.8t","5-93b.e");
-      if(op==="hohlfuss"){
-        if(hohlfussTyp==="lambrinudi")o.push("5-808.82","5-93b.0");
-        if(hohlfussTyp==="dwyer"){o.push("5-781.1t","5-93b.0");
-          if(dwyerSteindler)o.push("5-850.59");
-          if(dwyerElevMT1)o.push("5-781.ae");
-          if(dwyerJones)o.push("5-854.2c");
-          if(dwyerPeroneal)o.push("5-854.29");
-        }
+      if(op==="lambrinudi")o.push("5-808.82","5-93b.0");
+      if(op==="dwyer"){o.push("5-781.1t","5-93b.0");
+        if(dwyerSteindler)o.push("5-850.59");
+        if(dwyerElevMT1)o.push("5-781.ae");
+        if(dwyerJones)o.push("5-854.2c");
+        if(dwyerPeroneal)o.push("5-854.29");
       }
 
       if(op==="os_tib_ext"){o.push("5-854.2b","5-782.1u","5-869.2");if(osTibMDO){o.push("5-781.1t","5-93b.0");}}
@@ -3741,8 +3750,8 @@ function OPBerichtApp(){
     if(osgOp.includes("brostrom"))_candidates.push({p:"brostrom",cm:0.707});
     if(osgOp.includes("arthrorise"))_candidates.push({p:"arthrorise",cm:0.5});
     if(hasASnaht)_candidates.push({p:"as_naht",cm:0.743});
-    if(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi")_candidates.push({p:"lambrinudi",cm:1.494});
-    if(rfOp.includes("hohlfuss")&&hohlfussTyp==="dwyer")_candidates.push({p:"dwyer",cm:1.111});
+    if(rfOp.includes("lambrinudi"))_candidates.push({p:"lambrinudi",cm:1.494});
+    if(rfOp.includes("dwyer"))_candidates.push({p:"dwyer",cm:1.111});
     if(rfOp.includes("subtalar"))_candidates.push({p:"subtalar",cm:1.278});
     if(rfOp.includes("tn_arthrodese"))_candidates.push({p:"tn_arthrodese",cm:1.278});
     if(rfOp.includes("double_arthrodese"))_candidates.push({p:"double_arthrodese",cm:1.278});
@@ -3878,7 +3887,7 @@ function OPBerichtApp(){
       if(rfOp.includes("tn_arthrodese"))rfLabel="TN-Arthrodese";
       if(rfOp.includes("double_arthrodese"))rfLabel="Double-Arthrodese";
       if(rfOp.includes("triple_arthrodese")){rfLabel="Triple-Arthrodese";rfDRG="I20B";rfCM="1,494";rfErloes="6.815 €";}
-      if(rfOp.includes("hohlfuss")&&hohlfussTyp==="lambrinudi"){rfLabel="Triple-Arthrodese (Lambrinudi)";rfDRG="I20B";rfCM="1,494";rfErloes="6.815 €";}
+      if(rfOp.includes("lambrinudi")){rfLabel="Triple-Arthrodese (Lambrinudi)";rfDRG="I20B";rfCM="1,494";rfErloes="6.815 €";}
       return [o,{label:rfLabel,ops:o,
         hdrg:"—",ebm:"—",kurz:rfDRG+" ~"+(rfDRG==="I20B"?"5.400":"4.600")+" €",drg:rfDRG+" "+rfErloes,hdrg_n1:"—",empf:"n2",
         ziel:"Keine H-DRG → stationär ≥2 Nächte → "+rfDRG+" (CM "+rfCM+" = "+rfErloes+").\n5-808.80 (Einzel/TN) = I13E. 5-808.81 (Double) = I13E. 5-808.82 (Triple) = I20B.\n💡 Toggle: BK-Span + WSP pflichtgemäß kodieren.",
@@ -3980,7 +3989,7 @@ function OPBerichtApp(){
     }
 
     // Hohlfuß/Dwyer (ohne Arthrodese) → I20C
-    if(rfOp.includes("hohlfuss")&&hohlfussTyp==="dwyer") return [o,{label:"Hohlfuß/Dwyer",ops:o,
+    if(rfOp.includes("dwyer")) return [o,{label:"Dwyer-Osteotomie",ops:o,
       hdrg:"—",ebm:"—",kurz:window._fx("I20C ~4.000 €"),drg:window._fx("I20C 5.067 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Keine H-DRG → stationär ≥2N → I20C (CM 1,111 = 5.067 €)."),
       kodier:"5-781.1t + 5-93b.0."+(dwyerSteindler?" + 5-850.59 (Steindler).":"")+(dwyerElevMT1?" + 5-781.ae (Elev. MT I).":"")+(dwyerJones?" + 5-854.2c (Jones).":"")+(dwyerPeroneal?" + 5-854.29 (Peroneal-Transfer).":"")}];
@@ -3990,7 +3999,7 @@ function OPBerichtApp(){
       hdrg:"—",ebm:"EBM je nach Region",kurz:"—",drg:"—",hdrg_n1:"—",empf:"amb",
       ziel:window._fx("ME allein triggert keine H-DRG und meist keine attraktive DRG.\nAmbulant in LA möglich → EBM-Abrechnung (niedrig vergütet).\n\n💡 H-DRG-TRIGGER (I20O ~1.007 €): Wenn klinisch indiziert, Zusatzeingriff derselben Region kombinieren:"),
       kodier:"⚠ Keine automatische Codierung – manuell setzen:\n\n• OPS: 5-787.x nach Lokalisation + Materialart (Schraube/Draht/Platte/winkelstab. Platte/Nagel/Fixateur)\n• ICD-HD: Z47.0 (Entfernung einer Metallplatte/Fixationsvorrichtung)\n• ND bei Komplikation: T84.6 (Infektion), M84.1 (Pseudarthrose)\n\n💡 H-DRG-TRIGGER I20O (Zusatzeingriff, nur wenn klinisch gerechtfertigt und im OP-Bericht dokumentiert):\n\n▸ Exostosenabtragung:\n  5-788.00 (MT I) · 5-788.06–09 (MT II–V, 1–4 Knochen)\n  5-788.0a (Dig I) · 5-788.0b–0f (Dig II–V, 1–5 Phalangen)\n\n▸ Bursektomie Fuß:\n  5-859.1a (totale Resektion Schleimbeutel Fuß)\n  5-859.0a (Inzision Schleimbeutel Fuß)\n\n▸ Tenolyse/Tenotomie Fuß:\n  5-851.1a (Tenotomie offen chir.) · 5-851.2a (perkutan)\n  5-852.2a (Exzision Sehnenscheide, partiell)\n\n▸ Revision/Wechsel OSE:\n  Wird als 5-78a.* kodiert (höher bewertet, NICHT als reine ME einstufen)"}];
-    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,hohlfussTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // Text version for Word export
   const icdText=useMemo(()=>{
@@ -4350,15 +4359,13 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       else if(op==="tn_arthrodese")p.push("\n\n"+T.tn_arthrodese);
       else if(op==="double_arthrodese")p.push("\n\n"+T.double_arthrodese);
       else if(op==="triple_arthrodese")p.push("\n\n"+T.triple_arthrodese);
-      if(op==="hohlfuss"){
-        if(hohlfussTyp==="lambrinudi")p.push("\n\n"+T.lambrinudi);
-        if(hohlfussTyp==="dwyer"){
-          p.push("\n\n"+T.dwyer);
-          if(dwyerSteindler)p.push("\n\n"+T.dwyer_steindler);
-          if(dwyerElevMT1)p.push("\n\n"+T.dwyer_elev_mt1);
-          if(dwyerJones)p.push("\n\n"+T.dwyer_jones);
-          if(dwyerPeroneal)p.push("\n\n"+T.dwyer_peroneal);
-        }
+      if(op==="lambrinudi")p.push("\n\n"+T.lambrinudi);
+      if(op==="dwyer"){
+        p.push("\n\n"+T.dwyer);
+        if(dwyerSteindler)p.push("\n\n"+T.dwyer_steindler);
+        if(dwyerElevMT1)p.push("\n\n"+T.dwyer_elev_mt1);
+        if(dwyerJones)p.push("\n\n"+T.dwyer_jones);
+        if(dwyerPeroneal)p.push("\n\n"+T.dwyer_peroneal);
       }
       if(op==="os_tib_ext"){
         p.push("\n\n"+T.os_tib_ext);
@@ -4393,7 +4400,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       // mdo_mini/mdo_offen stehen bereits weiter oben (ausserhalb dieser Schleife).
       // Ohne sie hier auszunehmen bekam jeder MDO-Bericht zusaetzlich die Zeile
       // "[MDO_OFFEN – Text wird ergänzt]", obwohl der Text schon vollstaendig da war.
-      else if(!["arthrorise","haglund_mini","haglund","as_naht","fhl_transfer","subtalar","tn_arthrodese","double_arthrodese","triple_arthrodese","hohlfuss","os_tib_ext","supramal_ot","mdo_mini","mdo_offen"].includes(op)) p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
+      else if(!["arthrorise","haglund_mini","haglund","as_naht","fhl_transfer","subtalar","tn_arthrodese","double_arthrodese","triple_arthrodese","lambrinudi","dwyer","os_tib_ext","supramal_ot","mdo_mini","mdo_offen"].includes(op)) p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
     });
     // Knick-Senkfuß-Zusaetze NACH den Osteotomien — sie beziehen sich darauf.
     if(fdlTransfer)p.push("\n\n"+T.mdo_fdl);
@@ -4448,7 +4455,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,hohlfussTyp,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -4746,24 +4753,20 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </OBSec>
 
       {/* RÜCKFUSS */}
-      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);setFdlTransfer(false);setMdoCotton("");}}>
+      <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);setFdlTransfer(false);setMdoCotton("");}}>
         <div style={row}>
-          {[["haglund_mini","Calcaneoplastie"],["haglund","Haglund + AS-Split/Refix"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["hohlfuss","Hohlfuß"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL-Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
+          {[["haglund_mini","Calcaneoplastie"],["haglund","Haglund + AS-Split/Refix"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["lambrinudi","Lambrinudi-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["dwyer","Dwyer-Osteotomie"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL-Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
           )}
         </div>
-        {rfOp.includes("hohlfuss")&&<div style={{marginTop:4,marginBottom:4}}>
+        {rfOp.includes("dwyer")&&<div style={{marginTop:4,marginBottom:4}}>
           <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-            <div style={chip(hohlfussTyp==="lambrinudi")} onClick={()=>setHohlfussTyp(hohlfussTyp==="lambrinudi"?"":"lambrinudi")}>Lambrinudi</div>
-            <div style={chip(hohlfussTyp==="dwyer")} onClick={()=>setHohlfussTyp(hohlfussTyp==="dwyer"?"":"dwyer")}>Dwyer</div>
-          </div>
-          {hohlfussTyp==="dwyer"&&<div style={{marginTop:4,display:"flex",gap:4,flexWrap:"wrap"}}>
             <div style={tog(dwyerSteindler)} onClick={()=>setDwyerSteindler(!dwyerSteindler)}>+ Steindler</div>
             <div style={tog(dwyerElevMT1)} onClick={()=>setDwyerElevMT1(!dwyerElevMT1)}>+ Elev. MT I</div>
             <div style={tog(dwyerJones)} onClick={()=>setDwyerJones(!dwyerJones)}>+ Jones Transfer</div>
             <div style={tog(dwyerPeroneal)} onClick={()=>setDwyerPeroneal(!dwyerPeroneal)}>+ Peronealsehnentransfer</div>
-          </div>}
-          <div style={{fontSize:10,color:"#718096",marginTop:2}}>{hohlfussTyp==="lambrinudi"?"Triple-Arthrodese nach Lambrinudi":hohlfussTyp==="dwyer"?"Dwyer-Calcaneusosteotomie"+(dwyerSteindler?" + Steindler":"")+(dwyerElevMT1?" + Elev. MT I":"")+(dwyerJones?" + Jones":"")+(dwyerPeroneal?" + Peroneal-Transfer":""):"Variante wählen"}</div>
+          </div>
+          <div style={{fontSize:10,color:"#718096",marginTop:2}}>Dwyer-Calcaneusosteotomie{dwyerSteindler?" + Steindler":""}{dwyerElevMT1?" + Elev. MT I":""}{dwyerJones?" + Jones":""}{dwyerPeroneal?" + Peroneal-Transfer":""}</div>
         </div>}
         {rfOp.includes("supramal_ot")&&<div style={{marginTop:4,marginBottom:4}}>
           <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
@@ -5071,7 +5074,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
           <div style={h3s}>Vorschau & Export</div>
           <div style={{display:"flex",gap:4}}>
-            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setFxSyndes(false);setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");setRuhig("keine");setEntlassGespr(false);setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);setMdoTyp("");setFdlTransfer(false);setMdoCotton("");setT2Length("200");setT2Width("11");setT2Becken(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setHohlfussTyp("");setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);}}>Reset</div>
+            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setFxSyndes(false);setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");setRuhig("keine");setEntlassGespr(false);setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);setMdoTyp("");setFdlTransfer(false);setMdoCotton("");setT2Length("200");setT2Width("11");setT2Becken(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);}}>Reset</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#006B6F",color:"#F5F7FA",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={copy}>📋</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#005F63",color:"#fff",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
           </div>
