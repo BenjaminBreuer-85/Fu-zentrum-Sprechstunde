@@ -1254,9 +1254,55 @@ const OP_STEUERUNG = window._DATA.opsteuerung.OP_STEUERUNG;
       if(window._DRG[e.drg].mvwd!=null) e.mvwd=window._DRG[e.drg].mvwd;
     }
     if(e.hdrg&&window._HDRG[e.hdrg]) e.hdrgE=window._HDRG[e.hdrg].pauschale;
+    // Zusatzeingriffe tragen ihre eigene DRG. Ohne diese Zeilen haetten sie
+    // kein Kostengewicht und koennten den Fall nicht verschieben.
+    (e.modifikatoren||[]).forEach(function(m){
+      if(m.drg&&window._DRG[m.drg]&&window._DRG[m.drg].bwr!=null){
+        m.drgE=window._E(m.drg); m.cm=window._DRG[m.drg].bwr;
+        if(window._DRG[m.drg].ugvd!=null) m.ugvd=window._DRG[m.drg].ugvd;
+        if(window._DRG[m.drg].mvwd!=null) m.mvwd=window._DRG[m.drg].mvwd;
+      }
+      if(m.hdrg&&window._HDRG[m.hdrg]) m.hdrgE=window._HDRG[m.hdrg].pauschale;
+    });
     walk(e);
   });
 })();
+
+// Eintrag mit angewandten Zusatzeingriffen.
+// Regel: die aktiven Modifikatoren werden in Listenreihenfolge angewandt, jeder
+// mit eigener DRG ersetzt die bisherige. Dadurch funktionieren Aufwertungen
+// (AMIC + Innenknoechelosteotomie) und Abwertungen (Arthrodese ohne Spongiosa)
+// mit demselben Mechanismus, und bei mehreren aktiven gewinnt der letzte.
+function aktiveMods(key, mods){
+  var e=OP_STEUERUNG[key];
+  if(!e||!e.modifikatoren) return [];
+  var gesetzt=(mods&&mods[key])||[];
+  return e.modifikatoren.filter(function(m){ return gesetzt.indexOf(m.id)>=0; });
+}
+function opSteuerungEff(key, mods){
+  var e=OP_STEUERUNG[key];
+  if(!e) return null;
+  var aktiv=aktiveMods(key, mods);
+  if(!aktiv.length) return e;
+  var r={}; Object.keys(e).forEach(function(k){ r[k]=e[k]; });
+  aktiv.forEach(function(m){
+    if(m.drg){ r.drg=m.drg; r.cm=m.cm; r.drgE=m.drgE; r.ugvd=m.ugvd; r.mvwd=m.mvwd; }
+    if(m.hdrg!==undefined){ r.hdrg=m.hdrg; r.hdrgE=m.hdrgE; }
+    if(m.nurStationaer) r.empf="stat";
+  });
+  r._mods=aktiv;
+  return r;
+}
+// Der Halbsatz fuer die Empfehlungszeile: textErsatz ersetzt den Grundtext,
+// text wird angehaengt.
+function opTextMitMods(key, mods){
+  var t=(OPS[key]&&OPS[key].t)||key;
+  aktiveMods(key, mods).forEach(function(m){
+    if(m.textErsatz) t=m.textErsatz;
+    else if(m.text) t=t+" "+m.text;
+  });
+  return t;
+}
 
 // QR-Code-Komponente: rendert einen QR-Code als Canvas. Nutzt die globale QrCreator-Library (im <head> embedded).
 function QRCanvas(props) {
@@ -1329,6 +1375,8 @@ var _s = useState, _m = useMemo;
   var cs = _s(false), coalitio = cs[0], setCoalitio = cs[1];
   var cvs = _s(""), coalitioVar = cvs[0], setCoalitioVar = cvs[1];
   var os = _s([]), opMethode = os[0], setOpMethode = os[1];
+  // Gesetzte Zusatzeingriffe je OP-Methode, z. B. {"amic":["iko"]}.
+  var oms = _s({}), opMods = oms[0], setOpMods = oms[1];
   var oes = _s(true), opEmpfohlen = oes[0], setOpEmpfohlen = oes[1];
   var nds = _s(false), nurDiagnostik = nds[0], setNurDiagnostik = nds[1];// 3. Empfehlungs-Modus
   var tvs = _s(false), therapieversuch = tvs[0], setTherapieversuch = tvs[1];
@@ -1484,7 +1532,31 @@ var _s = useState, _m = useMemo;
 
   function togSec(k) { setSec(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[k] = !p[k]; return n; }); }
   function togArr(v, arr, setArr) { setArr(function(p) { return p.indexOf(v) >= 0 ? p.filter(function(x) { return x !== v; }) : p.concat([v]); }); }
-  function togDiag(d) { setDiagnosen(function(p) { return p.indexOf(d) >= 0 ? p.filter(function(x) { return x !== d; }) : p.concat([d]).slice(0, 2); }); setOpMethode([]); }
+  // Wird eine OP-Methode abgewaehlt, verschwinden ihre Zusaetze mit. Sonst
+  // wirkten sie unsichtbar auf Brieftext und Erloes weiter.
+  function togOpMethode(k) {
+    togArr(k, opMethode, setOpMethode);
+    if (opMethode.indexOf(k) >= 0) setOpMods(function(p){ var n={}; for(var x in p){ if(x!==k) n[x]=p[x]; } return n; });
+  }
+  // Ein Zusatz an oder aus. Innerhalb einer Gruppe schliessen sie sich aus.
+  function togMod(k, m) {
+    setOpMods(function(p){
+      var n={}; for(var x in p) n[x]=p[x].slice();
+      var liste=n[k]||[];
+      if (liste.indexOf(m.id) >= 0) liste = liste.filter(function(x){ return x!==m.id; });
+      else {
+        if (m.gruppe) {
+          var gleiche=(OP_STEUERUNG[k].modifikatoren||[])
+            .filter(function(y){ return y.gruppe===m.gruppe; }).map(function(y){ return y.id; });
+          liste = liste.filter(function(x){ return gleiche.indexOf(x) < 0; });
+        }
+        liste = liste.concat([m.id]);
+      }
+      if (liste.length) n[k]=liste; else delete n[k];
+      return n;
+    });
+  }
+  function togDiag(d) { setDiagnosen(function(p) { return p.indexOf(d) >= 0 ? p.filter(function(x) { return x !== d; }) : p.concat([d]).slice(0, 2); }); setOpMethode([]); setOpMods({}); }
   function togBef(id) { setBefState(function(p) { var n = {}; for (var x in p) n[x] = p[x]; if (!p[id]) { n[id] = "pos"; } else if (p[id] === "pos") { n[id] = "neg"; } else { delete n[id]; } return n; }); }
 
   var dd = gender === "m" ? "Der Patient" : gender === "w" ? "Die Patientin" : "Der/Die Patient(in)";
@@ -1792,7 +1864,7 @@ var _s = useState, _m = useMemo;
       var opTexte = ops.map(function(m) {
         if (m === "amic" && amicSpongiosa) return "Kürettage der OCL/Zyste, Spongiosaaugmentation autolog, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
         if (m === "amic") return "Kürettage der OCL, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
-        return OPS[m].t;
+        return opTextMitMods(m, opMods);
       });
       p.push("\n\nElektive operative Option: " + opTexte.join(", ") + (seite ? " " + seite : "") + ", befundbezogenes Vorgehen");
       // Knöcherne Korrekturen (Osteotomien/Arthrodesen): Zusatzempfehlung als eigener Absatz (B. Breuer 07/2026)
@@ -1960,7 +2032,7 @@ var _s = useState, _m = useMemo;
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return rawOut.replace(/\bundefined\b/g, "___");
-  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
+  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
@@ -2108,7 +2180,7 @@ var _s = useState, _m = useMemo;
   }
   function resetAll() {
     setGender(""); setBegleitung(""); setSeite(""); setDiagnosen([]); setCoalitio(false); setCoalitioVar("");
-    setOpMethode([]); setOpEmpfohlen(true); setTherapieversuch(false); setNurDiagnostik(false);
+    setOpMethode([]); setOpMods({}); setOpEmpfohlen(true); setTherapieversuch(false); setNurDiagnostik(false);
     setOclZyste(false); setOclLok(""); setOclLaenge(""); setOclBreite(""); setOclTiefe(""); setAmicSpongiosa(false);
     setDauer(""); setDauerEinheit("Monaten"); setHaeufigkeit(""); setBelastung([]); setLeidensdruck(true);
     setBeruf(""); setAktivitaet(""); setSportEingeschr(false); setVorOPs(false); setStnText("");
@@ -2332,7 +2404,7 @@ var _s = useState, _m = useMemo;
             </div>
           </div>}
         </div>}
-        {diagnosen.length > 0 && <div data-tour="sb-opmethode"><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togArr(k, opMethode, setOpMethode); }}>{o ? o.k : k}</div>; })}</div></div>}
+        {diagnosen.length > 0 && <div data-tour="sb-opmethode"><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togOpMethode(k); }}>{o ? o.k : k}</div>; })}</div></div>}
         <div data-tour="sb-qr">
         {!qr && (diagOhneZiel.length > 0 || aufOhneZiel.length > 0) && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#8A5A00", fontWeight: 600, marginBottom: 4 }}>📱 Keine Online-Information</div>
@@ -2390,6 +2462,15 @@ var _s = useState, _m = useMemo;
             <div style={CB(pipCount === "3")} onClick={function() { setPipCount(pipCount === "3" ? "" : "3"); }}>≥3 Zehen</div>
           </div>
         </div>}
+        {opMethode.filter(function(k){ return OP_STEUERUNG[k] && OP_STEUERUNG[k].modifikatoren; }).map(function(k) {
+          return <div key={"mod-"+k} style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+            <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>{(OPS[k]&&OPS[k].k)||k} — Zusatzeingriff</div>
+            <div style={row}>{OP_STEUERUNG[k].modifikatoren.map(function(m) {
+              return <div key={m.id} style={CB((opMods[k]||[]).indexOf(m.id) >= 0)}
+                          onClick={function(){ togMod(k, m); }}>{m.label}</div>;
+            })}</div>
+          </div>;
+        })}
         {opMethode.indexOf("lapidus") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Lapidus Variante</div>
           <div style={row}>
@@ -2408,12 +2489,12 @@ var _s = useState, _m = useMemo;
           {sec.erloes&&<div style={{padding:"10px 12px",background:"rgba(0,107,111,.04)",fontSize:11}}>
             {function(){
               var best=null;var bestKey="";
-              opMethode.forEach(function(m){var s=OP_STEUERUNG[m];if(s&&s.cm>(best?best.cm:0)){best=s;bestKey=m;}});
+              opMethode.forEach(function(m){var s=opSteuerungEff(m,opMods);if(s&&s.cm>(best?best.cm:0)){best=s;bestKey=m;}});
               if(!best){
                 // Fruehere Fassung gab hier null zurueck — der Block blieb leer und las sich
                 // wie "keine H-DRG". Jetzt wird ausgesprochen, warum keine Pauschale bestimmt
                 // werden kann. Betrifft Begleiteingriffe und Eintraege ohne OP_STEUERUNG.
-                var ohneZuordnung=opMethode.filter(function(m){var e=OP_STEUERUNG[m];return !e||!e.cm;})
+                var ohneZuordnung=opMethode.filter(function(m){var e=opSteuerungEff(m,opMods);return !e||!e.cm;})
                                            .map(function(m){return (OPS[m]&&OPS[m].k)||m;});
                 var nurBegleit=opMethode.every(function(m){var e=OP_STEUERUNG[m];return e&&e.begleitend;});
                 return <div style={{fontSize:11,color:"#4A5568",lineHeight:1.6}}>
@@ -2617,6 +2698,10 @@ var _s = useState, _m = useMemo;
                   // Override kann best.hinweise überschreiben via override.altHinweise
                   // Legacy-Fallback: displayHinweis als Fließtext → als einzige info-Zeile anzeigen
                   var items=(override&&override.altHinweise)||best.hinweise||null;
+                  // Hinweise der gesetzten Zusatzeingriffe hinten anhaengen — sie sagen,
+                  // welcher Code die Verschiebung ausloest und was er wert ist.
+                  var modHinweise=(best._mods||[]).filter(function(m){return m.hinweis;}).map(function(m){return m.hinweis;});
+                  if(modHinweise.length) items=(items||[]).concat(modHinweise);
                   if(!items&&displayHinweis)items=[{typ:"info",txt:displayHinweis}];
                   if(!items||items.length===0)return null;
                   var style=function(typ){
