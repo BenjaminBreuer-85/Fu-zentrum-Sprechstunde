@@ -3403,6 +3403,11 @@ function OPBerichtApp(){
   // Kleinzehen
   const [zc,setZc]=useState({2:[],3:[],4:[],5:[]});
   const [dmmo,setDmmo]=useState([]);
+  const [weil,setWeil]=useState([]);
+  // Weil und DMMO osteotomieren beide Metatarsalia. Der OPS-Mengenkode
+  // 5-788.5x zaehlt KNOCHEN, nicht Eingriffe — bei beiden Verfahren im selben
+  // Fuss darf er also nur EINMAL fuer die Summe der Strahlen stehen.
+  const mtStrahlen=Array.from(new Set(dmmo.concat(weil)));
   // OSG
   const [osgOp,setOsgOp]=useState([]);
   const [brostromIB,setBrostromIB]=useState(false);
@@ -3510,7 +3515,7 @@ function OPBerichtApp(){
   const togArr=(arr,setArr,v)=>setArr(p=>p.includes(v)?p.filter(x=>x!==v):[...p,v]);
   const togZehe=(z,e)=>setZc(p=>{const c=p[z]||[];return{...p,[z]:c.includes(e)?c.filter(x=>x!==e):[...c,e]};});
 
-  const hasVF=!!gz||Object.values(zc).some(a=>a.length>0)||dmmo.length>0;
+  const hasVF=!!gz||Object.values(zc).some(a=>a.length>0)||dmmo.length>0||weil.length>0;
   const hasOSG=osgOp.length>0;
   const hasTEP=!!tepType;
   const hasRF=rfOp.length>0;
@@ -3559,8 +3564,8 @@ function OPBerichtApp(){
   React.useEffect(function(){
     if(!rfOp.includes("os_tib_ext")&&osTibMDO) setOsTibMDO(false);
   },[rfOp]);
-  const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||Object.values(zc).some(a=>a.length>0));
-  const hasDMMOover2=dmmo.length>2;
+  const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||weil.length>0||Object.values(zc).some(a=>a.length>0));
+  const hasDMMOover2=mtStrahlen.length>2;
   const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasMF||hasME||hasUM||hasFX||coalTyp!=="";
   const needsRuhig=gz==="mtp1art"||gz==="lapidus";
 
@@ -3590,7 +3595,11 @@ function OPBerichtApp(){
     if(gz==="mtp1art")PZ("mtp1art");
     if(mitSubcap)PZ("zusatz_subcapital","Zusatzposition");
     if(Object.values(zc).some(a=>a.includes("pip"))){var pipCount=Object.values(zc).flat().filter(x=>x==="pip").length;PZ("kleinzehen_pip","je Zehe",pipCount);}
-    if(Object.values(zc).some(a=>a.includes("weil"))){var weilCount=Object.values(zc).flat().filter(x=>x==="weil").length;PZ("kleinzehen_weil","je Osteotomie",weilCount);}
+    // Der Materialsatz "kleinzehen_weil" hing bisher an einer Zehen-Option
+    // "weil", die es in zehenOpts nie gab — die Zeile lief also immer ins Leere.
+    // Jetzt haengt sie an der eigenen Weil-Auswahl: eine Twist-Off-Schraube je
+    // versorgtem Strahl, passend zur Variante "je Osteotomie".
+    if(weil.length>0)PZ("kleinzehen_weil","je Osteotomie",weil.length);
     if(dmmo.length>0)PZ("dmmo");
     // OSG
     osgOp.forEach(op=>{
@@ -3643,7 +3652,7 @@ function OPBerichtApp(){
     });
     if(fxSyndes)PZ("fibula_syndesmose","mit Syndesmose");
     return items;
-  },[gz,mitSubcap,zc,dmmo,osgOp,brostromIB,osgArtPlatte,tepType,tepTalCut,rfOp,peronealTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,fdlTransfer,mdoCotton]);
+  },[gz,mitSubcap,zc,dmmo,weil,osgOp,brostromIB,osgArtPlatte,tepType,tepTalCut,rfOp,peronealTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,fdlTransfer,mdoCotton]);
 
     // ============================================================
   // ICD-10 CODES – automatisch pro Eingriff
@@ -3661,8 +3670,8 @@ function OPBerichtApp(){
     if(mitAkin&&!codes.find(c=>c.code.startsWith("M20.5")))codes.push({hd:false,code:"M20.5"+s,desc:"Sonstige Deformität der Zehe (Hallux interphalangeus)"});
     // Kleinzehen
     if(Object.values(zc).some(a=>a.includes("pip")))codes.push({hd:codes.length===0,code:"M20.4"+s,desc:"Hammerzehe(n)"});
-    if(dmmo.length>0&&codes.length===0)codes.push({hd:true,code:"M77.4"+s,desc:"Metatarsalgie"});
-    if(dmmo.length>0&&codes.length>0&&!codes.find(c=>c.code.startsWith("M77.4")))codes.push({hd:false,code:"M77.4"+s,desc:"Metatarsalgie"});
+    if(mtStrahlen.length>0&&codes.length===0)codes.push({hd:true,code:"M77.4"+s,desc:"Metatarsalgie"});
+    if(mtStrahlen.length>0&&codes.length>0&&!codes.find(c=>c.code.startsWith("M77.4")))codes.push({hd:false,code:"M77.4"+s,desc:"Metatarsalgie"});
     // OSG
     osgOp.forEach(op=>{
       if(op==="ask")codes.push({hd:codes.length===0,code:"M24.87"+s,desc:"Sonstige Gelenkveränderung OSG (Impingement)"});
@@ -3721,7 +3730,7 @@ function OPBerichtApp(){
       if(ucOp==="humerus_schaft_targon")codes.push({hd:true,code:"S42.3"+s,desc:"Fraktur des Humerusschaftes"});
     }
     return codes;
-  },[gz,mitAkin,hoffTill,zc,dmmo,osgOp,tepType,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side]);
+  },[gz,mitAkin,hoffTill,zc,dmmo,weil,osgOp,tepType,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side]);
 
     // Collected OPS codes
   const [allOPS,erloesData]=useMemo(()=>{
@@ -3747,15 +3756,18 @@ function OPBerichtApp(){
     if(zeheOpsSet.has("ext_teno")) zeheCodes.add("5-851.1a");
     if(zeheOpsSet.has("beuge_trans")) zeheCodes.add("5-854.2c");
     zeheCodes.forEach(c=>o.push(c));
-    if(dmmo.length===1)o.push("5-788.52");else if(dmmo.length===2)o.push("5-788.53");else if(dmmo.length===3)o.push("5-788.54");else if(dmmo.length>=4)o.push("5-788.55");
+    // Mengenkode ueber die Summe beider Verfahren, siehe mtStrahlen oben.
+    if(mtStrahlen.length===1)o.push("5-788.52");else if(mtStrahlen.length===2)o.push("5-788.53");else if(mtStrahlen.length===3)o.push("5-788.54");else if(mtStrahlen.length>=4)o.push("5-788.55");
     if(dmmo.length>0)o.push("5-93b.0");
+    // Weil: Twist-Off-Schraube je versorgtem Strahl, daher einmal pro Strahl.
+    for(var _w=0;_w<weil.length;_w++)o.push("5-93b.0");
     // Strahl-Anzahl-Code 5-86a.1x bei ≥ 2 betroffenen Strahlen
     const strahlenSet = new Set();
     if(["chevron","chevron_akin","scarf","lapidus","mtp1art","cheilek","exostose"].includes(gz)) strahlenSet.add(1);
     if(mitAkin) strahlenSet.add(1);
     [2,3,4,5].forEach(z=>{
       if((zc[z]||[]).length>0) strahlenSet.add(z);
-      if(dmmo.includes(z)) strahlenSet.add(z);
+      if(dmmo.includes(z)||weil.includes(z)) strahlenSet.add(z);
     });
     const strahlAnz = strahlenSet.size;
     if(strahlAnz >= 2) {
@@ -3826,7 +3838,7 @@ function OPBerichtApp(){
     if(gz==="mtp1art")_candidates.push({p:"mtp1art",cm:0.818});
     if(gz==="chevron"||gz==="scarf")_candidates.push({p:gz,cm:0.818});
     if(gz==="cheilek"||gz==="exostose")_candidates.push({p:gz,cm:0.667});
-    if(Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)_candidates.push({p:"dmmo",cm:hasDMMOover2?0.667:0.667});
+    if(Object.values(zc).some(function(a){return a.length>0;})||mtStrahlen.length>0)_candidates.push({p:"dmmo",cm:hasDMMOover2?0.667:0.667});
     if(tepType&&tepType.startsWith("primaer"))_candidates.push({p:"tep_prim",cm:1.923});
     if(tepType&&tepType.startsWith("wechsel"))_candidates.push({p:"tep_wechsel",cm:2.372});
     if(osgOp.includes("arthrodesenagel_retro"))_candidates.push({p:"arthronagel",cm:1.963});
@@ -3900,13 +3912,13 @@ function OPBerichtApp(){
     }
 
     // Kleinzehen/DMMO ≤2
-    if((Object.values(zc).some(function(a){return a.length>0;})||dmmo.length>0)&&!hasDMMOover2&&_prio==="dmmo") return [o,{label:"Kleinzehen/DMMO",ops:o,
+    if((Object.values(zc).some(function(a){return a.length>0;})||mtStrahlen.length>0)&&!hasDMMOover2&&_prio==="dmmo") return [o,{label:"Kleinzehen/DMMO"+(weil.length?" + Weil":""),ops:o,
       hdrg:window._fx("I20O 1.007 €"),ebm:"EBM ~300 €",kurz:window._fx("I20F ~2.000 €"),drg:window._fx("I20F 3.040 €"),hdrg_n1:window._fx("I20O 1.007 €"),empf:"amb",
       ziel:window._fx("Ambulant → H-DRG I20O (1.007 €)."),
       kodier:"DMMO max. 2× (5-788.52/53) für H-DRG! >2× = keine H-DRG.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\nVWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG."}];
 
     // DMMO >2
-    if(hasDMMOover2&&_prio==="dmmo") return [o,{label:"DMMO ≥3 MT",ops:o,
+    if(hasDMMOover2&&_prio==="dmmo") return [o,{label:(weil.length&&!dmmo.length?"Weil":dmmo.length&&weil.length?"DMMO + Weil":"DMMO")+" ≥3 MT",ops:o,
       hdrg:"—",ebm:"—",kurz:window._fx("I20F ~2.000 €"),drg:window._fx("I20F 3.040 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("5-788.54/55 nicht auf Positivliste → keine H-DRG. Stationär ≥2 Nächte → I20F (3.040 €)."),
       kodier:"5-788.54/55 = DMMO 3–4 MT. Ambulant: H-DRG-Code dazukodieren erwägen."}];
@@ -4084,7 +4096,16 @@ function OPBerichtApp(){
       hdrg:"—",ebm:"EBM je nach Region",kurz:"—",drg:"—",hdrg_n1:"—",empf:"amb",
       ziel:window._fx("ME allein triggert keine H-DRG und meist keine attraktive DRG.\nAmbulant in LA möglich → EBM-Abrechnung (niedrig vergütet).\n\n💡 H-DRG-TRIGGER (I20O ~1.007 €): Wenn klinisch indiziert, Zusatzeingriff derselben Region kombinieren:"),
       kodier:"⚠ Keine automatische Codierung – manuell setzen:\n\n• OPS: 5-787.x nach Lokalisation + Materialart (Schraube/Draht/Platte/winkelstab. Platte/Nagel/Fixateur)\n• ICD-HD: Z47.0 (Entfernung einer Metallplatte/Fixationsvorrichtung)\n• ND bei Komplikation: T84.6 (Infektion), M84.1 (Pseudarthrose)\n\n💡 H-DRG-TRIGGER I20O (Zusatzeingriff, nur wenn klinisch gerechtfertigt und im OP-Bericht dokumentiert):\n\n▸ Exostosenabtragung:\n  5-788.00 (MT I) · 5-788.06–09 (MT II–V, 1–4 Knochen)\n  5-788.0a (Dig I) · 5-788.0b–0f (Dig II–V, 1–5 Phalangen)\n\n▸ Bursektomie Fuß:\n  5-859.1a (totale Resektion Schleimbeutel Fuß)\n  5-859.0a (Inzision Schleimbeutel Fuß)\n\n▸ Tenolyse/Tenotomie Fuß:\n  5-851.1a (Tenotomie offen chir.) · 5-851.2a (perkutan)\n  5-852.2a (Exzision Sehnenscheide, partiell)\n\n▸ Revision/Wechsel OSE:\n  Wird als 5-78a.* kodiert (höher bewertet, NICHT als reine ME einstufen)"}];
-    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    // OPS-Ziffern fuer Tendoskopie und AS-Debridement sind noch offen
+    // (Stand 14.08.2026). Ohne diesen Zweig bliebe der Fallsteuerungsblock
+    // ganz weg — das liest sich wie "nichts zu kodieren".
+    if(rfOp.includes("as_tendoskopie")||rfOp.includes("as_debridement")) return [o,{
+      label:rfOp.includes("as_debridement")?"AS-Débridement bei Tendinose":"Achillessehnen-Tendoskopie",ops:o,
+      hdrg:"—",ebm:"—",kurz:"—",drg:"—",hdrg_n1:"—",empf:"stat",
+      ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
+      kodier:"⚠ TODO: OPS-Ziffern werden nachgetragen. Bis dahin manuell kodieren."}];
+
+    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // Text version for Word export
   const icdText=useMemo(()=>{
@@ -4281,6 +4302,12 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(gz==="scarf"){p.push("\n\n"+T.scarf);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
     let isFirstZ=true;[2,3,4,5].forEach(z=>{const e=zc[z]||[];if(e.length>0){p.push("\n\n"+buildZehe(z,e,isFirstZ));isFirstZ=false;}});
     if(dmmo.length>0)p.push("\n\n"+buildDMMO(dmmo));
+    // Fuer die Weil-Osteotomie liegt bisher nur der Kurzbaustein aus
+    // opmethoden.json (t) vor, kein ausformulierter Bericht wie buildDMMO.
+    // Der Platzhalter macht das sichtbar, statt eine Luecke zu hinterlassen.
+    if(weil.length>0)p.push("\n\n"+((OPS.weil&&OPS.weil.t)||"Weil-Osteotomie")
+      +" an MT "+weil.slice().sort(function(a,b){return a-b;}).join(" und ")+"."
+      +"\n[WEIL – ausführlicher OP-Text wird ergänzt]");
     osgOp.forEach(op=>{
       if(op==="ask"){
         if(askOsteo){
@@ -4482,10 +4509,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         }
       }
       else if(op==="calc_ot_verl")p.push("\n\nZuwendung zur verlängernden Calcaneus-Osteotomie.\n"+T.coal_lcot);
+      // Wie bei der Weil-Osteotomie: nur der Kurzbaustein aus opmethoden.json,
+      // der ausformulierte Bericht fehlt noch.
+      else if(op==="as_tendoskopie"||op==="as_debridement")
+        p.push("\n\n"+((OPS[op]&&OPS[op].t)||op)+".\n["+op.toUpperCase()+" – ausführlicher OP-Text wird ergänzt]");
       // mdo_mini/mdo_offen stehen bereits weiter oben (ausserhalb dieser Schleife).
       // Ohne sie hier auszunehmen bekam jeder MDO-Bericht zusaetzlich die Zeile
       // "[MDO_OFFEN – Text wird ergänzt]", obwohl der Text schon vollstaendig da war.
-      else if(!["arthrorise","haglund_mini","haglund","as_naht","fhl_transfer","subtalar","tn_arthrodese","double_arthrodese","triple_arthrodese","lambrinudi","dwyer","os_tib_ext","supramal_ot","mdo_mini","mdo_offen"].includes(op)) p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
+      else if(!["arthrorise","haglund_mini","haglund","as_naht","fhl_transfer","subtalar","tn_arthrodese","double_arthrodese","triple_arthrodese","lambrinudi","dwyer","os_tib_ext","supramal_ot","mdo_mini","mdo_offen","as_tendoskopie","as_debridement"].includes(op)) p.push(`\n\n[${op.toUpperCase()} – Text wird ergänzt]`);
     });
     // Knick-Senkfuß-Zusaetze NACH den Osteotomien — sie beziehen sich darauf.
     if(fdlTransfer)p.push("\n\n"+T.mdo_fdl);
@@ -4540,7 +4571,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -4681,7 +4712,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       <div data-tour="ob-eingriff" style={{marginBottom:10}}><div style={h3s}>③ OP-Durchführung</div>
 
       {/* VORFUSS */}
-      <OBSec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF} onReset={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);}}>
+      <OBSec title="🦶 Vorfuß" open={sec.vf} onToggle={()=>togSec("vf")} active={hasVF} onReset={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setWeil([]);}}>
         <div style={cat}>Großzehe (1. Strahl)</div>
         <div style={row}>
           {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"],["morton","Morton-Neurom"]].map(([k,l])=>
@@ -4702,6 +4733,13 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
 
         <div style={cat}>DMMO (Metatarsale)</div>
         <div style={row}>{[2,3,4,5].map(mt=><div key={mt} style={chip(dmmo.includes(mt))} onClick={()=>togArr(dmmo,setDmmo,mt)}>MT {mt}</div>)}</div>
+
+        <div style={cat}>Weil-Osteotomie (Metatarsale)</div>
+        <div style={row}>{[2,3,4,5].map(mt=><div key={mt} style={chip(weil.includes(mt))} onClick={()=>togArr(weil,setWeil,mt)}>MT {mt}</div>)}</div>
+        {weil.length>0&&<div style={{fontSize:10,color:"#718096",marginTop:2}}>
+          {weil.length}× Twist-Off-Schraube · Mengenkode aus {mtStrahlen.length} osteotomierten Strahl{mtStrahlen.length===1?"":"en"}
+          {dmmo.length>0?" (DMMO und Weil zusammen)":""}
+        </div>}
       </OBSec>
 
       {/* OSG */}
@@ -4840,7 +4878,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       {/* RÜCKFUSS */}
       <OBSec title="🦶 Rückfuß" open={sec.rf} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);setFdlTransfer(false);setMdoCotton("");}}>
         <div style={row}>
-          {[["haglund_mini","Calcaneoplastie"],["haglund","Haglund + AS-Split/Refix"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["lambrinudi","Lambrinudi-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["dwyer","Dwyer-Osteotomie"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL-Transfer"],["as_naht","Achillessehnennaht (offen)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
+          {[["haglund_mini","Calcaneoplastie"],["haglund","Haglund + AS-Split/Refix"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["lambrinudi","Lambrinudi-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["dwyer","Dwyer-Osteotomie"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL-Transfer"],["as_naht","Achillessehnennaht (offen)"],["as_tendoskopie","AS-Tendoskopie"],["as_debridement","AS-Débridement (Tendinose)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
             <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
           )}
         </div>
@@ -5020,7 +5058,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         {/* ÖKONOMISCHES CODIERZIEL */}
         {function(){var _dc=erloesData.drg?erloesData.drg.split(" ")[0]:"";var _ugvd=GVD[_dc]?GVD[_dc].ugvd:1;var _minT=_ugvd+1;return <div style={{marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
           <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Ökonomisches Codierziel:</div>
-          {(erloesData.label.includes("Metallentfernung")||erloesData.label==="Cheilektomie"||erloesData.label==="Kleinzehen/DMMO"||erloesData.label==="Exostose")
+          {(erloesData.label.includes("Metallentfernung")||erloesData.label==="Cheilektomie"||erloesData.label.indexOf("Kleinzehen/DMMO")===0||erloesData.label==="Exostose")
             ?<div style={{fontSize:11,color:"#2D3748"}}>Bei ambulanter Führung: Hybrid-DRG {erloesData.hdrg}</div>
             :erloesData.hdrg==="—"
             ?<div style={{fontSize:11,color:"#2D3748"}}>
@@ -5123,14 +5161,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             {/* AMBULANTE FÜHRUNG */}
             {erloesData.hdrg!=="—"&&<div style={{marginBottom:12}}>
               <div style={{fontWeight:700,color:"#00695C",marginBottom:6,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {erloesData.hdrg}):</div>
-              <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c){var isKP=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-855.39"].indexOf(c)>=0;return <span key={c+"a"} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:isKP?"rgba(230,81,0,.12)":"rgba(0,107,111,.08)",color:isKP?"#C62828":"#006B6F",textDecoration:isKP?"line-through":"none"}}>{c}</span>;})}</span></div>
+              <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c,ci){var isKP=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-855.39"].indexOf(c)>=0;return <span key={c+"a"+ci} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:isKP?"rgba(230,81,0,.12)":"rgba(0,107,111,.08)",color:isKP?"#C62828":"#006B6F",textDecoration:isKP?"line-through":"none"}}>{c}</span>;})}</span></div>
               {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-855.39"];var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div>{found.map(function(c){return <div key={c} style={{color:"#C62828"}}>❌ {c} ({codeLabel(c)}) NICHT kodieren</div>;})}<div style={{marginTop:2,fontStyle:"italic",color:"#004D40"}}>Im OP-Bericht: {found.map(function(c){return codeLabel(c);}).join(", ")} NICHT beschreiben.</div></div>;return <div style={{fontStyle:"italic",color:"#004D40"}}>Keine Kontextprozeduren in diesem Eingriff.</div>;}()}
             </div>}
 
             {/* STATIONÄRE FÜHRUNG */}
             <div>
               <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {erloesData.drg||""}):</div>
-              <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c){var isH=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"].indexOf(c)>=0;return <span key={c+"s"} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:isH?"rgba(230,81,0,.15)":"rgba(0,107,111,.08)",color:isH?"#E65100":"#006B6F",fontWeight:isH?700:400,border:isH?"1px solid #E65100":"none"}}>{c}{isH?" ⚠ HEBEL":""}</span>;})}</span></div>
+              <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c,ci){var isH=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"].indexOf(c)>=0;return <span key={c+"s"+ci} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:isH?"rgba(230,81,0,.15)":"rgba(0,107,111,.08)",color:isH?"#E65100":"#006B6F",fontWeight:isH?700:400,border:isH?"1px solid #E65100":"none"}}>{c}{isH?" ⚠ HEBEL":""}</span>;})}</span></div>
               {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"];var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div><div style={{marginBottom:4}}>{found.map(function(c){return <div key={c} style={{color:"#E65100",fontWeight:600}}>✅ {c} ({codeLabel(c)}) = Kontextprozedur → IMMER kodieren</div>;})}</div><div style={{fontStyle:"italic",color:"#004D40",marginBottom:4}}>Im OP-Bericht: {found.map(function(c){return codeLabel(c);}).join(", ")} MUSS beschrieben und dokumentiert werden.</div>{erloesData.hdrg!=="—"&&<div style={{padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)",marginBottom:4}}><div style={{fontWeight:600,color:"#004D40"}}>Mit Kontextprozedur:</div><div>1 Nacht → gekürzte DRG (besser als Hybrid-DRG)</div><div>2 Nächte → volle DRG {erloesData.drg||""}</div><div style={{marginTop:2}}>Ohne Kontextprozedur: VWD ≥ 3 Tage nötig für volle DRG. Bei Kürzung: Rückfall in Hybrid-DRG.</div></div>}</div>;
               var warnLines=erloesData.kodier.split("\n").filter(function(l){return(l.indexOf("⚠")>=0||l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("Nur stationär")||l.includes("Mind."))&&!l.includes("DMMO")&&!l.includes("WEGE");});if(warnLines.length>0)return <div style={{whiteSpace:"pre-line"}}>{warnLines.join("\n")}</div>;return null;}()}
               <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>

@@ -8,7 +8,7 @@
     "der Eintrag entfernt; die ID bleibt danach dauerhaft unbenutzt.",
     "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter."
   ],
-  "_STAND": "2026-07-31",
+  "_STAND": "2026-08-14",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
   "ZIELE": {
     "achilles-insertional": {
@@ -19,6 +19,11 @@
     "achilles-naht": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=achilles_naht&modus=aufklaerung",
       "titel": "Achillessehnen-Naht (offen)",
+      "art": "op"
+    },
+    "achilles-nekrose": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=achilles_nekrose&modus=aufklaerung",
+      "titel": "Débridement der Achillessehne bei Tendinose",
       "art": "op"
     },
     "achilles-riss": {
@@ -91,6 +96,11 @@
       "titel": "Double-Arthrodese",
       "art": "op"
     },
+    "dwyer": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=dwyer&modus=aufklaerung",
+      "titel": "Dwyer-Osteotomie",
+      "art": "op"
+    },
     "fhl": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=fhl&modus=aufklaerung",
       "titel": "FHL-Sehnentransfer",
@@ -139,6 +149,11 @@
     "knorpel-osg": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=knorpel_osg&modus=aufklaerung",
       "titel": "Knorpelchirurgie am OSG",
+      "art": "op"
+    },
+    "lambrinudi": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=lambrinudi&modus=aufklaerung",
+      "titel": "Lambrinudi-Arthrodese",
       "art": "op"
     },
     "lapidus": {
@@ -226,6 +241,11 @@
       "titel": "Plantarfasziitis (Fersensporn)",
       "art": "diagnose"
     },
+    "ppv-ksf": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=ppv_ksf&modus=aufklaerung",
+      "titel": "Knick-Senk-Fuß (Pes planovalgus) des Erwachsenen",
+      "art": "diagnose"
+    },
     "scarf": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=scarf&modus=aufklaerung",
       "titel": "Scarf-Osteotomie (Hallux-valgus-Korrektur)",
@@ -239,6 +259,11 @@
     "subtalar": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=subtalar&modus=aufklaerung",
       "titel": "Subtalararthrodese",
+      "art": "op"
+    },
+    "tendoskopie-achilles": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=tendoskopie_achilles&modus=aufklaerung",
+      "titel": "Achillessehnen-Tendoskopie",
       "art": "op"
     },
     "tmt": {
