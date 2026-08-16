@@ -3427,7 +3427,8 @@ function OPBerichtApp(){
   const [osgArtSchraube,setOsgArtSchraube]=useState(true);
   const [osgArtPlatte,setOsgArtPlatte]=useState(true);
   const [osgArtSpongiosa,setOsgArtSpongiosa]=useState(false);
-  const [coalFascie,setCoalFascie]=useState(false);
+  // Das Faszien-Fett-Interponat ist der Regelfall; Knochenwachs die Ausnahme.
+  const [coalFascie,setCoalFascie]=useState(true);
   const [coalLCOT,setCoalLCOT]=useState(false);
   // OSG-TEP (eigene Sektion)
   const [tepType,setTepType]=useState("");// primaer_inbone|primaer_infinity|primaer_vantage|wechsel_inbone|wechsel_infinity|wechsel_vantage
@@ -3821,8 +3822,11 @@ function OPBerichtApp(){
       o.push(ME_REGIONEN[meRegion].codes[meImpl]);
     if(meZusatz&&meZusatz!=="none")o.push(meZusatz);
     // Coalitio
-    if(coalTyp==="tc")o.push("5-781.at","5-856.4a","5-852.g9");  // Coalitio TC
-    if(coalTyp==="cn")o.push("5-781.at","5-856.4a","5-852.g9");  // Coalitio CN  
+    // 5-852.g9 ist die Gewebeentnahme am Unterschenkel, 5-856.4a die Synovektomie —
+    // beide gehoeren laut Hinweiszeile der Bedienung zum Faszienflap. Ohne Flap
+    // wuerde sonst eine Entnahme kodiert, die nicht stattgefunden hat.
+    if(coalTyp)o.push("5-781.at");
+    if(coalTyp&&coalFascie)o.push("5-856.4a","5-852.g9");
     // Faszienflap codes now in base TC/CN push
     if(coalLCOT)o.push("5-781.4t","5-784.7t");  // LCOT Calcaneus
 
@@ -4302,12 +4306,12 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(gz==="scarf"){p.push("\n\n"+T.scarf);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
     let isFirstZ=true;[2,3,4,5].forEach(z=>{const e=zc[z]||[];if(e.length>0){p.push("\n\n"+buildZehe(z,e,isFirstZ));isFirstZ=false;}});
     if(dmmo.length>0)p.push("\n\n"+buildDMMO(dmmo));
-    // Fuer die Weil-Osteotomie liegt bisher nur der Kurzbaustein aus
-    // opmethoden.json (t) vor, kein ausformulierter Bericht wie buildDMMO.
-    // Der Platzhalter macht das sichtbar, statt eine Luecke zu hinterlassen.
-    if(weil.length>0)p.push("\n\n"+((OPS.weil&&OPS.weil.t)||"Weil-Osteotomie")
-      +" an MT "+weil.slice().sort(function(a,b){return a-b;}).join(" und ")+"."
-      +"\n[WEIL – ausführlicher OP-Text wird ergänzt]");
+    // Der Baustein beschreibt EINEN Strahl ("über dem betroffenen Strahl") und
+    // nennt eine Schraube. Die Einleitungszeile sagt, welche Strahlen versorgt
+    // wurden — dieselbe Bauweise wie bei coal_lcot.
+    if(weil.length>0)p.push("\n\nZuwendung zum Vorfuß, Weil-Osteotomie MT "
+      +weil.slice().sort(function(a,b){return a-b;}).join(" und ")+".\n"
+      +T.weil);
     osgOp.forEach(op=>{
       if(op==="ask"){
         if(askOsteo){
@@ -4369,28 +4373,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(rfOp.includes("mdo_mini"))p.push("\n\n"+T.mdo_mini);
     if(rfOp.includes("mdo_offen"))p.push("\n\n"+T.mdo_offen);
 
-    // Coalitio TC
-    if(coalTyp==="tc"){
-      var ctxt="Horizontalverlaufende Hautinzision medial über dem Subtalargelenk nach Markierung Os Naviculare, Innenknöchel und Verlauf der Tib Post Sehne.\nDarstellung des Innenbandes, Eröffnung und vorsichtige Präparation zwischen Tib Post und FDL Sehne auf die Coalitio. Hier stumpfe Präparation direkt am Knochen, Einsetzen eines stumpfen Haken zum Schutz der dorsal-plantaren Strukturen und Markierung der Coalitio unter BV mit K Drähten. Diese werden mit Gewebeschutz eingebracht und dann zum Schutz der Weichteile umgebogen.\nSchrittweise Exzision der Coalitio mit Meissel und Luer bis die hintere Facette des Subtalargelenkes dargestellt werden kann und das Subtalargelenk mobil und distrahierbar ist. Keine Affektion der posterioren Gelenkfläche. Spülung.\nAufbringen von Knochenwachs auf die freiliegenden spongiösen Flächen der ehemaligen medialen Facette des Subtalargelenkes.";
-      if(coalFascie){
-        ctxt+="\nZuwendung zum Unterschenkel, am mittleren Drittel wird über gesonderte Inzision stumpf eingegangen. Schutz N. saphenus und Venen mit stumpfen Haken. Hebung eines autologen Fascien-Fett-Flaps vom Muskel.\nInterposition von autologem Fascien-Fett-Flap in die Coalitio und Fixierung mittels Vicryl-Naht.";
-      }
-      ctxt+="\nRöntgenkontrolle, korrekte Resektion.";
-      if(coalLCOT){
-        ctxt+="\n\nNun längsverlaufende Inzision über dem lateralen Fußrand in Höhe des vorderen Abschnitts des Fersenbeins.\nNach Spalten des Subcutangewebes, Eingehen in die Tiefe unter subtiler Blutstillung und Darstellen der Peronealsehnen sowie des Endastes N. suralis, diese werden jeweils nach dorsal bzw. mit Hohmann-Haken weggehalten. Der Sinus tarsi wird eröffnet und soweit exponiert dass ein kleiner Hohmann-Haken in die Tiefe zwischen der anterioren Begrenzung des posterioren Subtalargelenk und des Ligamentum interosseum eingesetzt werden kann. Beidseits der vorgesehenen Osteotomie wird knapp unterhalb der kranialen Begrenzung ein 2,0 mm Kirschnerdraht eingesetzt. Über diesen wird der Hintermannspreizer eingesetzt. Die Osteotomie wird mit der oszillierenden Säge bis zur Mitte des Kalkaneus etwa 2 cm tief durchgeführt und dann mit einem Meißel vervollständigt. Dabei wird darauf geachtet, dass die Osteotomie entlang der anterioren Begrenzung der posterioren Facette des USG erfolgt und diese nicht tangiert. Die Instrumente werden nicht zu tief eingeführt um die Weichteilstrukturen auf der medialen Seite nicht zu verletzen.\nNun sukzessive Aufdehnung des Osteotomiespaltes unter Schonung der medialen Corticalis bis eine gute klinische und radiologische Korrektur erreicht ist. Nun Einbringen eines passenden Tutogene-Keiles in den Spalt, der ca. 8 mm breit ist. Dieser wird eingebolzt, die K-Drähte werden mit dem Hintermann Spreizer entfernt. Der Keil ist press fit stabil, auch in der Bewegungsprüfung. Erneute BV-Kontrolle, diese zeigt die korrekte Lage des Tutogene Keils mit guter Korrektur.";
-      }
+    // Coalitio (TC und CN): Basistext, danach genau EINE Defektdeckung.
+    // Seit 15.08.2026 tragen coal_tc/coal_cn die Deckung nicht mehr selbst —
+    // sie kommt aus coal_fascie (Standard) oder coal_wachs.
+    if(coalTyp){
+      var ctxt=(coalTyp==="tc"?T.coal_tc:T.coal_cn);
+      ctxt+="\n"+(coalFascie?T.coal_fascie:T.coal_wachs);
+      if(coalLCOT)ctxt+="\n\n"+T.coal_lcot;
       p.push("\n\n"+ctxt);
-    }
-    // Coalitio CN
-    if(coalTyp==="cn"){
-      var cnTxt=T.coal_cn;
-      if(coalFascie){
-        cnTxt+=" Zuwendung zum Unterschenkel, am mittleren Drittel wird über gesonderte Inzision stumpf eingegangen. Schutz N. saphenus und Venen mit stumpfen Haken. Hebung eines autologen Fascien-Fett-Flaps vom Muskel.\nInterposition von autologem Fascien-Fett-Flap in die Coalitio und Fixierung mittels Vicryl-Naht. Röntgenkontrolle, korrekte Resektion.";
-      }
-      if(coalLCOT){
-        cnTxt+="\n\n"+T.coal_lcot;
-      }
-      p.push("\n\n"+cnTxt);
     }
 
     // TEP
@@ -4509,10 +4499,8 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         }
       }
       else if(op==="calc_ot_verl")p.push("\n\nZuwendung zur verlängernden Calcaneus-Osteotomie.\n"+T.coal_lcot);
-      // Wie bei der Weil-Osteotomie: nur der Kurzbaustein aus opmethoden.json,
-      // der ausformulierte Bericht fehlt noch.
-      else if(op==="as_tendoskopie"||op==="as_debridement")
-        p.push("\n\n"+((OPS[op]&&OPS[op].t)||op)+".\n["+op.toUpperCase()+" – ausführlicher OP-Text wird ergänzt]");
+      else if(op==="as_tendoskopie")p.push("\n\nZuwendung zur Achillessehnen-Tendoskopie.\n"+T.as_tendoskopie);
+      else if(op==="as_debridement")p.push("\n\nZuwendung zum Débridement der Achillessehne.\n"+T.as_debridement);
       // mdo_mini/mdo_offen stehen bereits weiter oben (ausserhalb dieser Schleife).
       // Ohne sie hier auszunehmen bekam jeder MDO-Bericht zusaetzlich die Zeile
       // "[MDO_OFFEN – Text wird ergänzt]", obwohl der Text schon vollstaendig da war.

@@ -102,6 +102,10 @@
    "bezeichnung": "Kompressionsschraube 2,0 mm, kopflos (Twist-off)",
    "kategorie": "Schrauben"
   },
+  "schraube_twist_off_2_0": {
+   "bezeichnung": "Twist-Off-Schraube 2,0 mm",
+   "kategorie": "Schrauben"
+  },
   "schraube_kanuel_7_0": {
    "bezeichnung": "Kanülierte Schraube 7,0 mm",
    "kategorie": "Schrauben"
@@ -308,7 +312,7 @@
    "varianten": {
     "je Osteotomie": [
      {
-      "implantat_id": "schraube_hcs_2_0",
+      "implantat_id": "schraube_twist_off_2_0",
       "anzahl": 1,
       "hinweis": "1 Schraube pro Osteotomie"
      }
