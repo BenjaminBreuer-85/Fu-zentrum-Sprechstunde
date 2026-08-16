@@ -6165,6 +6165,17 @@ function OPManuale(){
 }
 
 // ==========================================================================
+// Quellen-Text: DOIs und URLs klickbar machen
+function linkifyQuelle(text){
+  if (!text) return text;
+  const parts = String(text).split(/(https?:\/\/[^\s]+|10\.\d{4,9}\/[^\s,;]+)/g);
+  return parts.map(function(p,i){
+    if (/^https?:\/\//.test(p)) return <a key={i} href={p} target="_blank" rel="noopener" style={{color:"#006B6F"}}>{p}</a>;
+    if (/^10\.\d{4,9}\//.test(p)) return <a key={i} href={"https://doi.org/"+p} target="_blank" rel="noopener" style={{color:"#006B6F"}}>{p}</a>;
+    return p;
+  });
+}
+
 // KLASSIFIKATIONEN
 // Sammlung relevanter Klassifikationen der Fußchirurgie zur schnellen Ansicht.
 // Datenstruktur pro Eintrag:
@@ -6223,7 +6234,7 @@ function RoentgenView(){
         {m.normwert && <div style={{fontSize:13,lineHeight:1.6,marginBottom:6}}><b style={{color:"#1E7E34"}}>Normwert:</b> {m.normwert}</div>}
         {m.pathologisch && <div style={{fontSize:13,lineHeight:1.6}}><b style={{color:"#C0392B"}}>Pathologisch:</b> {m.pathologisch}</div>}
       </div>}
-      {m.quelle && <div style={cardStyle}>{sectionLabel("Wissenschaftliche Quelle")}<div style={{fontSize:11.5,lineHeight:1.5,color:"#4A5568",fontStyle:"italic",padding:"10px 12px",background:"#F7FAFC",borderLeft:"3px solid #006B6F",borderRadius:4}}>{m.quelle}</div></div>}
+      {m.quelle && <div style={cardStyle}>{sectionLabel("Wissenschaftliche Quelle")}<div style={{fontSize:11.5,lineHeight:1.5,color:"#4A5568",fontStyle:"italic",padding:"10px 12px",background:"#F7FAFC",borderLeft:"3px solid #006B6F",borderRadius:4}}>{linkifyQuelle(m.quelle)}</div></div>}
     </div>;
   }
 
@@ -6245,7 +6256,7 @@ function RoentgenView(){
           {single.normwert && <div style={{fontSize:13,lineHeight:1.6,marginBottom:6}}><b style={{color:"#1E7E34"}}>Normwert:</b> {single.normwert}</div>}
           {single.pathologisch && <div style={{fontSize:13,lineHeight:1.6}}><b style={{color:"#C0392B"}}>Pathologisch:</b> {single.pathologisch}</div>}
         </div>}
-        {single.quelle && <div style={cardStyle}>{sectionLabel("Wissenschaftliche Quelle")}<div style={{fontSize:11.5,lineHeight:1.5,color:"#4A5568",fontStyle:"italic",padding:"10px 12px",background:"#F7FAFC",borderLeft:"3px solid #006B6F",borderRadius:4}}>{single.quelle}</div></div>}
+        {single.quelle && <div style={cardStyle}>{sectionLabel("Wissenschaftliche Quelle")}<div style={{fontSize:11.5,lineHeight:1.5,color:"#4A5568",fontStyle:"italic",padding:"10px 12px",background:"#F7FAFC",borderLeft:"3px solid #006B6F",borderRadius:4}}>{linkifyQuelle(single.quelle)}</div></div>}
       </div> : <div style={cardStyle}>{sectionLabel("Mögliche Messmethoden auf dieser Aufnahme")}
         {messList.length===0 ? <div style={{fontSize:12,color:"#A0AEC0"}}>Noch keine Messmethoden hinterlegt.</div> :
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -6350,7 +6361,7 @@ function KlassifikationenView(){
 
   // Liste filtern + sortieren
   const filtered = KLASSIFIKATIONEN
-    .filter(function(k){return !q.trim() || (k.name||"").toLowerCase().includes(q.trim().toLowerCase());})
+    .filter(function(k){if(!q.trim())return true; const s=q.trim().toLowerCase(); return (k.name||"").toLowerCase().includes(s) || (k.synonyme||[]).some(function(sy){return sy.toLowerCase().includes(s);}) || (k.krankheitsbilder||[]).some(function(t){return t.toLowerCase().includes(s);});})
     .filter(function(k){return !filterKB || (k.krankheitsbilder||[]).includes(filterKB);})
     .filter(function(k){return !filterReg || (k.regionen||[]).includes(filterReg);})
     .sort(function(a,b){return (a.name||"").localeCompare(b.name||"","de");});
@@ -6366,7 +6377,7 @@ function KlassifikationenView(){
       <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:24,fontWeight:700,color:"#006B6F",marginBottom:8}}>{selected.name}</div>
       {selected.entwurf && <div style={{display:"flex",gap:8,alignItems:"flex-start",background:"#FFF8E1",border:"1px solid #F0C36D",borderRadius:8,padding:"10px 12px",marginBottom:14,fontSize:12,color:"#8A6D1A",lineHeight:1.5}}>
         <span style={{fontSize:15}}>⚠</span>
-        <span><b>Entwurf – noch nicht geprüft.</b> Inhalt aus der Standard-Definition dieser Klassifikation rekonstruiert. Vor klinischer Nutzung bitte gegen die Originalquelle verifizieren.</span>
+        <span><b>Entwurf – noch nicht geprüft.</b> Inhalt aus der Standard-Definition dieser Klassifikation rekonstruiert. Vor klinischer Nutzung bitte gegen die Originalquelle verifizieren.{selected.entwurf_hinweis ? " "+selected.entwurf_hinweis : ""}</span>
       </div>}
       {((selected.krankheitsbilder||[]).length>0||(selected.regionen||[]).length>0) && <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:18}}>
         {(selected.krankheitsbilder||[]).map(function(t){return tagPill(t,"#E0F2F1","#006B6F");})}
@@ -6376,11 +6387,6 @@ function KlassifikationenView(){
       {selected.kurz && <div style={cardStyle}>
         {sectionLabel("Kurzbeschreibung")}
         <div style={{fontSize:14,lineHeight:1.6,color:"#1A2A3A"}}>{selected.kurz}</div>
-      </div>}
-
-      {selected.quelle && <div style={cardStyle}>
-        {sectionLabel("Wissenschaftliche Quelle")}
-        <div style={{fontSize:12,lineHeight:1.5,color:"#4A5568",fontStyle:"italic",padding:"10px 12px",background:"#F7FAFC",borderLeft:"3px solid #006B6F",borderRadius:4}}>{selected.quelle}</div>
       </div>}
 
       {selected.tabelle && Array.isArray(selected.tabelle.spalten) && selected.tabelle.spalten.length>0 && <div style={cardStyle}>
@@ -6395,6 +6401,11 @@ function KlassifikationenView(){
             </tbody>
           </table>
         </div>
+      </div>}
+
+      {selected.quelle && <div style={cardStyle}>
+        {sectionLabel("Wissenschaftliche Quelle")}
+        <div style={{fontSize:12,lineHeight:1.5,color:"#4A5568",fontStyle:"italic",padding:"10px 12px",background:"#F7FAFC",borderLeft:"3px solid #006B6F",borderRadius:4}}>{linkifyQuelle(selected.quelle)}</div>
       </div>}
 
       {Array.isArray(selected.alternativen) && selected.alternativen.length>0 && <div style={cardStyle}>
