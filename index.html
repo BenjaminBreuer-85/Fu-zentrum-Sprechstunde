@@ -9,6 +9,14 @@
 <meta property="og:description" content="Das Spezialwerkzeug für die Fuß- und Sprunggelenkchirurgie: modulare Briefe und OP-Berichte, OPS-Zuordnung, Erlös-Simulation. Ohne Patientendaten, ohne Installation.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="de_DE">
+<meta property="og:url" content="https://fuss-track.de/">
+<!-- Vorschaubild liegt im Repo (icons/og-bild.png), keine externe Quelle — BRAND.md.
+     Neu bauen mit: python3 scripts/og-bild.py -->
+<meta property="og:image" content="https://fuss-track.de/icons/og-bild.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Wortmarke Fuss-Track Clinic auf petrolfarbener Fläche">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -395,8 +403,13 @@
     <div class="wrap">
       <div class="price-card">
         <h2>Fuss-Track Clinic</h2>
-        <div class="price">39,99&nbsp;€ <small>/ Jahr zzgl. USt.</small></div>
-        <p class="price-note">pro Nutzer · Preis vorläufig, wird zur Einführung final festgelegt</p>
+        <!-- Der Preis wird nur beworben, solange auch gekauft werden kann.
+             Solange VERKAUF_AKTIV false ist, nennen wir ihn auf Nachfrage,
+             stellen ihn aber nicht aus. Sichtbar macht ihn das Skript unten. -->
+        <div id="preis-angabe" hidden>
+          <div class="price">39,99&nbsp;€ <small>/ Jahr zzgl. USt.</small></div>
+          <p class="price-note">pro Nutzer · Preis vorläufig, wird zur Einführung final festgelegt</p>
+        </div>
         <p class="price-note"><strong>Fair und kostendeckend kalkuliert:</strong> Fuss-Track Clinic ist kein Konzernprodukt, sondern ein Werkzeug von einem Fußchirurgen für Kolleginnen und Kollegen. Der Beitrag deckt Betrieb und jährliche Katalogpflege.</p>
         <ul class="perks">
           <li>30 Tage kostenlos testen — ohne Zahlungsdaten</li>
@@ -406,6 +419,15 @@
         </ul>
         <a class="btn big" href="mailto:kontakt@fuss-track.de?subject=Testzugang%20Fuss-Track%20Clinic&body=Guten%20Tag%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20den%20kostenlosen%20Testzugang%20zu%20Fuss-Track%20Clinic.%0A%0AMein%20Name%3A%20%5Bbitte%20eintragen%5D%0AKlinik%2FPraxis%20%28optional%29%3A%20%5Bbitte%20eintragen%5D%0A%0AViele%20Gr%C3%BC%C3%9Fe">Testzugang anfragen</a>
         <p class="price-note" style="margin-top:14px">Bis zum offiziellen Verkaufsstart erhalten Sie Ihren persönlichen Testzugang per E-Mail — in der Regel innerhalb eines Tages.</p>
+
+        <!-- Steht hier, solange VERKAUF_AKTIV false ist, und damit genau an der
+             Stelle des Kauf-Knopfs. Bewusst ohne hidden: ohne JavaScript ist
+             das der richtige Zustand. Weg nimmt ihn das Skript am Seitenende,
+             sobald die Kaufstrecke an ist. -->
+        <div id="kein-verkauf" style="margin-top:22px;padding-top:22px;border-top:1px solid var(--line)">
+          <p style="font-weight:700;color:var(--op);font-size:1.05rem;margin-bottom:8px">Fuss-Track Clinic erscheint im Herbst 2026.</p>
+          <p class="price-note" style="margin:0">Interesse an einem Testzugang? Schreiben Sie an <a href="mailto:kontakt@fuss-track.de?subject=Testzugang%20Fuss-Track%20Clinic">kontakt@fuss-track.de</a> und Sie erhalten Bescheid, sobald es losgeht.</p>
+        </div>
 
         <!-- Kaufstrecke. Der Knopf wird erst durch das Skript am Seitenende
              sichtbar gemacht — ohne JavaScript bleibt er aus, weil er ohne
@@ -554,11 +576,16 @@
      <script src="cdn.paddle.com">. Bis jemand den Kauf-Knopf drueckt,
      baut diese Seite keine Verbindung zu Paddle auf.
 
-     Umstellung auf Live: MODUS auf "live" setzen und die beiden Werte im
-     Block LIVE eintragen. Sonst ist nichts zu aendern.
+     Umstellung auf Live: VERKAUF_AKTIV auf true setzen, MODUS auf "live" und
+     die beiden Werte im Block LIVE eintragen. Sonst ist nichts zu aendern.
      =================================================================== -->
 <script>
 (function(){
+  // Solange false, zeigt die Seite keine Kaufstrecke, sondern den
+  // Interessenten-Block. Der gesamte Kauf-Code bleibt dabei unangetastet
+  // liegen — der Livegang ist dieses eine Wort plus MODUS "live".
+  var VERKAUF_AKTIV = false;
+
   var PADDLE = {
     MODUS: "sandbox",                       // "sandbox" | "live"
     sandbox: {
@@ -581,8 +608,16 @@
   var hinweis = document.getElementById("kauf-testbetrieb");
   if (!block || !knopf) return;
 
-  // Ohne Token oder Preis-ID waere der Knopf eine Sackgasse — dann gar nicht zeigen.
-  if (!cfg.token || !cfg.priceId) return;
+  // Ohne Token oder Preis-ID waere der Knopf eine Sackgasse — dann gar nicht
+  // zeigen. Die Pruefung steht vor jeder Umschaltung, sonst stuende bei einem
+  // angeschalteten, aber unvollstaendig konfigurierten Verkauf weder ein Knopf
+  // noch der Interessenten-Block in der Karte.
+  if (!VERKAUF_AKTIV || !cfg.token || !cfg.priceId) return;
+
+  var ohneVerkauf = document.getElementById("kein-verkauf");
+  var preisAngabe = document.getElementById("preis-angabe");
+  if (ohneVerkauf) ohneVerkauf.hidden = true;
+  if (preisAngabe) preisAngabe.hidden = false;
 
   block.hidden = false;
   if (sandkiste && hinweis) hinweis.hidden = false;
