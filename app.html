@@ -6805,6 +6805,10 @@ function AufklaerungstoolView() {
   const [sel, setSel] = React.useState([]);
   const [copied, setCopied] = React.useState(false);
   const [such, setSuch] = React.useState("");
+  // Aufklapp-Zustand je Kategorie, nur fuer diese Sitzung. Beim Betreten ist
+  // alles zu — ausser Gruppen, in denen schon etwas gewaehlt ist. Sonst
+  // verschwaende die Auswahl hinter einer geschlossenen Zeile.
+  const [offen, setOffen] = React.useState(function(){ return {}; });
 
   // Eingriffe nach Kontext gruppieren für die Auswahl
   const kontextNamen = {
@@ -6823,6 +6827,26 @@ function AufklaerungstoolView() {
     if(!gruppiert[kx]) gruppiert[kx]=[];
     gruppiert[kx].push(k);
   });
+
+  // Gruppen mit Auswahl — Grundlage fuer Zaehler und Ausgangszustand.
+  function gruppenMitAuswahl(auswahl){
+    var o = {};
+    (auswahl||[]).forEach(function(k){
+      var e = D.eingriffe[k];
+      if (e && e.kontext) o[e.kontext] = true;
+    });
+    return o;
+  }
+  function anzahlInGruppe(kx){
+    return (gruppiert[kx]||[]).filter(function(k){ return sel.indexOf(k)>=0; }).length;
+  }
+  function gruppeUmschalten(kx){
+    setOffen(function(prev){
+      var n = {}; Object.keys(prev).forEach(function(x){ n[x]=prev[x]; });
+      if (n[kx]) delete n[kx]; else n[kx] = true;
+      return n;
+    });
+  }
 
   function tog(k){
     setCopied(false);
@@ -6904,10 +6928,22 @@ function AufklaerungstoolView() {
       <div style={{background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:14,boxShadow:"0 1px 3px rgba(0,0,0,.06)",padding:"16px 18px",marginBottom:16}}>
         <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:10}}>Eingriff(e) auswählen <span style={{fontWeight:400,color:"#718096"}}>– Mehrfachauswahl für Kombinationseingriffe</span></div>
         <div style={{position:"relative",marginBottom:14}}>
-          <input value={such} onChange={function(e){setSuch(e.target.value);}} placeholder="Eingriff suchen …"
+          <input value={such} onChange={function(e){
+              var w = e.target.value;
+              setSuch(w);
+              // Leeres Feld heisst: zurueck in den Ausgangszustand. Was gewaehlt
+              // ist, bleibt offen, alles andere klappt wieder zu.
+              if (!w.trim()) setOffen(gruppenMitAuswahl(sel));
+            }} placeholder="Eingriff suchen …"
             style={{width:"100%",boxSizing:"border-box",padding:"8px 30px 8px 12px",fontSize:12,border:"1px solid rgba(0,0,0,.15)",borderRadius:8,outline:"none",color:"#2D3748",fontFamily:"inherit"}}/>
-          {such && <span onClick={function(){setSuch("");}} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",cursor:"pointer",fontSize:14,color:"#A0AEC0"}}>✕</span>}
+          {such && <span onClick={function(){setSuch(""); setOffen(gruppenMitAuswahl(sel));}} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",cursor:"pointer",fontSize:14,color:"#A0AEC0"}}>✕</span>}
         </div>
+        {sel.length>0 && <div style={{marginBottom:12,paddingBottom:10,borderBottom:"1px solid rgba(0,0,0,.07)"}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#718096",textTransform:"uppercase",letterSpacing:.4,marginBottom:5}}>Ihre Auswahl</div>
+          <div>{sel.map(function(k){
+            return <span key={k} style={CB(true)} onClick={function(){tog(k);}} title="Antippen zum Abwählen">{D.labels[k]||k} ✕</span>;
+          })}</div>
+        </div>}
         {(function(){
           var q = such.trim().toLowerCase();
           var anyHit = false;
@@ -6915,19 +6951,30 @@ function AufklaerungstoolView() {
             if(!gruppiert[kx]) return null;
             var treffer = gruppiert[kx].filter(function(k){
               if(!q) return true;
-              if(sel.indexOf(k)>=0) return true;
               return (D.labels[k]||k).toLowerCase().indexOf(q)>=0 || kontextNamen[kx].toLowerCase().indexOf(q)>=0;
             });
             if(treffer.length===0) return null;
             anyHit = true;
+            // Waehrend der Suche ist jede Gruppe mit Treffern offen; ohne Suche
+            // entscheidet der Aufklapp-Zustand.
+            var auf = q ? true : !!offen[kx];
+            var anz = anzahlInGruppe(kx);
             return (
-              <div key={kx} style={{marginBottom:12}}>
-                <div style={{fontSize:10,fontWeight:700,color:"#006B6F",textTransform:"uppercase",letterSpacing:.4,marginBottom:5}}>{kontextNamen[kx]}</div>
-                <div>
+              <div key={kx} style={{marginBottom:2}}>
+                <div onClick={function(){ if(!q) gruppeUmschalten(kx); }}
+                     style={{display:"flex",alignItems:"center",gap:8,minHeight:44,padding:"6px 10px",
+                             cursor:q?"default":"pointer",userSelect:"none",borderRadius:8,
+                             background:anz?"rgba(0,107,111,.07)":"rgba(0,0,0,.02)",
+                             borderBottom:"1px solid rgba(0,0,0,.07)"}}>
+                  <span style={{flex:1,fontSize:11,fontWeight:700,color:"#006B6F",textTransform:"uppercase",letterSpacing:.4}}>{kontextNamen[kx]}</span>
+                  {anz>0 && <span style={{minWidth:18,textAlign:"center",padding:"1px 6px",borderRadius:9,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:700}}>{anz}</span>}
+                  <span style={{fontSize:15,color:"#006B6F",lineHeight:1,transform:auf?"rotate(90deg)":"none",transition:"transform .15s"}}>›</span>
+                </div>
+                {auf && <div style={{padding:"7px 2px 10px"}}>
                   {treffer.map(function(k){
                     return <span key={k} style={CB(sel.indexOf(k)>=0)} onClick={function(){tog(k);}}>{D.labels[k]||k}</span>;
                   })}
-                </div>
+                </div>}
               </div>
             );
           });
