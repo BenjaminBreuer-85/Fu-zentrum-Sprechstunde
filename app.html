@@ -1087,6 +1087,35 @@ const ENDO_KONSTELLATIONEN = window._DATA.endo.ENDO_KONSTELLATIONEN;
 // Texte sind als Basis vorgegeben – können vom Anwender überschrieben/erweitert werden
 const KONTROLLE_TEXT = window._DATA.diagnosen.KONTROLLE_TEXT;
 const KONTROLLE_LABEL = window._DATA.diagnosen.KONTROLLE_LABEL;
+// Verlaufsdokumentation (interner Karteieintrag). KONTROLLE_TEXT/LABEL oben
+// bleiben bis zur Abnahme des neuen Flows liegen, damit ein Rueckschritt ohne
+// Datenaenderung moeglich ist.
+const KV2 = window._DATA.diagnosen.KONTROLLE_V2 || null;
+// Abweichungen, die einem Normalsatz widersprechen. Wird die Abweichung
+// gewaehlt, faellt der Normalsatz weg — der Anwender kann ihn wieder setzen.
+const KV2_WIDERSPRUCH = { infekt: ["wunde"], whs: ["wunde"] };
+// Gruppen, die am Anlass haengen und beim Anlasswechsel neu gesetzt werden.
+const KV2_ANLASSGEBUNDEN = ["MASSNAHME/", "ROENTGEN_BEFUND/"];
+// Nur Zwischenueberschriften der Bedienung; sie stehen nie im Text.
+const KV2_ANWEISUNG_LABEL = {
+  belastung: "Belastung", ruhigstellung: "Ruhigstellung",
+  thrombose: "Thromboseprophylaxe", verordnung: "Verordnungen",
+  abweichung: "Abweichendes Verhalten", sicherung: "Sicherungsaufklärung",
+  wiedervorstellung: "Wiedervorstellung", au: "Arbeitsfähigkeit"
+};
+
+// Vorauswahl der anlassunabhaengigen Gruppen (standard:true).
+function kv2StandardAllgemein(){
+  var s = {};
+  if (!KV2) return s;
+  ["ANAMNESE","BEFUND_NORM","BEFUND_ABWEICHUNG"].forEach(function(g){
+    (KV2[g]||[]).forEach(function(b){ if (b.standard) s[g+"/"+b.id] = true; });
+  });
+  Object.keys(KV2.ANWEISUNG||{}).forEach(function(g){
+    (KV2.ANWEISUNG[g]||[]).forEach(function(b){ if (b.standard) s["ANWEISUNG."+g+"/"+b.id] = true; });
+  });
+  return s;
+}
 
 // Zusatzentgelte (ZE) – krankenhausindividuell verhandelt
 // Aktuell hinterlegt: ZE2023-25 (modulare Endoprothese) – Default = InEK-Untergrenze
@@ -1425,6 +1454,13 @@ var _s = useState, _m = useMemo;
   // Kontrolle-Modus (Sprechstundenbrief Fuß Sonder-Flow)
   var kms = _s(false), kontrolleMode = kms[0], setKontrolleMode = kms[1];
   var kts = _s(""), kontrolleType = kts[0], setKontrolleType = kts[1];
+  // Verlaufsdokumentation: Anlass, OP-Datum, Bausteinauswahl, Platzhalterwerte.
+  // Die Auswahl liegt flach als {"<Gruppe>/<id>": true}, weil dieselbe id in
+  // mehreren Gruppen vorkommt (etwa "pflaster" und "roentgen").
+  var kva = _s(""),  kv2Anlass = kva[0], setKv2Anlass = kva[1];
+  var kvd = _s(""),  kv2OpDatum = kvd[0], setKv2OpDatum = kvd[1];
+  var kvs = _s(kv2StandardAllgemein), kv2Sel = kvs[0], setKv2Sel = kvs[1];
+  var kvf = _s({}),  kv2Feld = kvf[0], setKv2Feld = kvf[1];
 
   // ==========================================================================
   // EIN CODE PRO PATIENT (Leitkonzept, umgesetzt 04.08.2026)
@@ -1602,22 +1638,182 @@ var _s = useState, _m = useMemo;
     return Math.round(bmi * 10) / 10;
   }, [endoHoehe, endoGewicht]);
 
-  var fullText = _m(function() {
-    if (!gender) return "";
-    // KONTROLLE-MODUS: schlanker Verlauf/Fadenzug/Röntgen-Brief
-    if (kontrolleMode) {
-      if (!kontrolleType) return "";
-      const dd = gender === "m" ? "Der Patient" : "Die Patientin";
-      const begl = begleitung ? " in Begleitung von " + begleitung : "";
-      var klines = [];
-      var saetze = KONTROLLE_TEXT[kontrolleType] || [];
-      // Erster Satz: Patient stellte sich heute (...) zur ... vor
-      if (saetze.length > 0) {
-        klines.push(dd + begl + " " + saetze[0]);
-        for (var i = 1; i < saetze.length; i++) klines.push(saetze[i]);
-      }
-      return klines.join("\n");
+  // {ZEITPUNKT} aus dem OP-Datum: bis Tag 20 in Tagen, ab Tag 21 in Wochen
+  // (abgerundet). Ohne oder mit kuenftigem Datum entfaellt die Kopfzeile.
+  var kv2Zeitpunkt = _m(function(){
+    if (!kv2OpDatum) return "";
+    var op = new Date(kv2OpDatum + "T00:00:00");
+    if (isNaN(op.getTime())) return "";
+    var heute = new Date(); heute.setHours(0,0,0,0);
+    var tage = Math.floor((heute.getTime() - op.getTime()) / 86400000);
+    if (tage < 0) return "";              // kuenftiges Datum ist ein Eingabefehler
+    if (tage === 0) return "Operationstag";
+    if (tage <= 20) return tage + ". postoperativer Tag";
+    return Math.floor(tage / 7) + ". postoperative Woche";
+  }, [kv2OpDatum]);
+
+  function kv2An(gruppe, id){ return !!kv2Sel[gruppe + "/" + id]; }
+
+  // Platzhalter fuellen. Leeres Feld bleibt als ___ stehen, damit die Luecke
+  // im Text sichtbar ist und nicht stillschweigend verschwindet.
+  function kv2Wert(gruppe, id, baustein, name){
+    var k = gruppe + "/" + id + "/" + name;
+    var v = kv2Feld[k];
+    if (v === undefined) {
+      var f = baustein && baustein.feld && baustein.feld[name];
+      v = (f && f.default !== undefined) ? f.default : "";
     }
+    v = String(v).trim();
+    return v === "" ? "___" : v;
+  }
+  function kv2Satz(gruppe, id, baustein){
+    return String(baustein.text || "").replace(/\{([A-Z_]+)\}/g, function(_t, name){
+      return kv2Wert(gruppe, id, baustein, name);
+    });
+  }
+  function kv2Saetze(gruppe, liste){
+    var out = [];
+    (liste||[]).forEach(function(b){ if (kv2An(gruppe, b.id)) out.push(kv2Satz(gruppe, b.id, b)); });
+    return out;
+  }
+
+  // Anlasswechsel setzt NUR die anlassgebundenen Gruppen neu. Anamnese,
+  // Befund und Anweisungen bleiben stehen — sonst waere jeder Wechsel ein
+  // Neuanfang.
+  function kv2WaehleAnlass(k){
+    setKv2Anlass(k);
+    var anl = KV2.ANLAESSE[k];
+    setKv2Sel(function(alt){
+      var neu = {};
+      Object.keys(alt).forEach(function(key){
+        var gebunden = KV2_ANLASSGEBUNDEN.some(function(pre){ return key.indexOf(pre) === 0; });
+        if (!gebunden) neu[key] = alt[key];
+      });
+      ((KV2.MASSNAHME||{})[anl && anl.massnahme] || []).forEach(function(b){
+        if (b.standard) neu["MASSNAHME/" + b.id] = true;
+      });
+      if (anl && anl.roentgen) (KV2.ROENTGEN_BEFUND||[]).forEach(function(b){
+        if (b.standard) neu["ROENTGEN_BEFUND/" + b.id] = true;
+      });
+      return neu;
+    });
+  }
+
+  function kv2Umschalten(gruppe, b){
+    setKv2Sel(function(alt){
+      var neu = {}; Object.keys(alt).forEach(function(k){ neu[k] = alt[k]; });
+      var k = gruppe + "/" + b.id;
+      if (neu[k]) { delete neu[k]; return neu; }
+      neu[k] = true;
+      // Widersprechende Normalsaetze fallen weg. Der Anwender kann sie
+      // anschliessend wieder setzen, es ist keine Sperre.
+      (KV2_WIDERSPRUCH[b.id] || []).forEach(function(normId){
+        delete neu["BEFUND_NORM/" + normId];
+      });
+      return neu;
+    });
+  }
+
+  function kv2Chip(gruppe, b){
+    var an = kv2An(gruppe, b.id);
+    // warn-Bausteine tragen die Konsequenz im Satz — Abstrich, Antibiose,
+    // Belehrung. Gekuerzt waere genau das unsichtbar, deshalb steht ihr
+    // Wortlaut vollstaendig im Chip.
+    var stil = b.warn
+      ? Object.assign({}, C(an), an
+          ? { border: "1px solid #E65100", background: "rgba(230,81,0,.14)", color: "#BF360C" }
+          : { border: "1px solid rgba(230,81,0,.35)", color: "#8A5A00" },
+          { whiteSpace: "normal", textAlign: "left", lineHeight: 1.35, maxWidth: "100%", flexBasis: "100%" })
+      : C(an);
+    var text = b.warn
+      ? "⚠ " + String(b.text || "").replace(/\{[A-Z_]+\}/g, "…").replace(/\s+/g, " ").trim()
+      : kv2ChipText(b);
+    return <div key={gruppe + "/" + b.id} style={stil} title={b.text}
+                onClick={function(){ kv2Umschalten(gruppe, b); }}>{text}</div>;
+  }
+  // Chip-Beschriftung: kurzer Anfang des Satzes, der volle Text steht im title.
+  // Bewusst NICHT am Komma abschneiden — daraus wurden Fetzen wie "Verhärtete".
+  function kv2ChipText(b){
+    var t = String(b.text || "").replace(/\{[A-Z_]+\}/g, "…").replace(/\s+/g, " ").trim();
+    var punkt = t.indexOf(". ");
+    if (punkt > 0 && punkt <= 44) t = t.slice(0, punkt);
+    t = t.replace(/\.$/, "");
+    return t.length > 44 ? t.slice(0, 43).replace(/[\s,;:]+\S*$/, "") + " …" : t;
+  }
+
+  // Platzhalterfelder erscheinen direkt am Baustein, sobald er aktiv ist.
+  function kv2FeldZeile(gruppe, id, b){
+    if (!b || !b.feld) return null;
+    return <div style={{display:"flex",gap:6,flexWrap:"wrap",margin:"3px 0 5px 4px"}}>
+      {Object.keys(b.feld).map(function(name){
+        var f = b.feld[name];
+        var k = gruppe + "/" + id + "/" + name;
+        var v = kv2Feld[k] !== undefined ? kv2Feld[k] : (f.default !== undefined ? f.default : "");
+        return <label key={name} style={{fontSize:10,color:"#718096",display:"inline-flex",alignItems:"center",gap:4}}>
+          {f.label}
+          <input type={f.typ === "datum" ? "date" : f.typ === "zahl" ? "number" : "text"}
+                 value={v}
+                 onChange={function(e){ var w = e.target.value; setKv2Feld(function(a){ var n = Object.assign({}, a); n[k] = w; return n; }); }}
+                 style={{padding:"3px 6px",border:"1px solid rgba(0,0,0,.15)",borderRadius:5,fontSize:11,
+                         width: f.typ === "zahl" ? 58 : f.typ === "datum" ? 130 : 150, fontFamily:"inherit"}}/>
+        </label>;
+      })}
+    </div>;
+  }
+
+  // Eine Gruppe mit Ueberschrift; optional eine zweite Liste darunter
+  // (Befund: Normalsaetze und Abweichungen unter einer Ueberschrift).
+  function kv2Gruppe(titel, g1, l1, g2, l2){
+    var teile = [[g1, l1||[]]];
+    if (g2) teile.push([g2, l2||[]]);
+    if (!teile.some(function(t){ return t[1].length; })) return null;
+    return <div key={titel}>
+      <div style={cat}>{titel}</div>
+      {teile.map(function(t){
+        return <div key={t[0]}>
+          <div style={row}>{t[1].map(function(b){ return kv2Chip(t[0], b); })}</div>
+          {t[1].map(function(b){ return kv2An(t[0], b.id) && b.feld
+            ? <div key={b.id + "-f"}>{kv2FeldZeile(t[0], b.id, b)}</div> : null; })}
+        </div>;
+      })}
+    </div>;
+  }
+
+  // Der fertige Karteieintrag. Absaetze in fester Reihenfolge, leere entfallen;
+  // innerhalb eines Absatzes Leerzeichen, zwischen Absaetzen eine Leerzeile.
+  var kv2Volltext = _m(function(){
+    if (!KV2 || !kv2Anlass) return "";
+    var anl = KV2.ANLAESSE[kv2Anlass];
+    if (!anl) return "";
+    var abs = [];
+    if (kv2Zeitpunkt) abs.push(String(KV2.KOPF).replace("{ZEITPUNKT}", kv2Zeitpunkt));
+    abs.push(kv2Satz("ANLASS", kv2Anlass, anl.anlass ? {text: anl.anlass, feld: anl.feld} : {text: ""}));
+    var anam = kv2Saetze("ANAMNESE", KV2.ANAMNESE);
+    if (anam.length) abs.push(anam.join(" "));
+    var bef = kv2Saetze("BEFUND_NORM", KV2.BEFUND_NORM)
+                .concat(kv2Saetze("BEFUND_ABWEICHUNG", KV2.BEFUND_ABWEICHUNG));
+    if (bef.length) abs.push(bef.join(" "));
+    var mass = kv2Saetze("MASSNAHME", (KV2.MASSNAHME||{})[anl.massnahme]);
+    if (mass.length) abs.push(mass.join(" "));
+    if (anl.roentgen) {
+      var rb = kv2Saetze("ROENTGEN_BEFUND", KV2.ROENTGEN_BEFUND);
+      if (rb.length) abs.push(rb.join(" "));
+    }
+    // Alle Anweisungen bilden EINEN Absatz; die Gruppenfolge steht in den
+    // Daten, die Klickreihenfolge des Anwenders spielt keine Rolle.
+    var anw = [];
+    (KV2.REIHENFOLGE_ANWEISUNG||[]).forEach(function(g){
+      anw = anw.concat(kv2Saetze("ANWEISUNG." + g, (KV2.ANWEISUNG||{})[g]));
+    });
+    if (anw.length) abs.push(anw.join(" "));
+    return abs.filter(function(t){ return t && t.trim(); }).join("\n\n");
+  }, [kv2Anlass, kv2Sel, kv2Feld, kv2Zeitpunkt]);
+
+  var fullText = _m(function() {
+    // Verlaufsdokumentation: interner Karteieintrag, keine Anrede und keine
+    // Grussformel — deshalb VOR der Geschlechtsabfrage.
+    if (kontrolleMode) return kv2Volltext;
+    if (!gender) return "";
     // ME-MODUS: eigener Brief-Flow
     if (meMode) {
       if (!meBriefRegion || !meBriefImpl) return "";
@@ -2032,7 +2228,7 @@ var _s = useState, _m = useMemo;
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return rawOut.replace(/\bundefined\b/g, "___");
-  }, [gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
+  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
@@ -2229,7 +2425,7 @@ var _s = useState, _m = useMemo;
           <div><div style={{ fontSize: 10, color: "#718096", fontWeight: 700, marginBottom: 3 }}>SEITE</div><div style={row}><div style={GB(seite === "links")} onClick={function() { setSeite(seite === "links" ? "" : "links"); }}>Links</div><div style={GB(seite === "rechts")} onClick={function() { setSeite(seite === "rechts" ? "" : "rechts"); }}>Rechts</div><div style={GB(seite === "bds")} onClick={function() { setSeite(seite === "bds" ? "" : "bds"); }}>Bds.</div></div></div>
           <div><div style={{ fontSize: 10, color: "#718096", fontWeight: 700, marginBottom: 3 }}>ALTER</div><div style={row}><div style={GB(alter === "erw")} onClick={function() { setAlter("erw"); }}>≥18 J.</div><div style={{...GB(alter === "kind"),borderColor:alter==="kind"?"#E65100":"",color:alter==="kind"?"#E65100":"",background:alter==="kind"?"rgba(230,81,0,.08)":""}} onClick={function() { setAlter("kind"); }}>{"<18 J. ⚠"}</div></div></div>
         </div>
-        <div style={{ marginBottom: 6 }}><div style={{ fontSize: 10, color: "#718096", fontWeight: 700, marginBottom: 3 }}>BEGLEITUNG (optional)</div><input value={begleitung} onChange={function(e) { setBegleitung(e.target.value); }} placeholder="z.B. des Vaters, der Mutter..." /></div>
+        {!kontrolleMode&&<div style={{ marginBottom: 6 }}><div style={{ fontSize: 10, color: "#718096", fontWeight: 700, marginBottom: 3 }}>BEGLEITUNG (optional)</div><input value={begleitung} onChange={function(e) { setBegleitung(e.target.value); }} placeholder="z.B. des Vaters, der Mutter..." /></div>}
         {/* PFAD-AUSWAHL: Fuß vs. Endo */}
         <div style={{ marginBottom: 8 }}>
           <div style={{ fontSize: 10, color: "#718096", fontWeight: 700, marginBottom: 3 }}>FACHRICHTUNG</div>
@@ -2250,13 +2446,44 @@ var _s = useState, _m = useMemo;
           {meMode&&<span style={{fontSize:10,color:"#BF360C",alignSelf:"center",fontStyle:"italic"}}>Diagnose „Störendes Implantat" wird automatisch gesetzt.</span>}
           {kontrolleMode&&<span style={{fontSize:10,color:"#006B6F",alignSelf:"center",fontStyle:"italic"}}>Schlanker Kontroll-Brief – Diagnose/Anamnese/Untersuchung entfallen.</span>}
         </div>
-        {kontrolleMode&&<div style={{marginBottom:6, padding:"8px 10px", background:"rgba(0,107,111,.04)", border:"1px solid rgba(0,107,111,.2)", borderRadius:6}}>
-          <div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:4}}>KONTROLL-TYP</div>
+        {kontrolleMode&&KV2&&<div style={{marginBottom:6, padding:"8px 10px", background:"rgba(0,107,111,.04)", border:"1px solid rgba(0,107,111,.2)", borderRadius:6}}>
+          <div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:4}}>ANLASS</div>
           <div style={row}>
-            <div style={GB(kontrolleType === "verlauf")} onClick={function() { setKontrolleType("verlauf"); }}>Verlauf</div>
-            <div style={GB(kontrolleType === "fadenzug")} onClick={function() { setKontrolleType("fadenzug"); }}>Fadenzug</div>
-            <div style={GB(kontrolleType === "roentgen")} onClick={function() { setKontrolleType("roentgen"); }}>Röntgen (6 Wo)</div>
+            {Object.keys(KV2.ANLAESSE).map(function(k){
+              return <div key={k} style={GB(kv2Anlass === k)} onClick={function(){ kv2WaehleAnlass(k); }}>{KV2.ANLAESSE[k].label}</div>;
+            })}
           </div>
+          {kv2Anlass&&KV2.ANLAESSE[kv2Anlass].feld&&kv2FeldZeile("ANLASS", kv2Anlass, KV2.ANLAESSE[kv2Anlass])}
+
+          <div style={{marginTop:10,display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span style={{fontSize:10,color:"#718096",fontWeight:700}}>OP-DATUM</span>
+            <input type="date" value={kv2OpDatum} onChange={function(e){ setKv2OpDatum(e.target.value); }}
+                   style={{padding:"5px 8px",border:"1px solid rgba(0,0,0,.15)",borderRadius:6,fontSize:11,fontFamily:"inherit"}}/>
+            <span style={{fontSize:10,color:kv2Zeitpunkt?"#006B6F":"#718096",fontStyle:"italic"}}>
+              {kv2Zeitpunkt ? kv2Zeitpunkt : "ohne Datum entfällt die Kopfzeile"}
+            </span>
+          </div>
+
+          {kv2Anlass&&<div>
+            {kv2Gruppe("Anamnese", "ANAMNESE", KV2.ANAMNESE)}
+            {kv2Gruppe("Befund", "BEFUND_NORM", KV2.BEFUND_NORM, "BEFUND_ABWEICHUNG", KV2.BEFUND_ABWEICHUNG)}
+            {kv2Gruppe("Maßnahme", "MASSNAHME", (KV2.MASSNAHME||{})[KV2.ANLAESSE[kv2Anlass].massnahme])}
+            {KV2.ANLAESSE[kv2Anlass].roentgen && kv2Gruppe("Röntgenbefund", "ROENTGEN_BEFUND", KV2.ROENTGEN_BEFUND)}
+            <div style={cat}>Anweisungen</div>
+            {(KV2.REIHENFOLGE_ANWEISUNG||[]).map(function(g){
+              var liste=(KV2.ANWEISUNG||{})[g]||[];
+              if(!liste.length) return null;
+              return <div key={g} style={{marginBottom:2}}>
+                <div style={{fontSize:10,color:"#A0AEC0",marginBottom:1}}>{KV2_ANWEISUNG_LABEL[g]||g}</div>
+                <div style={row}>{liste.map(function(b){ return kv2Chip("ANWEISUNG."+g, b); })}</div>
+                {liste.map(function(b){ return kv2An("ANWEISUNG."+g, b.id) && b.feld
+                  ? <div key={b.id+"-f"}>{kv2FeldZeile("ANWEISUNG."+g, b.id, b)}</div> : null; })}
+              </div>;
+            })}
+            {!kv2An("ANWEISUNG.sicherung","standard")&&<div style={{marginTop:6,padding:"6px 9px",borderRadius:6,background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.25)",fontSize:10,color:"#8A5A00"}}>
+              Die Sicherungsaufklärung ist in diesem Eintrag nicht dokumentiert.
+            </div>}
+          </div>}
         </div>}
         {!meMode&&!kontrolleMode&&<div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>}
         </>}
