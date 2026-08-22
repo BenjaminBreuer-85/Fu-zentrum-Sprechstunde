@@ -1087,6 +1087,21 @@ const ENDO_KONSTELLATIONEN = window._DATA.endo.ENDO_KONSTELLATIONEN;
 // Texte sind als Basis vorgegeben – können vom Anwender überschrieben/erweitert werden
 const KONTROLLE_TEXT = window._DATA.diagnosen.KONTROLLE_TEXT;
 const KONTROLLE_LABEL = window._DATA.diagnosen.KONTROLLE_LABEL;
+// Anatomische Reihenfolge der Diagnosenauswahl. Sie steht in den Daten, damit
+// eine neue Diagnose ohne Programmaenderung einsortiert werden kann.
+// Was in DIAG steht, aber in keiner Gruppe genannt ist, landet unter
+// "Weitere" — eine Diagnose darf nie stillschweigend aus der Auswahl fallen.
+const DIAG_GRUPPEN = (function(){
+  var roh = window._DATA.diagnosen.DIAG_GRUPPEN || [];
+  var gruppen = roh.map(function(g){
+    return { titel: g.titel, diagnosen: (g.diagnosen||[]).filter(function(k){ return !!DIAG[k]; }) };
+  }).filter(function(g){ return g.diagnosen.length; });
+  var genannt = {};
+  gruppen.forEach(function(g){ g.diagnosen.forEach(function(k){ genannt[k] = true; }); });
+  var rest = Object.keys(DIAG).filter(function(k){ return !genannt[k]; });
+  if (rest.length) gruppen.push({ titel: "Weitere", diagnosen: rest });
+  return gruppen;
+})();
 // Verlaufsdokumentation (interner Karteieintrag). KONTROLLE_TEXT/LABEL oben
 // bleiben bis zur Abnahme des neuen Flows liegen, damit ein Rueckschritt ohne
 // Datenaenderung moeglich ist.
@@ -2403,8 +2418,10 @@ var _s = useState, _m = useMemo;
   var card = { background: "rgba(255,255,255,1)", border: "1px solid rgba(0,0,0,.08)", borderRadius: 10, padding: 14, marginBottom: 10 };
   var h3s = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#00897B", marginBottom: 8 };
   var cat = { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "#718096", margin: "10px 0 4px" };
+  // Gruppenueberschrift der Diagnosen: derselbe Stil, nur kleiner und blasser,
+  // damit die Chips die Hauptsache bleiben.
+  var diagGrp = { fontSize: 9, fontWeight: 600, textTransform: "uppercase", letterSpacing: .8, color: "#A0AEC0", margin: "0 0 2px 2px" };
 
-  var diagKeys = Object.keys(DIAG);
 
   return (
     <div style={{ fontFamily: "system-ui,-apple-system,'Segoe UI',Roboto,sans-serif", background: "#F5F7FA", minHeight: "100vh", color: "#1A2A3A", padding: "14px 16px" }}>
@@ -2438,11 +2455,13 @@ var _s = useState, _m = useMemo;
           ⚠ <strong>Endo-Pfad im Aufbau (Iteration 1):</strong> Diagnose-Auswahl + BMI funktionsfähig. Klinische Untersuchung, Bildgebung, Therapie und Erlös-Simulation folgen in Iteration 2 + 3.
         </div>}
         {pfad === "fuss" && <>
-        <div data-tour="sb-diagnose" style={cat}>Diagnose(n) – max. 2</div>
-        {/* SONDER-FLOW Chips (ME-Modus + Kontrolle) */}
+        {/* Sonder-Flows stehen ueber den Diagnosen und tragen eine eigene
+            Ueberschrift. Zwischen Ueberschrift und Raster gestellt wirkten sie
+            wie zwei Diagnosen unter vielen. */}
+        <div style={cat}>Anlass ohne neue Diagnose</div>
         <div style={{marginBottom:6, display:"flex", gap:8, flexWrap:"wrap"}}>
-          <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:meMode?"2px solid #E65100":"1px dashed rgba(230,81,0,.4)",background:meMode?"rgba(230,81,0,.12)":"rgba(230,81,0,.02)",color:meMode?"#E65100":"#BF360C",fontWeight:600,userSelect:"none"}} onClick={function(){var nv=!meMode;setMeMode(nv);if(nv){setKontrolleMode(false);setKontrolleType("");setDiagnosen([]);setOpMethode([]);}}}>🔩 Metallentfernung {meMode?"(aktiv)":"(Sonder-Flow)"}</div>
-          <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:kontrolleMode?"2px solid #00897B":"1px dashed rgba(0,107,111,.4)",background:kontrolleMode?"rgba(0,107,111,.12)":"rgba(0,107,111,.02)",color:kontrolleMode?"#006B6F":"#006B6F",fontWeight:600,userSelect:"none"}} onClick={function(){var nv=!kontrolleMode;setKontrolleMode(nv);if(nv){setMeMode(false);setMeBriefRegion("");setMeBriefImpl("");setMeBriefZusatz("");setDiagnosen([]);setOpMethode([]);}else{setKontrolleType("");}}}>🩺 Kontrolle {kontrolleMode?"(aktiv)":"(Sonder-Flow)"}</div>
+          <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:meMode?"2px solid #E65100":"1px dashed rgba(230,81,0,.4)",background:meMode?"rgba(230,81,0,.12)":"rgba(230,81,0,.02)",color:meMode?"#E65100":"#BF360C",fontWeight:600,userSelect:"none"}} onClick={function(){var nv=!meMode;setMeMode(nv);if(nv){setKontrolleMode(false);setKontrolleType("");setDiagnosen([]);setOpMethode([]);}}}>🔩 Metallentfernung{meMode?" (aktiv)":""}</div>
+          <div style={{display:"inline-block",padding:"6px 11px",borderRadius:6,fontSize:11,cursor:"pointer",border:kontrolleMode?"2px solid #00897B":"1px dashed rgba(0,107,111,.4)",background:kontrolleMode?"rgba(0,107,111,.12)":"rgba(0,107,111,.02)",color:kontrolleMode?"#006B6F":"#006B6F",fontWeight:600,userSelect:"none"}} onClick={function(){var nv=!kontrolleMode;setKontrolleMode(nv);if(nv){setMeMode(false);setMeBriefRegion("");setMeBriefImpl("");setMeBriefZusatz("");setDiagnosen([]);setOpMethode([]);}else{setKontrolleType("");}}}>🩺 Verlaufskontrolle{kontrolleMode?" (aktiv)":""}</div>
           {meMode&&<span style={{fontSize:10,color:"#BF360C",alignSelf:"center",fontStyle:"italic"}}>Diagnose „Störendes Implantat" wird automatisch gesetzt.</span>}
           {kontrolleMode&&<span style={{fontSize:10,color:"#006B6F",alignSelf:"center",fontStyle:"italic"}}>Schlanker Kontroll-Brief – Diagnose/Anamnese/Untersuchung entfallen.</span>}
         </div>
@@ -2485,7 +2504,17 @@ var _s = useState, _m = useMemo;
             </div>}
           </div>}
         </div>}
-        {!meMode&&!kontrolleMode&&<div style={row}>{diagKeys.map(function(k) { return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function() { togDiag(k); }}>{DIAG[k].label}</div>; })}</div>}
+        {!meMode&&!kontrolleMode&&<div data-tour="sb-diagnose">
+          <div style={cat}>Diagnose(n) – max. 2</div>
+          {DIAG_GRUPPEN.map(function(g){
+            return <div key={g.titel} style={{marginBottom:7}}>
+              <div style={diagGrp}>{g.titel}</div>
+              <div style={row}>{g.diagnosen.map(function(k){
+                return <div key={k} style={C(diagnosen.indexOf(k) >= 0)} onClick={function(){ togDiag(k); }}>{DIAG[k].label}</div>;
+              })}</div>
+            </div>;
+          })}
+        </div>}
         </>}
         {pfad === "endo" && <>
           <div style={cat}>Diagnose</div>
