@@ -10,12 +10,12 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="de_DE">
 <meta property="og:url" content="https://fuss-track.de/">
-<!-- Vorschaubild liegt im Repo (icons/og-bild.png), keine externe Quelle — BRAND.md.
-     Neu bauen mit: python3 scripts/og-bild.py -->
-<meta property="og:image" content="https://fuss-track.de/icons/og-bild.png">
+<!-- Vorschaubild liegt im Repo (bilder/screens/og-clinic.jpg), keine externe
+     Quelle — BRAND.md. Loeste die generierte Wortmarke aus scripts/og-bild.py ab. -->
+<meta property="og:image" content="https://fuss-track.de/bilder/screens/og-clinic.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Wortmarke Fuss-Track Clinic auf petrolfarbener Fläche">
+<meta property="og:image:alt" content="Fuss-Track Clinic — Ansicht der Anwendung">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
@@ -153,15 +153,9 @@
     border:1px solid var(--line);border-radius:var(--radius);background:#fff;
     overflow:hidden;box-shadow:0 12px 30px -22px rgba(16,83,91,.4);
   }
-  .shot-bar{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line)}
-  .shot-bar i{width:9px;height:9px;border-radius:50%;background:var(--line)}
-  .shot-ph{
-    aspect-ratio:16/9.5;display:flex;align-items:center;justify-content:center;
-    background:
-      linear-gradient(var(--op-tint) 1px, transparent 1px) 0 0/100% 28px,
-      #fff;
-    color:var(--muted);font-size:.85rem;text-align:center;padding:0 20px;
-  }
+  /* Die Bilder zeigen Handyansichten; eine Fensterleiste darueber waere falsch.
+     Karte mit Rahmen und Schatten bleibt, das Bild fuellt sie randlos. */
+  .shot img{display:block;width:100%;height:auto}
 
   /* ---------- Vertrauen ---------- */
   .trust{background:var(--op);color:#fff;padding:64px 0}
@@ -320,7 +314,7 @@
   <!-- Funktionen -->
   <section class="features">
     <div class="wrap">
-      <h2>Vier Werkzeuge. Ein Fachgebiet.</h2>
+      <h2>Ein Werkzeugkasten für ein Fachgebiet.</h2>
       <p class="lead">Alles in Fuss-Track Clinic ist für genau eine Disziplin gebaut — vom Textbaustein bis zur Erlöslogik.</p>
 
       <div class="feature">
@@ -328,7 +322,14 @@
           <h3>Sprechstundenbrief in Minuten</h3>
           <p>Modulare Textbausteine für die gesamte Fuß- und Sprunggelenksprechstunde — Befund, Scores, Prozedere. Zusammenklicken, anpassen, als Word exportieren, fertig.</p>
         </div>
-        <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div><div class="shot-ph">Screenshot: Sprechstundenbrief-Generator<br>(wird ergänzt)</div></div>
+        <div class="shot">
+          <img src="bilder/screens/clinic-sprechstundenbrief.webp"
+               srcset="bilder/screens/clinic-sprechstundenbrief-800.webp 800w,
+                       bilder/screens/clinic-sprechstundenbrief.webp 1600w"
+               sizes="(max-width: 840px) 92vw, 46vw"
+               width="1600" height="950" decoding="async"
+               alt="Eingabemaske des Sprechstundenbrief-Generators mit nach Vorfuß, Mittelfuß und Rückfuß gruppierten Diagnosen und der klinischen Untersuchung">
+        </div>
       </div>
 
       <div class="feature">
@@ -336,15 +337,59 @@
           <h3>OP-Berichte, die Kodierung und Erlös mitdenken</h3>
           <p>Der OP-Bericht-Generator verbindet den Berichtstext direkt mit der passenden OPS-Zuordnung und simuliert den Erlös — inklusive Hybrid-DRG. Sie sehen beim Dokumentieren, was der Eingriff abbildet.</p>
         </div>
-        <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div><div class="shot-ph">Screenshot: OP-Bericht mit Erlös-Simulation<br>(wird ergänzt)</div></div>
+        <div class="shot">
+          <img src="bilder/screens/clinic-op-bericht.webp"
+               srcset="bilder/screens/clinic-op-bericht-800.webp 800w,
+                       bilder/screens/clinic-op-bericht.webp 1600w"
+               sizes="(max-width: 840px) 92vw, 46vw"
+               width="1600" height="950" loading="lazy" decoding="async"
+               alt="OP-Bericht-Generator mit Auswahl der Rückfußeingriffe, Materialsumme im Vergleich zur InEK-Referenz und fertigem Berichtstext">
+        </div>
       </div>
 
       <div class="feature">
         <div>
-          <h3>OP-Anleitungen und Klassifikationen griffbereit</h3>
-          <p>Hinterlegte OP-Techniken, gängige Klassifikationen und Messmethoden des Fachgebiets — nachschlagbar in Sekunden, auch am Tablet im OP-Trakt.</p>
+          <h3>Ambulant oder stationär, vor der Entscheidung sichtbar</h3>
+          <p>Die Fallsteuerung rechnet beide Wege durch: Hybrid-DRG gegen volle DRG, Belegungstage und Grenzverweildauer, Materialkosten gegen die InEK-Referenz. Welche Kontextprozedur die Hybrid-DRG kostet und wo eine Aufwertung möglich ist, steht dabei, bevor der Eingriff geplant wird.</p>
         </div>
-        <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div><div class="shot-ph">Screenshot: OP-Anleitung &amp; Klassifikationen<br>(wird ergänzt)</div></div>
+        <div class="shot">
+          <img src="bilder/screens/clinic-fallsteuerung.webp"
+               srcset="bilder/screens/clinic-fallsteuerung-800.webp 800w,
+                       bilder/screens/clinic-fallsteuerung.webp 1600w"
+               sizes="(max-width: 840px) 92vw, 46vw"
+               width="1600" height="950" loading="lazy" decoding="async"
+               alt="Fallsteuerung mit Gegenüberstellung von ambulanter und stationärer Führung, Belegungstagen und Deckungsbeitrag">
+        </div>
+      </div>
+
+      <div class="feature">
+        <div>
+          <h3>Klassifikationen mit Quelle</h3>
+          <p>Rund 47 Klassifikationen des Fachgebiets, filterbar nach Krankheitsbild und Region, jede mit vollständiger Graduierung und der Originalarbeit samt DOI. Kein Suchen in alten Foliensätzen, keine halb erinnerten Grade.</p>
+        </div>
+        <div class="shot">
+          <img src="bilder/screens/clinic-klassifikationen.webp"
+               srcset="bilder/screens/clinic-klassifikationen-800.webp 800w,
+                       bilder/screens/clinic-klassifikationen.webp 1600w"
+               sizes="(max-width: 840px) 92vw, 46vw"
+               width="1600" height="950" loading="lazy" decoding="async"
+               alt="Klassifikationsliste mit Filtern nach Krankheitsbild und Region, daneben die Wagner-Graduierung des diabetischen Fußulkus mit Quellenangabe">
+        </div>
+      </div>
+
+      <div class="feature">
+        <div>
+          <h3>OP-Anleitungen und Röntgenmessungen griffbereit</h3>
+          <p>Hinterlegte OP-Techniken und 26 Messmethoden mit bebilderten Referenzaufnahmen. Zu jeder Messung Normwert, Definition und Quelle, nachschlagbar in Sekunden, auch am Tablet im OP-Trakt.</p>
+        </div>
+        <div class="shot">
+          <img src="bilder/screens/clinic-roentgen.webp"
+               srcset="bilder/screens/clinic-roentgen-800.webp 800w,
+                       bilder/screens/clinic-roentgen.webp 1600w"
+               sizes="(max-width: 840px) 92vw, 46vw"
+               width="1600" height="950" loading="lazy" decoding="async"
+               alt="Messmethode Meary-Winkel mit Normwert, Quelle und einer seitlichen Standaufnahme des Fußes mit eingezeichneten Achsen">
+        </div>
       </div>
 
       <div class="feature">
@@ -352,7 +397,14 @@
           <h3>Abrechnungswissen, jährlich gepflegt</h3>
           <p>OPS-, ICD- und DRG-Daten werden mit jedem Katalogjahr aktualisiert. Die Pflege ist Teil des Abos — Sie arbeiten immer mit dem aktuellen Stand.</p>
         </div>
-        <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div><div class="shot-ph">Screenshot: Katalogansicht OPS 2026<br>(wird ergänzt)</div></div>
+        <div class="shot">
+          <img src="bilder/screens/clinic-ops-katalog.webp"
+               srcset="bilder/screens/clinic-ops-katalog-800.webp 800w,
+                       bilder/screens/clinic-ops-katalog.webp 1600w"
+               sizes="(max-width: 840px) 92vw, 46vw"
+               width="1600" height="950" loading="lazy" decoding="async"
+               alt="OPS-Suche des Katalogjahres 2026 mit Treffern, gekennzeichnet nach AOP-Katalog und Hybrid-DRG">
+        </div>
       </div>
     </div>
   </section>
