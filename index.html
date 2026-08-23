@@ -88,48 +88,6 @@
   .hero .sub{font-size:1.1rem;color:var(--muted);margin-bottom:28px;max-width:34em}
   .hero .cta-note{margin-top:12px;font-size:.85rem;color:var(--muted)}
 
-  /* Signatur: der sich zusammensetzende OP-Bericht */
-  .doc{
-    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:0 18px 40px -24px rgba(16,83,91,.35);
-    overflow:hidden;
-  }
-  .doc-head{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:12px 18px;background:var(--op);color:#fff;
-    font-size:.85rem;font-weight:600;
-  }
-  .doc-head .mono{font-weight:400;opacity:.75;font-size:.75rem}
-  .doc-body{padding:20px 18px 8px;display:flex;flex-direction:column;gap:10px}
-  .baustein{
-    display:flex;justify-content:space-between;align-items:center;gap:12px;
-    border:1px solid var(--line);border-left:4px solid var(--op);
-    border-radius:6px;padding:10px 14px;background:var(--paper);
-    opacity:0;transform:translateY(10px);
-    animation:drop .5s ease forwards;
-  }
-  .baustein b{font-size:.92rem;font-weight:600}
-  .baustein small{display:block;color:var(--muted);font-size:.8rem}
-  .ops{
-    font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:var(--op);
-    background:var(--op-tint);padding:.25em .6em;border-radius:4px;white-space:nowrap;
-  }
-  .baustein:nth-child(1){animation-delay:.2s}
-  .baustein:nth-child(2){animation-delay:.55s}
-  .baustein:nth-child(3){animation-delay:.9s}
-  @keyframes drop{to{opacity:1;transform:none}}
-  .erloes{
-    margin:8px 18px 18px;padding:12px 16px;border-radius:6px;
-    background:var(--amber-bg);border:1px dashed #D9B96A;
-    display:flex;justify-content:space-between;align-items:baseline;
-    opacity:0;animation:drop .5s ease 1.3s forwards;
-  }
-  .erloes .label{font-size:.82rem;color:var(--amber);font-weight:600}
-  .erloes .amount{font-family:'IBM Plex Mono',monospace;font-size:1.25rem;color:var(--amber);font-weight:500}
-  .doc-foot{padding:0 18px 14px;font-size:.72rem;color:var(--muted)}
-  @media (prefers-reduced-motion: reduce){
-    .baustein,.erloes{animation:none;opacity:1;transform:none}
-  }
 
   /* ---------- Problem ---------- */
   .problem{padding:56px 0;border-bottom:1px solid var(--line)}
@@ -156,6 +114,33 @@
   /* Die Bilder zeigen Handyansichten; eine Fensterleiste darueber waere falsch.
      Karte mit Rahmen und Schatten bleibt, das Bild fuellt sie randlos. */
   .shot img{display:block;width:100%;height:auto}
+
+  /* Swipebarer Streifen: ein Bild sichtbar, seitlich wischen zum naechsten.
+     aspect-ratio fest, damit beim Laden nichts springt. */
+  .streifen{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+            -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .streifen::-webkit-scrollbar{display:none}
+  .streifen > figure{flex:0 0 100%;scroll-snap-align:center;margin:0}
+  .streifen img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px}
+  .punkte{display:flex;gap:6px;justify-content:center;margin-top:10px}
+  .punkte i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s}
+  .punkte i.aktiv{background:var(--op)}
+  /* Ab 900 px stehen zwei Bilder nebeneinander, dann braucht es keine Punkte. */
+  @media (min-width:900px){
+    .streifen > figure{flex:0 0 calc(50% - 6px)}
+    .punkte{display:none}
+  }
+
+  /* Patienten-Abschnitt: abgesetzte Flaeche, damit erkennbar ist, dass hier
+     von der zweiten Anwendung die Rede ist. */
+  .patienten{background:var(--op-tint);padding:56px 0}
+  .patienten h2{font-size:1.8rem;margin-bottom:14px}
+  .patienten p{color:var(--ink);max-width:44em}
+  .qr-zeile{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:26px}
+  .qr-zeile img{display:block;width:140px;height:140px;border-radius:10px;background:#fff;padding:8px}
+  .qr-zeile a{text-decoration:none}
+  .qr-text b{display:block;font-size:1.05rem;color:var(--op)}
+  .qr-text span{font-size:.9rem;color:var(--muted)}
 
   /* ---------- Vertrauen ---------- */
   .trust{background:var(--op);color:#fff;padding:64px 0}
@@ -256,7 +241,7 @@
     <a class="wordmark" href="#top">Fuss-Track <span>Clinic</span></a>
     <div style="display:flex;gap:10px;align-items:center">
       <a class="btn ghost" href="app.html">Anmelden</a>
-      <a class="btn" href="#preis">30 Tage kostenlos testen</a>
+      <a class="btn kauf-knopftext" href="#preis">Testzugang anfragen</a>
     </div>
   </div>
 </header>
@@ -270,35 +255,20 @@
         <div class="eyebrow">Für Fußchirurginnen und Fußchirurgen</div>
         <h1>Dokumentiert in Minuten,<br>nicht in Stunden.</h1>
         <p class="sub">Fuss-Track Clinic erstellt Sprechstundenbriefe und OP-Berichte modular aus fachspezifischen Bausteinen — mit OPS-Zuordnung, Erlös-Simulation und hinterlegten OP-Anleitungen. Entwickelt von einem Fußchirurgen für Fußchirurginnen und Fußchirurgen.</p>
-        <a class="btn big" href="#preis">30 Tage kostenlos testen</a>
+        <a class="btn big kauf-knopftext" href="#preis">Testzugang anfragen</a>
         <p class="cta-note">Keine Zahlungsdaten für den Test erforderlich · Läuft im Browser, keine Installation</p>
       </div>
 
-      <!-- Signatur-Element: der sich zusammensetzende OP-Bericht -->
-      <div class="doc" aria-label="Beispiel: OP-Bericht setzt sich aus Bausteinen zusammen">
-        <div class="doc-head">
-          <span>OP-Bericht · Arthrodese MTP&nbsp;I</span>
-          <span class="mono">Beispiel</span>
-        </div>
-        <div class="doc-body">
-          <div class="baustein">
-            <div><b>Zugang</b><small>dorsomedial, Standardbaustein</small></div>
-            <span class="ops">Baustein 12</span>
-          </div>
-          <div class="baustein">
-            <div><b>Arthrodese Großzehengrundgelenk</b><small>Gelenkflächenpräparation, Stellung dokumentiert</small></div>
-            <span class="ops">OPS 5-808.b0</span>
-          </div>
-          <div class="baustein">
-            <div><b>Osteosynthese &amp; Nachbehandlung</b><small>Platte/Schraube · Schema Vorfußentlastung</small></div>
-            <span class="ops">Baustein 31</span>
-          </div>
-        </div>
-        <div class="erloes">
-          <span class="label">Erlös-Simulation · Hybrid-DRG</span>
-          <span class="amount">— &nbsp;€</span>
-        </div>
-        <div class="doc-foot">Beispieldarstellung — verbindlich sind die Kataloge des jeweiligen Jahres.</div>
+      <!-- Echtes Hauptmenue statt der frueheren Attrappe: neben den uebrigen
+           Screenshots wirkte ein Nachbau wie ein Platzhalter, und die leere
+           Erloeszeile weckte genau die Frage, die das Werkzeug beantwortet. -->
+      <div class="shot">
+        <img src="bilder/screens/menue-1.webp"
+             srcset="bilder/screens/menue-1-640.webp 640w,
+                     bilder/screens/menue-1.webp 1080w"
+             sizes="(max-width: 840px) 92vw, 46vw"
+             width="1080" height="1350" decoding="async"
+             alt="Hauptmenü von Fuss-Track Clinic mit den acht Werkzeugen">
       </div>
     </div>
   </section>
@@ -322,29 +292,111 @@
           <h3>Sprechstundenbrief in Minuten</h3>
           <p>Modulare Textbausteine für die gesamte Fuß- und Sprunggelenksprechstunde — Befund, Scores, Prozedere. Zusammenklicken, anpassen, als Word exportieren, fertig.</p>
         </div>
-        <div class="shot">
-          <img src="bilder/screens/clinic-sprechstundenbrief.webp"
-               srcset="bilder/screens/clinic-sprechstundenbrief-800.webp 800w,
-                       bilder/screens/clinic-sprechstundenbrief.webp 1600w"
-               sizes="(max-width: 840px) 92vw, 46vw"
-               width="1600" height="950" decoding="async"
-               alt="Eingabemaske des Sprechstundenbrief-Generators mit nach Vorfuß, Mittelfuß und Rückfuß gruppierten Diagnosen und der klinischen Untersuchung">
+      <div class="shot">
+        <div class="streifen">
+          <figure>
+            <img src="bilder/screens/sb-1-eingabe.webp"
+                 srcset="bilder/screens/sb-1-eingabe-640.webp 640w,
+                         bilder/screens/sb-1-eingabe.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" decoding="async"
+                 alt="Eingabemaske des Sprechstundenbrief-Generators mit nach Vorfuß, Mittelfuß und Rückfuß gruppierten Diagnosen">
+          </figure>
+          <figure>
+            <img src="bilder/screens/sb-2-untersuchung.webp"
+                 srcset="bilder/screens/sb-2-untersuchung-640.webp 640w,
+                         bilder/screens/sb-2-untersuchung.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" decoding="async"
+                 alt="Klinische Untersuchung im Sprechstundenbrief-Generator">
+          </figure>
         </div>
+        <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i></div>
+      </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- Patienten-App: bewusst abgesetzte Flaeche, damit erkennbar ist, dass hier
+       von der zweiten Anwendung die Rede ist. -->
+  <section class="patienten">
+    <div class="wrap">
+      <h2>Ihre Patienten bekommen die Begleitung dazu.</h2>
+      <p>Jeder Brief und jede Aufklärung aus Fuss-Track Clinic trägt einen QR-Code, der direkt zur passenden Stelle der Patienten-App führt: tagesgenaue Begleitung vom Vorbereitungstermin bis drei Monate nach dem Eingriff, verständliche Informationen zu Krankheitsbild und Verfahren, alles mit Quellen belegt. Wer noch keine Diagnose hat, kann sich über den Beschwerde-Wegweiser an mögliche Ursachen herantasten. Die Patienten-App ist kostenlos, werbefrei, ohne Konto und ohne Datensammlung, und sie bleibt es.</p>
+
+      <div class="shot" style="margin-top:26px;border:none;box-shadow:none;background:transparent">
+        <div class="streifen">
+          <figure>
+            <img src="bilder/screens/pat-1-start.webp"
+                 srcset="bilder/screens/pat-1-start-640.webp 640w,
+                         bilder/screens/pat-1-start.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Startseite der Patienten-App mit Begleiter, Infomaterial und Beschwerde-Wegweiser">
+          </figure>
+          <figure>
+            <img src="bilder/screens/pat-2-verlauf.webp"
+                 srcset="bilder/screens/pat-2-verlauf-640.webp 640w,
+                         bilder/screens/pat-2-verlauf.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Tagesgenauer Verlauf der Patienten-App mit hervorgehobenem Operationstag">
+          </figure>
+          <figure>
+            <img src="bilder/screens/pat-3-wegweiser.webp"
+                 srcset="bilder/screens/pat-3-wegweiser-640.webp 640w,
+                         bilder/screens/pat-3-wegweiser.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Beschwerde-Wegweiser der Patienten-App mit Auswahl der Beschwerderegion">
+          </figure>
+        </div>
+        <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i><i></i></div>
+      </div>
+
+      <div class="qr-zeile">
+        <a href="https://patienten.fuss-track.de" target="_blank" rel="noopener">
+          <img src="bilder/screens/qr-patienten-app.png" width="140" height="140"
+               loading="lazy" decoding="async"
+               alt="QR-Code zur Patienten-App unter patienten.fuss-track.de">
+        </a>
+        <div class="qr-text">
+          <b>patienten.fuss-track.de</b>
+          <span>Scannen oder antippen — kein App-Store, keine Anmeldung.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="wrap">
       <div class="feature">
         <div>
           <h3>OP-Berichte, die Kodierung und Erlös mitdenken</h3>
           <p>Der OP-Bericht-Generator verbindet den Berichtstext direkt mit der passenden OPS-Zuordnung und simuliert den Erlös — inklusive Hybrid-DRG. Sie sehen beim Dokumentieren, was der Eingriff abbildet.</p>
         </div>
-        <div class="shot">
-          <img src="bilder/screens/clinic-op-bericht.webp"
-               srcset="bilder/screens/clinic-op-bericht-800.webp 800w,
-                       bilder/screens/clinic-op-bericht.webp 1600w"
-               sizes="(max-width: 840px) 92vw, 46vw"
-               width="1600" height="950" loading="lazy" decoding="async"
-               alt="OP-Bericht-Generator mit Auswahl der Rückfußeingriffe, Materialsumme im Vergleich zur InEK-Referenz und fertigem Berichtstext">
+      <div class="shot">
+        <div class="streifen">
+          <figure>
+            <img src="bilder/screens/ob-1-auswahl.webp"
+                 srcset="bilder/screens/ob-1-auswahl-640.webp 640w,
+                         bilder/screens/ob-1-auswahl.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Auswahl der Rückfußeingriffe im OP-Bericht-Generator">
+          </figure>
+          <figure>
+            <img src="bilder/screens/ob-2-vorschau.webp"
+                 srcset="bilder/screens/ob-2-vorschau-640.webp 640w,
+                         bilder/screens/ob-2-vorschau.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Fertiger Berichtstext mit Materialsumme im Vergleich zur InEK-Referenz und Word-Export">
+          </figure>
         </div>
+        <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i></div>
+      </div>
       </div>
 
       <div class="feature">
@@ -352,14 +404,27 @@
           <h3>Ambulant oder stationär, vor der Entscheidung sichtbar</h3>
           <p>Die Fallsteuerung rechnet beide Wege durch: Hybrid-DRG gegen volle DRG, Belegungstage und Grenzverweildauer, Materialkosten gegen die InEK-Referenz. Welche Kontextprozedur die Hybrid-DRG kostet und wo eine Aufwertung möglich ist, steht dabei, bevor der Eingriff geplant wird. Gerechnet werden die stationären DRG und die Hybrid-DRG, also genau die Wege, an denen sich die Ambulantisierung entscheidet. Die vertragsärztliche Abrechnung nach EBM bildet Fuss-Track Clinic nicht ab.</p>
         </div>
-        <div class="shot">
-          <img src="bilder/screens/clinic-fallsteuerung.webp"
-               srcset="bilder/screens/clinic-fallsteuerung-800.webp 800w,
-                       bilder/screens/clinic-fallsteuerung.webp 1600w"
-               sizes="(max-width: 840px) 92vw, 46vw"
-               width="1600" height="950" loading="lazy" decoding="async"
-               alt="Fallsteuerung mit Gegenüberstellung von ambulanter und stationärer Führung, Belegungstagen und Deckungsbeitrag">
+      <div class="shot">
+        <div class="streifen">
+          <figure>
+            <img src="bilder/screens/fs-1-chevron.webp"
+                 srcset="bilder/screens/fs-1-chevron-640.webp 640w,
+                         bilder/screens/fs-1-chevron.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Fallsteuerung der Chevron-Osteotomie mit Gegenüberstellung von ambulanter und stationärer Führung">
+          </figure>
+          <figure>
+            <img src="bilder/screens/fs-2-tn.webp"
+                 srcset="bilder/screens/fs-2-tn-640.webp 640w,
+                         bilder/screens/fs-2-tn.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Fallsteuerung der TN-Arthrodese mit Belegungstagen und Deckungsbeitrag">
+          </figure>
         </div>
+        <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i></div>
+      </div>
       </div>
 
       <div class="feature">
@@ -367,14 +432,27 @@
           <h3>Klassifikationen mit Quelle</h3>
           <p>Rund 47 Klassifikationen des Fachgebiets, filterbar nach Krankheitsbild und Region, jede mit vollständiger Graduierung und der Originalarbeit samt DOI. Kein Suchen in alten Foliensätzen, keine halb erinnerten Grade.</p>
         </div>
-        <div class="shot">
-          <img src="bilder/screens/clinic-klassifikationen.webp"
-               srcset="bilder/screens/clinic-klassifikationen-800.webp 800w,
-                       bilder/screens/clinic-klassifikationen.webp 1600w"
-               sizes="(max-width: 840px) 92vw, 46vw"
-               width="1600" height="950" loading="lazy" decoding="async"
-               alt="Klassifikationsliste mit Filtern nach Krankheitsbild und Region, daneben die Wagner-Graduierung des diabetischen Fußulkus mit Quellenangabe">
+      <div class="shot">
+        <div class="streifen">
+          <figure>
+            <img src="bilder/screens/kl-1-liste.webp"
+                 srcset="bilder/screens/kl-1-liste-640.webp 640w,
+                         bilder/screens/kl-1-liste.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Klassifikationsliste mit Filtern nach Krankheitsbild und Region">
+          </figure>
+          <figure>
+            <img src="bilder/screens/kl-2-wagner.webp"
+                 srcset="bilder/screens/kl-2-wagner-640.webp 640w,
+                         bilder/screens/kl-2-wagner.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Wagner-Graduierung des diabetischen Fußulkus mit Quellenangabe">
+          </figure>
         </div>
+        <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i></div>
+      </div>
       </div>
 
       <div class="feature">
@@ -382,14 +460,18 @@
           <h3>OP-Anleitungen und Röntgenmessungen griffbereit</h3>
           <p>Hinterlegte OP-Techniken und 26 Messmethoden mit bebilderten Referenzaufnahmen. Zu jeder Messung Normwert, Definition und Quelle, nachschlagbar in Sekunden, auch am Tablet im OP-Trakt.</p>
         </div>
-        <div class="shot">
-          <img src="bilder/screens/clinic-roentgen.webp"
-               srcset="bilder/screens/clinic-roentgen-800.webp 800w,
-                       bilder/screens/clinic-roentgen.webp 1600w"
-               sizes="(max-width: 840px) 92vw, 46vw"
-               width="1600" height="950" loading="lazy" decoding="async"
-               alt="Messmethode Meary-Winkel mit Normwert, Quelle und einer seitlichen Standaufnahme des Fußes mit eingezeichneten Achsen">
+      <div class="shot">
+        <div class="streifen">
+          <figure>
+            <img src="bilder/screens/rx-1-meary.webp"
+                 srcset="bilder/screens/rx-1-meary-640.webp 640w,
+                         bilder/screens/rx-1-meary.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Messmethode Meary-Winkel mit Normwert, Quelle und einer seitlichen Standaufnahme des Fußes mit eingezeichneten Achsen">
+          </figure>
         </div>
+      </div>
       </div>
 
       <div class="feature">
@@ -397,14 +479,18 @@
           <h3>Abrechnungswissen, jährlich gepflegt</h3>
           <p>OPS-, ICD- und DRG-Daten werden mit jedem Katalogjahr aktualisiert. Die Pflege ist Teil des Abos — Sie arbeiten immer mit dem aktuellen Stand.</p>
         </div>
-        <div class="shot">
-          <img src="bilder/screens/clinic-ops-katalog.webp"
-               srcset="bilder/screens/clinic-ops-katalog-800.webp 800w,
-                       bilder/screens/clinic-ops-katalog.webp 1600w"
-               sizes="(max-width: 840px) 92vw, 46vw"
-               width="1600" height="950" loading="lazy" decoding="async"
-               alt="OPS-Suche des Katalogjahres 2026 mit Treffern, gekennzeichnet nach AOP-Katalog und Hybrid-DRG">
+      <div class="shot">
+        <div class="streifen">
+          <figure>
+            <img src="bilder/screens/ops-1-suche.webp"
+                 srcset="bilder/screens/ops-1-suche-640.webp 640w,
+                         bilder/screens/ops-1-suche.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="OPS-Suche des Katalogjahres 2026 mit Treffern, gekennzeichnet nach AOP-Katalog und Hybrid-DRG">
+          </figure>
         </div>
+      </div>
       </div>
     </div>
   </section>
@@ -464,7 +550,7 @@
         </div>
         <p class="price-note"><strong>Fair und kostendeckend kalkuliert:</strong> Fuss-Track Clinic ist kein Konzernprodukt, sondern ein Werkzeug von einem Fußchirurgen für Kolleginnen und Kollegen. Der Beitrag deckt Betrieb und jährliche Katalogpflege.</p>
         <ul class="perks">
-          <li>30 Tage kostenlos testen — ohne Zahlungsdaten</li>
+          <li id="leistung-test" hidden>30 Tage kostenlos testen — ohne Zahlungsdaten</li>
           <li>Jährliche Katalog-Updates (OPS, ICD, DRG) inklusive</li>
           <li>Kündbar zum Laufzeitende, online mit zwei Klicks</li>
           <li>Rechnung über unseren Zahlungspartner Paddle</li>
@@ -628,6 +714,31 @@
 })();
 </script>
 
+<!-- Positionsanzeige der Bilderstreifen. Reines Mitlesen der Scrollposition,
+     keine Bibliothek; ohne JavaScript bleibt der Streifen wischbar und die
+     Punkte stehen einfach auf dem ersten Bild. -->
+<script>
+(function(){
+  Array.prototype.forEach.call(document.querySelectorAll(".streifen"), function(streifen){
+    var punkte = streifen.parentNode.querySelector(".punkte");
+    if (!punkte) return;
+    var bilder = punkte.querySelectorAll("i");
+    var warten = null;
+    streifen.addEventListener("scroll", function(){
+      if (warten) return;
+      warten = setTimeout(function(){
+        warten = null;
+        var breite = streifen.firstElementChild ? streifen.firstElementChild.offsetWidth + 12 : 1;
+        var n = Math.round(streifen.scrollLeft / breite);
+        Array.prototype.forEach.call(bilder, function(pkt, i){
+          pkt.className = (i === n) ? "aktiv" : "";
+        });
+      }, 60);
+    }, {passive:true});
+  });
+})();
+</script>
+
 <!-- ===================================================================
      Kaufstrecke (Paddle)
 
@@ -677,9 +788,17 @@
   var ohneVerkauf = document.getElementById("kein-verkauf");
   var preisAngabe = document.getElementById("preis-angabe");
   var vorStart    = document.getElementById("vor-verkaufsstart");
+  var leistung    = document.getElementById("leistung-test");
   if (ohneVerkauf) ohneVerkauf.hidden = true;
   if (preisAngabe) preisAngabe.hidden = false;
   if (vorStart)    vorStart.hidden = false;
+  if (leistung)    leistung.hidden = false;
+  // Solange nichts verkauft wird, verspricht der Knopf keine Selbstbedienung.
+  // Mit der Kaufstrecke kehrt die Verkaufsfassung zurueck — eine Stelle,
+  // dieselbe Ein-Wort-Aenderung.
+  Array.prototype.forEach.call(document.querySelectorAll(".kauf-knopftext"), function(a){
+    a.textContent = "30 Tage kostenlos testen";
+  });
 
   block.hidden = false;
   if (sandkiste && hinweis) hinweis.hidden = false;

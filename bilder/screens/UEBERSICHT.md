@@ -1,39 +1,41 @@
 # Bildmaterial Fuss-Track — Übersicht
 
-Stand: 22.08.2026. Alle Dateien in `bilder/screens/`, jeweils 1600 × 950 als WebP, dazu eine 800er-Variante für kleine Bildschirme. Statusleisten, Adresszeilen und eingeblendete Bedienelemente sind entfernt, Hintergrund einheitlich in der Petrol-Farbwelt der Clinic-Seite.
+Stand: 23.08.2026. Alle Dateien in `bilder/screens/`.
 
-## Behandler-App
+## A) Landingpage: Einzelbilder für die Bildstreifen
 
-| Datei | Inhalt | Verwendung |
+Format **1080 × 1350 (4 : 5)** als WebP, dazu je eine 640er-Fassung (`…-640.webp`). Es sind Ausschnitte, keine verkleinerten Vollbilder — die Beschriftungen bleiben lesbar. Statusleisten, Adresszeilen und eingeblendete Bedienelemente sind entfernt.
+
+| Datei | Inhalt | Abschnitt |
 |---|---|---|
-| `clinic-uebersicht` | Hauptmenü mit den acht Werkzeugen | Hero, Vortrag, LinkedIn |
-| `clinic-sprechstundenbrief` | Eingabemaske, klinische Untersuchung | Landingpage Block 1 |
-| `clinic-op-bericht` | Eingriffsauswahl, Materialsumme, Berichtsvorschau | Landingpage Block 2 |
-| `clinic-fallsteuerung` | Chevron ambulant gegen stationär, TN-Arthrodese mit Belegungstagen | Landingpage Block 3 |
-| `clinic-klassifikationen` | Gefilterte Liste, Wagner-Graduierung mit Quelle | Landingpage Block 4 |
-| `clinic-roentgen` | Meary-Winkel, Referenzaufnahme mit Achsen | Landingpage Block 5 |
-| `clinic-ops-katalog` | OPS-Suche 2026, Treffer mit AOP- und Hybrid-DRG-Kennzeichnung | Landingpage Block 6 |
-| `clinic-kodierlogik` | Kontextprozeduren und H-DRG-Aufwertung | Reserve, LinkedIn-Feature-Post |
-| `og-clinic.jpg` | 1200 × 630 | og:image fuss-track.de |
+| `sb-1-eingabe` | Eingabemaske mit Anlass und gruppierten Diagnosen | Sprechstundenbrief |
+| `sb-2-untersuchung` | Klinische Untersuchung mit Dreizustands-Chips | Sprechstundenbrief |
+| `ob-1-auswahl` | OP-Durchführung, Eingriffsauswahl Rückfuß | OP-Bericht |
+| `ob-2-vorschau` | Materialsumme, InEK-Referenz, fertiger Berichtstext, Word-Export | OP-Bericht |
+| `fs-1-chevron` | Chevron-Osteotomie, ambulant gegen stationär | Fallsteuerung |
+| `fs-2-tn` | TN-Arthrodese, Belegungstage und Deckungsbeitrag | Fallsteuerung |
+| `kl-1-liste` | Klassifikationsliste mit Filtern | Klassifikationen |
+| `kl-2-wagner` | Wagner-Graduierung mit Tabelle und Quelle | Klassifikationen |
+| `rx-1-meary` | Meary-Winkel mit Normwert, Quelle und Referenzaufnahme | Röntgenmessungen |
+| `ops-1-suche` | OPS-Suche 2026 mit AOP- und Hybrid-DRG-Kennzeichnung | Abrechnungswissen |
+| `menue-1` | Hauptmenü mit den acht Werkzeugen | Hero |
+| `pat-1-start` | Startseite der Patienten-App | Patienten-Abschnitt |
+| `pat-2-verlauf` | Hervorgehobener OP-Tag und Verlauf danach | Patienten-Abschnitt |
+| `pat-3-wegweiser` | Beschwerde-Wegweiser, Markierung am Fußfoto | Patienten-Abschnitt |
 
-## Patienten-App
+`qr-patienten-app.png` (720 × 720, Petrol auf Weiß) zeigt auf `https://patienten.fuss-track.de` und gehört in den Patienten-Abschnitt.
 
-| Datei | Inhalt | Verwendung |
-|---|---|---|
-| `patienten-op-verlauf` | Verlaufsliste vor der Operation, hervorgehobener OP-Tag, Verlauf danach | **Stärkstes Bild.** Patienten-Abschnitt, Vortrag, LinkedIn Post 3 |
-| `patienten-op-einrichten` | Entscheidungsbaum Knick-Senk-Fuß, gewählter Eingriff mit OP-Termin und Aufenthaltsfrage | Patienten-Abschnitt oder Vortrag |
-| `patienten-begleiter` | Auswahl OP- oder Non-OP-Begleiter, laufender konservativer Verlauf | Zeigt die Breite, Vortrag |
-| `patienten-uebersicht` | Startseite, Infomaterial-Artikel | Reserve, og:image-Grundlage |
-| `patienten-wegweiser` | Drei Schritte des Beschwerde-Wegweisers | LinkedIn, Vortrag |
-| `patienten-infomaterial` | Komplikationsraten der Arthrorise mit Quellenmarkern, Studienlage zu Chondroitin und Glukosamin mit Dosierungen und widersprüchlichen Arbeiten | Beleg für die inhaltliche Tiefe. LinkedIn, Vortrag |
-| `og-patienten.jpg` | 1200 × 630 | og:image patienten.fuss-track.de |
+## B) Doppelbilder 1600 × 950 — nicht mehr auf der Landingpage
 
-## Hinweis zur Auswahl
+Diese Dateien waren die erste Fassung und stehen **nicht mehr** in `index.html`. Sie bleiben im Repo als Material für Vortragsfolien, LinkedIn-Posts und das Kongress-Handout, wo zwei Ansichten nebeneinander sinnvoll sind:
 
-Es liegt mehr Material vor, als eine Landingpage tragen kann. Der Patienten-Abschnitt auf `fuss-track.de` sollte höchstens zwei Bilder zeigen, sonst kippt das Verhältnis zur Behandler-App, die dort das Produkt ist. Empfehlung: `patienten-op-verlauf` als erstes Bild, `patienten-begleiter` als zweites. Alles Übrige ist Material für Vortragsfolien, LinkedIn-Posts und das Kongress-Handout und bleibt deshalb im Repo.
+`clinic-uebersicht`, `clinic-sprechstundenbrief`, `clinic-op-bericht`, `clinic-fallsteuerung`, `clinic-klassifikationen`, `clinic-roentgen`, `clinic-ops-katalog`, `clinic-kodierlogik`, `patienten-uebersicht`, `patienten-begleiter`, `patienten-op-einrichten`, `patienten-op-verlauf`, `patienten-wegweiser`, `patienten-infomaterial` — jeweils mit 800er-Fassung.
 
-## Regeln für weitere Aufnahmen
+`og-clinic.jpg` und `og-patienten.jpg` (je 1200 × 630) bleiben die Vorschaubilder für geteilte Links.
+
+## C) Regeln für weitere Aufnahmen
 
 - Behandler-App: Summen und Katalogwerte dürfen sichtbar sein, Artikelzeilen mit Herstellernamen, Stückzahlen oder Einzelpreisen nicht.
 - Röntgenaufnahmen nur ohne Patientenangaben und ohne Aufnahmedatum, auch nicht eingebrannt.
 - Zuschnitt oben unter der Statusleiste, unten oberhalb eingeblendeter Bedienelemente.
+- Neue Landingpage-Bilder immer im Format 4 : 5, damit die Streifen gleich hoch bleiben.
