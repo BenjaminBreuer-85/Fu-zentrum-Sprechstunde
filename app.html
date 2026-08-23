@@ -2610,7 +2610,7 @@ var _s = useState, _m = useMemo;
               ?<div style={{padding:"8px 10px",borderRadius:6,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
                 <div style={{fontSize:11,fontWeight:700,color:"#E65100",marginBottom:3}}>⛔ KEIN H-DRG MÖGLICH – Patient {"<"}18 Jahre</div>
                 <div style={{fontSize:10,color:"#BF360C"}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
-                <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung (unattraktiv) · stationäre Führung erwägen</div>
+                <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung möglich</div>
               </div>
               :meBriefZusatz!=="none"
               ?<div style={{display:"grid",gridTemplateColumns:"1fr",gap:4}}>
@@ -2620,13 +2620,13 @@ var _s = useState, _m = useMemo;
                 </div>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"1px solid rgba(160,160,160,.4)",background:"rgba(160,160,160,.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                   <div><span style={{fontSize:10,fontWeight:700,color:"#718096"}}>Alternative</span> <span style={{fontSize:10,color:"#718096"}}>· isolierte ME ohne Triggercode</span></div>
-                  <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · ökonomisch unattraktiv</div>
+                  <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · geringer Erlös</div>
                 </div>
               </div>
               :<div style={{display:"grid",gridTemplateColumns:"1fr",gap:4}}>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"1px solid rgba(198,40,40,.35)",background:"rgba(198,40,40,.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                   <div><span style={{fontSize:10,fontWeight:700,color:"#C62828"}}>aktuell:</span> <span style={{fontSize:10,color:"#2D3748"}}>· isolierte ME ohne Triggercode</span></div>
-                  <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · ökonomisch unattraktiv</div>
+                  <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · geringer Erlös</div>
                 </div>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"1px dashed #00897B",background:"rgba(0,137,123,.04)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                   <div><span style={{fontSize:10,fontWeight:700,color:"#00897B"}}>möglich bei medizinischer Indikation:</span> <span style={{fontSize:10,color:"#2D3748"}}>· H-DRG-Triggercode aus Positivliste oben wählen</span></div>
@@ -2774,12 +2774,12 @@ var _s = useState, _m = useMemo;
               // MTP-I + 3× DMMO → I20D; + 4× DMMO → I20C (beide nur stationär, keine Kontextprozedur nötig)
               else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo3)override={hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,empf:"stat",hideKontext:true,note:window._fx(" + 3× DMMO (5-788.54) → KEINE H-DRG mehr → I20D (4.710 €) stationär"),altHinweise:[
                 {typ:"warn",txt:"Ab 3× DMMO MT II–V (5-788.54) entfällt die H-DRG-Fähigkeit komplett."},
-                {typ:"erloes",txt:window._fx("Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20D (4.710 €) statt I20E (3.923 €) → +787 €.")},
+                {typ:"erloes",txt:window._fx("Bei stationärer Führung greift I20D (4.710 €) statt I20E (3.923 €), ein Unterschied von 787 €.")},
                 {typ:"info",txt:"Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."}
               ]};
               else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo4)override={hdrg:null,hdrgE:0,drg:"I20C",drgE:5068,cm:1.111,ugvd:1,mvwd:5.2,empf:"stat",hideKontext:true,note:window._fx(" + 4× DMMO (5-788.55) → KEINE H-DRG mehr → I20C (5.068 €) stationär"),altHinweise:[
                 {typ:"warn",txt:"Ab 4× DMMO MT II–V (5-788.55) entfällt die H-DRG-Fähigkeit komplett."},
-                {typ:"erloes",txt:window._fx("Stationäre Führung dadurch gerade wegen der DRG-Aufwertung umso sinnvoller: I20C (5.068 €) statt I20E (3.923 €) → +1.145 €.")},
+                {typ:"erloes",txt:window._fx("Bei stationärer Führung greift I20C (5.068 €) statt I20E (3.923 €), ein Unterschied von 1.145 €.")},
                 {typ:"info",txt:"Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."}
               ]};
               // Konstruktiv: Chevron/Scarf + ≤2 DMMO oder + ≥3 PIP → I20N
@@ -2834,7 +2834,7 @@ var _s = useState, _m = useMemo;
                         <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>AMBULANT · theoretisch möglich</div>
                         <div style={{fontSize:14,fontWeight:700,color:"#718096"}}>nur EBM</div>
                         <div style={{fontSize:10,color:"#718096",marginTop:2}}>keine H-DRG für diesen Code</div>
-                        <div style={{fontSize:10,color:"#C62828",marginTop:6,padding:"4px 6px",background:"rgba(198,40,40,.06)",border:"1px solid rgba(198,40,40,.2)",borderRadius:4}}>⚠ Ökonomisch unattraktiv — EBM-Erlös deckt klinischen Aufwand meist nicht. Stationäre Führung bevorzugen.</div>
+                        <div style={{fontSize:10,color:"#C62828",marginTop:6,padding:"4px 6px",background:"rgba(198,40,40,.06)",border:"1px solid rgba(198,40,40,.2)",borderRadius:4}}>Ambulant ist nur die EBM-Abrechnung möglich; sie deckt den klinischen Aufwand meist nicht.</div>
                       </div>;
                     }
                     // nichtmoeglich
@@ -4168,7 +4168,7 @@ function OPBerichtApp(){
       if(true) return [o,{label:lbl+(mitAkin?" + Akin":"")+(dmmo.length>0?" + DMMO":""),ops:o,
         hdrg:window._fx("I20O 1.007 €"),ebm:"EBM ~300 €",kurz:isOT?window._fx("I20E ~2.800 €"):window._fx("I20F ~2.000 €"),drg:isOT?window._fx("I20E 3.923 €"):window._fx("I20F 3.040 €"),hdrg_n1:window._fx("I20O 1.007 €"),empf:"amb",
         ziel:window._fx("Ambulant → H-DRG I20O (1.007 €). ❌ 5-854.2c NICHT kodieren!")+(isOT?window._fx("\nStationär ≥2N: 5-854.2c IMMER mitkodieren → I20E (3.923 €)."):""),
-        kodier:isOT?"⚠ HEBEL-CODE: 5-854.2c (Sehnentransfer/Rebalancing).\nAmbulant: NICHT kodieren → H-DRG I20O.\nStationär: IMMER mitkodieren → Kontextprozedur → I20E.\n⚠ Sehnentransfer muss im OP-Bericht dokumentiert sein!\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein. Bei MDK-Kürzung: Rückfall in H-DRG!\n② Kontextprozedur 5-854.2c mitkodieren → volle DRG bereits ab 2 Nächten. ✅ EMPFOHLEN: 1 Tag weniger zu rechtfertigen. Bei Kürzung: gekürzte DRG (besser als H-DRG).":"OPS: 5-788.00 (Cheilektomie/Exostose) → I20O ambulant.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG."}];
+        kodier:isOT?"⚠ HEBEL-CODE: 5-854.2c (Sehnentransfer/Rebalancing).\nAmbulant: NICHT kodieren → H-DRG I20O.\nStationär: IMMER mitkodieren → Kontextprozedur → I20E.\n⚠ Sehnentransfer muss im OP-Bericht dokumentiert sein!\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein. Bei MDK-Kürzung: Rückfall in H-DRG!\n② Kontextprozedur 5-854.2c mitkodieren → volle DRG bereits ab 2 Nächten. Mit Kontextprozedur ist ein Belegungstag weniger zu begründen. Bei Kürzung: gekürzte DRG (besser als H-DRG).":"OPS: 5-788.00 (Cheilektomie/Exostose) → I20O ambulant.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG."}];
     }
 
     // Kleinzehen/DMMO ≤2
@@ -4180,8 +4180,8 @@ function OPBerichtApp(){
     // DMMO >2
     if(hasDMMOover2&&_prio==="dmmo") return [o,{label:(weil.length&&!dmmo.length?"Weil":dmmo.length&&weil.length?"DMMO + Weil":"DMMO")+" ≥3 MT",ops:o,
       hdrg:"—",ebm:"—",kurz:window._fx("I20F ~2.000 €"),drg:window._fx("I20F 3.040 €"),hdrg_n1:"—",empf:"n2",
-      ziel:window._fx("5-788.54/55 nicht auf Positivliste → keine H-DRG. Stationär ≥2 Nächte → I20F (3.040 €)."),
-      kodier:"5-788.54/55 = DMMO 3–4 MT. Ambulant: H-DRG-Code dazukodieren erwägen."}];
+      ziel:window._fx("Nicht im AOP-Katalog und nicht auf der H-DRG-Positivliste. Stationär ab 2 Nächten I20F (3.040 €)."),
+      kodier:"5-788.54/55 = DMMO 3–4 MT. Nicht im AOP-Katalog: als Klinikleistung ambulant nicht zulässig. Eine ambulante Planung ist nur möglich, wenn im selben Eingriff eine AOP- beziehungsweise H-DRG-fähige Leistung tatsächlich erbracht wird."}];
 
 
     // OSG-TEP → I05B (primär) / I43B (Wechsel)
@@ -4191,14 +4191,14 @@ function OPBerichtApp(){
       kodier:"5-826.00 (Implantation Endoprothese OSG).\n⚠ Nicht im AOP-Katalog, nicht auf H-DRG-Positivliste → nur stationär.\n⚠ Häufiger Fehler: VWD zu kurz → Abschlag! Mind. 2 Belegungstage für volle DRG.\n💡 MVWD 6,2 Tage — Belegungstage sorgfältig dokumentieren."}];
     if(tepType&&tepType.startsWith("wechsel")) return [o,{label:"OSG-TEP Wechsel ("+(tepType.includes("inbone")?"achsgeführt":tepType.includes("vantage")?"Vantage":"Infinity")+")",ops:o,
       hdrg:"—",ebm:"—",kurz:"I43B gekürzt (VWD 1–2: Abschlag!)",drg:window._fx("I43B 10.819 €"),hdrg_n1:"—",empf:"n3",
-      ziel:window._fx("⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen."),
+      ziel:window._fx("⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\nDie volle DRG wird ab 3 Belegungstagen erreicht; bei früherer Entlassung greift der Abschlag."),
       kodier:"5-827.10 (Wechsel Endoprothese OSG).\n⚠ Patient muss mindestens 3 Tage bleiben! Am 1. und 2. Tag nach OP gibt es bei Entlassung Erlöskürzungen."}];
 
     // Arthrodesenagel TTC → I20A
     if(osgOp.includes("arthrodesenagel_retro")) return [o,{label:"Arthrodesenagel (TTC-Arthrodese)",ops:o,
       hdrg:"—",ebm:"—",kurz:"I20A gekürzt (VWD 1–2: Abschlag!)",drg:window._fx("I20A 8.954 €"),hdrg_n1:"—",empf:"n3",
-      ziel:window._fx("⚠ UGVD = 2 Tage! Volle DRG I20A (8.954 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag von je 0,265 CM pro Tag = ~1.209 € Kürzung pro Tag.\n→ Empfehlung: Mindestens 3 Übernachtungen einplanen."),
-      kodier:"5-808.71 (TTC-Arthrodese).\n⚠ Häufiger Fehler: Entlassung nach 2 Nächten → 1.209 € Abschlag! Mind. 3 Nächte einplanen."+(arthroNagelBecken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
+      ziel:window._fx("⚠ UGVD = 2 Tage! Volle DRG I20A (8.954 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag von je 0,265 CM pro Tag = ~1.209 € Kürzung pro Tag.\nDie volle DRG wird ab 3 Belegungstagen erreicht; bei Entlassung nach 2 Nächten greift ein Abschlag von rund 1.209 €."),
+      kodier:"5-808.71 (TTC-Arthrodese).\n⚠ Bei Entlassung nach 2 Nächten greift ein Abschlag von 1.209 €."+(arthroNagelBecken?"\n5-784.0n + 5-783.0d (Spongiosa Beckenkamm). ⚠ Im OP-Bericht dokumentieren!":"")}];
 
     // OSG-Arthrodese → I13E / I13D
     if(osgOp.includes("arthrodese_osg")) return [o,{label:"OSG-Arthrodese"+(osgArtSpongiosa?" + Spongiosa":""),ops:o,
@@ -4216,7 +4216,7 @@ function OPBerichtApp(){
     if(osgOp.includes("brostrom")&&_prio==="brostrom") return [o,{label:"Brostrom-Gould"+(brostromIB?" + Internal Brace":""),ops:o,
       hdrg:"—",ebm:"EBM ~300 €",kurz:window._fx("I59Z ~2.627 €"),drg:window._fx("I59Z 3.225 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Kein H-DRG! Auch mit ASK kein H-DRG.\n1 Nacht: gekürzte DRG I59Z (CM 0,576 = ~2.627 €).\nAb 2 Nächte → I59Z (CM 0,707 = 3.225 €)."),
-      kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+window._fx(" → I59Z.\n⚠ KEIN H-DRG möglich — auch nicht mit zusätzlicher ASK!\n⚠ Häufiger Fehler: Brostrom als H-DRG-fähig eingestuft → Erlösverlust bei ambulanter Planung.\n→ Stationär planen, mind. 2 Nächte für volle DRG I59Z (3.225 €).")}];
+      kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+window._fx(" → I59Z.\n⚠ KEIN H-DRG möglich — auch nicht mit zusätzlicher ASK!\n⚠ Häufiger Fehler: Brostrom als H-DRG-fähig eingestuft → Erlösverlust bei ambulanter Planung.\nOhne H-DRG-Fähigkeit ist nur die stationäre Abrechnung möglich; die volle DRG I59Z (3.225 €) wird ab 2 Nächten erreicht.")}];
 
 
     // Arthrorise → kein H-DRG (Klientel <18)
@@ -4227,7 +4227,7 @@ function OPBerichtApp(){
 
     // Achillessehnennaht → I27E
     if(hasASnaht&&_prio==="as_naht") return [o,{label:"Achillessehnennaht (offen)",ops:o,
-      hdrg:"—",ebm:"Möglich, da auch AOP-Liste. Für Kliniken meist unattraktiv",kurz:window._fx("I27E ~2.700 €"),drg:window._fx("I27E 3.389 €"),hdrg_n1:"—",empf:"n2",aopMoeglich:true,
+      hdrg:"—",ebm:"Möglich, da auch AOP-Liste. Für Kliniken meist geringer Erlös",kurz:window._fx("I27E ~2.700 €"),drg:window._fx("I27E 3.389 €"),hdrg_n1:"—",empf:"n2",aopMoeglich:true,
       ziel:window._fx("Kein H-DRG (seit 2025 entfernt). Stationär ≥2 Nächte → I27E (CM 0,743 = 3.389 €)."),
       kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ ZWINGEND BEIDE OPS-CODES KODIEREN: Wird nur 5-855.19 kodiert, fällt der Fall in I20F → Erlösverlust 268 € bei voller DRG, 328 € bei UGVD-Abschlag (1 Tag).\n⚠ Naht der Sehnenscheide/Paratenon MUSS im OP-Bericht stehen!"}];
 
@@ -4966,7 +4966,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         {gz==="chevron"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-788.5c, 5-788.40, 5-93b.0, 5-854.2c{mitAkin?", 5-788.56":""}</div></div>}
         {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-93b.0, 5-93b.e{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
         {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(hoffTill)} onClick={()=>setHoffTill(!hoffTill)}>Hoffmann-Tillmann</div><div style={{fontSize:10,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · Stat: +5-784.0v (Spongiosa) · Amb: 5-784.0v NICHT kodieren!</div></div>}
-        {gz==="cheilek"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-788.00 (Exostosenabtragung MT I) · Amb: H-DRG I20O · Stat: 5-854.2c/0c erwägen → I20E</div></div>}
+        {gz==="cheilek"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-788.00 (Exostosenabtragung MT I) · Amb: H-DRG I20O · Stat: 5-854.2c/0c bei tatsächlich erbrachter Leistung → I20E</div></div>}
         {gz==="morton"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-846.7 · ICD: G57.6 (zu bestätigen) · Intermetatarsalraum im Text anpassen</div></div>}
 
         <div style={cat}>Kleinzehen D2–D5</div>
@@ -5274,7 +5274,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       {alter==="kind"&&erloesData&&<div style={{margin:"0 0 6px",padding:"10px 14px",borderRadius:8,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
         <div style={{fontSize:13,fontWeight:700,color:"#E65100"}}>⛔ KEIN H-DRG MÖGLICH – Patient {"<"}18 Jahre!</div>
         <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
-        <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
+        <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung möglich · stationär ab 2 Nächten volle DRG</div>
       </div>}
       {erloesData&&<div data-tour="ob-erloes" style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {erloesData.label}</div>
 
@@ -5509,7 +5509,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
                 {ausgeschlossen&&<div style={{marginTop:10,padding:"8px 12px",borderRadius:6,background:"rgba(198,40,40,.08)",border:"2px solid #C62828"}}>
                   <div style={{fontSize:11,fontWeight:700,color:"#C62828",marginBottom:3}}>⛔ Hybrid-DRG ausgeschlossen</div>
                   <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-                    Ausschlusskriterium zutreffend: <b>{alterKind?"Alter <18 Jahre":"mindestens ein Kriterium mit ✓ markiert"}</b>. Ambulant nur EBM möglich · stationär ≥ 2 Nächte anvisieren (volle DRG).
+                    Ausschlusskriterium zutreffend: <b>{alterKind?"Alter <18 Jahre":"mindestens ein Kriterium mit ✓ markiert"}</b>. Ambulant nur EBM möglich · stationär ab 2 Nächten volle DRG.
                   </div>
                 </div>}
               </div>
@@ -5637,7 +5637,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       {alter==="kind"&&ucErloesData&&<div style={{margin:"0 0 6px",padding:"10px 14px",borderRadius:8,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
         <div style={{fontSize:13,fontWeight:700,color:"#E65100"}}>⛔ KEIN H-DRG MÖGLICH – Patient {"<"}18 Jahre!</div>
         <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
-        <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung · Stationär ≥2 Nächte: volle DRG anstreben</div>
+        <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung möglich · stationär ab 2 Nächten volle DRG</div>
       </div>}
       {ucErloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {ucErloesData.label}</div>
           {ucErloesData.hasHDRG

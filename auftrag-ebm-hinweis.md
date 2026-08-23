@@ -46,3 +46,13 @@ In der App eine Ansicht mit nicht H-DRG-fähigem Eingriff öffnen, zum Beispiel 
 Nach dieser Änderung wird der Screenshot `bilder/screens/clinic-fallsteuerung.webp` neu aufgenommen, damit Bild und Anwendung übereinstimmen. Bis dahin bleibt das vorhandene Bild stehen, es ist inhaltlich nicht falsch.
 
 Deploy wie üblich: Commit durch die Code-Sitzung, Push durch Benjamin nach Sichtprüfung.
+
+## Nachtrag: vorhandene EBM-Hinweise beachten
+
+In `app.html` stehen bereits mehrere ausformulierte EBM-Aussagen, unter anderem:
+
+- „→ Ambulant: nur EBM-Abrechnung (unattraktiv) · stationäre Führung erwägen"
+- „⚠ Ökonomisch unattraktiv — EBM-Erlös deckt klinischen Aufwand meist nicht."
+- „Bei ambulanter Führung: Abrechnung per EBM möglich. Hierfür Auseinandersetzung mit EBM-Logik und Abrechnung nötig."
+
+Diese Hinweise sind gut und bleiben. Sie zeigen aber, dass die Aussage „EBM ist möglich, wird hier nur nicht gerechnet" in der App bereits an mehreren Stellen steht — nur eben nicht dort, wo der Strich sitzt. Der neue Vermerk „nicht hinterlegt" muss deshalb sprachlich zu diesen Sätzen passen und darf ihnen nicht widersprechen. Wenn die Prüfung ergibt, dass in der betroffenen Karte einer dieser Hinweise ohnehin unmittelbar darunter erscheint, genügt es, den Strich durch den Vermerk zu ersetzen, ohne weiteren Text.
