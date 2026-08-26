@@ -62,9 +62,31 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 01.08.2026: NICHTS OFFEN.** Repo und Bucket sind auf demselben Stand.
+**Stand 25.08.2026: FÜNF DATEIEN UNGEKLÄRT.**
 
-**Erledigt am 01.08.2026** — drei Bucket-Dateien, alle hochgeladen:
+Diese Dateien im Ordner `data/` wurden nach dem letzten dokumentierten Upload (01.08.2026) lokal geändert. Ob sie seither in den Bucket gewandert sind, ist **nicht dokumentiert**. Vor dem nächsten Deploy klären:
+
+| Datei | lokal geändert | Anlass |
+|---|---|---|
+| `diagnosen.json` | 22.08.2026 | KONTROLLE_V2, Sortierung der Diagnosen |
+| `optexte.json` | 18.08.2026 | Achilles- und Weil-Texte |
+| `referenz.json` | 18.08.2026 | Messmethoden und Klassifikationen |
+| `opmethoden.json` | 15.08.2026 | — |
+| `opsteuerung.json` | 15.08.2026 | — |
+
+So wird geklärt, ob eine Datei im Bucket aktuell ist: Datei aus dem Dashboard herunterladen und zeichengenau mit der lokalen vergleichen. Der Blick auf den Zeitstempel in der Storage-Ansicht genügt nicht, weil er nur sagt, wann zuletzt hochgeladen wurde, nicht was drinsteht.
+
+**Richtung merken:** Der lokale Ordner `data/` ist die Quelle, der Bucket ist das Ziel. Geändert wird immer lokal, danach wird hochgeladen. Im Dashboard wird nie direkt bearbeitet. Ein altes Änderungsdatum an einer lokalen Datei heißt deshalb nur, dass seither niemand daran gearbeitet hat, nicht dass sie veraltet ist.
+
+### Diese Liste wird gepflegt
+
+Jede Änderung an einer der zehn Bucket-Dateien wird hier eingetragen, mit Datum und Anlass, und beim Upload wieder ausgetragen. Wer eine Bucket-Datei ändert, ohne diesen Abschnitt zu ergänzen, hinterlässt genau die Unklarheit, die oben steht.
+
+Umgekehrt gilt für jeden Auftrag an eine Code-Sitzung: Er endet mit einer Deploy-Zeile, die ausdrücklich sagt, ob eine Bucket-Datei betroffen ist oder nicht. „Kein Bucket-Upload" ist eine Aussage, die dasteht, kein Weglassen.
+
+### Erledigt am 01.08.2026
+
+Drei Bucket-Dateien, alle hochgeladen:
 
 - `data/opmethoden.json` — neue OP-Methode `youngswick` (44 gesamt);
   PATIENT_DIAGNOSE_MAP auf 14 Eintraege (`hallux_valgus` und `hallux_limitus`
