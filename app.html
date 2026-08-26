@@ -3651,6 +3651,14 @@ function OPBerichtApp(){
   const [ss,setSs]=useState(true);
   const [ana,setAna]=useState("narkose");
   const [sec,setSec]=useState({});
+  // Diabetischer Fuß / Infekt. Eigene Gruppe, weil sich der Eintrag nach der
+  // Region richtet und nicht nach dem Eingriff; spaeter kommen Zehenamputation,
+  // Strahlresektion und transmetatarsale Amputation dazu.
+  const [dfOp,setDfOp]=useState(false);
+  const [dfLavanox,setDfLavanox]=useState(false);
+  const [dfVanco,setDfVanco]=useState(false);
+  const [dfLasche,setDfLasche]=useState(false);
+  const [dfVac,setDfVac]=useState(false);
   // Großzehe
   const [gz,setGz]=useState("");
   const [mitAkin,setMitAkin]=useState(false);
@@ -3821,9 +3829,15 @@ function OPBerichtApp(){
   React.useEffect(function(){
     if(!rfOp.includes("os_tib_ext")&&osTibMDO) setOsTibMDO(false);
   },[rfOp]);
+  React.useEffect(function(){
+    if(!dfOp&&(dfLavanox||dfVanco||dfLasche||dfVac)){
+      setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);
+    }
+  },[dfOp]);
   const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||weil.length>0||Object.values(zc).some(a=>a.length>0));
   const hasDMMOover2=mtStrahlen.length>2;
-  const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasMF||hasME||hasUM||hasFX||coalTyp!=="";
+  const hasDF=dfOp;
+  const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasMF||hasME||hasUM||hasFX||hasDF||coalTyp!=="";
   const needsRuhig=gz==="mtp1art"||gz==="lapidus";
 
 
@@ -4356,6 +4370,14 @@ function OPBerichtApp(){
       hdrg:"—",ebm:"EBM je nach Region",kurz:"—",drg:"—",hdrg_n1:"—",empf:"amb",
       ziel:window._fx("ME allein triggert keine H-DRG und meist keine attraktive DRG.\nAmbulant in LA möglich → EBM-Abrechnung (niedrig vergütet).\n\n💡 H-DRG-TRIGGER (I20O ~1.007 €): Wenn klinisch indiziert, Zusatzeingriff derselben Region kombinieren:"),
       kodier:"⚠ Keine automatische Codierung – manuell setzen:\n\n• OPS: 5-787.x nach Lokalisation + Materialart (Schraube/Draht/Platte/winkelstab. Platte/Nagel/Fixateur)\n• ICD-HD: Z47.0 (Entfernung einer Metallplatte/Fixationsvorrichtung)\n• ND bei Komplikation: T84.6 (Infektion), M84.1 (Pseudarthrose)\n\n💡 H-DRG-TRIGGER I20O (Zusatzeingriff, nur wenn klinisch gerechtfertigt und im OP-Bericht dokumentiert):\n\n▸ Exostosenabtragung:\n  5-788.00 (MT I) · 5-788.06–09 (MT II–V, 1–4 Knochen)\n  5-788.0a (Dig I) · 5-788.0b–0f (Dig II–V, 1–5 Phalangen)\n\n▸ Bursektomie Fuß:\n  5-859.1a (totale Resektion Schleimbeutel Fuß)\n  5-859.0a (Inzision Schleimbeutel Fuß)\n\n▸ Tenolyse/Tenotomie Fuß:\n  5-851.1a (Tenotomie offen chir.) · 5-851.2a (perkutan)\n  5-852.2a (Exzision Sehnenscheide, partiell)\n\n▸ Revision/Wechsel OSE:\n  Wird als 5-78a.* kodiert (höher bewertet, NICHT als reine ME einstufen)"}];
+    // Diabetischer Fuß: Die OPS-Zuordnung haengt an Tiefe, Ausdehnung und
+    // Knochenbeteiligung und ist noch nicht abgenommen. Ohne diesen Zweig
+    // bliebe der Fallsteuerungsblock leer — das liest sich wie "nichts zu tun".
+    if(hasDF) return [o,{label:"Diabetischer Fuß — Debridement",ops:o,
+      hdrg:"—",ebm:"—",kurz:"—",drg:"—",hdrg_n1:"—",empf:"stat",
+      ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
+      kodier:"⚠ TODO: OPS-Zuordnung offen. In Betracht kommen je nach Tiefe und Ausdehnung 5-893 (chirurgische Wundtoilette) oder 5-896 (radikale Exzision Haut/Unterhaut), bei Knochenbeteiligung zusätzlich 5-782 (Exzision erkrankter Knochen), bei Vakuumversiegelung 5-916.a0. Bis zur Abnahme manuell kodieren."}];
+
     // OPS-Ziffern fuer Tendoskopie und AS-Debridement sind noch offen
     // (Stand 14.08.2026). Ohne diesen Zweig bliebe der Fallsteuerungsblock
     // ganz weg — das liest sich wie "nichts zu kodieren".
@@ -4365,7 +4387,7 @@ function OPBerichtApp(){
       ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
       kodier:"⚠ TODO: OPS-Ziffern werden nachgetragen. Bis dahin manuell kodieren."}];
 
-    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // Text version for Word export
   const icdText=useMemo(()=>{
@@ -4808,14 +4830,37 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       }
       else p.push(`\n\n[Fraktur: ${op} – Text wird ergänzt]`);
     });
+    // Diabetischer Fuß: Die vier Zusaetze beschreiben den zeitlichen Ablauf am
+    // Ende des Eingriffs und stehen deshalb VOR dem letzten Absatz. Der
+    // VAC-Zusatz ERSETZT ihn, sonst staenden zwei sich widersprechende
+    // Wundabschluesse im Bericht.
+    if(dfOp&&T.df_debridement){
+      var dfAbs = T.df_debridement.split("\n");
+      var dfLetzter = dfAbs.pop();
+      var dfZusatz = [];
+      if(dfLavanox&&T.df_zusatz_lavanox)     dfZusatz.push(T.df_zusatz_lavanox);
+      if(dfVanco&&T.df_zusatz_vancomycin)    dfZusatz.push(T.df_zusatz_vancomycin);
+      if(dfLasche&&T.df_zusatz_lasche)       dfZusatz.push(T.df_zusatz_lasche);
+      var dfText = dfAbs.concat(dfZusatz)
+        .concat([ (dfVac&&T.df_zusatz_vac) ? T.df_zusatz_vac : dfLetzter ])
+        .join("\n");
+      dfText = dfText.replace(/§SEITE§/g, side==="rechts"?"rechts":side==="links"?"links":"___")
+                     .replace(/§KNOCHEN§/g, "___");
+      p.push("\n\nZuwendung zum diabetischen Fußsyndrom.\n"+dfText);
+    }
+
     const r=needsRuhig&&ruhig==="keine"?"orthese":ruhig;
-    p.push("\n\n"+buildVerband(hasVF,bs,r));
+    // Der Debridement-Text schliesst die Wunde bewusst nicht; der allgemeine
+    // Verbandabsatz mit schichtweisem Verschluss und Hautnaht widerspraeche
+    // dem. Er entfaellt daher, wenn nur der diabetische Fuß gewaehlt ist.
+    if(!(dfOp&&!hasVF&&!hasOSG&&!hasTEP&&!hasRF&&!hasMF&&!hasME&&!hasUM&&!hasFX&&coalTyp===""))
+      p.push("\n\n"+buildVerband(hasVF,bs,r));
     if(entlassGespr)p.push("\n\nPostoperativ erfolgt ein ausführliches Entlassgespräch über den Eingriff und die Nachbehandlung. Aufklärung über Zeichen von Infekt, Thrombose oder andere postoperative Komplikationen mit Verhaltensmaßgaben. Kontrolltermine werden besprochen und abgestimmt. Häusliche Versorgung und Betreuung am OP-Tag ist anamnestisch gewährleistet. Recap der Zehen ist intakt, Belastungsvorgaben können umgesetzt werden, Verband ist trocken.");
     return textPlatzhalter(p.join(""));
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -5242,6 +5287,29 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </OBSec>
 
       {/* ME */}
+      <OBSec title="🦠 Diabetischer Fuß / Infekt" open={sec.df} onToggle={()=>togSec("df")} active={hasDF} onReset={()=>{setDfOp(false);setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);}}>
+        <div style={row}>
+          <div style={chip(dfOp)} onClick={()=>setDfOp(!dfOp)}>Debridement bei Ulkus und Infekt</div>
+        </div>
+        {dfOp&&<div style={{marginTop:6}}>
+          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+            <div style={tog(dfLavanox)} onClick={()=>setDfLavanox(!dfLavanox)}>+ Lavanox-Spülung</div>
+            <div style={tog(dfVanco)} onClick={()=>setDfVanco(!dfVanco)}>+ Vancomycin lokal</div>
+            <div style={tog(dfLasche)} onClick={()=>setDfLasche(!dfLasche)}>+ Drainage-Lasche</div>
+            <div style={tog(dfVac)} onClick={()=>setDfVac(!dfVac)}>+ VAC-Auflage</div>
+          </div>
+          <div style={{fontSize:10,color:"#718096",marginTop:4}}>
+            Reihenfolge im Text: Lavanox, Vancomycin, Lasche, VAC{dfVac?" · VAC ersetzt den offenen Wundverband":""}
+          </div>
+          {dfVac&&dfLasche&&<div style={{fontSize:10,color:"#8A5A00",marginTop:3}}>
+            Lasche und VAC zusammen: nur sinnvoll bei Lasche in einer Nebenhöhle und VAC auf der Hauptwunde.
+          </div>}
+          <div style={{fontSize:10,color:"#8A5A00",marginTop:4,padding:"5px 8px",borderRadius:5,background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.2)"}}>
+            OPS noch nicht zugeordnet — bitte manuell kodieren.
+          </div>
+        </div>}
+      </OBSec>
+
       <OBSec title="🔩 Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={!!meRegion} onReset={()=>{setMeRegion("");setMeImpl("");setMeZusatz("");setMeOp([]);}}>
         <MEPicker region={meRegion} setRegion={setMeRegion} impl={meImpl} setImpl={setMeImpl} zusatz={meZusatz} setZusatz={setMeZusatz}/>
         {meRegion&&meImpl&&meZusatz&&meZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
