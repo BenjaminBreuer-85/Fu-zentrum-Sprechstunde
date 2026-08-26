@@ -62,17 +62,17 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 25.08.2026: FÜNF DATEIEN UNGEKLÄRT.**
+**Stand 26.08.2026: EIN UPLOAD OFFEN, VIER DATEIEN UNGEKLÄRT.**
 
 Diese Dateien im Ordner `data/` wurden nach dem letzten dokumentierten Upload (01.08.2026) lokal geändert. Ob sie seither in den Bucket gewandert sind, ist **nicht dokumentiert**. Vor dem nächsten Deploy klären:
 
 | Datei | lokal geändert | Anlass |
 |---|---|---|
 | `diagnosen.json` | 22.08.2026 | KONTROLLE_V2, Sortierung der Diagnosen |
-| `optexte.json` | 18.08.2026 | Achilles- und Weil-Texte |
 | `referenz.json` | 18.08.2026 | Messmethoden und Klassifikationen |
 | `opmethoden.json` | 15.08.2026 | — |
 | `opsteuerung.json` | 15.08.2026 | — |
+| `optexte.json` | **26.08.2026** | Achilles- und Weil-Texte (18.08.) sowie fünf neue Schlüssel `df_*` für den diabetischen Fuß — **muss hochgeladen werden** |
 
 So wird geklärt, ob eine Datei im Bucket aktuell ist: Datei aus dem Dashboard herunterladen und zeichengenau mit der lokalen vergleichen. Der Blick auf den Zeitstempel in der Storage-Ansicht genügt nicht, weil er nur sagt, wann zuletzt hochgeladen wurde, nicht was drinsteht.
 
