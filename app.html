@@ -3655,6 +3655,11 @@ function OPBerichtApp(){
   // Region richtet und nicht nach dem Eingriff; spaeter kommen Zehenamputation,
   // Strahlresektion und transmetatarsale Amputation dazu.
   const [dfOp,setDfOp]=useState(false);
+  const [dfTeilamp,setDfTeilamp]=useState(false);
+  const [dfKnochen,setDfKnochen]=useState("");
+  // Osteomyelitis begruendet die Teilamputation und wird mit ihr gesetzt.
+  // Abwaehlbar, falls sich der Verdacht intraoperativ nicht bestaetigt.
+  const [dfOsteo,setDfOsteo]=useState(false);
   const [dfLavanox,setDfLavanox]=useState(false);
   const [dfVanco,setDfVanco]=useState(false);
   const [dfLasche,setDfLasche]=useState(false);
@@ -3830,10 +3835,16 @@ function OPBerichtApp(){
     if(!rfOp.includes("os_tib_ext")&&osTibMDO) setOsTibMDO(false);
   },[rfOp]);
   React.useEffect(function(){
-    if(!dfOp&&(dfLavanox||dfVanco||dfLasche||dfVac)){
-      setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);
+    if(!dfOp&&(dfTeilamp||dfLavanox||dfVanco||dfLasche||dfVac||dfOsteo||dfKnochen)){
+      setDfTeilamp(false);setDfLavanox(false);setDfVanco(false);setDfLasche(false);
+      setDfVac(false);setDfOsteo(false);setDfKnochen("");
     }
   },[dfOp]);
+  // Die Teilamputation setzt die Osteomyelitis mit. Sie bleibt danach frei
+  // abwaehlbar — der Anwender uebersteuert, das Werkzeug erzwingt nichts.
+  React.useEffect(function(){
+    if(dfTeilamp)setDfOsteo(true); else setDfOsteo(false);
+  },[dfTeilamp]);
   const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||weil.length>0||Object.values(zc).some(a=>a.length>0));
   const hasDMMOover2=mtStrahlen.length>2;
   const hasDF=dfOp;
@@ -3941,6 +3952,10 @@ function OPBerichtApp(){
     if(mitAkin&&!codes.find(c=>c.code.startsWith("M20.5")))codes.push({hd:false,code:"M20.5"+s,desc:"Sonstige Deformität der Zehe (Hallux interphalangeus)"});
     // Kleinzehen
     if(Object.values(zc).some(a=>a.includes("pip")))codes.push({hd:codes.length===0,code:"M20.4"+s,desc:"Hammerzehe(n)"});
+    // Diabetischer Fuß. Die ICD-Ziffern sind noch nicht abgenommen und stehen
+    // deshalb als ___ — sichtbare Luecke statt geratener Abrechnungsdaten.
+    if(dfOp)codes.push({hd:codes.length===0,code:"___",desc:"Diabetisches Fußsyndrom mit Ulzeration"});
+    if(dfOp&&dfOsteo)codes.push({hd:false,code:"___",desc:"Osteomyelitis am "+(dfKnochen.trim()||"___")});
     if(mtStrahlen.length>0&&codes.length===0)codes.push({hd:true,code:"M77.4"+s,desc:"Metatarsalgie"});
     if(mtStrahlen.length>0&&codes.length>0&&!codes.find(c=>c.code.startsWith("M77.4")))codes.push({hd:false,code:"M77.4"+s,desc:"Metatarsalgie"});
     // OSG
@@ -4001,7 +4016,7 @@ function OPBerichtApp(){
       if(ucOp==="humerus_schaft_targon")codes.push({hd:true,code:"S42.3"+s,desc:"Fraktur des Humerusschaftes"});
     }
     return codes;
-  },[gz,mitAkin,hoffTill,zc,dmmo,weil,osgOp,tepType,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side]);
+  },[gz,mitAkin,hoffTill,zc,dmmo,weil,osgOp,tepType,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side,dfOp,dfOsteo,dfKnochen]);
 
     // Collected OPS codes
   const [allOPS,erloesData]=useMemo(()=>{
@@ -4837,6 +4852,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(dfOp&&T.df_debridement){
       var dfAbs = T.df_debridement.split("\n");
       var dfLetzter = dfAbs.pop();
+      // Die Teilamputation steht direkt hinter dem Absatz zur
+      // Knochenbeurteilung, nicht bei den uebrigen Zusaetzen: Sie folgt
+      // unmittelbar aus dem dort erhobenen Befund und geht der erneuten
+      // Wundkontrolle voraus.
+      if(dfTeilamp&&T.df_zusatz_teilamputation){
+        var _nachKnochen = dfAbs.findIndex(function(a){ return a.indexOf("Beurteilung des Knochens:")===0; });
+        dfAbs.splice(_nachKnochen<0 ? dfAbs.length : _nachKnochen+1, 0, T.df_zusatz_teilamputation);
+      }
       var dfZusatz = [];
       if(dfLavanox&&T.df_zusatz_lavanox)     dfZusatz.push(T.df_zusatz_lavanox);
       if(dfVanco&&T.df_zusatz_vancomycin)    dfZusatz.push(T.df_zusatz_vancomycin);
@@ -4845,7 +4868,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         .concat([ (dfVac&&T.df_zusatz_vac) ? T.df_zusatz_vac : dfLetzter ])
         .join("\n");
       dfText = dfText.replace(/§SEITE§/g, side==="rechts"?"rechts":side==="links"?"links":"___")
-                     .replace(/§KNOCHEN§/g, "___");
+                     .replace(/§KNOCHEN§/g, dfKnochen.trim()||"___");
       p.push("\n\nZuwendung zum diabetischen Fußsyndrom.\n"+dfText);
     }
 
@@ -4860,7 +4883,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfTeilamp,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -5287,19 +5310,33 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </OBSec>
 
       {/* ME */}
-      <OBSec title="🦠 Diabetischer Fuß / Infekt" open={sec.df} onToggle={()=>togSec("df")} active={hasDF} onReset={()=>{setDfOp(false);setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);}}>
+      <OBSec title="🦠 Diabetischer Fuß / Infekt" open={sec.df} onToggle={()=>togSec("df")} active={hasDF} onReset={()=>{setDfOp(false);setDfTeilamp(false);setDfKnochen("");setDfOsteo(false);setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);}}>
         <div style={row}>
           <div style={chip(dfOp)} onClick={()=>setDfOp(!dfOp)}>Debridement bei Ulkus und Infekt</div>
         </div>
         {dfOp&&<div style={{marginTop:6}}>
           <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+            <div style={tog(dfTeilamp)} onClick={()=>setDfTeilamp(!dfTeilamp)}>+ Teilamputation Knochen</div>
             <div style={tog(dfLavanox)} onClick={()=>setDfLavanox(!dfLavanox)}>+ Lavanox-Spülung</div>
             <div style={tog(dfVanco)} onClick={()=>setDfVanco(!dfVanco)}>+ Vancomycin lokal</div>
             <div style={tog(dfLasche)} onClick={()=>setDfLasche(!dfLasche)}>+ Drainage-Lasche</div>
             <div style={tog(dfVac)} onClick={()=>setDfVac(!dfVac)}>+ VAC-Auflage</div>
           </div>
+          {dfTeilamp&&<div style={{marginTop:5,display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+            <label style={{fontSize:10,color:"#718096",display:"inline-flex",alignItems:"center",gap:4}}>Knochen
+              <input value={dfKnochen} onChange={e=>setDfKnochen(e.target.value)} placeholder="z. B. Metatarsale II"
+                     style={{padding:"3px 6px",border:"1px solid rgba(0,0,0,.15)",borderRadius:5,fontSize:11,width:150,fontFamily:"inherit"}}/>
+            </label>
+            <div style={tog(dfOsteo)} onClick={()=>setDfOsteo(!dfOsteo)}>Diagnose Osteomyelitis</div>
+          </div>}
+          {dfTeilamp&&!dfOsteo&&<div style={{fontSize:10,color:"#8A5A00",marginTop:3,padding:"5px 8px",borderRadius:5,background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.2)"}}>
+            Ohne die Diagnose Osteomyelitis ist die Teilamputation nicht begründet — der Berichtstext ist dann anzupassen.
+          </div>}
+          {dfTeilamp&&<div style={{fontSize:10,color:"#006B6F",marginTop:3}}>
+            Das Resektat geht vollständig zur Histologie, eine Probe der Absetzungsebene zur Mikrobiologie. Beides steht fest im Text.
+          </div>}
           <div style={{fontSize:10,color:"#718096",marginTop:4}}>
-            Reihenfolge im Text: Lavanox, Vancomycin, Lasche, VAC{dfVac?" · VAC ersetzt den offenen Wundverband":""}
+            Reihenfolge im Text: Teilamputation, Lavanox, Vancomycin, Lasche, VAC{dfVac?" · VAC ersetzt den offenen Wundverband":""}
           </div>
           {dfVac&&dfLasche&&<div style={{fontSize:10,color:"#8A5A00",marginTop:3}}>
             Lasche und VAC zusammen: nur sinnvoll bei Lasche in einer Nebenhöhle und VAC auf der Hauptwunde.
