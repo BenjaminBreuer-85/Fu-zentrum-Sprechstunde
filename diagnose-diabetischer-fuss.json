@@ -1,0 +1,68 @@
+{
+  "diabetischer_fuss": {
+    "label": "Diabetischer Fuß",
+    "diagnoseText": "Diabetisches Fußsyndrom mit Ulzeration [am Vorfuß], Wagner [2] / Armstrong [B]",
+    "lokBeschwerden": "im Bereich des Vorfußes",
+    "konservativ": [
+      "Konsequente Druckentlastung",
+      "Vorfußentlastungsschuh",
+      "Total Contact Cast",
+      "Regelmäßiges Wunddebridement",
+      "Stadiengerechte Wundbehandlung",
+      "Podologische Mitbehandlung",
+      "Diabetesadaptierte Fußbettung und orthopädische Maßschuhe",
+      "Optimierung der Blutzuckereinstellung",
+      "Gefäßmedizinische Abklärung und Revaskularisation",
+      "Systemische Antibiotikatherapie nach Antibiogramm"
+    ],
+    "befunde": [
+      { "id": "df_ulkus",        "pos": "Ulzeration [am Vorfuß plantar unter dem Metatarsaleköpfchen], Durchmesser ca. [2] cm", "neg": "Keine Ulzeration" },
+      { "id": "df_randwall",     "pos": "Hyperkeratotischer Randwall um die Läsion", "neg": "Keine relevante Hyperkeratose" },
+      { "id": "df_sekret",       "pos": "Trübes, teils fötides Sekret aus der Wunde", "neg": "Kein pathologisches Sekret" },
+      { "id": "df_infekt",       "pos": "Rötung, Überwärmung und Schwellung im Sinne einer Weichteilinfektion", "neg": "Keine lokalen Infektzeichen" },
+
+      { "id": "df_ptb",          "pos": "Sondierung bis auf den Knochen möglich (Probe-to-bone-Test positiv)", "neg": "Sondierung bis auf den Knochen nicht möglich (Probe-to-bone-Test negativ)" },
+      { "id": "df_knochen_frei", "pos": "Freiliegender Knochen im Wundgrund", "neg": "Kein freiliegender Knochen" },
+
+      { "id": "df_deformitaet",  "pos": "Fußdeformität mit plantarer Prominenz als Ursache der Druckbelastung", "neg": "Keine relevante Deformität" },
+      { "id": "df_charcot",      "pos": "Zusammenbruch des Längsgewölbes mit Schaukelfußbildung, vereinbar mit einer Charcot-Arthropathie", "neg": "Kein Anhalt für eine Charcot-Arthropathie" },
+
+      { "id": "df_pulse",        "pos": "Fußpulse tastbar (A. dorsalis pedis und A. tibialis posterior)", "neg": "Fußpulse nicht tastbar" },
+      { "id": "df_rekap",        "pos": "Rekapillarisierungszeit regelrecht", "neg": "Rekapillarisierungszeit verlängert" },
+      { "id": "df_doppler",      "pos": "Dopplersonografie mit [tri]phasischer Kurvenform", "neg": "Dopplersonografie mit monophasischer Kurvenform, Hinweis auf periphere arterielle Verschlusskrankheit" },
+      { "id": "df_abi",          "pos": "Knöchel-Arm-Index [1,05], im Normbereich zwischen 0,9 und 1,3", "neg": "Knöchel-Arm-Index [0,7], außerhalb des Normbereichs von 0,9 bis 1,3" },
+      { "id": "df_zehendruck",   "pos": "Zehen-Arm-Index [0,8] und Zehendruck [65] mmHg, ausreichende Perfusion für die Wundheilung", "neg": "Zehen-Arm-Index [0,5] beziehungsweise Zehendruck [25] mmHg, gefäßmedizinische Vorstellung zur Revaskularisation veranlasst" },
+
+      { "id": "df_monofilament", "pos": "10-g-Monofilament an allen [3] Prüfstellen je Fuß sicher wahrgenommen (jeweils zwei von drei Anwendungen richtig)", "neg": "10-g-Monofilament an [2] von 3 Prüfstellen nicht wahrgenommen, Schutzsensibilität aufgehoben" },
+      { "id": "df_stimmgabel",   "pos": "Stimmgabel 128 Hz nach Rydel-Seiffer [7]/8 am Großzehengrundgelenk und [7]/8 am Innenknöchel, altersentsprechend", "neg": "Stimmgabel 128 Hz nach Rydel-Seiffer [3]/8 am Großzehengrundgelenk, für das Alter pathologisch" },
+      { "id": "df_ipswich",      "pos": "Ipswich Touch Test an Zehe 1, 3 und 5 beidseits sicher wahrgenommen", "neg": "Ipswich Touch Test an [2] von 3 Stellen nicht wahrgenommen" },
+      { "id": "df_temperatur",   "pos": "Temperaturempfinden am Fußrücken seitengleich erhalten", "neg": "Temperaturempfinden am Fußrücken aufgehoben" },
+      { "id": "df_schmerz",      "pos": "Spitz-stumpf-Diskrimination erhalten", "neg": "Spitz-stumpf-Diskrimination aufgehoben" },
+      { "id": "df_asr",          "pos": "Achillessehnenreflex seitengleich auslösbar", "neg": "Achillessehnenreflex beidseits nicht auslösbar" },
+      { "id": "df_lops",         "pos": "Zusammenfassend besteht kein Verlust der Schutzsensibilität", "neg": "Zusammenfassend besteht ein Verlust der Schutzsensibilität, nachgewiesen in [zwei] voneinander unabhängigen Testverfahren" }
+    ],
+    "opMethoden": ["df_debridement"],
+    "bildBefunde": "Nachweis von [Knochendestruktion am Metatarsaleköpfchen] als Hinweis auf eine Osteomyelitis",
+    "literatur": "Schaper NC et al. (2024) Practical guidelines on the prevention and management of diabetes-related foot disease (IWGDF 2023 update). Diabetes Metab Res Rev. https://doi.org/10.1002/dmrr.3657 (Prüfverfahren zur Schutzsensibilität, Grenzwerte ABI, TBI und Zehendruck) · Senneville É et al. (2024) IWGDF/IDSA guidelines on the diagnosis and treatment of diabetes-related foot infections. Diabetes Metab Res Rev. https://doi.org/10.1002/dmrr.3687 (Probe-to-bone-Test, Gewebeproben)"
+  },
+  "osteomyelitis": {
+    "label": "Osteomyelitis",
+    "diagnoseText": "Osteomyelitis am §KNOCHEN§",
+    "lokBeschwerden": "im Bereich des betroffenen Knochens",
+    "konservativ": [
+      "Systemische Antibiotikatherapie nach Antibiogramm",
+      "Konsequente Druckentlastung",
+      "Regelmäßige Wundkontrolle",
+      "Verlaufskontrolle mittels Bildgebung und Entzündungswerten"
+    ],
+    "befunde": [
+      { "id": "om_ptb",        "pos": "Sondierung bis auf den Knochen möglich (Probe-to-bone-Test positiv)", "neg": "Sondierung bis auf den Knochen nicht möglich" },
+      { "id": "om_knochen",    "pos": "Knochen weich, verfärbt und mit dem Löffel abtragbar", "neg": "Knochen fest und regelrecht" },
+      { "id": "om_entz",       "pos": "Erhöhte Entzündungswerte (CRP [45] mg/l, Leukozyten [12,5]/nl)", "neg": "Entzündungswerte im Normbereich" },
+      { "id": "om_bildgebung", "pos": "Bildgebend Knochendestruktion und Periostreaktion", "neg": "Bildgebend kein Anhalt für Knochenbeteiligung" }
+    ],
+    "opMethoden": ["df_debridement"],
+    "bildBefunde": "Knochendestruktion am §KNOCHEN§ mit Periostreaktion",
+    "literatur": "Senneville É et al. (2024) IWGDF/IDSA guidelines on the diagnosis and treatment of diabetes-related foot infections. Diabetes Metab Res Rev. https://doi.org/10.1002/dmrr.3687"
+  }
+}
