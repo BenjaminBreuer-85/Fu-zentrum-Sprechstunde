@@ -93,3 +93,18 @@ Die Reibung bleibt trotzdem: Der Knopf verspricht Selbstbedienung, und wer ihn d
 3. **Die freistehende Leistungszeile** „30 Tage kostenlos testen — ohne Zahlungsdaten" weiter oben wird an denselben Schalter gehängt wie Preis und Kauf-Block. Bei `VERKAUF_AKTIV = true` erscheint sie wieder, zusammen mit der Kaufstrecke.
 
 Damit ist der Livegang weiterhin eine Ein-Wort-Änderung: Schalter auf `true`, und Knopftexte wie Leistungszeile kehren in die Verkaufsfassung zurück. Die beiden Knopfbeschriftungen deshalb ebenfalls über den Schalter steuern, nicht fest eintragen.
+
+### 6.4 Nachtrag: der Wortlaut der Interessenten-Zeile
+
+Die Prüfung hat einen Widerspruch in meinem eigenen Auftrag aufgedeckt, zu Recht: Punkt 6.2 sagt, das Leistungsversprechen bleibe im Zielabschnitt stehen, Punkt 6.3 hängt die einzige Zeile mit diesem Wortlaut an den Schalter. Bei `VERKAUF_AKTIV = false` verschwand es damit ganz. Die Absicht war die andere, das Versprechen soll sichtbar bleiben. Es fehlte nur der Ort.
+
+Die Interessenten-Zeile bekommt ihn. Neuer Wortlaut, er ersetzt die bisherige Fassung aus `auftrag-interessenten-zeile.md`:
+
+> **Fuss-Track Clinic erscheint im Herbst 2026.**
+> Der Testzugang läuft dann 30 Tage, kostenlos und ohne Zahlungsdaten. Interesse? Schreiben Sie an kontakt@fuss-track.de, dann erhalten Sie Bescheid, sobald es losgeht.
+
+Das „dann" ist wichtig: Es bindet das Versprechen an den Herbst und sagt damit richtig, dass es heute noch keinen Selbstbedienungs-Test gibt. Die Mailadresse bleibt Mailto-Link mit dem Betreff „Testzugang Fuss-Track Clinic".
+
+### 6.5 Bildgewicht bleibt wie es ist
+
+`ob-2-vorschau.webp` ist mit 102 KiB der größte Einzelposten. Das bleibt so. Es ist das textreichste Bild der Seite, der fertige Berichtstext ist dort der eigentliche Inhalt, und stärkere Kompression würde genau die Buchstaben verwaschen, wegen derer das Bild überhaupt gezeigt wird. Bei verzögertem Laden fällt das Gewicht ohnehin nur an, wenn jemand bis dorthin scrollt.
