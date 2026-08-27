@@ -122,6 +122,7 @@
   .streifen::-webkit-scrollbar{display:none}
   .streifen > figure{flex:0 0 100%;scroll-snap-align:center;margin:0}
   .streifen img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px}
+  .streifen figcaption{margin-top:7px;font-size:.8rem;color:var(--muted);line-height:1.4}
   .punkte{display:flex;gap:6px;justify-content:center;margin-top:10px}
   .punkte i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s}
   .punkte i.aktiv{background:var(--op)}
@@ -310,8 +311,17 @@
                  width="1080" height="1350" decoding="async"
                  alt="Klinische Untersuchung im Sprechstundenbrief-Generator">
           </figure>
+          <figure>
+            <img src="bilder/screens/sb-3-brief-qr.webp"
+                 srcset="bilder/screens/sb-3-brief-qr-640.webp 640w,
+                         bilder/screens/sb-3-brief-qr.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Briefschluss mit Kurzadresse und QR-Code zur Patienten-App">
+            <figcaption>Der fertige Brief endet mit dem Code für die Patienten-App.</figcaption>
+          </figure>
         </div>
-        <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i></div>
+        <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i><i></i></div>
       </div>
       </div>
 
@@ -470,7 +480,17 @@
                  width="1080" height="1350" loading="lazy" decoding="async"
                  alt="Messmethode Meary-Winkel mit Normwert, Quelle und einer seitlichen Standaufnahme des Fußes mit eingezeichneten Achsen">
           </figure>
+          <figure>
+            <img src="bilder/screens/au-1-risiken.webp"
+                 srcset="bilder/screens/au-1-risiken-640.webp 640w,
+                         bilder/screens/au-1-risiken.webp 1080w"
+                 sizes="(max-width: 900px) 92vw, 44vw"
+                 width="1080" height="1350" loading="lazy" decoding="async"
+                 alt="Aufklärungstexte: gewählter Eingriff Chevron plus Akin und generierte Risikoliste">
+            <figcaption>Risikoliste je Eingriff, mit einem Klick übernommen.</figcaption>
+          </figure>
         </div>
+        <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i></div>
       </div>
       </div>
 
