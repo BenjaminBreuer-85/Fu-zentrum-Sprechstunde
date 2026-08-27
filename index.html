@@ -161,6 +161,9 @@
     background:var(--op-tint);display:flex;align-items:center;justify-content:center;
     color:var(--muted);font-size:.85rem;text-align:center;padding:12px;
   }
+  /* Vorlaeufiger Platzhalter, bis ein Portraetfoto vorliegt. Rahmen, Rundung
+     und Groesse kommen aus .portrait, hier steht nur die Bildgroesse. */
+  .portrait-logo img{width:70%;height:auto;max-width:220px}
   .author h2{font-size:1.9rem;margin-bottom:4px}
   .author .role{color:var(--op);font-weight:600;margin-bottom:18px}
   .author p{color:var(--muted);margin-bottom:18px;max-width:44em}
@@ -539,7 +542,9 @@
   <!-- Autor -->
   <section class="author">
     <div class="wrap">
-      <div class="portrait">Porträtfoto<br>Dr. med. Benjamin Breuer<br>(wird ergänzt)</div>
+      <div class="portrait portrait-logo">
+        <img src="icons/icon-512.png" alt="Fuss-Track Clinic – Logo" width="512" height="512" loading="lazy">
+      </div>
       <div>
         <h2>Dr. med. Benjamin Breuer</h2>
         <p class="role">Facharzt für Orthopädie und Unfallchirurgie</p>
