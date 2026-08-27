@@ -1,0 +1,14 @@
+{
+  "df_debridement": {
+    "k": "Debridement",
+    "b": "ein operatives Debridement bei diabetischem Fußsyndrom mit Ulzeration und Infekt",
+    "r": "Wundheilungsstörung, Fortschreiten der Infektion, Notwendigkeit wiederholter Eingriffe, Erweiterung bis zur Amputation von Gewebe- oder Zehenanteilen, Nachblutung, Thrombose",
+    "t": "Exploration, schichtübergreifendes Debridement, Probenentnahme, Debridement Knochen/ggf. Teilresektion, befundbezogenes Vorgehen, ggf. mehrzeitiges Vorgehen"
+  },
+  "df_amputation": {
+    "k": "Amputation proximale Tibia",
+    "b": "eine Amputation in Höhe der proximalen Tibia bei nicht beherrschbarem Infekt beziehungsweise nicht erhaltungsfähiger Extremität",
+    "r": "Wundheilungsstörung, Infektion, Nachblutung, Stumpfprobleme, Phantomschmerz, Notwendigkeit der Nachresektion, Thrombose",
+    "t": "Amputation in Höhe der proximalen Tibia, Weichteildeckung, befundbezogenes Vorgehen, ggf. mehrzeitiges Vorgehen"
+  }
+}

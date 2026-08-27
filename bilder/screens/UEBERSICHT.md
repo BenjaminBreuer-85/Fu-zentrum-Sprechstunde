@@ -1,6 +1,6 @@
 # Bildmaterial Fuss-Track — Übersicht
 
-Stand: 23.08.2026. Alle Dateien in `bilder/screens/`.
+Stand: 27.08.2026. Alle Dateien in `bilder/screens/`.
 
 ## A) Landingpage: Einzelbilder für die Bildstreifen
 
@@ -22,6 +22,9 @@ Format **1080 × 1350 (4 : 5)** als WebP, dazu je eine 640er-Fassung (`…-640.w
 | `pat-1-start` | Startseite der Patienten-App | Patienten-Abschnitt |
 | `pat-2-verlauf` | Hervorgehobener OP-Tag und Verlauf danach | Patienten-Abschnitt |
 | `pat-3-wegweiser` | Beschwerde-Wegweiser, Markierung am Fußfoto | Patienten-Abschnitt |
+| `pat-4-uebung` | Übungsprogramm Achillodynie Stufe 4 mit Übungsfotos | Patienten-Abschnitt |
+| `au-1-risiken` | Aufklärungstexte: „Chevron + Akin" gewählt, generierter Risikotext mit Kopie-Knopf | Sprechstundenbrief (Kandidat) |
+| `sb-3-brief-qr` | Schluss des generierten Briefs mit Kurzadresse und QR-Code zur Patienten-App | Sprechstundenbrief oder Patienten-Abschnitt (Kandidat) |
 
 `qr-patienten-app.png` (720 × 720, Petrol auf Weiß) zeigt auf `https://patienten.fuss-track.de` und gehört in den Patienten-Abschnitt.
 
