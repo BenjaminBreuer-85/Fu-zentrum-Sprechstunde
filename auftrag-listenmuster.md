@@ -58,3 +58,18 @@ Die Vorlage liegt als `listenmuster.html` bei. Sie ist bedienbar: aufklappen, Ch
 Bei 390 px Breite prüfen: Die Gruppenzeile bricht nicht um, lange Chips (Calcaneus-Verschiebeosteotomie) laufen nicht über den Rand, der Zähler bleibt rechts stehen. Danach je Werkzeug einen vollständigen Durchlauf: auswählen, zuklappen, Zähler prüfen, Text erzeugen. Ein Blick in den erzeugten Text stellt sicher, dass der Umbau nur die Oberfläche betrifft.
 
 Deploy: nur `app.html`, kein Bucket-Upload. Commit durch die Code-Sitzung, Push durch Benjamin.
+
+
+---
+
+## Nachtrag 27.08.2026 — Live-Prüfung, Stand unverändert offen
+
+Am heutigen `app.html`-Stand (716.903 Bytes) gegengeprüft: Alle drei Listen zeigen noch den alten Zustand (Sprechstundenbrief flach mit grauen Labels, OP-Bericht Akkordeon mit Emojis und ►, Aufklärung Akkordeon mit ›). Der Auftrag gilt unverändert, dazu drei Ergänzungen:
+
+1. **Neue Gruppe im Sprechstundenbrief:** Seit der DF-Erweiterung gibt es zusätzlich die Gruppe „Diabetischer Fuß" (zwischen „Sehnen und Faszien" und „Unspezifisch"). Sie wird wie die anderen zur Gruppenzeile — die Aufzählung im Abschnitt „Anwendung je Werkzeug" ist entsprechend zu lesen.
+
+2. **OP-Manuale einbeziehen:** Die Gruppenzeilen der OP-Manuale (🦿 OSG-Totalendoprothese, 🦵 OSG / Rückfuß, 🔩 Implantatsysteme, 📊 Unterlagen Abrechnung) nutzen dasselbe alte ►+Emoji-Muster. Sie bekommen das gleiche Gruppenzeilen-Design: Versalien, Pfeil rechts, Petrol-Linkskante im geöffneten Zustand, keine Emojis. Die Dokumentanzahl („7 Dokumente") bleibt als graue Angabe rechts stehen — sie ist eine feste Zahl, keine Auswahl, also KEINE Zähler-Pille.
+
+3. **Ausdrücklich unverändert bleiben** weiterhin: die Dreizustands-Chips der klinischen Untersuchung, die Anweisungslisten im Kontroll-Flow — und die Emoji-Kacheln des Hauptmenüs, die ein eigenes, bewusstes Gestaltungselement sind und nicht Teil dieses Auftrags.
+
+Gegenprobe nach Umsetzung zusätzlich: Sprechstundenbrief mit gewählter Diagnose „Diabetischer Fuß" öffnen — die Gruppe „Diabetischer Fuß" muss beim Betreten offen sein und die Zähler-Pille „1" tragen.
