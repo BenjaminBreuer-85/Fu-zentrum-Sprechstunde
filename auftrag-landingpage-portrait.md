@@ -1,6 +1,18 @@
 # Auftrag: Porträt-Platzhalter im Autor-Abschnitt (index.html, Landingpage)
 
-Stand: 27.08.2026. Kleiner Einzelauftrag, unabhängig von Runde 3.
+Stand: 27.08.2026, erneut abgelegt am Abend. Kleiner Einzelauftrag, unabhängig von Runde 3.
+
+## Zum Auffinden
+
+Diese Datei liegt im **Repo-Root** von `Fu-zentrum-Sprechstunde`, direkt neben `auftrag-landingpage-texte-runde4.md` und `auftrag-landingpage-bilder-au-sb.md`:
+
+```
+/Users/benjaminbreuer/Desktop/GitHub/Fu-zentrum-Sprechstunde/auftrag-landingpage-portrait.md
+```
+
+Sie wurde am 27.08. um 06:36 zum ersten Mal geschrieben. Falls sie in einer früheren Sitzung nicht sichtbar war, lag das vermutlich daran, dass sie noch nicht committet war — jetzt bitte einfach im Repo-Root nachsehen. Das benötigte Bild `icons/icon-512.png` liegt bereits im Repo, es muss nichts heruntergeladen werden.
+
+Hinweis: Auf der Patienten-Landingpage (Repo Fuss-Track) ist derselbe Platzhalter-Tausch bereits direkt umgesetzt — dieser Auftrag betrifft nur die Clinic-Landingpage.
 
 ## Was zu tun ist
 
