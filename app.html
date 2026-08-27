@@ -3417,10 +3417,6 @@ const LM = {
 
 // Beim Oeffnen wandert der Gruppenkopf an den oberen Rand, sonst rutscht der
 // Inhalt unter die Kopfzeile der Anwendung.
-// Fuehrende Emojis aus Gruppennamen entfernen. Sie stehen in referenz.json,
-// einer Bucket-Datei; ohne Upload laesst sich das nur bei der Anzeige loesen.
-function lmOhneEmoji(t){ return String(t||"").replace(/^[^\p{L}\p{N}(]+/u, ""); }
-
 function lmScrollen(el){
   if(!el) return;
   setTimeout(function(){
@@ -6585,7 +6581,7 @@ function OPManuale(){
     </div>}
     {filtered.map(function(cat){
       var isOpen=openCat[cat.cat]===true;
-      return <LMGruppe key={cat.cat} titel={lmOhneEmoji(cat.cat)} offen={isOpen} onToggle={function(){togCat(cat.cat);}}
+      return <LMGruppe key={cat.cat} titel={cat.cat} offen={isOpen} onToggle={function(){togCat(cat.cat);}}
                 info={cat.items.length+" "+(cat.items.length===1?"Dokument":"Dokumente")}>
         {isOpen&&<div>
           {cat.items.map(function(it,i){return <a key={i} href={it.url||BASE_URL+it.file} target="_blank" rel="noopener noreferrer" style={{display:"block",textDecoration:"none",padding:"10px 12px",marginBottom:4,borderRadius:6,border:"1px solid rgba(0,0,0,.08)",background:"rgba(255,255,255,.95)",transition:"all .15s",cursor:"pointer"}}
