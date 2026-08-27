@@ -12,9 +12,9 @@ Die alte Überschrift „Dokumentiert in Minuten, nicht in Stunden." wird ersetz
 
 **Absatz unter der Überschrift:**
 
-> Fuss-Track Clinic erstellt Sprechstundenbriefe und OP-Berichte aus fachspezifischen Bausteinen. Die OPS-Zuordnung, eine Erlös-Simulation sowie Darstellung von Abgrenzungen und codierrelevanten Fakten sind bereits hinterlegt. Eine App entwickelt und täglich benutzt aus der eigenen spezialisierten Sprechstunde.
+> Fuss-Track Clinic erstellt Sprechstundenbriefe und OP-Berichte aus fachspezifischen Vorlagen. Die OPS-Zuordnung, eine Erlös-Simulation sowie Darstellung von Abgrenzungen und codierrelevanten Fakten sind bereits hinterlegt. Eine App, entwickelt aus der eigenen spezialisierten Sprechstunde und dort täglich benutzt.
 
-(Wortlaut des Autors. Falls der Autor die angebotene Glättung des letzten Satzes freigibt, stattdessen: „Eine App, entwickelt aus der eigenen spezialisierten Sprechstunde und dort täglich benutzt." — auf Rückmeldung warten, bis dahin Wortlaut oben.)
+(Nachtrag 27.08.: Der Autor hat „Vorlagen" statt „Bausteinen" freigegeben — der Wortstamm „Baustein" kommt damit im sichtbaren Text nicht mehr vor — sowie die Glättung des letzten Satzes. Beides ist oben bereits eingearbeitet.)
 
 **Problem-Absatz darunter (ersetzt den bisherigen zweiteiligen Text „Spezialisiert zu operieren heißt heute auch …" / „… das fehlende Spezialwerkzeug daneben: …"):**
 
@@ -153,6 +153,20 @@ Antwort „Von wem kommt die Rechnung?":
 > Der Test läuft ohne Zahlungsdaten und ohne Installation. Nach 30 Tagen entscheiden Sie.
 
 **Überschneidung:** Der Punkt „Schlussblock / Kein-Risiko-BRAND-Verstoß" aus `auftrag-landingpage-runde3.md` ist hiermit ERSETZT — es gilt die Fassung aus diesem Block. Die übrigen Runde-3-Punkte (Meta-Description, figure:only-child, Punkte am Desktop, Patienten-Reihenfolge, og-patienten) bleiben unberührt bestehen.
+
+## Nachtrag 27.08. · Meta-Texte — FREIGEGEBEN
+
+Damit ist auch der offene Runde-3-Punkt zur Meta-Description erledigt (diese Fassungen ersetzen ihn):
+
+**`<meta name="description">`:**
+
+> Sprechstundenbriefe und OP-Berichte für die Fußchirurgie, aus fachspezifischen Vorlagen, mit OPS-Zuordnung und Erlös-Simulation. Entwickelt von einem Fußchirurgen.
+
+**`og:description`:**
+
+> Effektive Dokumentation und Behandlungssicherheit in der Fußchirurgie: Briefe, OP-Berichte, OPS-Zuordnung und Erlös-Simulation, ohne Patientendaten und ohne Installation.
+
+Das Versprechen „30 Tage kostenlos testen" steht bewusst in keiner der beiden Meta-Angaben (Knopf-Regelung aus Runde 3: nur im Zielabschnitt).
 
 ## Hinweis zur Reihenfolge
 
