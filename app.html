@@ -2354,6 +2354,7 @@ var _s = useState, _m = useMemo;
     try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
     document.body.removeChild(ta);
   }
+  // UI-Knopf am 27.08.2026 auf Wunsch des Autors entfernt, Funktion bleibt für evtl. Reaktivierung
   function downloadWord() {
     try {
       // Die Codes stehen im Brief direkt unter ihrem Code-Feld, nicht mehr am
@@ -3299,7 +3300,6 @@ var _s = useState, _m = useMemo;
               <div style={h3s}>Vorschau & Export</div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
-                <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
                 {qrShow && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(qr.url, "QR-Code-Fuss-Track.png"); }}>📋 QR-Code</div>}
               </div>
             </div>
@@ -3323,7 +3323,6 @@ var _s = useState, _m = useMemo;
             <div style={h3s}>Brief-Vorschau</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#00897B", color: "#F5F7FA", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={copy}>📋 Kopieren</div>
-              <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={downloadWord}>📄 Word</div>
               {qrShow && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(qr.url, "QR-Code-Fuss-Track.png"); }}>📋 QR-Code</div>}
             </div>
           </div>
