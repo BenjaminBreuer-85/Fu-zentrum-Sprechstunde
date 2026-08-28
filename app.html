@@ -1864,7 +1864,7 @@ var _s = useState, _m = useMemo;
       lines.push(dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor.");
       lines.push((seitenAdj !== "___" ? seitenAdj.charAt(0).toUpperCase() + seitenAdj.slice(1) : "___") + "seitig besteht ein Zustand nach " + (meBriefOS || "osteosynthetischer Versorgung der " + region) + " vor " + (meBriefDauer || "___") + " " + meBriefDauerEinheit + ".");
       lines.push("");
-      lines.push("Aktuell berichtet " + dd.toLowerCase() + " über " + (meBriefBeschwerden || "lokale Beschwerden über dem Implantat, Weichteilirritation und implantatassoziierte Symptome") + ".");
+      lines.push("Aktuell berichtet " + dd.charAt(0).toLowerCase() + dd.slice(1) + " über " + (meBriefBeschwerden || "lokale Beschwerden über dem Implantat, Weichteilirritation und implantatassoziierte Symptome") + ".");
       lines.push("");
       lines.push("Klinische Untersuchung:");
       lines.push(meBriefBefund || "Reizlose Narbe über der " + region + ". Druckschmerz über dem Implantat. Keine Zeichen einer Infektion. Periphere Durchblutung, Motorik und Sensibilität intakt.");
@@ -3310,6 +3310,14 @@ var _s = useState, _m = useMemo;
           </div>}
         </div>}
 
+      </div>}
+
+        {/* Fund A1: Die Karte hing im Diagnose-Block und war damit in den
+            Sonder-Flows unerreichbar — unter 1024 px gab es dort keinen Weg,
+            den Brief zu sehen oder zu kopieren. Sie erscheint jetzt, sobald
+            auch das Desktop-Panel einen Brief zeigt. */}
+        {((gender && (diagnosen.length > 0 || (pfad === "endo" && endoDiag)) && !meMode && !kontrolleMode)
+          || ((meMode || kontrolleMode) && !!fullText)) &&
         <div className="sb-mobile-preview" data-tour="sb-export">
           <div style={card}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
@@ -3329,8 +3337,7 @@ var _s = useState, _m = useMemo;
               </div>
             </div>}
           </div>
-        </div>
-      </div>}
+        </div>}
       </div>
 
       <div className="sb-preview">
