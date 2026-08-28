@@ -1396,6 +1396,27 @@ function getQrDataUrl(text, size) {
   } catch (e) { return ""; }
 }
 
+// Hinweisliste der Erlössimulation. Lag frueher inline im Block mit gefundener
+// Fallpauschale; seit die Eintraege ohne DRG eigene Hinweise mitbringen
+// (z. B. ambulant ueber EBM), wird dieselbe Darstellung an zwei Stellen
+// gebraucht — deshalb hier einmal.
+function HinweisListe({items}){
+  if(!items||items.length===0)return null;
+  var style=function(typ){
+    if(typ==="warn")return {icon:"⚠",color:"#E65100",bg:"rgba(230,81,0,.06)",bd:"rgba(230,81,0,.25)"};
+    if(typ==="alert")return {icon:"⚠",color:"#C62828",bg:"rgba(198,40,40,.06)",bd:"rgba(198,40,40,.3)"};
+    if(typ==="erloes")return {icon:"€",color:"#2E7D32",bg:"rgba(46,125,50,.06)",bd:"rgba(46,125,50,.25)"};
+    return {icon:"•",color:"#4A5568",bg:"rgba(74,85,104,.04)",bd:"rgba(74,85,104,.15)"};
+  };
+  return <div style={{padding:"8px 10px",background:"#FAFBFC",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+    <div style={{fontWeight:700,color:"#2D3748",marginBottom:6,fontSize:11}}>Hinweise</div>
+    {items.map(function(it,i){var s=style(it.typ);return <div key={i} style={{display:"flex",gap:6,alignItems:"flex-start",padding:"4px 6px",marginBottom:i<items.length-1?4:0,background:s.bg,border:"1px solid "+s.bd,borderRadius:4}}>
+      <span style={{color:s.color,fontWeight:700,flexShrink:0}}>{s.icon}</span>
+      <span>{it.txt}</span>
+    </div>;})}
+  </div>;
+}
+
 function SprechstundenbriefApp() {
 
 var _s = useState, _m = useMemo;
@@ -2767,13 +2788,26 @@ var _s = useState, _m = useMemo;
                 // Fruehere Fassung gab hier null zurueck — der Block blieb leer und las sich
                 // wie "keine H-DRG". Jetzt wird ausgesprochen, warum keine Pauschale bestimmt
                 // werden kann. Betrifft Begleiteingriffe und Eintraege ohne OP_STEUERUNG.
-                var ohneZuordnung=opMethode.filter(function(m){var e=opSteuerungEff(m,opMods);return !e||!e.cm;})
+                // Eintraege ohne DRG koennen begruenden, warum keine Simulation
+                // moeglich ist (z. B. Morton-Neurom: ambulant ueber den EBM).
+                // Wo diese Hinweise hinterlegt sind, treten sie an die Stelle
+                // des generischen Satzes; der bleibt fuer die uebrigen stehen.
+                var mitHinweis=opMethode.filter(function(m){
+                  var e=OP_STEUERUNG[m];
+                  return e&&!e.drg&&!e.hdrg&&e.hinweise&&e.hinweise.length>0;
+                });
+                var hinweisItems=[];
+                mitHinweis.forEach(function(m){hinweisItems=hinweisItems.concat(OP_STEUERUNG[m].hinweise);});
+                var ohneZuordnung=opMethode.filter(function(m){var e=opSteuerungEff(m,opMods);return (!e||!e.cm)&&mitHinweis.indexOf(m)<0;})
                                            .map(function(m){return (OPS[m]&&OPS[m].k)||m;});
                 var nurBegleit=opMethode.every(function(m){var e=OP_STEUERUNG[m];return e&&e.begleitend;});
-                return <div style={{fontSize:11,color:"#4A5568",lineHeight:1.6}}>
-                  {nurBegleit
-                    ? "Für "+ohneZuordnung.join(", ")+" wird die Fallpauschale vom führenden Eingriff bestimmt. Bitte den führenden Eingriff mit auswählen."
-                    : "Für "+ohneZuordnung.join(", ")+" ist keine eigene Fallpauschale hinterlegt. Die Kodierung muss hier manuell erfolgen."}
+                return <div>
+                  {ohneZuordnung.length>0&&<div style={{fontSize:11,color:"#4A5568",lineHeight:1.6,marginBottom:hinweisItems.length>0?8:0}}>
+                    {nurBegleit
+                      ? "Für "+ohneZuordnung.join(", ")+" wird die Fallpauschale vom führenden Eingriff bestimmt. Bitte den führenden Eingriff mit auswählen."
+                      : "Für "+ohneZuordnung.join(", ")+" ist keine eigene Fallpauschale hinterlegt. Die Kodierung muss hier manuell erfolgen."}
+                  </div>}
+                  <HinweisListe items={hinweisItems}/>
                 </div>;
               }
               // Override-Logik: Upgrade und Destruktiv
@@ -2976,20 +3010,7 @@ var _s = useState, _m = useMemo;
                   var modHinweise=(best._mods||[]).filter(function(m){return m.hinweis;}).map(function(m){return m.hinweis;});
                   if(modHinweise.length) items=(items||[]).concat(modHinweise);
                   if(!items&&displayHinweis)items=[{typ:"info",txt:displayHinweis}];
-                  if(!items||items.length===0)return null;
-                  var style=function(typ){
-                    if(typ==="warn")return {icon:"⚠",color:"#E65100",bg:"rgba(230,81,0,.06)",bd:"rgba(230,81,0,.25)"};
-                    if(typ==="alert")return {icon:"⚠",color:"#C62828",bg:"rgba(198,40,40,.06)",bd:"rgba(198,40,40,.3)"};
-                    if(typ==="erloes")return {icon:"€",color:"#2E7D32",bg:"rgba(46,125,50,.06)",bd:"rgba(46,125,50,.25)"};
-                    return {icon:"•",color:"#4A5568",bg:"rgba(74,85,104,.04)",bd:"rgba(74,85,104,.15)"};
-                  };
-                  return <div style={{padding:"8px 10px",background:"#FAFBFC",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-                    <div style={{fontWeight:700,color:"#2D3748",marginBottom:6,fontSize:11}}>Hinweise</div>
-                    {items.map(function(it,i){var s=style(it.typ);return <div key={i} style={{display:"flex",gap:6,alignItems:"flex-start",padding:"4px 6px",marginBottom:i<items.length-1?4:0,background:s.bg,border:"1px solid "+s.bd,borderRadius:4}}>
-                      <span style={{color:s.color,fontWeight:700,flexShrink:0}}>{s.icon}</span>
-                      <span>{it.txt}</span>
-                    </div>;})}
-                  </div>;
+                  return <HinweisListe items={items}/>;
                 }()}
                 {best.opsCodes && best.opsCodes.length>0 && <div style={{marginTop:6,padding:"8px 10px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.3)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
                   <div style={{fontWeight:700,color:"#006B6F",marginBottom:4,fontSize:11}}>OPS-Codes (zwingend beide kodieren)</div>
@@ -3722,6 +3743,12 @@ function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz}){
   </div>;
 }
 
+// Wirbelsaeulen-Sektion: vorerst stillgelegt (Entscheidung 28.08.2026). Die
+// hinterlegten DRG-Werte, CM und Implantatpreise sind teils Platzhalter, der
+// Knopf soll deshalb nicht anwaehlbar sein. Sektion, Daten und Berechnungen
+// bleiben unangetastet im Bestand — hier auf true setzen genuegt zum Wiederanschalten.
+var WS_AKTIV=false;
+
 // ============================================================
 // COMPONENT
 // ============================================================
@@ -3742,6 +3769,10 @@ function OPBerichtApp(){
   // Region richtet und nicht nach dem Eingriff; spaeter kommen Zehenamputation,
   // Strahlresektion und transmetatarsale Amputation dazu.
   const [dfOp,setDfOp]=useState(false);
+  // Amputation in Hoehe der proximalen Tibia (Burgess). Bewusst ohne
+  // Unter-Schalter: die Zusaetze des Debridements (Lavanox, Vancomycin,
+  // Lasche, VAC, Teilamputation) gelten hier nicht.
+  const [dfAmp,setDfAmp]=useState(false);
   const [dfTeilamp,setDfTeilamp]=useState(false);
   const [dfKnochen,setDfKnochen]=useState("");
   // Osteomyelitis begruendet die Teilamputation und wird mit ihr gesetzt.
@@ -3934,7 +3965,7 @@ function OPBerichtApp(){
   },[dfTeilamp]);
   const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||weil.length>0||Object.values(zc).some(a=>a.length>0));
   const hasDMMOover2=mtStrahlen.length>2;
-  const hasDF=dfOp;
+  const hasDF=dfOp||dfAmp;
   const hasAny=hasVF||hasOSG||hasTEP||hasRF||hasMF||hasME||hasUM||hasFX||hasDF||coalTyp!=="";
   const needsRuhig=gz==="mtp1art"||gz==="lapidus";
 
@@ -4041,7 +4072,7 @@ function OPBerichtApp(){
     if(Object.values(zc).some(a=>a.includes("pip")))codes.push({hd:codes.length===0,code:"M20.4"+s,desc:"Hammerzehe(n)"});
     // Diabetischer Fuß. Die ICD-Ziffern sind noch nicht abgenommen und stehen
     // deshalb als ___ — sichtbare Luecke statt geratener Abrechnungsdaten.
-    if(dfOp)codes.push({hd:codes.length===0,code:"___",desc:"Diabetisches Fußsyndrom mit Ulzeration"});
+    if(dfOp||dfAmp)codes.push({hd:codes.length===0,code:"___",desc:"Diabetisches Fußsyndrom mit Ulzeration"});
     if(dfOp&&dfOsteo)codes.push({hd:false,code:"___",desc:"Osteomyelitis am "+(dfKnochen.trim()||"___")});
     if(mtStrahlen.length>0&&codes.length===0)codes.push({hd:true,code:"M77.4"+s,desc:"Metatarsalgie"});
     if(mtStrahlen.length>0&&codes.length>0&&!codes.find(c=>c.code.startsWith("M77.4")))codes.push({hd:false,code:"M77.4"+s,desc:"Metatarsalgie"});
@@ -4103,7 +4134,7 @@ function OPBerichtApp(){
       if(ucOp==="humerus_schaft_targon")codes.push({hd:true,code:"S42.3"+s,desc:"Fraktur des Humerusschaftes"});
     }
     return codes;
-  },[gz,mitAkin,hoffTill,zc,dmmo,weil,osgOp,tepType,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side,dfOp,dfOsteo,dfKnochen]);
+  },[gz,mitAkin,hoffTill,zc,dmmo,weil,osgOp,tepType,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side,dfOp,dfAmp,dfOsteo,dfKnochen]);
 
     // Collected OPS codes
   const [allOPS,erloesData]=useMemo(()=>{
@@ -4475,10 +4506,18 @@ function OPBerichtApp(){
     // Diabetischer Fuß: Die OPS-Zuordnung haengt an Tiefe, Ausdehnung und
     // Knochenbeteiligung und ist noch nicht abgenommen. Ohne diesen Zweig
     // bliebe der Fallsteuerungsblock leer — das liest sich wie "nichts zu tun".
-    if(hasDF) return [o,{label:"Diabetischer Fuß — Debridement",ops:o,
-      hdrg:"—",ebm:"—",kurz:"—",drg:"—",hdrg_n1:"—",empf:"stat",
-      ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
-      kodier:"⚠ TODO: OPS-Zuordnung offen. In Betracht kommen je nach Tiefe und Ausdehnung 5-893 (chirurgische Wundtoilette) oder 5-896 (radikale Exzision Haut/Unterhaut), bei Knochenbeteiligung zusätzlich 5-782 (Exzision erkrankter Knochen), bei Vakuumversiegelung 5-916.a0. Bis zur Abnahme manuell kodieren."}];
+    if(hasDF){
+      // Ueberschrift und Kodierhinweis richten sich nach dem gewaehlten
+      // Eingriff — die Code-Kandidaten des Debridements passen nicht zur
+      // Amputation. Fuer die Amputation ist noch nichts zugeordnet.
+      var dfKodier=[];
+      if(dfOp)dfKodier.push("⚠ TODO: OPS-Zuordnung offen. In Betracht kommen je nach Tiefe und Ausdehnung 5-893 (chirurgische Wundtoilette) oder 5-896 (radikale Exzision Haut/Unterhaut), bei Knochenbeteiligung zusätzlich 5-782 (Exzision erkrankter Knochen), bei Vakuumversiegelung 5-916.a0. Bis zur Abnahme manuell kodieren.");
+      if(dfAmp)dfKodier.push("⚠ TODO: OPS-Zuordnung für die Amputation in Höhe der proximalen Tibia offen. Bis zur Abnahme manuell kodieren.");
+      return [o,{label:"Diabetischer Fuß — "+(dfOp&&dfAmp?"Debridement und Amputation":dfAmp?"Amputation proximale Tibia":"Debridement"),ops:o,
+        hdrg:"—",ebm:"—",kurz:"—",drg:"—",hdrg_n1:"—",empf:"stat",
+        ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
+        kodier:dfKodier.join("\n\n")}];
+    }
 
     // OPS-Ziffern fuer Tendoskopie und AS-Debridement sind noch offen
     // (Stand 14.08.2026). Ohne diesen Zweig bliebe der Fallsteuerungsblock
@@ -4489,7 +4528,7 @@ function OPBerichtApp(){
       ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
       kodier:"⚠ TODO: OPS-Ziffern werden nachgetragen. Bis dahin manuell kodieren."}];
 
-    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // Text version for Word export
   const icdText=useMemo(()=>{
@@ -4958,19 +4997,22 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
                      .replace(/§KNOCHEN§/g, dfKnochen.trim()||"___");
       p.push("\n\nZuwendung zum diabetischen Fußsyndrom.\n"+dfText);
     }
+    if(dfAmp&&T.df_amputation_tibia){
+      p.push("\n\nZuwendung zur transtibialen Amputation.\n"+T.df_amputation_tibia);
+    }
 
     const r=needsRuhig&&ruhig==="keine"?"orthese":ruhig;
     // Der Debridement-Text schliesst die Wunde bewusst nicht; der allgemeine
     // Verbandabsatz mit schichtweisem Verschluss und Hautnaht widerspraeche
     // dem. Er entfaellt daher, wenn nur der diabetische Fuß gewaehlt ist.
-    if(!(dfOp&&!hasVF&&!hasOSG&&!hasTEP&&!hasRF&&!hasMF&&!hasME&&!hasUM&&!hasFX&&coalTyp===""))
+    if(!((dfOp||dfAmp)&&!hasVF&&!hasOSG&&!hasTEP&&!hasRF&&!hasMF&&!hasME&&!hasUM&&!hasFX&&coalTyp===""))
       p.push("\n\n"+buildVerband(hasVF,bs,r));
     if(entlassGespr)p.push("\n\nPostoperativ erfolgt ein ausführliches Entlassgespräch über den Eingriff und die Nachbehandlung. Aufklärung über Zeichen von Infekt, Thrombose oder andere postoperative Komplikationen mit Verhaltensmaßgaben. Kontrolltermine werden besprochen und abgestimmt. Häusliche Versorgung und Betreuung am OP-Tag ist anamnestisch gewährleistet. Recap der Zehen ist intakt, Belastungsvorgaben können umgesetzt werden, Verband ist trocken.");
     return textPlatzhalter(p.join(""));
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfTeilamp,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -5091,7 +5133,11 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>🦶 Fuß / Sprunggelenk</div>
           <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>🦴 UC</div>
           <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>🦿 Endo</div>
-          <div style={gb(sektion==="ws")} onClick={()=>setSektion(sektion==="ws"?"":"ws")}>🦴 WS</div>
+          {/* WS-Modul vorerst stillgelegt (Entscheidung 28.08.2026): Daten teils
+              Platzhalter. Der Knopf ist ausgeblendet, Sektion und Daten bleiben
+              als inaktiver Bestand stehen — Wiederanschalten heisst: WS_AKTIV auf
+              true setzen. */}
+          {WS_AKTIV&&<div style={gb(sektion==="ws")} onClick={()=>setSektion(sektion==="ws"?"":"ws")}>🦴 WS</div>}
 
         </div>
       </div>
@@ -5368,6 +5414,13 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             <div style={chip(mfCottonKnochen==="allogen")} onClick={()=>setMfCottonKnochen(mfCottonKnochen==="allogen"?"":"allogen")}>Allogener Knochen</div>
           </div>}
         </div>
+        {/* Die Cotton-OT ist Zusatzeingriff. Der Chip bleibt als Sucheinstieg
+            stehen, sagt aber jetzt, wozu sie gehoert — vorher sah sie wie ein
+            eigenstaendiger Eingriff aus. */}
+        {mfCotton&&<div style={{fontSize:10,color:"#006B6F",marginTop:-2,marginBottom:6,lineHeight:1.5}}>
+          Zusatzeingriff zur Knick-Senkfuß-Korrektur: im Abschnitt Rückfuß steht sie bei MDO minimalinvasiv, MDO offen und verlängernder Calcaneus-Osteotomie als Schalter „+ Cotton".
+          {!mfCottonKnochen&&<span> Ohne Auswahl steht der Text mit autologem Knochen.</span>}
+        </div>}
         <div style={cat}>TMT-Arthrodese</div>
         <div style={row}>
           {[["tmt1","TMT 1"],["tmt1_3","TMT 1–3"],["tmt2_3","TMT 2–3"],["tmt2","TMT 2"]].map(([k,l])=>
@@ -5397,9 +5450,10 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </OBSec>
 
       {/* ME */}
-      <OBSec title="Diabetischer Fuß / Infekt" open={sec.df} anzahl={dfOp?1+(dfTeilamp?1:0)+(dfLavanox?1:0)+(dfVanco?1:0)+(dfLasche?1:0)+(dfVac?1:0):0} onToggle={()=>togSec("df")} active={hasDF} onReset={()=>{setDfOp(false);setDfTeilamp(false);setDfKnochen("");setDfOsteo(false);setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);}}>
+      <OBSec title="Diabetischer Fuß / Infekt" open={sec.df} anzahl={(dfOp?1+(dfTeilamp?1:0)+(dfLavanox?1:0)+(dfVanco?1:0)+(dfLasche?1:0)+(dfVac?1:0):0)+(dfAmp?1:0)} onToggle={()=>togSec("df")} active={hasDF} onReset={()=>{setDfOp(false);setDfAmp(false);setDfTeilamp(false);setDfKnochen("");setDfOsteo(false);setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);}}>
         <div style={row}>
           <div style={chip(dfOp)} onClick={()=>setDfOp(!dfOp)}>Debridement bei Ulkus und Infekt</div>
+          <div style={chip(dfAmp)} onClick={()=>setDfAmp(!dfAmp)}>Amputation proximale Tibia</div>
         </div>
         {dfOp&&<div style={{marginTop:6}}>
           <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
@@ -5428,6 +5482,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           {dfVac&&dfLasche&&<div style={{fontSize:10,color:"#8A5A00",marginTop:3}}>
             Lasche und VAC zusammen: nur sinnvoll bei Lasche in einer Nebenhöhle und VAC auf der Hauptwunde.
           </div>}
+          <div style={{fontSize:10,color:"#8A5A00",marginTop:4,padding:"5px 8px",borderRadius:5,background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.2)"}}>
+            OPS noch nicht zugeordnet — bitte manuell kodieren.
+          </div>
+        </div>}
+        {dfAmp&&<div style={{marginTop:6}}>
+          <div style={{fontSize:10,color:"#006B6F"}}>
+            Absetzung nach Burgess mit langem dorsalem Muskel-Haut-Lappen. Der Text steht ohne Zusatzschalter — die Schalter des Debridements gelten hier nicht.
+          </div>
           <div style={{fontSize:10,color:"#8A5A00",marginTop:4,padding:"5px 8px",borderRadius:5,background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.2)"}}>
             OPS noch nicht zugeordnet — bitte manuell kodieren.
           </div>
@@ -8893,7 +8955,7 @@ function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📝</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Sprechstundenbrief</div>
-          <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Arztbriefe mit Score & Word-Export</div>
+          <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>Arztbriefe mit Scores und Kopierfunktion</div>
         </div>
         <div data-tour="ob" onClick={()=>onSelect("ob")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,textAlign:"center",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,.06)"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
