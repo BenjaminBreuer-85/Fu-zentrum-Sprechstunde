@@ -5144,9 +5144,9 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       <div style={card}>
         <div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:6}}>SEKTION</div>
         <div style={row}>
-          <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>🦶 Fuß / Sprunggelenk</div>
-          <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>🦴 UC</div>
-          <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>🦿 Endo</div>
+          <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>Fuß / Sprunggelenk</div>
+          <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>UC</div>
+          <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>Endo</div>
           {/* WS-Modul vorerst stillgelegt (Entscheidung 28.08.2026): Daten teils
               Platzhalter. Der Knopf ist ausgeblendet, Sektion und Daten bleiben
               als inaktiver Bestand stehen — Wiederanschalten heisst: WS_AKTIV auf
@@ -5165,7 +5165,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </div>
 
       <div style={card}><div style={h3s}>② Vorbereitung</div>
-        <div style={{...row,gap:6}}><div style={chip(lage==="ruecken")} onClick={()=>setLage("ruecken")}>Rückenlage</div><div style={chip(lage==="bauch")} onClick={()=>setLage("bauch")}>Bauchlage</div><div style={tog(ss)} onClick={()=>setSs(!ss)}>💊 Single-Shot</div><div style={tog(bs)} onClick={()=>setBs(!bs)}>🩸 Blutsperre</div><div style={chip(ana==="lokal")} onClick={()=>setAna(ana==="lokal"?"narkose":"lokal")}>💉 LA</div></div>
+        <div style={{...row,gap:6}}><div style={chip(lage==="ruecken")} onClick={()=>setLage("ruecken")}>Rückenlage</div><div style={chip(lage==="bauch")} onClick={()=>setLage("bauch")}>Bauchlage</div><div style={tog(ss)} onClick={()=>setSs(!ss)}>Single-Shot</div><div style={tog(bs)} onClick={()=>setBs(!bs)}>Blutsperre</div><div style={chip(ana==="lokal")} onClick={()=>setAna(ana==="lokal"?"narkose":"lokal")}>LA</div></div>
       </div>
 
       <div data-tour="ob-eingriff" style={{marginBottom:10}}><div style={h3s}>③ OP-Durchführung</div>
@@ -8997,6 +8997,7 @@ function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📊</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Klassifikationen</div>
+          <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>47 Graduierungen mit Quelle und DOI</div>
         </div>
         <div data-tour="preise" onClick={()=>onSelect("preise")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #10535B";e.currentTarget.style.boxShadow="0 4px 12px rgba(16,83,91,.12)"}}
@@ -9010,6 +9011,7 @@ function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
           onMouseLeave={e=>{e.currentTarget.style.border="1px solid rgba(0,0,0,.08)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.06)"}}>
           <div style={{fontSize:36,marginBottom:6}}>📐</div>
           <div style={{fontSize:14,fontWeight:700,color:"#006B6F",marginBottom:3,lineHeight:1.2}}>Röntgen & Messmethoden</div>
+          <div style={{fontSize:10,color:"#718096",lineHeight:1.4}}>26 Messungen mit Normwert und Referenzbild</div>
         </div>
         <div data-tour="aufklaerung" onClick={()=>onSelect("aufklaerung")} style={{cursor:"pointer",background:"#fff",border:"1px solid rgba(0,0,0,.08)",borderRadius:12,padding:"12px 10px",flex:"1 1 140px",maxWidth:200,boxShadow:"0 1px 3px rgba(0,0,0,.06)",transition:"all .2s",textAlign:"center"}}
           onMouseEnter={e=>{e.currentTarget.style.border="1px solid #006B6F";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,107,111,.12)"}}
