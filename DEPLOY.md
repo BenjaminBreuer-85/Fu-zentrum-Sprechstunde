@@ -62,13 +62,16 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 29.08.2026: KEIN UPLOAD OFFEN — geprüft, nicht vermutet.**
+**Stand 29.08.2026 (abends): EIN UPLOAD OFFEN — `erloes2026.json`.**
 
-Alle elf Bucket-Dateien wurden am 29.08.2026 heruntergeladen und zeichengenau
-mit ihrem lokalen Gegenstück verglichen. Ergebnis: `aufklaerung.json`,
-`diagnosen.json`, `endo.json`, `erloes2026.json`, `katalog2026.json`,
-`opmethoden.json`, `opsteuerung.json`, `optexte.json`, `preise.json` und
-`referenz.json` sind identisch.
+Am 29.08.2026 (nachmittags) wurden alle elf Bucket-Dateien heruntergeladen und
+zeichengenau mit ihrem lokalen Gegenstück verglichen — damals alle identisch.
+Danach wurde `erloes2026.json` lokal erweitert: sechs neue DRG-Zeilen F27A,
+F27B, F27C, F13A, F13B, F13C (diabetischer Fuß / Amputation, aus
+InEK-Datenbrowser-Exporten des Autors) in `_DRG` und `GVD` plus
+Kommentar-Nachtrag. Diese Werte gehören auch in die
+`Erloesdaten_2026_MASTER.xlsx` (Single Source), damit Master und JSON nicht
+auseinanderlaufen.
 
 Die Tabelle, die hier vorher stand, führte Änderungen vom 15., 18., 22. und
 27.08. als offen — sie waren längst hochgeladen, nur nicht ausgetragen
@@ -77,7 +80,8 @@ veraltet. Deshalb steht die Prüfung ab jetzt vor der Aussage.
 
 | Datei | Stand | Ergebnis |
 |---|---|---|
-| alle zehn `data/`-Dateien | 29.08.2026 | Bucket = lokal, zeichengenau geprüft |
+| `erloes2026.json` | 29.08.2026 abends | **Upload offen** (erst löschen, dann hochladen) |
+| übrige neun `data/`-Dateien | 29.08.2026 | Bucket = lokal, zeichengenau geprüft |
 | `zuordnung/implantat_zuordnung.json` | 29.08.2026 | **Bucket veraltet**, siehe unten |
 
 Die Zuordnungsdatei ist ein Sonderfall: Sie liegt im Repo unter `zuordnung/`
