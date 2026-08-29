@@ -100,6 +100,11 @@ Umgekehrt gilt für jeden Auftrag an eine Code-Sitzung: Er endet mit einer Deplo
 
 ### Erledigt am 29.08.2026
 
+`data/diagnosen.json` ein zweites Mal hochgeladen: Die Diagnose `osteomyelitis`
+ist aus `DIAG` und `DIAG_GRUPPEN` entfernt (Anweisung vom 26.08., Rest aus
+auftrag-df-teil3). 19 Diagnosen werden zu 18, sonst ist die Datei unveraendert.
+Danach heruntergeladen und zeichengenau verglichen.
+
 `data/diagnosen.json` hochgeladen. Einziger Unterschied zur Bucket-Fassung war
 der Gruppentitel „Diabetischer Fuß / Infekt" (Audit C1); danach heruntergeladen
 und zeichengenau verglichen.

@@ -1455,6 +1455,13 @@ var _s = useState, _m = useMemo;
   var olaes = _s(""), oclLaenge = olaes[0], setOclLaenge = olaes[1];
   var obrs = _s(""), oclBreite = obrs[0], setOclBreite = obrs[1];
   var ots = _s(""), oclTiefe = ots[0], setOclTiefe = ots[1];
+  // Score-Werte. Bis 29.08.2026 druckte der Brief die Zeile als leere Vorlage,
+  // auch wenn nichts erhoben war. Jetzt tragen die Felder den Wert, und die
+  // Zeile nennt nur, was ausgefuellt wurde.
+  var sc1 = _s(""), scEfas = sc1[0], setScEfas = sc1[1];
+  var sc2 = _s(""), scEfasSport = sc2[0], setScEfasSport = sc2[1];
+  var sc3 = _s(""), scAofas = sc3[0], setScAofas = sc3[1];
+  var sc4 = _s(""), scVas = sc4[0], setScVas = sc4[1];
   var ams = _s(false), amicSpongiosa = ams[0], setAmicSpongiosa = ams[1];
   var dmmoCs = _s(""), dmmoCount = dmmoCs[0], setDmmoCount = dmmoCs[1];
   var pipCs = _s(""), pipCount = pipCs[0], setPipCount = pipCs[1];
@@ -2101,8 +2108,13 @@ var _s = useState, _m = useMemo;
     var diagText = diagParts.filter(Boolean).join(", ") + (seite ? " " + seite : "");
     p.push("Diagnosen: " + diagText);
     if (vorOPs) p.push("\n- Vor-OP: " + (stnText || "___"));
-    // Score-Bezeichnungen (Werte werden händisch in iMED1 ergänzt)
-    p.push("\n- Scores: EFAS /24, EFAS Sport /16, AOFAS /100, VAS Belastung /10");
+    // Nur erhobene Scores nennen. Ohne einen einzigen Wert entfaellt die Zeile.
+    var scores = [];
+    if (scEfas.trim())      scores.push("EFAS " + scEfas.trim() + "/24");
+    if (scEfasSport.trim()) scores.push("EFAS Sport " + scEfasSport.trim() + "/16");
+    if (scAofas.trim())     scores.push("AOFAS " + scAofas.trim() + "/100");
+    if (scVas.trim())       scores.push("VAS Belastung " + scVas.trim() + "/10");
+    if (scores.length > 0) p.push("\n- Scores: " + scores.join(", "));
 
     // Therapieempfehlung
     var ops = opMethode.filter(function(m) { return OPS[m]; });
@@ -2278,7 +2290,7 @@ var _s = useState, _m = useMemo;
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return rawOut.replace(/\bundefined\b/g, "___");
-  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
+  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, scEfas, scEfasSport, scAofas, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
@@ -2429,6 +2441,7 @@ var _s = useState, _m = useMemo;
     setGender(""); setBegleitung(""); setSeite(""); setDiagnosen([]); setCoalitio(false); setCoalitioVar("");
     setOpMethode([]); setOpMods({}); setOpEmpfohlen(true); setTherapieversuch(false); setNurDiagnostik(false);
     setOclZyste(false); setOclLok(""); setOclLaenge(""); setOclBreite(""); setOclTiefe(""); setAmicSpongiosa(false);
+    setScEfas(""); setScEfasSport(""); setScAofas(""); setScVas("");
     setDauer(""); setDauerEinheit("Monaten"); setHaeufigkeit(""); setBelastung([]); setLeidensdruck(true);
     setBeruf(""); setAktivitaet(""); setSportEingeschr(false); setVorOPs(false); setStnText("");
     setKonservBisher([]); setRisiken([]); setFreitextRisiko("");
@@ -2772,7 +2785,22 @@ var _s = useState, _m = useMemo;
           </div>
         </div>}
 
-        {/* Scores: nur Bezeichnungen, Werte werden händisch in iMED1 nachgetragen — keine Eingabefelder im Tool */}
+        {/* Scores. Das Werkzeug rechnet nichts aus, es nimmt den erhobenen
+            Wert entgegen und schreibt ihn in den Brief. Leere Felder erscheinen
+            dort nicht. */}
+        <div style={{ marginTop: 10 }}>
+          <div style={{ fontSize: 10, color: "#718096", fontWeight: 700, marginBottom: 4 }}>SCORES (nur Erhobenes wird gedruckt)</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {[["EFAS","/24",scEfas,setScEfas],["EFAS Sport","/16",scEfasSport,setScEfasSport],
+              ["AOFAS","/100",scAofas,setScAofas],["VAS Belastung","/10",scVas,setScVas]].map(function(f) {
+              return <div key={f[0]} style={{ flex: "0 0 auto" }}>
+                <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>{f[0] + " " + f[1]}</div>
+                <input type="number" value={f[2]} onChange={function(e) { f[3](e.target.value); }} placeholder="—"
+                       style={{ width: 74, padding: "4px 8px", borderRadius: 4, border: "1px solid rgba(0,0,0,.15)", fontSize: 12, fontFamily: "inherit" }} />
+              </div>;
+            })}
+          </div>
+        </div>
 
         {/* ERLÖSSIMULATION */}
         {opMethode.length>0&&<div data-tour="sb-erloes" style={{marginTop:10,border:"2px solid #006B6F",borderRadius:10,overflow:"hidden"}}>
@@ -5428,13 +5456,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             <div style={chip(mfCottonKnochen==="allogen")} onClick={()=>setMfCottonKnochen(mfCottonKnochen==="allogen"?"":"allogen")}>Allogener Knochen</div>
           </div>}
         </div>
-        {/* Die Cotton-OT ist Zusatzeingriff. Der Chip bleibt als Sucheinstieg
-            stehen, sagt aber jetzt, wozu sie gehoert — vorher sah sie wie ein
-            eigenstaendiger Eingriff aus. */}
-        {mfCotton&&<div style={{fontSize:10,color:"#006B6F",marginTop:-2,marginBottom:6,lineHeight:1.5}}>
+        {/* Die Cotton-OT ist Zusatzeingriff. Der Hinweis steht ab dem Oeffnen
+            der Gruppe da, nicht erst nach dem Klick: Die Gruppe enthaelt nur
+            diesen einen Chip unter einer gleichlautenden Ueberschrift, und wer
+            die Ueberschrift trifft, sah sonst gar keine Reaktion. */}
+        <div style={{fontSize:10,color:"#006B6F",marginTop:-2,marginBottom:6,lineHeight:1.5}}>
           Zusatzeingriff zur Knick-Senkfuß-Korrektur: im Abschnitt Rückfuß steht sie bei MDO minimalinvasiv, MDO offen und verlängernder Calcaneus-Osteotomie als Schalter „+ Cotton".
-          {!mfCottonKnochen&&<span> Ohne Auswahl steht der Text mit autologem Knochen.</span>}
-        </div>}
+          {mfCotton&&!mfCottonKnochen&&<span> Ohne Auswahl steht der Text mit autologem Knochen.</span>}
+        </div>
         <div style={cat}>TMT-Arthrodese</div>
         <div style={row}>
           {[["tmt1","TMT 1"],["tmt1_3","TMT 1–3"],["tmt2_3","TMT 2–3"],["tmt2","TMT 2"]].map(([k,l])=>
@@ -8458,8 +8487,8 @@ const RUNDGANG_SB = [
   { ziele:['[data-tour="sb-export"]'],
     wennFehlt: "Die Vorschau erscheint, sobald der Brief Inhalt hat.",
     titel: "Die Scores im Brief",
-    text: "Der Brief führt die gebräuchlichen Scores mit ihren Höchstwerten auf — EFAS, EFAS Sport, AOFAS und die VAS unter Belastung. Die Punktwerte selbst tragen Sie in iMED1 ein; dieses Werkzeug rechnet sie nicht aus.",
-    hinweis: "So steht die Zeile bereits im Brief und Sie müssen sie nicht von Hand anlegen." },
+    text: "Vier Felder nehmen die erhobenen Punktwerte auf: EFAS, EFAS Sport, AOFAS und die VAS unter Belastung. Gerechnet wird nichts, der Wert wird übernommen.",
+    hinweis: "Im Brief steht nur, was Sie eingetragen haben. Ohne einen einzigen Wert entfällt die Zeile." },
   { ziele:['[data-tour="sb-erloes"]'], titel: "Erlös und Standardversorgung",
     text: "Hier sehen Sie, was der Fall voraussichtlich einbringt und welches Material die Standardversorgung vorsieht. Der Block ist eine Einschätzung für Ihre Planung, keine Abrechnung." },
   { ziele:['[data-tour="sb-export"]'], titel: "Vorschau und Übernahme",
