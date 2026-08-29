@@ -62,20 +62,31 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 28.08.2026: MEHRERE UPLOADS OFFEN, SIEHE TABELLE.**
+**Stand 29.08.2026: KEIN UPLOAD OFFEN — geprüft, nicht vermutet.**
 
-Diese Dateien im Ordner `data/` wurden nach dem letzten dokumentierten Upload (01.08.2026) lokal geändert. Ob sie seither in den Bucket gewandert sind, ist **nicht dokumentiert**. Vor dem nächsten Deploy klären:
+Alle elf Bucket-Dateien wurden am 29.08.2026 heruntergeladen und zeichengenau
+mit ihrem lokalen Gegenstück verglichen. Ergebnis: `aufklaerung.json`,
+`diagnosen.json`, `endo.json`, `erloes2026.json`, `katalog2026.json`,
+`opmethoden.json`, `opsteuerung.json`, `optexte.json`, `preise.json` und
+`referenz.json` sind identisch.
 
-| Datei | lokal geändert | Anlass |
+Die Tabelle, die hier vorher stand, führte Änderungen vom 15., 18., 22. und
+27.08. als offen — sie waren längst hochgeladen, nur nicht ausgetragen
+worden. Wer diese Liste liest, ohne sie zu prüfen, hält aktuelle Dateien für
+veraltet. Deshalb steht die Prüfung ab jetzt vor der Aussage.
+
+| Datei | Stand | Ergebnis |
 |---|---|---|
-| `diagnosen.json` | 22.08.2026 | KONTROLLE_V2, Sortierung der Diagnosen |
-| `referenz.json` | 18.08.2026 | Messmethoden und Klassifikationen |
-| `opmethoden.json` | 15.08.2026 | — |
-| `opsteuerung.json` | 15.08.2026 | — |
-| `aufklaerung.json` | **27.08.2026** | Eintrag „Chevron-Osteotomie" (solo) aus der Eingriffsliste entfernt, „Chevron + Akin" deckt den Fall ab — **muss hochgeladen werden** |
-| `opmethoden.json` | **28.08.2026** | OPS-Einträge `df_debridement` und `df_amputation` ergänzt (Audit-Fund A4) — **muss hochgeladen werden** |
-| `diagnosen.json` | **28.08.2026** | `df_amputation` als OP-Option beim diabetischen Fuß; Gruppentitel „Diabetischer Fuß / Infekt" (Audit C1) — **muss hochgeladen werden** (zusätzlich zur offenen Änderung vom 22.08.) |
-| `opsteuerung.json` | **28.08.2026** | Eintrag `morton_neurom` mit EBM-Hinweis (Audit B5; Anzeige folgt mit Auftrag audit-b) — **muss hochgeladen werden** |
+| alle zehn `data/`-Dateien | 29.08.2026 | Bucket = lokal, zeichengenau geprüft |
+| `zuordnung/implantat_zuordnung.json` | 29.08.2026 | **Bucket veraltet**, siehe unten |
+
+Die Zuordnungsdatei ist ein Sonderfall: Sie liegt im Repo unter `zuordnung/`
+und ist dort versioniert. Die App lädt sie aus dem Repo; die Bucket-Kopie ist
+nur der Ersatzweg für alte Stände (`ladeZuordnung` in `app.html`). Der
+Bucket-Kopie fehlt der Eintrag `schraube_twist_off_2_0`, und eine Position
+zeigt dort noch auf `schraube_hcs_2_0`. Im Normalbetrieb wirkt sich das nicht
+aus. Greift der Ersatzweg doch einmal, stünde im OP-Bericht statt der
+Bezeichnung die rohe Kennung. Hochladen, sobald jemand ohnehin am Bucket ist.
 
 So wird geklärt, ob eine Datei im Bucket aktuell ist: Datei aus dem Dashboard herunterladen und zeichengenau mit der lokalen vergleichen. Der Blick auf den Zeitstempel in der Storage-Ansicht genügt nicht, weil er nur sagt, wann zuletzt hochgeladen wurde, nicht was drinsteht.
 
@@ -88,6 +99,10 @@ Jede Änderung an einer der zehn Bucket-Dateien wird hier eingetragen, mit Datum
 Umgekehrt gilt für jeden Auftrag an eine Code-Sitzung: Er endet mit einer Deploy-Zeile, die ausdrücklich sagt, ob eine Bucket-Datei betroffen ist oder nicht. „Kein Bucket-Upload" ist eine Aussage, die dasteht, kein Weglassen.
 
 ### Erledigt am 29.08.2026
+
+`data/diagnosen.json` hochgeladen. Einziger Unterschied zur Bucket-Fassung war
+der Gruppentitel „Diabetischer Fuß / Infekt" (Audit C1); danach heruntergeladen
+und zeichengenau verglichen.
 
 `data/optexte.json` hochgeladen, Inhalt danach heruntergeladen und
 zeichengenau mit der lokalen Datei verglichen (SHA-256 identisch). Damit sind
