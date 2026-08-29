@@ -62,16 +62,17 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 29.08.2026 (abends): EIN UPLOAD OFFEN — `erloes2026.json`.**
+**Stand 29.08.2026 (spät): KEIN JSON-UPLOAD OFFEN — vom Autor bestätigt, noch nicht zeichengenau gegengeprüft.**
 
-Am 29.08.2026 (nachmittags) wurden alle elf Bucket-Dateien heruntergeladen und
-zeichengenau mit ihrem lokalen Gegenstück verglichen — damals alle identisch.
-Danach wurde `erloes2026.json` lokal erweitert: sechs neue DRG-Zeilen F27A,
-F27B, F27C, F13A, F13B, F13C (diabetischer Fuß / Amputation, aus
-InEK-Datenbrowser-Exporten des Autors) in `_DRG` und `GVD` plus
-Kommentar-Nachtrag. Diese Werte gehören auch in die
-`Erloesdaten_2026_MASTER.xlsx` (Single Source), damit Master und JSON nicht
-auseinanderlaufen.
+Am 29.08.2026 wurden nacheinander erweitert und in den Bucket geladen:
+`erloes2026.json` (sechs neue DRG-Zeilen F27A/B/C und F13A/B/C in `_DRG` und
+`GVD`, aus InEK-Datenbrowser-Exporten des Autors; Werte auch in der
+`Erloesdaten_2026_MASTER.xlsx` nachgetragen, die jetzt unter `data/` liegt)
+und `opsteuerung.json` (neue Einträge df_debridement F27B und df_amputation
+F13B samt Hinweisen, nach Webgrouper-Verifikation). Beide Uploads hat der
+Autor am 29.08. (spät) bestätigt — die zeichengenaue Bucket-Prüfung nach der
+Regel unten steht noch aus und gehört an den Anfang der nächsten Session am
+Bucket.
 
 Die Tabelle, die hier vorher stand, führte Änderungen vom 15., 18., 22. und
 27.08. als offen — sie waren längst hochgeladen, nur nicht ausgetragen
@@ -80,8 +81,8 @@ veraltet. Deshalb steht die Prüfung ab jetzt vor der Aussage.
 
 | Datei | Stand | Ergebnis |
 |---|---|---|
-| `erloes2026.json` | 29.08.2026 abends | **Upload offen** (erst löschen, dann hochladen) |
-| `opsteuerung.json` | 29.08.2026 abends | **Upload offen** — neue Einträge df_debridement (F27B) und df_amputation (F13B) nach Webgrouper-Verifikation |
+| `erloes2026.json` | 29.08.2026 spät | hochgeladen (Bestätigung Autor), zeichengenaue Prüfung ausstehend |
+| `opsteuerung.json` | 29.08.2026 spät | hochgeladen (Bestätigung Autor), zeichengenaue Prüfung ausstehend |
 | übrige acht `data/`-Dateien | 29.08.2026 | Bucket = lokal, zeichengenau geprüft |
 | `zuordnung/implantat_zuordnung.json` | 29.08.2026 | **Bucket veraltet**, siehe unten |
 
