@@ -4893,7 +4893,21 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         if(osTibMDO)p.push("\n\n"+T.mdo_mini);
       }
       if(op==="supramal_ot"){
-        if(supramalTyp==="wedge")p.push("\n\n"+T.supramal_wedge);
+        if(supramalTyp==="wedge"){
+          // Die beiden Marker stehen im Baustein ohne Trennzeichen direkt
+          // hintereinander. Der Einschub bringt die Absaetze deshalb selbst
+          // mit; ohne gesetzten Schalter verschwinden die Marker ersatzlos,
+          // ohne Leerzeile zu hinterlassen. Der zweite replace ist die
+          // Rueckversicherung: aus dem Bericht muss jeder Marker verschwinden.
+          var wedgeZusatz=[];
+          if(supramalFibula&&T.supramal_zusatz_fibula_ot)wedgeZusatz.push(T.supramal_zusatz_fibula_ot);
+          if(supramalBrostrom&&T.supramal_zusatz_brostrom)wedgeZusatz.push(T.supramal_zusatz_brostrom);
+          var wedgeEinschub=wedgeZusatz.length?"\n"+wedgeZusatz.join("\n\n")+"\n\n":"";
+          var wedgeText=T.supramal_wedge
+            .replace(/§FIBULA_OT§\s*§BROSTROM§|§FIBULA_OT§|§BROSTROM§/,wedgeEinschub)
+            .replace(/§FIBULA_OT§|§BROSTROM§/g,"");
+          p.push("\n\n"+wedgeText);
+        }
         if(supramalTyp==="dome"){
           var domeText=T.supramal_dome;
           if(supramalStabi)domeText=domeText.replace(/§STABI§/g,"Lateral besteht vermehrte Aufklappbarkeit. Distal über der Fibula Narbenbildung und moderate Ossifikationen, hier Präparation in der safe zone bis auf die antero-laterale Kapsel, das Retinaculum extensorum inferius kann nicht mehr dargestellt werden.\nNun Sondierung des Intervalles zwischen Syndesmose und LFTA und hier Arthrotomie mit Ablösung Kapsel-Bandansatz LFTA/LFC unter Schutz der Peronealsehnen an der distalen Vorderseite der Fibula, Exzision von Ossifikationen, Inspektion der lateralen Talusfacette. Hier gute Knorpelqualität.\nDann Schaffung eines spongiösen Lagers an der Vorderfläche der Fibula und Einbringung zweier Mitek-Anker entsprechend der anatomischen Insertionen von LFTA/LFC. Radiologische Kontrolle, klinisch sitzen diese fest.\nNun raffende Fixierung des narbig veränderten aber suffizient wirkenden Kapselbandapparates unter Halten des Fußes in Eversion mittels Mason-Allen-Nähten. Augmentation durch Retinaculum und Fixierung mit transossärer Naht. Das Gelenk ist lateral nun eindeutig stabil.\n");
@@ -5012,7 +5026,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -5346,8 +5360,8 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             <div style={tog(supramalStabi)} onClick={()=>setSupramalStabi(!supramalStabi)}>+ Stabilisierung lateral</div>
           </div>}
           {supramalTyp==="wedge"&&<div style={{marginTop:4,display:"flex",gap:4,flexWrap:"wrap"}}>
-            <div style={tog(supramalFibula)} onClick={()=>setSupramalFibula(!supramalFibula)}>+ Fibula-Verkürzungs-OT</div>
-            <div style={tog(supramalBrostrom)} onClick={()=>setSupramalBrostrom(!supramalBrostrom)}>+ Brostrom</div>
+            <div style={tog(supramalFibula)} onClick={()=>setSupramalFibula(!supramalFibula)}>+ Fibula-Verkürzungsosteotomie</div>
+            <div style={tog(supramalBrostrom)} onClick={()=>setSupramalBrostrom(!supramalBrostrom)}>+ Laterale Stabilisierung (Brostrom-Gould)</div>
           </div>}
           <div style={{fontSize:10,color:"#718096",marginTop:2}}>{supramalTyp==="wedge"?"Med. Open Wedge valgisierend"+(supramalFibula?" + Fibula-OT":"")+(supramalBrostrom?" + Brostrom":""):supramalTyp==="dome"?"Dome-Osteotomie valgisierend":supramalTyp==="closed"?"Closed Wedge varisierend"+(supramalStabi?" + Stabilisierung":""):"Variante wählen"}</div>
         </div>}
