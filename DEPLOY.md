@@ -72,12 +72,10 @@ Diese Dateien im Ordner `data/` wurden nach dem letzten dokumentierten Upload (0
 | `referenz.json` | 18.08.2026 | Messmethoden und Klassifikationen |
 | `opmethoden.json` | 15.08.2026 | — |
 | `opsteuerung.json` | 15.08.2026 | — |
-| `optexte.json` | **26.08.2026** | Achilles- und Weil-Texte (18.08.) sowie fünf neue Schlüssel `df_*` für den diabetischen Fuß — **muss hochgeladen werden** |
 | `aufklaerung.json` | **27.08.2026** | Eintrag „Chevron-Osteotomie" (solo) aus der Eingriffsliste entfernt, „Chevron + Akin" deckt den Fall ab — **muss hochgeladen werden** |
 | `opmethoden.json` | **28.08.2026** | OPS-Einträge `df_debridement` und `df_amputation` ergänzt (Audit-Fund A4) — **muss hochgeladen werden** |
 | `diagnosen.json` | **28.08.2026** | `df_amputation` als OP-Option beim diabetischen Fuß; Gruppentitel „Diabetischer Fuß / Infekt" (Audit C1) — **muss hochgeladen werden** (zusätzlich zur offenen Änderung vom 22.08.) |
 | `opsteuerung.json` | **28.08.2026** | Eintrag `morton_neurom` mit EBM-Hinweis (Audit B5; Anzeige folgt mit Auftrag audit-b) — **muss hochgeladen werden** |
-| `optexte.json` | **28.08.2026** | ME-Zusatztexte: Ausfüll-Platzhalter §…§ auf eckige Klammern umgestellt (Audit C3; zusätzlich zur offenen Änderung vom 26.08.) — **muss hochgeladen werden** |
 
 So wird geklärt, ob eine Datei im Bucket aktuell ist: Datei aus dem Dashboard herunterladen und zeichengenau mit der lokalen vergleichen. Der Blick auf den Zeitstempel in der Storage-Ansicht genügt nicht, weil er nur sagt, wann zuletzt hochgeladen wurde, nicht was drinsteht.
 
@@ -88,6 +86,25 @@ So wird geklärt, ob eine Datei im Bucket aktuell ist: Datei aus dem Dashboard h
 Jede Änderung an einer der zehn Bucket-Dateien wird hier eingetragen, mit Datum und Anlass, und beim Upload wieder ausgetragen. Wer eine Bucket-Datei ändert, ohne diesen Abschnitt zu ergänzen, hinterlässt genau die Unklarheit, die oben steht.
 
 Umgekehrt gilt für jeden Auftrag an eine Code-Sitzung: Er endet mit einer Deploy-Zeile, die ausdrücklich sagt, ob eine Bucket-Datei betroffen ist oder nicht. „Kein Bucket-Upload" ist eine Aussage, die dasteht, kein Weglassen.
+
+### Erledigt am 29.08.2026
+
+`data/optexte.json` hochgeladen, Inhalt danach heruntergeladen und
+zeichengenau mit der lokalen Datei verglichen (SHA-256 identisch). Damit sind
+alle bis dahin offenen Änderungen an dieser Datei im Bucket:
+
+- die beiden neuen Schlüssel `supramal_zusatz_fibula_ot` und
+  `supramal_zusatz_brostrom` (Fund A3),
+- `df_amputation_tibia` (Amputation proximale Tibia, Audit B1),
+- die sieben `me_zusatz_*`-Texte mit umgestellten Ausfüll-Platzhaltern
+  (Audit C3),
+- die Achilles- und Weil-Texte sowie die `df_*`-Schlüssel, die als offen
+  vermerkt waren, aber bereits im Bucket standen.
+
+Hinweis zum Weg: `supabase storage rm` löscht in CLI 2.111.0 nichts (meldet
+`{"deleted":[]}`, setzt kein DELETE ab), und `supabase storage cp` bricht
+deshalb mit `KeyAlreadyExists` ab. Der Upload lief über die Storage-REST-API
+mit `x-upsert: true`.
 
 ### Erledigt am 01.08.2026
 
