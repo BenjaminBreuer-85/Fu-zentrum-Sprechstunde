@@ -75,8 +75,9 @@ Diese Dateien im Ordner `data/` wurden nach dem letzten dokumentierten Upload (0
 | `optexte.json` | **26.08.2026** | Achilles- und Weil-Texte (18.08.) sowie fünf neue Schlüssel `df_*` für den diabetischen Fuß — **muss hochgeladen werden** |
 | `aufklaerung.json` | **27.08.2026** | Eintrag „Chevron-Osteotomie" (solo) aus der Eingriffsliste entfernt, „Chevron + Akin" deckt den Fall ab — **muss hochgeladen werden** |
 | `opmethoden.json` | **28.08.2026** | OPS-Einträge `df_debridement` und `df_amputation` ergänzt (Audit-Fund A4) — **muss hochgeladen werden** |
-| `diagnosen.json` | **28.08.2026** | `df_amputation` als OP-Option beim diabetischen Fuß — **muss hochgeladen werden** (zusätzlich zur offenen Änderung vom 22.08.) |
+| `diagnosen.json` | **28.08.2026** | `df_amputation` als OP-Option beim diabetischen Fuß; Gruppentitel „Diabetischer Fuß / Infekt" (Audit C1) — **muss hochgeladen werden** (zusätzlich zur offenen Änderung vom 22.08.) |
 | `opsteuerung.json` | **28.08.2026** | Eintrag `morton_neurom` mit EBM-Hinweis (Audit B5; Anzeige folgt mit Auftrag audit-b) — **muss hochgeladen werden** |
+| `optexte.json` | **28.08.2026** | ME-Zusatztexte: Ausfüll-Platzhalter §…§ auf eckige Klammern umgestellt (Audit C3; zusätzlich zur offenen Änderung vom 26.08.) — **muss hochgeladen werden** |
 
 So wird geklärt, ob eine Datei im Bucket aktuell ist: Datei aus dem Dashboard herunterladen und zeichengenau mit der lokalen vergleichen. Der Blick auf den Zeitstempel in der Storage-Ansicht genügt nicht, weil er nur sagt, wann zuletzt hochgeladen wurde, nicht was drinsteht.
 
