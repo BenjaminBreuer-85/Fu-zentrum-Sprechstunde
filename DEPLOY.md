@@ -81,7 +81,8 @@ veraltet. Deshalb steht die Prüfung ab jetzt vor der Aussage.
 | Datei | Stand | Ergebnis |
 |---|---|---|
 | `erloes2026.json` | 29.08.2026 abends | **Upload offen** (erst löschen, dann hochladen) |
-| übrige neun `data/`-Dateien | 29.08.2026 | Bucket = lokal, zeichengenau geprüft |
+| `opsteuerung.json` | 29.08.2026 abends | **Upload offen** — neue Einträge df_debridement (F27B) und df_amputation (F13B) nach Webgrouper-Verifikation |
+| übrige acht `data/`-Dateien | 29.08.2026 | Bucket = lokal, zeichengenau geprüft |
 | `zuordnung/implantat_zuordnung.json` | 29.08.2026 | **Bucket veraltet**, siehe unten |
 
 Die Zuordnungsdatei ist ein Sonderfall: Sie liegt im Repo unter `zuordnung/`
