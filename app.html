@@ -1474,6 +1474,9 @@ var _s = useState, _m = useMemo;
   var dmmoCs = _s(""), dmmoCount = dmmoCs[0], setDmmoCount = dmmoCs[1];
   var pipCs = _s(""), pipCount = pipCs[0], setPipCount = pipCs[1];
   var lapRez = _s(false), lapidusRezidiv = lapRez[0], setLapidusRezidiv = lapRez[1];
+  // Teilamputation zum Debridement, mit derselben Hoehenliste wie im OP-Bericht.
+  var sbTa = _s(false), sbTeilamp = sbTa[0], setSbTeilamp = sbTa[1];
+  var sbTaH = _s("teilres_2"), sbTeilampHoehe = sbTaH[0], setSbTeilampHoehe = sbTaH[1];
   var dus = _s(""), dauer = dus[0], setDauer = dus[1];
   var des = _s("Monaten"), dauerEinheit = des[0], setDauerEinheit = des[1];
   var hs = _s(""), haeufigkeit = hs[0], setHaeufigkeit = hs[1];
@@ -1703,6 +1706,44 @@ var _s = useState, _m = useMemo;
     if (coalitio) COALITIO_BEFUNDE.forEach(function(b) { if (!seen[b.id]) { seen[b.id] = true; all.push(b); } });
     return all;
   }, [pfad, endoDiag, diagnosen, coalitio]);
+
+  // Die OP-Methoden stehen als hervorgehobene Karte am Ort der Diagnosewahl.
+  // Es gibt immer genau EINE: bei einer Diagnose in der geoeffneten Gruppe
+  // direkt unter den Chips, bei zweien am Ende des Diagnose-Blocks mit
+  // Zwischenueberschriften.
+  function opMethodenKarte() {
+    if (diagnosen.length === 0) return null;
+    var abschnitte = diagnosen.map(function(d) {
+      return { titel: "Für " + (DIAG[d] ? DIAG[d].label : d), keys: (DIAG[d] && DIAG[d].opMethoden) || [] };
+    });
+    if (coalitio) abschnitte.push({ titel: "Für Coalitio", keys: ["coalition_exzision", "subtalar_arthrodese"] });
+    var gesehen = {};
+    abschnitte.forEach(function(a) {
+      a.keys = a.keys.filter(function(k) { if (gesehen[k]) return false; gesehen[k] = true; return true; });
+    });
+    var mehrere = abschnitte.length > 1;
+    var chips = function(keys) {
+      return <div style={row}>{keys.map(function(k) {
+        var o = OPS[k];
+        return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togOpMethode(k); }}>{o ? o.k : k}</div>;
+      })}</div>;
+    };
+    return <div data-tour="sb-opmethode" style={{ marginTop: 8, marginBottom: 8, border: "1px solid #10535B",
+                borderRadius: 10, background: "#E6F0F1", padding: "12px 14px" }}>
+      <div style={{ fontSize: 12.5, fontWeight: 700, color: "#10535B", marginBottom: 8 }}>
+        {mehrere ? "OP-Methoden wählen" : "OP-Methoden für " + abschnitte[0].titel.replace(/^Für /, "") + " wählen"}
+      </div>
+      {mehrere
+        ? abschnitte.map(function(a) { return <div key={a.titel} style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#5C6660", marginBottom: 4 }}>{a.titel}</div>
+            {chips(a.keys)}
+          </div>; })
+        : chips(abschnitte[0].keys)}
+      <div onClick={zuSektionen} style={{ marginTop: 8, fontSize: 11, color: "#10535B", fontWeight: 600, cursor: "pointer", userSelect: "none" }}>
+        Weiter zur Anamnese ▼
+      </div>
+    </div>;
+  }
 
   var availOPs = _m(function() {
     var all = {};
@@ -2180,6 +2221,7 @@ var _s = useState, _m = useMemo;
       var opTexte = ops.map(function(m) {
         if (m === "amic" && amicSpongiosa) return "Kürettage der OCL/Zyste, Spongiosaaugmentation autolog, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
         if (m === "amic") return "Kürettage der OCL, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
+        if (m === "df_debridement" && sbTeilamp) return opTextMitMods(m, opMods) + ", " + dfHoehe(sbTeilampHoehe).brief;
         return opTextMitMods(m, opMods);
       });
       p.push("\n\nElektive operative Option: " + opTexte.join(", ") + (seite ? " " + seite : "") + ", befundbezogenes Vorgehen");
@@ -2352,7 +2394,7 @@ var _s = useState, _m = useMemo;
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return briefSauber(rawOut.replace(/\bundefined\b/g, "___"));
-  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, scEfas, scEfasSport, scFaos, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
+  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, sbTeilamp, sbTeilampHoehe, scEfas, scEfasSport, scFaos, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
@@ -2504,6 +2546,7 @@ var _s = useState, _m = useMemo;
     setOpMethode([]); setOpMods({}); setOpEmpfohlen(true); setTherapieversuch(false); setNurDiagnostik(false);
     setOclZyste(false); setOclLok(""); setOclLaenge(""); setOclBreite(""); setOclTiefe(""); setAmicSpongiosa(false);
     setScEfas(""); setScEfasSport(""); setScFaos(""); setScVas("");
+    setSbTeilamp(false); setSbTeilampHoehe("teilres_2");
     setDauer(""); setDauerEinheit("Monaten"); setHaeufigkeit(""); setBelastung([]); setLeidensdruck(true);
     setBeruf(""); setAktivitaet(""); setSportEingeschr(false); setVorOPs(false); setStnText("");
     setKonservBisher([]); setRisiken([]); setFreitextRisiko("");
@@ -2625,13 +2668,14 @@ var _s = useState, _m = useMemo;
                 var an = diagnosen.indexOf(k) >= 0;
                 return <span key={k} style={LM.chip(an)} onClick={function(){ togDiag(k); }}>{DIAG[k].label}</span>;
               })}</div>
+              {diagnosen.length === 1 && g.diagnosen.indexOf(diagnosen[0]) >= 0 && opMethodenKarte()}
             </LMGruppe>;
           })}
-          {diagnosen.length > 0 && <div onClick={zuSektionen}
-            style={{ marginTop: 4, marginBottom: 8, padding: "12px 14px", borderRadius: 10, background: "#10535B",
-                     color: "#fff", fontSize: 13, fontWeight: 700, textAlign: "center", cursor: "pointer", userSelect: "none" }}>
-            Weiter zu Anamnese und OP-Auswahl ▼
-          </div>}
+          {/* Zweite Diagnose oder zugeklappte Gruppe: die eine Karte steht dann hier. */}
+          {(diagnosen.length > 1
+            || (diagnosen.length === 1 && !DIAG_GRUPPEN.some(function(g){
+                  return g.diagnosen.indexOf(diagnosen[0]) >= 0 && !!diagOffen[g.titel]; })))
+            && opMethodenKarte()}
         </div>}
         </>}
         {pfad === "endo" && <>
@@ -2778,7 +2822,7 @@ var _s = useState, _m = useMemo;
             </div>
           </div>}
         </div>}
-        {diagnosen.length > 0 && <div data-tour="sb-opmethode"><div style={cat}>OP-Methode(n) – Mehrfachauswahl möglich</div><div style={row}>{availOPs.map(function(k) { var o = OPS[k]; return <div key={k} style={CB(opMethode.indexOf(k) >= 0)} onClick={function() { togOpMethode(k); }}>{o ? o.k : k}</div>; })}</div></div>}
+        {/* Die OP-Methoden stehen jetzt in der Karte am Ort der Diagnosewahl. */}
         <div data-tour="sb-qr">
         {!qr && (diagOhneZiel.length > 0 || aufOhneZiel.length > 0) && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#8A5A00", fontWeight: 600, marginBottom: 4 }}>📱 Keine Online-Information</div>
@@ -2845,6 +2889,19 @@ var _s = useState, _m = useMemo;
             })}</div>
           </div>;
         })}
+        {opMethode.indexOf("df_debridement") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+          <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Debridement — Umfang</div>
+          <div style={row}>
+            <div style={CB(sbTeilamp)} onClick={function() { setSbTeilamp(!sbTeilamp); }}>Teilamputation</div>
+          </div>
+          {sbTeilamp && <div style={{ marginTop: 5, display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, color: "#718096", fontWeight: 700 }}>RESEKTIONS-/AMPUTATIONSHÖHE</span>
+            <select value={sbTeilampHoehe} onChange={function(e) { setSbTeilampHoehe(e.target.value); }}
+                    style={{ padding: "3px 6px", border: "1px solid rgba(0,0,0,.15)", borderRadius: 5, fontSize: 11, fontFamily: "inherit", background: "#fff" }}>
+              {DF_TEILAMP_HOEHEN.map(function(h) { return <option key={h.id} value={h.id}>{h.label}</option>; })}
+            </select>
+          </div>}
+        </div>}
         {opMethode.indexOf("lapidus") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Lapidus Variante</div>
           <div style={row}>
@@ -2917,6 +2974,20 @@ var _s = useState, _m = useMemo;
               else if(bestKey==="kleinzehen_pip"&&pipCount==="3")override={hdrg:null,hdrgE:0,empf:"stat",note:" (≥3 Zehen → KEINE H-DRG möglich → nur stationär)"};
               else if(isChevGroup&&opMethode.indexOf("dmmo")>=0&&dmmoBig)override={hdrg:null,hdrgE:0,empf:"stat",note:" + "+(dmmo4?"4":"3")+"× DMMO → KEINE H-DRG möglich → nur stationär"};
               else if(bestKey==="lapidus"&&lapidusRezidiv)override={hdrg:null,hdrgE:0,empf:"stat",note:" (Rezidiv-OP → nicht als Hybrid-OP abrechenbar → nur stationär)"};
+              // Die Hoehe der Teilamputation verschiebt die DRG. Werte aus dem
+              // Erloesblock, nicht aus dem Code.
+              else if(bestKey==="df_debridement"&&sbTeilamp){
+                var _h=dfHoehe(sbTeilampHoehe), _z=window._DRG[_h.drgTraeger];
+                if(_z&&_z.bwr!=null) override={drg:_h.drgTraeger,drgE:window._E(_h.drgTraeger),cm:_z.bwr,
+                  ugvd:_z.ugvd,mvwd:_z.mvwd,empf:"stat",
+                  note:" ("+_h.label+" → "+_h.drgTraeger+")"};
+                // Fehlt die Zeile im Erloesblock, bleiben die Zahlen der
+                // Grundkonstellation stehen. Dann muss dabeistehen, dass sie
+                // fuer diese Hoehe nicht gelten.
+                else override={empf:"stat",note:" ("+_h.label+" → "+_h.drgTraeger+")",altHinweise:[
+                  {typ:"warn",txt:_h.label+" führt in die "+_h.drgTraeger+". Für diese DRG liegt in erloes2026.json noch keine Zeile — die unten gezeigten Beträge gehören zur Grundkonstellation und gelten hier nicht."}
+                ]};
+              }
               // MTP-I + 3× DMMO → I20D; + 4× DMMO → I20C (beide nur stationär, keine Kontextprozedur nötig)
               else if(bestKey==="mtp1_arthrodese"&&opMethode.indexOf("dmmo")>=0&&dmmo3)override={hdrg:null,hdrgE:0,drg:"I20D",drgE:4710,cm:1.033,ugvd:1,mvwd:3.4,empf:"stat",hideKontext:true,note:window._fx(" + 3× DMMO (5-788.54) → KEINE H-DRG mehr → I20D (4.710 €) stationär"),altHinweise:[
                 {typ:"warn",txt:"Ab 3× DMMO MT II–V (5-788.54) entfällt die H-DRG-Fähigkeit komplett."},
@@ -3573,15 +3644,21 @@ function LMGruppe({titel,anzahl,info,offen,onToggle,rechts,children}){
 // Amputationshoehen des diabetischen Fußes. OPS und DRG-Stufen sind am
 // 29./30.08.2026 im Webgrouper einzeln geprueft; die Betraege stehen NICHT
 // hier, sie werden zur Laufzeit aus erloes2026 abgeleitet.
-var DF_AMP_HOEHEN = [
-  { id:"zehe",       label:"Zehenamputation",                          ops:"5-865.7",  drg:"F27C" },
-  { id:"strahl",     label:"Zehenstrahlresektion",                      ops:"5-865.8",  drg:"F27C" },
-  { id:"innen",      label:"Innere Amputation (Strahl-Teilresektion)",  ops:"5-865.90", opsHinweis:"bis zwei Strahlen; über zwei Strahlen 5-865.91, Fußwurzel 5-865.92", drg:"F13C", drgPccl:"F13B" },
-  { id:"transmeta",  label:"Vorfuß, transmetatarsal",                   ops:"5-865.6",  drg:"F28C", drgPccl:"F13B" },
-  { id:"tmt",        label:"Mittelfuß, tarsometatarsal",                ops:"5-865.5",  drg:"F27A", drgPccl:"F13B" },
-  { id:"chopart",    label:"Rückfuß, mediotarsal (Chopart)",            ops:"5-865.4",  drg:"F27A", drgPccl:"F13B" },
-  { id:"us_prox",    label:"Unterschenkel proximal (Burgess)",          ops:"5-864.9",  drg:"F27A", drgPccl:"F13B", mehrzeitig:"F13A" }
+// Resektions- und Amputationshoehen im Rahmen des Debridements. Die DRG haengt
+// an der Hoehe UND daran, ob ein Medikamententraeger eingelegt wird; beide
+// Spalten sind am 29./30.08.2026 im Webgrouper einzeln geprueft. Betraege
+// stehen hier bewusst nicht — sie kommen aus erloes2026.
+var DF_TEILAMP_HOEHEN = [
+  { id:"teilres_2",      label:"Teilresektion Knochen, bis zwei Strahlen",       ops:"5-865.90", drg:"F13C", drgTraeger:"F27B", teilres:true, brief:"mit Teilresektion des betroffenen Knochens" },
+  { id:"teilres_mehr",   label:"Teilresektion Knochen, mehr als zwei Strahlen",  ops:"5-865.91", drg:"F13C", drgTraeger:"F27B", teilres:true, brief:"mit Teilresektion des betroffenen Knochens" },
+  { id:"teilres_wurzel", label:"Teilresektion Fußwurzel",                        ops:"5-865.92", drg:"F13C", drgTraeger:"F27B", teilres:true, brief:"mit Teilresektion des betroffenen Knochens" },
+  { id:"zehe",           label:"Zehenamputation",                                ops:"5-865.7",  drg:"F27C", drgTraeger:"F27B", brief:"mit Zehenamputation" },
+  { id:"strahl",         label:"Zehenstrahlresektion",                           ops:"5-865.8",  drg:"F27C", drgTraeger:"F27B", brief:"mit Zehenstrahlresektion" },
+  { id:"transmeta",      label:"Vorfuß, transmetatarsal",                        ops:"5-865.6",  drg:"F28C", drgTraeger:"F28C", brief:"mit transmetatarsaler Vorfußamputation" },
+  { id:"tmt",            label:"Mittelfuß, tarsometatarsal",                     ops:"5-865.5",  drg:"F27A", drgTraeger:"F27A", brief:"mit Amputation in tarsometatarsaler Höhe" },
+  { id:"chopart",        label:"Rückfuß, mediotarsal (Chopart)",                 ops:"5-865.4",  drg:"F27A", drgTraeger:"F27A", brief:"mit mediotarsaler Amputation" }
 ];
+function dfHoehe(id){ return DF_TEILAMP_HOEHEN.filter(function(x){ return x.id===id; })[0] || DF_TEILAMP_HOEHEN[0]; }
 
 // Eine DRG mit ihrem Betrag benennen. Der Betrag kommt aus window._E, also aus
 // Bewertungsrelation mal Landesbasisfallwert — nie als Literal im Code. Fehlt
@@ -3920,8 +3997,9 @@ function OPBerichtApp(){
   // Unter-Schalter: die Zusaetze des Debridements (Lavanox, Vancomycin,
   // Lasche, VAC, Teilamputation) gelten hier nicht.
   const [dfAmp,setDfAmp]=useState(false);
-  // Amputationshoehe steuert OPS, DRG-Stufe und ob ein Textbaustein vorliegt.
-  const [dfAmpHoehe,setDfAmpHoehe]=useState("us_prox");
+  // Resektionshoehe der Teilamputation. Steuert OPS, DRG-Stufe und ob der
+  // vorhandene Textbaustein passt.
+  const [dfTeilampHoehe,setDfTeilampHoehe]=useState("teilres_2");
   const [dfTeilamp,setDfTeilamp]=useState(false);
   const [dfKnochen,setDfKnochen]=useState("");
   // Osteomyelitis begruendet die Teilamputation und wird mit ihr gesetzt.
@@ -4110,8 +4188,11 @@ function OPBerichtApp(){
   // Die Teilamputation setzt die Osteomyelitis mit. Sie bleibt danach frei
   // abwaehlbar — der Anwender uebersteuert, das Werkzeug erzwingt nichts.
   React.useEffect(function(){
-    if(dfTeilamp)setDfOsteo(true); else setDfOsteo(false);
-  },[dfTeilamp]);
+    // Die Osteomyelitis begruendet die Teilresektion des Knochens. Bei einer
+    // Zehen- oder Vorfußamputation gilt das nicht automatisch, und ein
+    // unsichtbarer Schalter darf keine Nebendiagnose in den Bericht schreiben.
+    if(dfTeilamp&&dfHoehe(dfTeilampHoehe).teilres)setDfOsteo(true); else setDfOsteo(false);
+  },[dfTeilamp,dfTeilampHoehe]);
   const hasLapidusCompanion=gz==="lapidus"&&(dmmo.length>0||weil.length>0||Object.values(zc).some(a=>a.length>0));
   const hasDMMOover2=mtStrahlen.length>2;
   const hasDF=dfOp||dfAmp;
@@ -4662,8 +4743,7 @@ function OPBerichtApp(){
       var dfKodier=[];
       if(dfOp)dfKodier.push("Empfohlene OPS und DRG-Stufe stehen in der Kodierbox der Sektion ③, sie richten sich nach den gesetzten Zusatzschaltern.");
       if(dfAmp)dfKodier.push("Empfohlene OPS und DRG-Stufe stehen in der Kodierbox der Sektion ③, sie richten sich nach der gewählten Amputationshöhe.");
-      var _ampL=(DF_AMP_HOEHEN.filter(function(x){return x.id===dfAmpHoehe;})[0]||{}).label||"Amputation";
-      return [o,{label:"Diabetischer Fuß — "+(dfOp&&dfAmp?"Debridement und Amputation ("+_ampL+")":dfAmp?"Amputation ("+_ampL+")":"Debridement"),ops:o,
+      return [o,{label:"Diabetischer Fuß — "+(dfOp&&dfAmp?"Debridement und Amputation":dfAmp?"Amputation proximale Tibia":"Debridement"),ops:o,
         hdrg:"—",ebm:"—",kurz:"—",drg:"—",hdrg_n1:"—",empf:"stat",
         ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
         kodier:dfKodier.join("\n\n")}];
@@ -4678,7 +4758,7 @@ function OPBerichtApp(){
       ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
       kodier:"⚠ TODO: OPS-Ziffern werden nachgetragen. Bis dahin manuell kodieren."}];
 
-    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfAmpHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // Text version for Word export
   const icdText=useMemo(()=>{
@@ -5146,9 +5226,16 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       // Knochenbeurteilung, nicht bei den uebrigen Zusaetzen: Sie folgt
       // unmittelbar aus dem dort erhobenen Befund und geht der erneuten
       // Wundkontrolle voraus.
-      if(dfTeilamp&&T.df_zusatz_teilamputation){
+      if(dfTeilamp){
+        // Der vorhandene Baustein beschreibt die Teilresektion des Knochens.
+        // Fuer die uebrigen Hoehen steht an derselben Stelle der Hinweis, statt
+        // eines Textes, der etwas anderes beschreibt.
+        var _hh = dfHoehe(dfTeilampHoehe);
+        var _einschub = (_hh.teilres && T.df_zusatz_teilamputation)
+          ? T.df_zusatz_teilamputation
+          : "[" + _hh.label + ": Für diese Höhe liegt noch kein Textbaustein vor — Passage bitte anpassen.]";
         var _nachKnochen = dfAbs.findIndex(function(a){ return a.indexOf("Beurteilung des Knochens:")===0; });
-        dfAbs.splice(_nachKnochen<0 ? dfAbs.length : _nachKnochen+1, 0, T.df_zusatz_teilamputation);
+        dfAbs.splice(_nachKnochen<0 ? dfAbs.length : _nachKnochen+1, 0, _einschub);
       }
       var dfZusatz = [];
       if(dfLavanox&&T.df_zusatz_lavanox)     dfZusatz.push(T.df_zusatz_lavanox);
@@ -5164,13 +5251,8 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     // Der Burgess-Text beschreibt die transtibiale Absetzung. Fuer die uebrigen
     // Hoehen liegt noch kein Baustein vor — dann steht im Bericht der Hinweis
     // statt eines Textes, der die falsche Hoehe beschreibt.
-    if(dfAmp){
-      if(dfAmpHoehe==="us_prox"&&T.df_amputation_tibia)
-        p.push("\n\nZuwendung zur transtibialen Amputation.\n"+T.df_amputation_tibia);
-      else {
-        var _hoehe=DF_AMP_HOEHEN.filter(function(x){return x.id===dfAmpHoehe;})[0];
-        p.push("\n\nZuwendung zur Amputation ("+(_hoehe?_hoehe.label:dfAmpHoehe)+").\n[Für diese Amputationshöhe liegt noch kein Textbaustein vor — Bericht bitte frei formulieren.]");
-      }
+    if(dfAmp&&T.df_amputation_tibia){
+      p.push("\n\nZuwendung zur transtibialen Amputation.\n"+T.df_amputation_tibia);
     }
 
     const r=needsRuhig&&ruhig==="keine"?"orthese":ruhig;
@@ -5184,7 +5266,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfAmpHoehe,dfTeilamp,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -5623,7 +5705,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </OBSec>
 
       {/* ME */}
-      <OBSec title="Diabetischer Fuß / Infekt" open={sec.df} anzahl={(dfOp?1+(dfTeilamp?1:0)+(dfLavanox?1:0)+(dfVanco?1:0)+(dfLasche?1:0)+(dfVac?1:0):0)+(dfAmp?1:0)} onToggle={()=>togSec("df")} active={hasDF} onReset={()=>{setDfOp(false);setDfAmp(false);setDfAmpHoehe("us_prox");setDfTeilamp(false);setDfKnochen("");setDfOsteo(false);setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);}}>
+      <OBSec title="Diabetischer Fuß / Infekt" open={sec.df} anzahl={(dfOp?1+(dfTeilamp?1:0)+(dfLavanox?1:0)+(dfVanco?1:0)+(dfLasche?1:0)+(dfVac?1:0):0)+(dfAmp?1:0)} onToggle={()=>togSec("df")} active={hasDF} onReset={()=>{setDfOp(false);setDfAmp(false);setDfTeilampHoehe("teilres_2");setDfTeilamp(false);setDfKnochen("");setDfOsteo(false);setDfLavanox(false);setDfVanco(false);setDfLasche(false);setDfVac(false);}}>
         <div style={row}>
           <div style={chip(dfOp)} onClick={()=>setDfOp(!dfOp)}>Debridement bei Ulkus und Infekt</div>
           <div style={chip(dfAmp)} onClick={()=>setDfAmp(!dfAmp)}>Amputation proximale Tibia</div>
@@ -5637,16 +5719,23 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             <div style={tog(dfVac)} onClick={()=>setDfVac(!dfVac)}>+ VAC-Auflage</div>
           </div>
           {dfTeilamp&&<div style={{marginTop:5,display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+            <span style={{fontSize:10,color:"#718096",fontWeight:700}}>RESEKTIONS-/AMPUTATIONSHÖHE</span>
+            <select value={dfTeilampHoehe} onChange={e=>setDfTeilampHoehe(e.target.value)}
+                    style={{padding:"3px 6px",border:"1px solid rgba(0,0,0,.15)",borderRadius:5,fontSize:11,fontFamily:"inherit",background:"#fff"}}>
+              {DF_TEILAMP_HOEHEN.map(function(h){ return <option key={h.id} value={h.id}>{h.label}</option>; })}
+            </select>
+          </div>}
+          {dfTeilamp&&dfHoehe(dfTeilampHoehe).teilres&&<div style={{marginTop:5,display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
             <label style={{fontSize:10,color:"#718096",display:"inline-flex",alignItems:"center",gap:4}}>Knochen
               <input value={dfKnochen} onChange={e=>setDfKnochen(e.target.value)} placeholder="z. B. Metatarsale II"
                      style={{padding:"3px 6px",border:"1px solid rgba(0,0,0,.15)",borderRadius:5,fontSize:11,width:150,fontFamily:"inherit"}}/>
             </label>
             <div style={tog(dfOsteo)} onClick={()=>setDfOsteo(!dfOsteo)}>Diagnose Osteomyelitis</div>
           </div>}
-          {dfTeilamp&&!dfOsteo&&<div style={{fontSize:10,color:"#8A5A00",marginTop:3,padding:"5px 8px",borderRadius:5,background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.2)"}}>
+          {dfTeilamp&&dfHoehe(dfTeilampHoehe).teilres&&!dfOsteo&&<div style={{fontSize:10,color:"#8A5A00",marginTop:3,padding:"5px 8px",borderRadius:5,background:"rgba(230,81,0,.06)",border:"1px solid rgba(230,81,0,.2)"}}>
             Ohne die Diagnose Osteomyelitis ist die Teilamputation nicht begründet — der Berichtstext ist dann anzupassen.
           </div>}
-          {dfTeilamp&&<div style={{fontSize:10,color:"#006B6F",marginTop:3}}>
+          {dfTeilamp&&dfHoehe(dfTeilampHoehe).teilres&&<div style={{fontSize:10,color:"#006B6F",marginTop:3}}>
             Das Resektat geht vollständig zur Histologie, eine Probe der Absetzungsebene zur Mikrobiologie. Beides steht fest im Text.
           </div>}
           <div style={{fontSize:10,color:"#718096",marginTop:4}}>
@@ -5658,14 +5747,17 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           {(function(){
             // Kodes und DRG-Stufe folgen dem Schalterstand. Erreichte Stufen
             // brauchen ihren Hinweis nicht mehr.
+            var _h = dfTeilamp ? dfHoehe(dfTeilampHoehe) : null;
             var kodes=[{code:"5-869.1",txt:"Weichteildebridement, schichtenübergreifend"}];
             if(dfVanco)kodes.push({code:"5-896.2g",txt:"großflächiges Debridement mit Einlegen eines Medikamententrägers, Fuß"});
-            if(dfTeilamp)kodes.push({code:"5-865.90",txt:"innere Amputation Metatarsale/Phalangen, bis zwei Strahlen (über zwei Strahlen 5-865.91, Fußwurzel 5-865.92)"});
+            if(_h)kodes.push({code:_h.ops,txt:_h.label});
             if(dfVac)kodes.push({code:"5-916.a1",txt:"Vakuumtherapie tiefreichend, Extremitäten (oberflächlich 5-916.a0) — DRG-neutral, trotzdem kodieren"});
-            var drg = dfVanco ? "F27B" : dfTeilamp ? "F13C" : "F27C";
+            var drg = _h ? (dfVanco ? _h.drgTraeger : _h.drg) : (dfVanco ? "F27B" : "F27C");
+            // Der Traeger-Hinweis steht nur dort, wo der Traeger die DRG wirklich hebt.
+            var traegerHebt = _h ? (_h.drgTraeger !== _h.drg) : true;
             var hinweise=[
-              dfVanco ? null : {txt:"Mit eingelegtem Medikamententräger (5-896.2g) steigt die Konstellation auf "+drgMitBetrag("F27B")+". Voraussetzung: Der Träger wird tatsächlich eingelegt und ist im OP-Bericht beschrieben."},
-              (dfTeilamp&&!dfVanco) ? {typ:"warn",txt:"Teilamputation ohne Medikamententräger fällt in die "+drgMitBetrag("F13C")+" — mit Träger gilt die "+drgMitBetrag("F27B")+"."} : null,
+              (dfVanco||!traegerHebt) ? null : {txt:"Mit eingelegtem Medikamententräger (5-896.2g) steigt die Konstellation auf "+drgMitBetrag(_h?_h.drgTraeger:"F27B")+". Voraussetzung: Der Träger wird tatsächlich eingelegt und ist im OP-Bericht beschrieben."},
+              (_h&&!dfVanco&&traegerHebt) ? {typ:"warn",txt:_h.label+" ohne Medikamententräger fällt in die "+drgMitBetrag(_h.drg)+" — mit Träger gilt die "+drgMitBetrag(_h.drgTraeger)+"."} : null,
               {txt:"Mit äußerst schweren CC (PCCL 4) steigt die Konstellation weiter: mit Träger auf "+drgMitBetrag("F27A")+", mit Amputationskode auf "+drgMitBetrag("F13B")+". PCCL 4 verlangt spezifische Kodes (z. B. A41.5- statt A41.9, R57.2); rein klinische Schwere ohne Kodes zählt nicht."},
               dfOsteo ? {txt:"Nebendiagnose Osteomyelitis als M86.-7 kodieren, und zwar spezifisch: M86.47 (chronisch mit Fistel) zählt CCL 2, M86.97 (nicht näher bezeichnet) zählt CCL 0."} : null
             ];
@@ -5673,26 +5765,16 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           })()}
         </div>}
         {dfAmp&&<div style={{marginTop:6}}>
-          <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-            <span style={{fontSize:10,color:"#718096",fontWeight:700}}>AMPUTATIONSHÖHE</span>
-            <select value={dfAmpHoehe} onChange={function(e){setDfAmpHoehe(e.target.value);}}
-                    style={{padding:"4px 8px",border:"1px solid rgba(0,0,0,.15)",borderRadius:5,fontSize:11,fontFamily:"inherit",background:"#fff"}}>
-              {DF_AMP_HOEHEN.map(function(h){ return <option key={h.id} value={h.id}>{h.label}</option>; })}
-            </select>
+          <div style={{fontSize:10,color:"#006B6F"}}>
+            Absetzung nach Burgess in Höhe der proximalen Tibia. Der Eingriff steht ohne Zusatzschalter — die Schalter des Debridements gelten hier nicht.
           </div>
-          <div style={{fontSize:10,color:"#006B6F",marginTop:4}}>
-            Der Eingriff steht ohne Zusatzschalter — die Schalter des Debridements gelten hier nicht.
-          </div>
-          {(function(){
-            var h = DF_AMP_HOEHEN.filter(function(x){ return x.id===dfAmpHoehe; })[0] || DF_AMP_HOEHEN[DF_AMP_HOEHEN.length-1];
-            var kodes=[{code:h.ops, txt:"Amputation " + h.label + (h.opsHinweis ? " (" + h.opsHinweis + ")" : "")}];
-            var hinweise=[
-              h.drgPccl ? {txt:"Mit äußerst schweren CC (PCCL 4) steigt die Konstellation auf "+drgMitBetrag(h.drgPccl)+"."} : null,
-              h.mehrzeitig ? {txt:"Zweizeitiges Vorgehen an verschiedenen Tagen ergibt mit PCCL 4 die "+drgMitBetrag(h.mehrzeitig)+". Bei zweizeitigem Vorgehen die Eingriffe mit ihren tatsächlichen OPS-Daten kodieren — verschiedene Tage sind Voraussetzung der F13A."} : null,
-              h.id==="us_prox" ? null : {typ:"warn",txt:"Für diese Amputationshöhe liegt noch kein Textbaustein vor — Bericht bitte frei formulieren."}
-            ];
-            return <DFKodierBox titel="KODIERUNG UND ABRECHNUNG" kodes={kodes} drg={h.drg} hinweise={hinweise}/>;
-          })()}
+          <DFKodierBox titel="KODIERUNG UND ABRECHNUNG"
+            kodes={[{code:"5-864.9",txt:"Amputation Unterschenkel proximal (Burgess)"}]}
+            drg="F27A"
+            hinweise={[
+              {txt:"Mit äußerst schweren CC (PCCL 4) steigt die Konstellation auf "+drgMitBetrag("F13B")+"."},
+              {txt:"Zweizeitiges Vorgehen an verschiedenen Tagen ergibt mit PCCL 4 die "+drgMitBetrag("F13A")+". Bei zweizeitigem Vorgehen die Eingriffe mit ihren tatsächlichen OPS-Daten kodieren — verschiedene Tage sind Voraussetzung der F13A."}
+            ]}/>
         </div>}
       </OBSec>
 
