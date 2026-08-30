@@ -1498,11 +1498,9 @@ var _s = useState, _m = useMemo;
   var bils = _s([{ typ: "", region: "", datum: "", befund: "" }]), bilder = bils[0], setBilder = bils[1];
   var fabs = _s(""), freitextAbschluss = fabs[0], setFreitextAbschluss = fabs[1];
   var secs = _s({ anam: true, risiko: false, unters: false, bild: false, abschluss: false, erloes: false }), sec = secs[0], setSec = secs[1];
-  // Die Sektionen stehen unterhalb der Diagnoseliste. Wer eine Diagnose waehlt,
-  // sieht die Aenderung sonst nicht — deshalb ein Anker und ein einmaliger
-  // sanfter Sprung dorthin.
+  // Anker fuer die Zeile "Weiter zur Anamnese". Gescrollt wird nur auf Klick;
+  // ein automatischer Sprung beim Diagnose-Klick uebersprang die OP-Karte.
   var sektionenRef = React.useRef(null);
-  var sprungGemacht = React.useRef(false);
   function zuSektionen() {
     var el = sektionenRef.current;
     if (!el) return;
@@ -1707,6 +1705,93 @@ var _s = useState, _m = useMemo;
     return all;
   }, [pfad, endoDiag, diagnosen, coalitio]);
 
+  // Diagnosebezogene Zusaetze (Coalitio beim Knick-Senk-Fuß, Zyste bei der
+  // OCL). Sie gehoeren zur gewaehlten Diagnose und standen bis zum 30.08.2026
+  // ebenfalls weit unterhalb der Liste.
+  function diagUnterbloecke() {
+    return <>
+            {diagnosen.indexOf("knick_senk") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(46,204,113,.2)", paddingLeft: 10 }}>
+              <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: coalitio ? "1px solid #E65100" : "1px solid rgba(0,0,0,.1)", background: coalitio ? "rgba(230,126,34,.12)" : "rgba(255,255,255,1)", color: coalitio ? "#EF6C00" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setCoalitio(!coalitio); setCoalitioVar(""); }}>+ Coalitio</div>
+              {coalitio && <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginTop: 4 }}>
+                <div style={CB(coalitioVar === "talo_calc")} onClick={function() { setCoalitioVar(coalitioVar === "talo_calc" ? "" : "talo_calc"); }}>Talo-Calcanear</div>
+                <div style={CB(coalitioVar === "calc_nav")} onClick={function() { setCoalitioVar(coalitioVar === "calc_nav" ? "" : "calc_nav"); }}>Calcaneo-Naviculär</div>
+              </div>}
+            </div>}
+            {diagnosen.indexOf("ocl") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 4 }}>
+                <div style={CB(oclZyste)} onClick={function() { setOclZyste(!oclZyste); }}>Zyste</div>
+              </div>
+              {oclZyste && <div>
+                <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Lokalisierung</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 4 }}>
+                  <div style={CB(oclLok === "medial")} onClick={function() { setOclLok(oclLok === "medial" ? "" : "medial"); }}>Medial</div>
+                  <div style={CB(oclLok === "lateral")} onClick={function() { setOclLok(oclLok === "lateral" ? "" : "lateral"); }}>Lateral</div>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+                  <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 10, color: "#718096" }}>Länge (mm)</div><input value={oclLaenge} onChange={function(e) { setOclLaenge(e.target.value); }} placeholder="mm" /></div>
+                  <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 10, color: "#718096" }}>Breite (mm)</div><input value={oclBreite} onChange={function(e) { setOclBreite(e.target.value); }} placeholder="mm" /></div>
+                  <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 10, color: "#718096" }}>Tiefe (mm)</div><input value={oclTiefe} onChange={function(e) { setOclTiefe(e.target.value); }} placeholder="mm" /></div>
+                </div>
+              </div>}
+            </div>}
+    </>;
+  }
+
+  // Die Unterblöcke einzelner OP-Methoden (DMMO-Anzahl, Lapidus-Variante,
+  // Debridement-Umfang …) gehören zum jeweiligen Chip. Sie standen bis zum
+  // 30.08.2026 weit unterhalb der Diagnoseliste und wirkten dort beziehungslos.
+  function opUnterbloecke() {
+    return <>
+            {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
+              <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
+            </div>}
+            {opMethode.indexOf("dmmo") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
+              <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>DMMO Anzahl/Lokalisation MT</div>
+              <div style={row}>
+                <div style={CB(dmmoCount === "1")} onClick={function() { setDmmoCount(dmmoCount === "1" ? "" : "1"); }}>1 MT</div>
+                <div style={CB(dmmoCount === "2-3")} onClick={function() { setDmmoCount(dmmoCount === "2-3" ? "" : "2-3"); }}>MT II–III (2×)</div>
+                <div style={CB(dmmoCount === "2-4")} onClick={function() { setDmmoCount(dmmoCount === "2-4" ? "" : "2-4"); }}>MT II–IV (3×)</div>
+                <div style={CB(dmmoCount === "2-5")} onClick={function() { setDmmoCount(dmmoCount === "2-5" ? "" : "2-5"); }}>MT II–V (4×)</div>
+              </div>
+            </div>}
+            {opMethode.indexOf("kleinzehen_pip") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
+              <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Kleinzehen/PIP Anzahl</div>
+              <div style={row}>
+                <div style={CB(pipCount === "1-2")} onClick={function() { setPipCount(pipCount === "1-2" ? "" : "1-2"); }}>1–2 Zehen</div>
+                <div style={CB(pipCount === "3")} onClick={function() { setPipCount(pipCount === "3" ? "" : "3"); }}>≥3 Zehen</div>
+              </div>
+            </div>}
+            {opMethode.filter(function(k){ return OP_STEUERUNG[k] && OP_STEUERUNG[k].modifikatoren; }).map(function(k) {
+              return <div key={"mod-"+k} style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+                <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>{(OPS[k]&&OPS[k].k)||k} — Zusatzeingriff</div>
+                <div style={row}>{OP_STEUERUNG[k].modifikatoren.map(function(m) {
+                  return <div key={m.id} style={CB((opMods[k]||[]).indexOf(m.id) >= 0)}
+                              onClick={function(){ togMod(k, m); }}>{m.label}</div>;
+                })}</div>
+              </div>;
+            })}
+            {opMethode.indexOf("df_debridement") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+              <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Debridement — Umfang</div>
+              <div style={row}>
+                <div style={CB(sbTeilamp)} onClick={function() { setSbTeilamp(!sbTeilamp); }}>Teilamputation</div>
+              </div>
+              {sbTeilamp && <div style={{ marginTop: 5, display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, color: "#718096", fontWeight: 700 }}>RESEKTIONS-/AMPUTATIONSHÖHE</span>
+                <select value={sbTeilampHoehe} onChange={function(e) { setSbTeilampHoehe(e.target.value); }}
+                        style={{ padding: "3px 6px", border: "1px solid rgba(0,0,0,.15)", borderRadius: 5, fontSize: 11, fontFamily: "inherit", background: "#fff" }}>
+                  {DF_TEILAMP_HOEHEN.map(function(h) { return <option key={h.id} value={h.id}>{h.label}</option>; })}
+                </select>
+              </div>}
+            </div>}
+            {opMethode.indexOf("lapidus") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
+              <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Lapidus Variante</div>
+              <div style={row}>
+                <div style={CB(lapidusRezidiv)} onClick={function() { setLapidusRezidiv(!lapidusRezidiv); }}>Rezidiv-OP</div>
+              </div>
+            </div>}
+    </>;
+  }
+
   // Die OP-Methoden stehen als hervorgehobene Karte am Ort der Diagnosewahl.
   // Es gibt immer genau EINE: bei einer Diagnose in der geoeffneten Gruppe
   // direkt unter den Chips, bei zweien am Ende des Diagnose-Blocks mit
@@ -1733,12 +1818,14 @@ var _s = useState, _m = useMemo;
       <div style={{ fontSize: 12.5, fontWeight: 700, color: "#10535B", marginBottom: 8 }}>
         {mehrere ? "OP-Methoden wählen" : "OP-Methoden für " + abschnitte[0].titel.replace(/^Für /, "") + " wählen"}
       </div>
+      {diagUnterbloecke()}
       {mehrere
         ? abschnitte.map(function(a) { return <div key={a.titel} style={{ marginBottom: 8 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "#5C6660", marginBottom: 4 }}>{a.titel}</div>
             {chips(a.keys)}
           </div>; })
         : chips(abschnitte[0].keys)}
+      {opUnterbloecke()}
       <div onClick={zuSektionen} style={{ marginTop: 8, fontSize: 11, color: "#10535B", fontWeight: 600, cursor: "pointer", userSelect: "none" }}>
         Weiter zur Anamnese ▼
       </div>
@@ -1943,16 +2030,6 @@ var _s = useState, _m = useMemo;
     : !gender ? "Ohne Geschlecht wird der Brief neutral formuliert. Die Auswahl oben ergänzt die Anrede."
     : !seite ? "Ohne Seite entfallen die Seitenangaben. Die Auswahl oben ergänzt sie."
     : "";
-
-  React.useEffect(function() {
-    if (meMode || kontrolleMode) return;
-    var gewaehlt = diagnosen.length > 0 || (pfad === "endo" && !!endoDiag);
-    if (!gewaehlt) { sprungGemacht.current = false; return; }
-    if (sprungGemacht.current) return;   // nur beim ersten Mal, sonst stoert es die Mehrfachwahl
-    sprungGemacht.current = true;
-    var t = setTimeout(zuSektionen, 120);
-    return function(){ clearTimeout(t); };
-  }, [diagnosen.length, endoDiag, pfad, meMode, kontrolleMode]);
 
   var fullText = _m(function() {
     // Verlaufsdokumentation: interner Karteieintrag, keine Anrede und keine
@@ -2668,7 +2745,7 @@ var _s = useState, _m = useMemo;
                 var an = diagnosen.indexOf(k) >= 0;
                 return <span key={k} style={LM.chip(an)} onClick={function(){ togDiag(k); }}>{DIAG[k].label}</span>;
               })}</div>
-              {diagnosen.length === 1 && g.diagnosen.indexOf(diagnosen[0]) >= 0 && opMethodenKarte()}
+              {diagnosen.length === 1 && g.diagnosen.indexOf(diagnosen[0]) >= 0 && !!diagOffen[g.titel] && opMethodenKarte()}
             </LMGruppe>;
           })}
           {/* Zweite Diagnose oder zugeklappte Gruppe: die eine Karte steht dann hier. */}
@@ -2798,30 +2875,7 @@ var _s = useState, _m = useMemo;
             }
           </div>}
         </div>}
-        {diagnosen.indexOf("knick_senk") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(46,204,113,.2)", paddingLeft: 10 }}>
-          <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: coalitio ? "1px solid #E65100" : "1px solid rgba(0,0,0,.1)", background: coalitio ? "rgba(230,126,34,.12)" : "rgba(255,255,255,1)", color: coalitio ? "#EF6C00" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setCoalitio(!coalitio); setCoalitioVar(""); }}>+ Coalitio</div>
-          {coalitio && <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginTop: 4 }}>
-            <div style={CB(coalitioVar === "talo_calc")} onClick={function() { setCoalitioVar(coalitioVar === "talo_calc" ? "" : "talo_calc"); }}>Talo-Calcanear</div>
-            <div style={CB(coalitioVar === "calc_nav")} onClick={function() { setCoalitioVar(coalitioVar === "calc_nav" ? "" : "calc_nav"); }}>Calcaneo-Naviculär</div>
-          </div>}
-        </div>}
-        {diagnosen.indexOf("ocl") >= 0 && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 4 }}>
-            <div style={CB(oclZyste)} onClick={function() { setOclZyste(!oclZyste); }}>Zyste</div>
-          </div>
-          {oclZyste && <div>
-            <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Lokalisierung</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 4 }}>
-              <div style={CB(oclLok === "medial")} onClick={function() { setOclLok(oclLok === "medial" ? "" : "medial"); }}>Medial</div>
-              <div style={CB(oclLok === "lateral")} onClick={function() { setOclLok(oclLok === "lateral" ? "" : "lateral"); }}>Lateral</div>
-            </div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
-              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 10, color: "#718096" }}>Länge (mm)</div><input value={oclLaenge} onChange={function(e) { setOclLaenge(e.target.value); }} placeholder="mm" /></div>
-              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 10, color: "#718096" }}>Breite (mm)</div><input value={oclBreite} onChange={function(e) { setOclBreite(e.target.value); }} placeholder="mm" /></div>
-              <div style={{ flex: "0 0 80px" }}><div style={{ fontSize: 10, color: "#718096" }}>Tiefe (mm)</div><input value={oclTiefe} onChange={function(e) { setOclTiefe(e.target.value); }} placeholder="mm" /></div>
-            </div>
-          </div>}
-        </div>}
+        {/* Die diagnosebezogenen Unterblöcke stehen jetzt in der Karte. */}
         {/* Die OP-Methoden stehen jetzt in der Karte am Ort der Diagnosewahl. */}
         <div data-tour="sb-qr">
         {!qr && (diagOhneZiel.length > 0 || aufOhneZiel.length > 0) && <div style={{ marginTop: 6, marginLeft: 14, borderLeft: "2px solid rgba(138,90,0,.3)", paddingLeft: 10 }}>
@@ -2861,53 +2915,7 @@ var _s = useState, _m = useMemo;
           </div>}
         </div>}
         </div>
-        {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
-          <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
-        </div>}
-        {opMethode.indexOf("dmmo") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>DMMO Anzahl/Lokalisation MT</div>
-          <div style={row}>
-            <div style={CB(dmmoCount === "1")} onClick={function() { setDmmoCount(dmmoCount === "1" ? "" : "1"); }}>1 MT</div>
-            <div style={CB(dmmoCount === "2-3")} onClick={function() { setDmmoCount(dmmoCount === "2-3" ? "" : "2-3"); }}>MT II–III (2×)</div>
-            <div style={CB(dmmoCount === "2-4")} onClick={function() { setDmmoCount(dmmoCount === "2-4" ? "" : "2-4"); }}>MT II–IV (3×)</div>
-            <div style={CB(dmmoCount === "2-5")} onClick={function() { setDmmoCount(dmmoCount === "2-5" ? "" : "2-5"); }}>MT II–V (4×)</div>
-          </div>
-        </div>}
-        {opMethode.indexOf("kleinzehen_pip") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Kleinzehen/PIP Anzahl</div>
-          <div style={row}>
-            <div style={CB(pipCount === "1-2")} onClick={function() { setPipCount(pipCount === "1-2" ? "" : "1-2"); }}>1–2 Zehen</div>
-            <div style={CB(pipCount === "3")} onClick={function() { setPipCount(pipCount === "3" ? "" : "3"); }}>≥3 Zehen</div>
-          </div>
-        </div>}
-        {opMethode.filter(function(k){ return OP_STEUERUNG[k] && OP_STEUERUNG[k].modifikatoren; }).map(function(k) {
-          return <div key={"mod-"+k} style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
-            <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>{(OPS[k]&&OPS[k].k)||k} — Zusatzeingriff</div>
-            <div style={row}>{OP_STEUERUNG[k].modifikatoren.map(function(m) {
-              return <div key={m.id} style={CB((opMods[k]||[]).indexOf(m.id) >= 0)}
-                          onClick={function(){ togMod(k, m); }}>{m.label}</div>;
-            })}</div>
-          </div>;
-        })}
-        {opMethode.indexOf("df_debridement") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Debridement — Umfang</div>
-          <div style={row}>
-            <div style={CB(sbTeilamp)} onClick={function() { setSbTeilamp(!sbTeilamp); }}>Teilamputation</div>
-          </div>
-          {sbTeilamp && <div style={{ marginTop: 5, display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-            <span style={{ fontSize: 10, color: "#718096", fontWeight: 700 }}>RESEKTIONS-/AMPUTATIONSHÖHE</span>
-            <select value={sbTeilampHoehe} onChange={function(e) { setSbTeilampHoehe(e.target.value); }}
-                    style={{ padding: "3px 6px", border: "1px solid rgba(0,0,0,.15)", borderRadius: 5, fontSize: 11, fontFamily: "inherit", background: "#fff" }}>
-              {DF_TEILAMP_HOEHEN.map(function(h) { return <option key={h.id} value={h.id}>{h.label}</option>; })}
-            </select>
-          </div>}
-        </div>}
-        {opMethode.indexOf("lapidus") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
-          <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Lapidus Variante</div>
-          <div style={row}>
-            <div style={CB(lapidusRezidiv)} onClick={function() { setLapidusRezidiv(!lapidusRezidiv); }}>Rezidiv-OP</div>
-          </div>
-        </div>}
+        {/* Die OP-spezifischen Unterblöcke stehen jetzt in der Karte, beim Chip. */}
 
         {/* Scores. Das Werkzeug rechnet nichts aus, es nimmt den erhobenen
             Wert entgegen und schreibt ihn in den Brief. Leere Felder erscheinen
