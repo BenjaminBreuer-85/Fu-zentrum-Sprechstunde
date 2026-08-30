@@ -1652,6 +1652,16 @@ var _s = useState, _m = useMemo;
   function togDiag(d) { setDiagnosen(function(p) { return p.indexOf(d) >= 0 ? p.filter(function(x) { return x !== d; }) : p.concat([d]).slice(0, 2); }); setOpMethode([]); setOpMods({}); }
   function togBef(id) { setBefState(function(p) { var n = {}; for (var x in p) n[x] = p[x]; if (!p[id]) { n[id] = "pos"; } else if (p[id] === "pos") { n[id] = "neg"; } else { delete n[id]; } return n; }); }
 
+  // Ohne Seitenwahl entfallen die Seitenwoerter ersatzlos. Damit dort keine
+  // doppelten Leerzeichen und keine Leerzeichen vor Satzzeichen stehen
+  // bleiben, laeuft der fertige Brief einmal durch diese Reinigung.
+  function briefSauber(t) {
+    return String(t)
+      .replace(/[ \t]{2,}/g, " ")
+      .replace(/[ \t]+([,.;:])/g, "$1")
+      .replace(/[ \t]+(?=\n|$)/g, "");
+  }
+
   var dd = gender === "m" ? "Der Patient" : gender === "w" ? "Die Patientin" : "Der/Die Patient(in)";
   var dd2 = gender === "m" ? "der Patient" : gender === "w" ? "die Patientin" : "der/die Patient(in)";
   var dem = gender === "m" ? "dem Patienten" : gender === "w" ? "der Patientin" : "dem/der Patient(in)";
@@ -1866,20 +1876,29 @@ var _s = useState, _m = useMemo;
     return abs.filter(function(t){ return t && t.trim(); }).join("\n\n");
   }, [kv2Anlass, kv2Sel, kv2Feld, kv2Zeitpunkt]);
 
+  // Dezenter Hinweis statt Blockade: Der Brief laesst sich ohne Geschlecht und
+  // ohne Seite schreiben, er sagt aber, was dann fehlt.
+  var neutralHinweis = kontrolleMode ? "" :
+    (!gender && !seite) ? "Ohne Geschlecht und Seite wird der Brief neutral und ohne Seitenangaben formuliert. Die Auswahl oben ergänzt beides."
+    : !gender ? "Ohne Geschlecht wird der Brief neutral formuliert. Die Auswahl oben ergänzt die Anrede."
+    : !seite ? "Ohne Seite entfallen die Seitenangaben. Die Auswahl oben ergänzt sie."
+    : "";
+
   var fullText = _m(function() {
     // Verlaufsdokumentation: interner Karteieintrag, keine Anrede und keine
     // Grussformel — deshalb VOR der Geschlechtsabfrage.
     if (kontrolleMode) return kv2Volltext;
-    if (!gender) return "";
+    // Frueher stieg der Brief hier ohne Geschlecht aus. Er wird jetzt neutral
+    // formuliert; ohne Seite entfallen die Seitenangaben ersatzlos.
     // ME-MODUS: eigener Brief-Flow
     if (meMode) {
       if (!meBriefRegion || !meBriefImpl) return "";
       const REGION_LBL={metatarsale:"Metatarsale",tarsale:"Tarsale",calcaneus:"Kalkaneus",tibia:"distalen Tibia",fibula:"distalen Fibula"};
       const IMPL_LBL={schraube:"Schraube(n)",platte:"winkelstabiler Platte"};
-      const dd = gender === "m" ? "Der Patient" : "Die Patientin";
-      const dem = gender === "m" ? "dem Patienten" : "der Patientin";
-      const sich = gender === "m" ? "sich" : "sich";
-      const seitenAdj = seite === "rechts" ? "rechts" : seite === "links" ? "links" : seite === "bds" ? "beidseitig" : "___";
+      const dd = gender === "m" ? "Der Patient" : gender === "w" ? "Die Patientin" : "Der/Die Patient(in)";
+      const dem = gender === "m" ? "dem Patienten" : gender === "w" ? "der Patientin" : "dem/der Patient(in)";
+      const sich = "sich";
+      const seitenAdj = seite === "rechts" ? "rechts" : seite === "links" ? "links" : seite === "bds" ? "beidseitig" : "";
       const region = REGION_LBL[meBriefRegion];
       const impl = IMPL_LBL[meBriefImpl];
       const zusatzEintrag = meBriefZusatz && meBriefZusatz !== "none" && ME_REGIONEN[meBriefRegion] ? ME_REGIONEN[meBriefRegion].zusatz.find(function(z){return z.code===meBriefZusatz;}) : null;
@@ -1889,24 +1908,30 @@ var _s = useState, _m = useMemo;
       lines.push("");
       lines.push("Elektive operative Option: Metallentfernung " + region + (seite ? " " + seite : "") + (zusatzEintrag ? ", " + zusatzEintrag.name : ""));
       lines.push("");
-      lines.push(dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor.");
-      lines.push((seitenAdj !== "___" ? seitenAdj.charAt(0).toUpperCase() + seitenAdj.slice(1) : "___") + "seitig besteht ein Zustand nach " + (meBriefOS || "osteosynthetischer Versorgung der " + region) + " vor " + (meBriefDauer || "___") + " " + meBriefDauerEinheit + ".");
+      lines.push(gender
+        ? dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor."
+        : "Die Vorstellung in unserer Sprechstunde erfolgte" + (begleitung ? " in Begleitung von " + begleitung : "") + ".");
+      lines.push((seitenAdj ? seitenAdj.charAt(0).toUpperCase() + seitenAdj.slice(1) + "seitig besteht" : "Es besteht") + " ein Zustand nach " + (meBriefOS || "osteosynthetischer Versorgung der " + region) + " vor " + (meBriefDauer || "___") + " " + meBriefDauerEinheit + ".");
       lines.push("");
-      lines.push("Aktuell berichtet " + dd.charAt(0).toLowerCase() + dd.slice(1) + " über " + (meBriefBeschwerden || "lokale Beschwerden über dem Implantat, Weichteilirritation und implantatassoziierte Symptome") + ".");
+      var meBeschw = meBriefBeschwerden || "lokale Beschwerden über dem Implantat, Weichteilirritation und implantatassoziierte Symptome";
+      lines.push(gender
+        ? "Aktuell berichtet " + dd.charAt(0).toLowerCase() + dd.slice(1) + " über " + meBeschw + "."
+        : "Aktuell wird über " + meBeschw + " berichtet.");
       lines.push("");
       lines.push("Klinische Untersuchung:");
       lines.push(meBriefBefund || "Reizlose Narbe über der " + region + ". Druckschmerz über dem Implantat. Keine Zeichen einer Infektion. Periphere Durchblutung, Motorik und Sensibilität intakt.");
       lines.push("");
       lines.push("Bildgebung: Komplette knöcherne Konsolidierung, keine Hinweise auf Infekt oder Implantatlockerung.");
       lines.push("");
-      lines.push(dd + " wurde über die konservativen Optionen (Belassen des Materials) und den möglichen Eingriff aufgeklärt. Operativ kann die Metallentfernung (" + impl + ") an der " + region + (zusatzEintrag ? " sowie " + zusatzEintrag.name.toLowerCase() : "") + " vorgenommen werden.");
+      lines.push((gender ? dd + " wurde über die konservativen Optionen (Belassen des Materials) und den möglichen Eingriff aufgeklärt." : "Es erfolgte die Aufklärung über die konservativen Optionen (Belassen des Materials) und den möglichen Eingriff.")
+        + " Operativ kann die Metallentfernung (" + impl + ") an der " + region + (zusatzEintrag ? " sowie " + zusatzEintrag.name.toLowerCase() : "") + " vorgenommen werden.");
       lines.push("");
       lines.push("Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: Infektion, Nervenverletzung, Gefäßverletzung, Weichteilirritation über der Narbe, Implantatunvollständigkeit bei gebrochenen Schrauben, Rezidiv der Beschwerden).");
       lines.push("");
       lines.push("Nach gründlicher Abwägung bieten wir den oben genannten Eingriff an. Der Eingriff ist elektiv.");
       lines.push("");
       lines.push("Mit freundlichen Grüßen,");
-      return lines.join("\n");
+      return briefSauber(lines.join("\n"));
     }
 
     // ENDO-FLOW
@@ -1917,9 +1942,9 @@ var _s = useState, _m = useMemo;
       // Bei unikomp. Knie: medial/lateral ist Pflicht
       if (endoDiag === "knie_uni" && !endoUni) return "";
 
-      var dd = gender === "m" ? "Der Patient" : "Die Patientin";
-      var dem = gender === "m" ? "dem Patienten" : "der Patientin";
-      var seitenAdj = seite === "rechts" ? "rechts" : seite === "links" ? "links" : seite === "bds" ? "beidseits" : "___";
+      var dd = gender === "m" ? "Der Patient" : gender === "w" ? "Die Patientin" : "Der/Die Patient(in)";
+      var dem = gender === "m" ? "dem Patienten" : gender === "w" ? "der Patientin" : "dem/der Patient(in)";
+      var seitenAdj = seite === "rechts" ? "rechts" : seite === "links" ? "links" : seite === "bds" ? "beidseits" : "";
       var seitenAttr = seite === "rechts" ? "rechte" : seite === "links" ? "linke" : "betroffene";
       var seitenAttrN = seite === "rechts" ? "rechten" : seite === "links" ? "linken" : "betroffenen";
 
@@ -1950,14 +1975,16 @@ var _s = useState, _m = useMemo;
 
       elines.push("");
       // Anamnese
-      elines.push(dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor.");
+      elines.push(gender
+        ? dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor."
+        : "Die Vorstellung in unserer Sprechstunde erfolgte" + (begleitung ? " in Begleitung von " + begleitung : "") + ".");
 
       // Beschwerden-Anker
       var beschwerdeText = "";
-      if (endoDiag === "coxarthrose") beschwerdeText = dd.toLowerCase() + " berichtet über Schmerzen im Bereich der " + seitenAttr + "n Hüfte";
-      else if (endoDiag === "htep_schmerz") beschwerdeText = dd.toLowerCase() + " berichtet über Schmerzen im Bereich der einliegenden H-TEP " + seitenAdj;
-      else if (endoDiag === "gonarthrose" || endoDiag === "knie_uni") beschwerdeText = dd.toLowerCase() + " berichtet über Schmerzen im Bereich des " + seitenAttrN + " Knies";
-      else if (endoDiag === "ktep_schmerz") beschwerdeText = dd.toLowerCase() + " berichtet über Schmerzen im Bereich der einliegenden K-TEP " + seitenAdj;
+      if (endoDiag === "coxarthrose") beschwerdeText = dd + " berichtet über Schmerzen im Bereich der " + seitenAttr + "n Hüfte";
+      else if (endoDiag === "htep_schmerz") beschwerdeText = dd + " berichtet über Schmerzen im Bereich der einliegenden H-TEP " + seitenAdj;
+      else if (endoDiag === "gonarthrose" || endoDiag === "knie_uni") beschwerdeText = dd + " berichtet über Schmerzen im Bereich des " + seitenAttrN + " Knies";
+      else if (endoDiag === "ktep_schmerz") beschwerdeText = dd + " berichtet über Schmerzen im Bereich der einliegenden K-TEP " + seitenAdj;
       var dauerText = (dauer || "___") + " " + dauerEinheit;
       elines.push(beschwerdeText + " seit " + dauerText + ".");
       if (belastung) elines.push("Die Beschwerden treten unter Belastung auf, " + (belastung === "anlauf" ? "insbesondere als Anlaufschmerz" : belastung === "ruhe" ? "auch in Ruhe vorhanden" : "belastungsabhängig") + ".");
@@ -2073,11 +2100,13 @@ var _s = useState, _m = useMemo;
 
       // Aufklärung
       elines.push("");
-      elines.push(dd + " wurde über Diagnose, Therapieoption, Risiken und Alternativen ausführlich aufgeklärt. Die Aufklärung erfolgte mündlich und schriftlich, " + (gender === "m" ? "der Patient" : "die Patientin") + " hat eine Bedenkzeit erhalten.");
+      elines.push(gender
+        ? dd + " wurde über Diagnose, Therapieoption, Risiken und Alternativen ausführlich aufgeklärt. Die Aufklärung erfolgte mündlich und schriftlich, " + (gender === "m" ? "der Patient" : "die Patientin") + " hat eine Bedenkzeit erhalten."
+        : "Es erfolgte die ausführliche Aufklärung über Diagnose, Therapieoption, Risiken und Alternativen. Die Aufklärung erfolgte mündlich und schriftlich, eine Bedenkzeit wurde eingeräumt.");
 
       elines.push("");
       elines.push("Mit freundlichen Grüßen,");
-      return elines.join("\n");
+      return briefSauber(elines.join("\n"));
     }
 
     // STANDARD-FLOW (Fuß)
@@ -2134,7 +2163,9 @@ var _s = useState, _m = useMemo;
     p.push("\n\n");
 
     // Anamnese
-    var anam = dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor.";
+    var anam = gender
+      ? dd + " stellte sich" + (begleitung ? " in Begleitung von " + begleitung : "") + " in unserer Sprechstunde vor."
+      : "Die Vorstellung in unserer Sprechstunde erfolgte" + (begleitung ? " in Begleitung von " + begleitung : "") + ".";
     diagnosen.forEach(function(d, i) {
       var loc = DIAG[d] ? DIAG[d].lokBeschwerden : "am Fuß";
       if (i === 0) anam += " Es wurden Beschwerden " + loc + " seit " + (dauer || "___") + " " + dauerEinheit + " beklagt.";
@@ -2229,7 +2260,9 @@ var _s = useState, _m = useMemo;
       var diag = DIAG[d];
       if (diag && diag.konservativ) diag.konservativ.forEach(function(k) { if (konservOptionen.indexOf(k) < 0) konservOptionen.push(k); });
     });
-    var ab = "\n\n" + dd + " wurde über die konservativen Optionen und den möglichen Eingriff aufgeklärt.";
+    var ab = "\n\n" + (gender
+      ? dd + " wurde über die konservativen Optionen und den möglichen Eingriff aufgeklärt."
+      : "Es erfolgte die Aufklärung über die konservativen Optionen und den möglichen Eingriff.");
     if (konservOptionen.length > 0) ab += " Es bestehen konservative Alternativen: " + konservOptionen.join(", ") + ".";
     if (ops.length > 0) {
       var opBeschr = ops.map(function(m) {
@@ -2289,7 +2322,7 @@ var _s = useState, _m = useMemo;
     p.push(ab);
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
-    return rawOut.replace(/\bundefined\b/g, "___");
+    return briefSauber(rawOut.replace(/\bundefined\b/g, "___"));
   }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, scEfas, scEfasSport, scAofas, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
@@ -3050,7 +3083,7 @@ var _s = useState, _m = useMemo;
         </div>}
       </div>
 
-      {gender && (diagnosen.length > 0 || (pfad === "endo" && endoDiag)) && !meMode && !kontrolleMode && <div>
+      {(diagnosen.length > 0 || (pfad === "endo" && endoDiag)) && !meMode && !kontrolleMode && <div>
         <Sec title="① Anamnese" open={sec.anam} onToggle={function() { togSec("anam"); }}>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
             <div><div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Dauer</div><div style={row}>{["1","2","3","4","5","6","7","8","9","10"].map(function(n) { return <div key={n} style={CB(dauer === n)} onClick={function() { setDauer(dauer === n ? "" : n); }}>{n}</div>; })}</div></div>
@@ -3365,7 +3398,7 @@ var _s = useState, _m = useMemo;
             Sonder-Flows unerreichbar — unter 1024 px gab es dort keinen Weg,
             den Brief zu sehen oder zu kopieren. Sie erscheint jetzt, sobald
             auch das Desktop-Panel einen Brief zeigt. */}
-        {((gender && (diagnosen.length > 0 || (pfad === "endo" && endoDiag)) && !meMode && !kontrolleMode)
+        {(((diagnosen.length > 0 || (pfad === "endo" && endoDiag)) && !meMode && !kontrolleMode)
           || ((meMode || kontrolleMode) && !!fullText)) &&
         <div className="sb-mobile-preview" data-tour="sb-export">
           <div style={card}>
@@ -3376,6 +3409,7 @@ var _s = useState, _m = useMemo;
                 {qrShow && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(qr.url, "QR-Code-Fuss-Track.png"); }}>📋 QR-Code</div>}
               </div>
             </div>
+            {neutralHinweis && <div style={{ fontSize: 10, color: "#5C6660", background: "rgba(0,137,123,.06)", border: "1px solid rgba(0,137,123,.2)", borderRadius: 5, padding: "6px 8px", marginBottom: 8, lineHeight: 1.5 }}>{neutralHinweis}</div>}
             <div style={{ cursor: "pointer", fontSize: 11, color: "#00897B", marginBottom: 6 }} onClick={function() { setShowPv(!showPv); }}>{showPv ? "▼ Ausblenden" : "▶ Anzeigen"}</div>
             {showPv && <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748", maxHeight: 500, overflowY: "auto" }}>{fullText}</div>}
             {showPv && qrShow && <div style={{ marginTop: 8, padding: 10, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 10 }}>
@@ -3398,6 +3432,7 @@ var _s = useState, _m = useMemo;
               {qrShow && <div style={{ padding: "6px 14px", border: "none", borderRadius: 6, background: "#006B6F", color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={function() { copyQrToClipboard(qr.url, "QR-Code-Fuss-Track.png"); }}>📋 QR-Code</div>}
             </div>
           </div>
+          {neutralHinweis && <div style={{ fontSize: 10, color: "#5C6660", background: "rgba(0,137,123,.06)", border: "1px solid rgba(0,137,123,.2)", borderRadius: 5, padding: "6px 8px", marginBottom: 8, lineHeight: 1.5 }}>{neutralHinweis}</div>}
           <div style={{ background: "transparent", border: "none", borderRadius: 0, padding: "14px 0", fontFamily: "'Trebuchet MS',sans-serif", fontSize: "10pt", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "#2D3748" }}>{fullText || "Wähle Geschlecht und Diagnose um den Brief zu generieren..."}</div>
           {qrShow && <div style={{ marginTop: 10, padding: 12, background: "rgba(0,137,123,.04)", borderRadius: 6, border: "1px dashed rgba(0,137,123,.25)", display: "flex", alignItems: "center", gap: 12 }}>
             <QRCanvas text={qr.url} size={140} />
