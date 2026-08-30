@@ -85,6 +85,7 @@ veraltet. Deshalb steht die Prüfung ab jetzt vor der Aussage.
 | `opsteuerung.json` | 30.08.2026 | **Upload offen** — fdl_transfer (I27E, Lokalisations-Hinweis 5-854.2b vs .29), as_tendoskopie (I27E, 5-852.29), as_debridement (I27E, 5-850.c9 + 5-855.19), Grouper-verifiziert |
 | `erloes2026.json` | 30.08.2026 | **Upload offen** — GVD/VWD-Nachträge I08F (8,2 / 2–16), I29B (2,6 / 1–4), I47B (9,0 / 2–16) |
 | `diagnosen.json` | 30.08.2026 | **Upload offen** — Diagnose-Label „Diabetischer Fuß" → „Diabetisches Fußsyndrom" |
+| `erloes2026.json` (erneut) | 30.08.2026 | **Upload offen** — zusätzlich Minimal-Zeilen F21E und F28C für die DF-Stufeninfos (nur Katalogwerte; InEK-Exporte nachliefern) |
 | übrige sechs `data/`-Dateien | 29.08.2026 | Bucket = lokal (Uploads vom 29.08. bestätigt, zeichengenaue Prüfung ausstehend) |
 | `zuordnung/implantat_zuordnung.json` | 29.08.2026 | **Bucket veraltet**, siehe unten |
 
