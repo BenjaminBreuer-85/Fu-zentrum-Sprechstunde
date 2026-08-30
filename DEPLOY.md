@@ -62,7 +62,7 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 29.08.2026 (spät): KEIN JSON-UPLOAD OFFEN — vom Autor bestätigt, noch nicht zeichengenau gegengeprüft.**
+**Stand 30.08.2026: DREI UPLOADS OFFEN — `optexte.json`, `opsteuerung.json`, `erloes2026.json`** (je: erst löschen, dann hochladen). Die Uploads vom 29.08. sind vom Autor bestätigt.
 
 Am 29.08.2026 wurden nacheinander erweitert und in den Bucket geladen:
 `erloes2026.json` (sechs neue DRG-Zeilen F27A/B/C und F13A/B/C in `_DRG` und
@@ -81,9 +81,10 @@ veraltet. Deshalb steht die Prüfung ab jetzt vor der Aussage.
 
 | Datei | Stand | Ergebnis |
 |---|---|---|
-| `erloes2026.json` | 29.08.2026 spät | hochgeladen (Bestätigung Autor), zeichengenaue Prüfung ausstehend |
-| `opsteuerung.json` | 29.08.2026 spät | hochgeladen (Bestätigung Autor), zeichengenaue Prüfung ausstehend |
-| übrige acht `data/`-Dateien | 29.08.2026 | Bucket = lokal, zeichengenau geprüft |
+| `optexte.json` | 30.08.2026 | **Upload offen** — UC_EINGRIFFE: Humerus subcapital (5-793.k1/5-794.k1 → I13E) und Humerusschaft-Nagel (5-790.42 → I13E) befüllt, Platzhalter „___" ersetzt |
+| `opsteuerung.json` | 30.08.2026 | **Upload offen** — fdl_transfer (I27E, Lokalisations-Hinweis 5-854.2b vs .29), as_tendoskopie (I27E, 5-852.29), as_debridement (I27E, 5-850.c9 + 5-855.19), Grouper-verifiziert |
+| `erloes2026.json` | 30.08.2026 | **Upload offen** — GVD/VWD-Nachträge I08F (8,2 / 2–16), I29B (2,6 / 1–4), I47B (9,0 / 2–16) |
+| übrige sieben `data/`-Dateien | 29.08.2026 | Bucket = lokal (Uploads vom 29.08. bestätigt, zeichengenaue Prüfung ausstehend) |
 | `zuordnung/implantat_zuordnung.json` | 29.08.2026 | **Bucket veraltet**, siehe unten |
 
 Die Zuordnungsdatei ist ein Sonderfall: Sie liegt im Repo unter `zuordnung/`
