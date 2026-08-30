@@ -1460,7 +1460,7 @@ var _s = useState, _m = useMemo;
   // Zeile nennt nur, was ausgefuellt wurde.
   var sc1 = _s(""), scEfas = sc1[0], setScEfas = sc1[1];
   var sc2 = _s(""), scEfasSport = sc2[0], setScEfasSport = sc2[1];
-  var sc3 = _s(""), scAofas = sc3[0], setScAofas = sc3[1];
+  var sc3 = _s(""), scFaos = sc3[0], setScFaos = sc3[1];
   var sc4 = _s(""), scVas = sc4[0], setScVas = sc4[1];
   var ams = _s(false), amicSpongiosa = ams[0], setAmicSpongiosa = ams[1];
   var dmmoCs = _s(""), dmmoCount = dmmoCs[0], setDmmoCount = dmmoCs[1];
@@ -2141,7 +2141,7 @@ var _s = useState, _m = useMemo;
     var scores = [];
     if (scEfas.trim())      scores.push("EFAS " + scEfas.trim() + "/24");
     if (scEfasSport.trim()) scores.push("EFAS Sport " + scEfasSport.trim() + "/16");
-    if (scAofas.trim())     scores.push("AOFAS " + scAofas.trim() + "/100");
+    if (scFaos.trim())     scores.push("FAOS " + scFaos.trim() + "/100");
     if (scVas.trim())       scores.push("VAS Belastung " + scVas.trim() + "/10");
     if (scores.length > 0) p.push("\n- Scores: " + scores.join(", "));
 
@@ -2323,7 +2323,7 @@ var _s = useState, _m = useMemo;
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return briefSauber(rawOut.replace(/\bundefined\b/g, "___"));
-  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, scEfas, scEfasSport, scAofas, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
+  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, scEfas, scEfasSport, scFaos, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
@@ -2474,7 +2474,7 @@ var _s = useState, _m = useMemo;
     setGender(""); setBegleitung(""); setSeite(""); setDiagnosen([]); setCoalitio(false); setCoalitioVar("");
     setOpMethode([]); setOpMods({}); setOpEmpfohlen(true); setTherapieversuch(false); setNurDiagnostik(false);
     setOclZyste(false); setOclLok(""); setOclLaenge(""); setOclBreite(""); setOclTiefe(""); setAmicSpongiosa(false);
-    setScEfas(""); setScEfasSport(""); setScAofas(""); setScVas("");
+    setScEfas(""); setScEfasSport(""); setScFaos(""); setScVas("");
     setDauer(""); setDauerEinheit("Monaten"); setHaeufigkeit(""); setBelastung([]); setLeidensdruck(true);
     setBeruf(""); setAktivitaet(""); setSportEingeschr(false); setVorOPs(false); setStnText("");
     setKonservBisher([]); setRisiken([]); setFreitextRisiko("");
@@ -2825,7 +2825,7 @@ var _s = useState, _m = useMemo;
           <div style={{ fontSize: 10, color: "#718096", fontWeight: 700, marginBottom: 4 }}>SCORES (nur Erhobenes wird gedruckt)</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {[["EFAS","/24",scEfas,setScEfas],["EFAS Sport","/16",scEfasSport,setScEfasSport],
-              ["AOFAS","/100",scAofas,setScAofas],["VAS Belastung","/10",scVas,setScVas]].map(function(f) {
+              ["FAOS","/100",scFaos,setScFaos],["VAS Belastung","/10",scVas,setScVas]].map(function(f) {
               return <div key={f[0]} style={{ flex: "0 0 auto" }}>
                 <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>{f[0] + " " + f[1]}</div>
                 <input type="number" value={f[2]} onChange={function(e) { f[3](e.target.value); }} placeholder="—"
@@ -8529,7 +8529,7 @@ const RUNDGANG_SB = [
   { ziele:['[data-tour="sb-export"]'],
     wennFehlt: "Die Vorschau erscheint, sobald der Brief Inhalt hat.",
     titel: "Die Scores im Brief",
-    text: "Vier Felder nehmen die erhobenen Punktwerte auf: EFAS, EFAS Sport, AOFAS und die VAS unter Belastung. Gerechnet wird nichts, der Wert wird übernommen.",
+    text: "Vier Felder nehmen die erhobenen Punktwerte auf: EFAS, EFAS Sport, FAOS und die VAS unter Belastung. Gerechnet wird nichts, der Wert wird übernommen.",
     hinweis: "Im Brief steht nur, was Sie eingetragen haben. Ohne einen einzigen Wert entfällt die Zeile." },
   { ziele:['[data-tour="sb-erloes"]'], titel: "Erlös und Standardversorgung",
     text: "Hier sehen Sie, was der Fall voraussichtlich einbringt und welches Material die Standardversorgung vorsieht. Der Block ist eine Einschätzung für Ihre Planung, keine Abrechnung." },
