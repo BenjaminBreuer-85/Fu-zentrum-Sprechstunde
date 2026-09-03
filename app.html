@@ -1027,6 +1027,11 @@ const PATIENT_VARIANTEN = window._DATA.opmethoden.PATIENT_VARIANTEN || {};
 // Krankheitsbild-Code. Ohne den Fallback stirbt stattdessen die ganze App.
 // ============================================================
 const PATIENT_DIAGNOSE_MAP = window._DATA.opmethoden.PATIENT_DIAGNOSE_MAP || {};
+// Mapping: Eingriff → Krankheitsbild-Artikel. Noetig, wo eine Toolbox-Diagnose
+// mehrere Krankheitsbilder abdeckt: "Läsion der Peronealsehnen" umfasst Riss
+// und Luxation, der Rueckweg im Aufklaerungsmodus muss aber auf das
+// Krankheitsbild des gewaehlten Eingriffs zeigen. Gleicher ||-Fallback.
+const PATIENT_EINGRIFF_KB_MAP = window._DATA.opmethoden.PATIENT_EINGRIFF_KB_MAP || {};
 // Krankheitsbild-Artikel -> Anker des konservativen Abschnitts (alle 47).
 const KB_THEMA = window._DATA.opmethoden.KB_THEMA || {};
 
@@ -1605,13 +1610,18 @@ var _s = useState, _m = useMemo;
     return String(ziel).replace(/_/g, "-").replace(/-kb$/, "");
   }
 
-  var kbArtikel = diagActive ? PATIENT_DIAGNOSE_MAP[diagActive.key] : "";
-
   // Weicht der Brief auf konservativ aus, faellt der OP-Weg weg — auch wenn
   // eine OP-Methode angeklickt ist. Dieselbe Bedingung wie der Satz
   // "Nach gruendlicher Abwaegung raten wir zu konservativer weiterer Therapie."
+  // Steht vor kbArtikel, weil der Rueckweg davon abhaengt; opWeg selbst haengt
+  // nicht von kbArtikel ab.
   var opGewaehlt = opMethode.filter(function(m) { return OPS[m]; }).length > 0;
   var opWeg = !nurDiagnostik && opEmpfohlen && opGewaehlt && !!aufActive;
+
+  // Im OP-Weg entscheidet der Eingriff ueber das Krankheitsbild, im
+  // konservativen Weg die Diagnose.
+  var kbArtikelDiag = diagActive ? PATIENT_DIAGNOSE_MAP[diagActive.key] : "";
+  var kbArtikel = (opWeg && PATIENT_EINGRIFF_KB_MAP[aufActive.key]) || kbArtikelDiag;
 
   var aufZielKey = aufActive ? (PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) : "";
   // Varianten haengen am ZIEL, nicht am Toolbox-Schluessel.
