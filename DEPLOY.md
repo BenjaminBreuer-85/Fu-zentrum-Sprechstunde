@@ -62,7 +62,7 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 30.08.2026 (vormittags): VIER UPLOADS OFFEN — `optexte.json`, `opsteuerung.json`, `erloes2026.json`, `diagnosen.json`** (je: erst löschen, dann hochladen). Die Uploads vom 29.08. sind vom Autor bestätigt.
+**Stand 03.09.2026: EIN UPLOAD OFFEN — `opmethoden.json`** (erst löschen, dann hochladen). Die vier Uploads vom 30.08. (`optexte.json`, `opsteuerung.json`, `erloes2026.json`, `diagnosen.json`) hat der Autor am 30./31.08. bestätigt („alles geladen"); die zeichengenaue Bucket-Prüfung steht für alle noch aus.
 
 Am 29.08.2026 wurden nacheinander erweitert und in den Bucket geladen:
 `erloes2026.json` (sechs neue DRG-Zeilen F27A/B/C und F13A/B/C in `_DRG` und
@@ -81,12 +81,9 @@ veraltet. Deshalb steht die Prüfung ab jetzt vor der Aussage.
 
 | Datei | Stand | Ergebnis |
 |---|---|---|
-| `optexte.json` | 30.08.2026 | **Upload offen** — UC_EINGRIFFE: Humerus subcapital (5-793.k1/5-794.k1 → I13E) und Humerusschaft-Nagel (5-790.42 → I13E) befüllt, Platzhalter „___" ersetzt |
-| `opsteuerung.json` | 30.08.2026 | **Upload offen** — fdl_transfer (I27E, Lokalisations-Hinweis 5-854.2b vs .29), as_tendoskopie (I27E, 5-852.29), as_debridement (I27E, 5-850.c9 + 5-855.19), Grouper-verifiziert |
-| `erloes2026.json` | 30.08.2026 | **Upload offen** — GVD/VWD-Nachträge I08F (8,2 / 2–16), I29B (2,6 / 1–4), I47B (9,0 / 2–16) |
-| `diagnosen.json` | 30.08.2026 | **Upload offen** — Diagnose-Label „Diabetischer Fuß" → „Diabetisches Fußsyndrom" |
-| `erloes2026.json` (erneut) | 30.08.2026 | **Upload offen** — zusätzlich Minimal-Zeilen F21E und F28C für die DF-Stufeninfos (nur Katalogwerte; InEK-Exporte nachliefern) |
-| übrige sechs `data/`-Dateien | 29.08.2026 | Bucket = lokal (Uploads vom 29.08. bestätigt, zeichengenaue Prüfung ausstehend) |
+| `opmethoden.json` | 03.09.2026 | **Upload offen** — neue Map `PATIENT_EINGRIFF_KB_MAP` (peroneal_naht/peroneal_rek → ptr_kb, peroneal_lux → peroneal_luxation_kb) für den OP-abhängigen Rückweg „Zum Krankheitsbild"; wirkt erst nach Umsetzung von `auftrag-kbinfo-eingriff.md` in `app.html`, schadet vorher nicht |
+| `optexte.json`, `opsteuerung.json`, `erloes2026.json`, `diagnosen.json` | 30.08.2026 | Bucket = lokal (Uploads vom Autor bestätigt, zeichengenaue Prüfung ausstehend) |
+| übrige `data/`-Dateien | 29.08.2026 | Bucket = lokal (Uploads vom 29.08. bestätigt, zeichengenaue Prüfung ausstehend) |
 | `zuordnung/implantat_zuordnung.json` | 29.08.2026 | **Bucket veraltet**, siehe unten |
 
 Die Zuordnungsdatei ist ein Sonderfall: Sie liegt im Repo unter `zuordnung/`
@@ -217,6 +214,13 @@ wiederverwendet — sie steht in bereits ausgehaendigten Arztbriefen. Details im
 Kopf von `kurzlinks.json`.
 
 Beide Dateien gehoeren ins **Repo** (Push), nicht in den Bucket.
+
+**03.09.2026:** `kurzlinks.json` — die Ziel-URLs von `peroneal-riss` und
+`peroneal-instab` tragen jetzt `&kbinfo=<Krankheitsbild>` (ptr_kb bzw.
+peroneal_luxation_kb), damit der Rueckweg „Zum Krankheitsbild" auch beim Aufruf
+ueber die Kurzadresse erscheint und nicht nur beim QR-Scan. IDs unveraendert.
+Nach dem Push: `https://fuss-track.de/i/peroneal-riss` aufrufen — erwartet wird
+die OP-Aufklaerung mit dem Rueckweg „Zum Krankheitsbild: Peronealsehnen-Riss".
 
 ## E) Wenn doch etwas fehlt
 

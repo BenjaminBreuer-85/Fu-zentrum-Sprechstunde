@@ -8,7 +8,7 @@
     "der Eintrag entfernt; die ID bleibt danach dauerhaft unbenutzt.",
     "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter."
   ],
-  "_STAND": "2026-08-14",
+  "_STAND": "2026-09-03",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
   "ZIELE": {
     "achilles-insertional": {
@@ -217,7 +217,7 @@
       "art": "op"
     },
     "peroneal-instab": {
-      "url": "https://patienten.fuss-track.de/fusstrack.html?op=peroneal_instab&modus=aufklaerung",
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=peroneal_instab&modus=aufklaerung&kbinfo=peroneal_luxation_kb",
       "titel": "Peronealsehnen-Instabilität",
       "art": "op"
     },
@@ -227,8 +227,8 @@
       "art": "diagnose"
     },
     "peroneal-riss": {
-      "url": "https://patienten.fuss-track.de/fusstrack.html?op=peroneal_riss&modus=aufklaerung",
-      "titel": "Peronealsehnen-Riss",
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=peroneal_riss&modus=aufklaerung&kbinfo=ptr_kb",
+      "titel": "Operative Versorgung eines Peronealsehnen-Risses",
       "art": "op"
     },
     "plantarfascie": {
