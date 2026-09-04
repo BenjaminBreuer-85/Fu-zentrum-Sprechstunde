@@ -7,3 +7,6 @@ meine-preise/
 # Lokaler Zustand der Supabase-CLI (entsteht bei "supabase link")
 supabase/.temp/
 supabase/.branches/
+
+# Vortragsvideos (lokal, nie ins Repo)
+_vortrag/

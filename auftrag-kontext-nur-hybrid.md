@@ -48,3 +48,23 @@ Die bestehende Zeile in der Ambulant-Box (Zeile ~3064, „❌ Kontextprozedur(en
 ## Deploy
 
 `app.html` (Repo, Push). **Bucket-Upload `opsteuerung.json` offen** (DEPLOY.md D). Vor dem Upload die Bucket-Kopie einmal herunterladen und mit der lokalen Datei vergleichen: Zeigt die Live-App bei der USG-Arthrodese den Block, obwohl der lokale Eintrag kein `kontext` hat, liegt im Bucket ein älterer Stand.
+
+## Nachtrag 03.09.2026 (nach Gegenprobe der Code-Sitzung)
+
+Bucket-Vergleich bestätigt: Bucket-Kopie von `opsteuerung.json` älter als lokal. Upload bleibt offen (DEPLOY.md D); die Codeänderung wirkt unabhängig davon.
+
+**1. Pfeil der Hebel-Zeile auf das Ziel des Hebels.** `drg` und `best.drg` sind nach Modifikator bereits die DRG ohne Hebel (bei „ohne Spongiosa" also I13E). Das Ziel steht im Grundeintrag:
+
+```jsx
+var hebelZiel = (OP_STEUERUNG[bestKey] && OP_STEUERUNG[bestKey].drg) || drg;
+{!hatHybridBezug && !hideKontext && best.hebel && <div style={{fontSize:10,color:"#2E7D32",marginTop:4,fontWeight:600}}>
+  Erlöshebel: <span style={{fontFamily:"monospace"}}>{best.hebel}</span>{best.hebelName ? " ("+best.hebelName+")" : ""} → {hebelZiel}
+  {hebelZiel !== drg && <span style={{color:"#C62828",fontWeight:400}}> (aktuell {drg}, Hebel nicht genutzt)</span>}
+</div>}
+```
+
+Mit Modifikator „ohne Spongiosa" liest sich die Zeile dann „Erlöshebel: 5-783.0d + 5-784.0n (…) → I13D (aktuell I13E, Hebel nicht genutzt)".
+
+**2. MTP-I + 3× DMMO: keine Hebel-Zeile.** In diesen Overrides kommt I20D aus der DMMO-Anzahl (5-788.54), nicht aus 5-784.0v; die Zeile „5-784.0v → I20D" wäre irreführend. Die Overrides setzen bereits `hideKontext:true`, deshalb reicht `!hideKontext` in der Bedingung oben. Erwartung danach: MTP-I + 3× DMMO und + 4× DMMO ohne Block und ohne Hebel-Zeile.
+
+Gegenprobe ergänzen: OSG-Arthrodese ohne Spongiosa → Hebel-Zeile mit „→ I13D (aktuell I13E, Hebel nicht genutzt)"; MTP-I + 3× DMMO → keine Hebel-Zeile.
