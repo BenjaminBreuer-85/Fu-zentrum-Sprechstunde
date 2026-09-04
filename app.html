@@ -3029,6 +3029,13 @@ var _s = useState, _m = useMemo;
               var empf=override?override.empf:best.empf;
               var extraNote=override?override.note:"";
               var hideKontext=override&&override.hideKontext;
+              // Kontextprozeduren drehen sich um Ausloesung oder Vermeidung der
+              // Hybrid-DRG. Ohne Hybrid-Bezug ist der Block gegenstandslos —
+              // "Stationär: IMMER kodieren zum Ausschluss H-DRG" stand sonst
+              // auch bei Eingriffen, fuer die es gar keine H-DRG gibt.
+              // hdrg ist der Wert NACH Override, damit Konstellationen ohne
+              // H-DRG (etwa MTP-I + 3x DMMO) den Block ebenfalls unterdruecken.
+              var hatHybridBezug=(hdrg!==null&&hdrg!==undefined)||(best.hdrgTrigger&&best.hdrgTrigger.length>0);
               var displayHinweis=(override&&override.altHinweis)||best.hinweis;
               // Ambulant-Status: hdrg / ebm / nichtmoeglich
               // Priorität: override.ambStatus > best.ambStatus > abgeleitet aus hdrg
@@ -3088,6 +3095,9 @@ var _s = useState, _m = useMemo;
                       <div><span style={{fontWeight:600}}>UGVD:</span> {ugvd} Tag{ugvd!==1?"e":""}{ab&&<span style={{color:"#C62828"}}> · Abschlag: {ab.toLocaleString("de-DE")} €/Tag</span>}</div>
                       <div><span style={{fontWeight:600}}>MVWD:</span> {mvwd} Tage · CM {cm.toFixed(3)}</div>
                     </div>
+                    {!hatHybridBezug&&best.hebel&&<div style={{fontSize:10,color:"#2E7D32",marginTop:4,fontWeight:600}}>
+                      Erlöshebel: <span style={{fontFamily:"monospace"}}>{best.hebel}</span>{best.hebelName?" ("+best.hebelName+")":""} → {drg}
+                    </div>}
                     {implZahl>0&&<div style={{fontSize:10,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
                       <div><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>
                       {ampel?<div style={{marginTop:2,color:ampelColor,fontWeight:600}}>{ampelIcon} {ampelText} <span style={{color:"#718096",fontWeight:400}}>(InEK-Ref. {ampel.soll.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €)</span></div>:null}
@@ -3145,7 +3155,7 @@ var _s = useState, _m = useMemo;
                     })()}
                   </div>;
                 })()}
-                {!hideKontext&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
+                {!hideKontext&&hatHybridBezug&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   {best.hdrgTrigger&&best.hdrgTrigger.length>0&&<div style={{marginBottom:6,padding:"4px 6px",background:"rgba(46,125,50,.06)",border:"1px solid rgba(46,125,50,.25)",borderRadius:4}}>
                     <div style={{fontSize:10,fontWeight:700,color:"#2E7D32",marginBottom:2}}>H-DRG-Trigger</div>
                     <div>
@@ -3155,7 +3165,8 @@ var _s = useState, _m = useMemo;
                       Ambulant: triggern die H-DRG erst — daher bei ambulanter Durchführung obligat mitkodieren. Stationär nicht zwingend nötig, klinisch aber meist mit durchgeführt — dann muss zusätzlich eine Kontextprozedur (s.u.) kodiert werden, um nicht in die niedriger bewertete H-DRG zu fallen.
                     </div>
                   </div>}
-                  <div style={{fontWeight:700,color:"#1565C0",marginBottom:4}}>Kontextprozeduren</div>
+                  <div style={{fontWeight:700,color:"#1565C0",marginBottom:2}}>Kontextprozeduren</div>
+                  <div style={{fontSize:10,color:"#555",marginBottom:4}}>Hybrid-DRG: entscheidet über ambulant, Hybrid oder stationär.</div>
                   {best.kontext&&best.kontext.length>0&&<div style={{marginBottom:4}}>
                     {best.kontext.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2}}><span style={{fontWeight:600,fontFamily:"monospace"}}>{k.code}</span> <span style={{color:"#718096"}}>({OPS_LABELS[k.code]||k.name||k.code})</span></span>;})}
                   </div>}
