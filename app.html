@@ -3036,6 +3036,9 @@ var _s = useState, _m = useMemo;
               // hdrg ist der Wert NACH Override, damit Konstellationen ohne
               // H-DRG (etwa MTP-I + 3x DMMO) den Block ebenfalls unterdruecken.
               var hatHybridBezug=(hdrg!==null&&hdrg!==undefined)||(best.hdrgTrigger&&best.hdrgTrigger.length>0);
+              // drg und best.drg sind nach einem Modifikator bereits die DRG
+              // OHNE Hebel. Wohin der Hebel fuehrt, steht im Grundeintrag.
+              var hebelZiel=(OP_STEUERUNG[bestKey]&&OP_STEUERUNG[bestKey].drg)||drg;
               var displayHinweis=(override&&override.altHinweis)||best.hinweis;
               // Ambulant-Status: hdrg / ebm / nichtmoeglich
               // Priorität: override.ambStatus > best.ambStatus > abgeleitet aus hdrg
@@ -3095,8 +3098,12 @@ var _s = useState, _m = useMemo;
                       <div><span style={{fontWeight:600}}>UGVD:</span> {ugvd} Tag{ugvd!==1?"e":""}{ab&&<span style={{color:"#C62828"}}> · Abschlag: {ab.toLocaleString("de-DE")} €/Tag</span>}</div>
                       <div><span style={{fontWeight:600}}>MVWD:</span> {mvwd} Tage · CM {cm.toFixed(3)}</div>
                     </div>
-                    {!hatHybridBezug&&best.hebel&&<div style={{fontSize:10,color:"#2E7D32",marginTop:4,fontWeight:600}}>
-                      Erlöshebel: <span style={{fontFamily:"monospace"}}>{best.hebel}</span>{best.hebelName?" ("+best.hebelName+")":""} → {drg}
+                    {/* hideKontext heisst: die H-DRG faellt aus einem anderen
+                        Grund weg (etwa 3x DMMO), die DRG kommt dann nicht vom
+                        Hebel dieses Eintrags — die Zeile waere irrefuehrend. */}
+                    {!hatHybridBezug&&!hideKontext&&best.hebel&&<div style={{fontSize:10,color:"#2E7D32",marginTop:4,fontWeight:600}}>
+                      Erlöshebel: <span style={{fontFamily:"monospace"}}>{best.hebel}</span>{best.hebelName?" ("+best.hebelName+")":""} → {hebelZiel}
+                      {hebelZiel!==drg&&<span style={{color:"#C62828",fontWeight:400}}> (aktuell {drg}, Hebel nicht genutzt)</span>}
                     </div>}
                     {implZahl>0&&<div style={{fontSize:10,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
                       <div><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>
