@@ -1328,6 +1328,23 @@ function hoechste(liste, rang){
   });
   return t;
 }
+// AOP-Katalog: Bitmaske im Katalogblock, Bit 1. Unbekannte Kodes gelten als
+// nicht im Katalog — lieber ein Hinweis zu viel als eine falsche Zusage.
+var _AOP_IDX=null;
+function imAopKatalog(code){
+  if(!_AOP_IDX){
+    _AOP_IDX={};
+    (window._HD||[]).forEach(function(e){ _AOP_IDX[e[0]]=e[2]; });
+  }
+  return ((_AOP_IDX[code]||0)&1)===1;
+}
+// Ziel-DRG einer Kontextprozedur: fester String, Objekt je Hybrid-DRG der
+// Haupt-OP, oder fehlend — dann gilt die drg der OP-Methode.
+function hdrgZielDrg(k, hdrg, drgOp){
+  if (!k || !k.drg) return drgOp;
+  if (typeof k.drg === "string") return k.drg;
+  return k.drg[hdrg] || drgOp;
+}
 function hdrgRegelsatz(hdrg){
   if (!HDRG_REGELN || !hdrg) return null;
   var werte = Object.keys(HDRG_REGELN).map(function(k){ return HDRG_REGELN[k]; });
@@ -1360,12 +1377,23 @@ function hdrgAuswertung(opts){
   erg.treffer.kontext = kTreffer; erg.treffer.aufwertung = aTreffer;
 
   if (kTreffer.length) {
-    // Kontextprozedur fuehrt aus der Hybrid-DRG heraus.
+    // Kontextprozedur fuehrt aus der Hybrid-DRG heraus. Das Ziel steht je Kode
+    // entweder fest (String) oder haengt an der Hybrid-DRG der Haupt-OP
+    // (Objekt) — 5-788.54 fuehrt beim Chevron nach I20E, bei der
+    // MTP-I-Arthrodese nach I20D. Fehlt die Angabe, gilt die drg der OP.
     erg.hybrid = false; erg.hdrg = null;
-    var ziele = kTreffer.map(function(k){ return k.drg || drgOp; });
-    erg.drg = hoechste(ziele, DRG_RANG) || drgOp;
+    erg.drg = hoechste(kTreffer.map(function(k){ return hdrgZielDrg(k, hdrgStart, drgOp); }), DRG_RANG) || drgOp;
+    // "ambulant EBM" gilt nur, wenn wirklich alle Kodes im AOP-Katalog stehen.
+    var ausserhalb = codes.filter(function(c){ return !imAopKatalog(c); });
+    var ambSatz;
+    if (!ausserhalb.length) ambSatz = "ambulant EBM.";
+    else {
+      var nurOsteo = ausserhalb.every(function(c){ return c.indexOf("5-788.5") === 0; });
+      ambSatz = "ambulant nur mit unvergüteten " + (nurOsteo ? "Osteotomien" : "Leistungen")
+              + " (" + ausserhalb.join(", ") + " nicht im AOP-Katalog).";
+    }
     erg.satz = kTreffer.map(function(k){ return k.name + " (" + k.code + ")"; }).join(" und ")
-      + " führt aus " + hdrgStart + " heraus. Stationär " + erg.drg + ", ambulant EBM.";
+      + " führt aus " + hdrgStart + " heraus. Stationär " + erg.drg + "; " + ambSatz;
   } else if (aTreffer.length) {
     erg.hdrg = hoechste(aTreffer.map(function(a){ return a.hdrg; }), HDRG_RANG) || hdrgStart;
     erg.satz = aTreffer.map(function(a){ return a.name + " (" + a.code + ")"; }).join(" und ")
@@ -1385,7 +1413,8 @@ function hdrgAuswertung(opts){
   }
   if (pTreffer.length && opts.ambulant) {
     pTreffer.forEach(function(c){
-      erg.warnungen.push(c + " steht nicht im AOP-Katalog, zieht den ambulanten Fall aus dem EBM in die Hybrid-DRG " + (erg.hdrg || hdrgStart) + ".");
+      var n=(regel.positivNamen&&regel.positivNamen[c])||"Positivprozedur";
+      erg.warnungen.push(n + " (" + c + ") steht nicht im AOP-Katalog, zieht den ambulanten Fall aus dem EBM in die Hybrid-DRG " + (erg.hdrg || hdrgStart) + ".");
     });
   }
   erg.setting = { hybrid: erg.hybrid, stationaer: erg.drg,
@@ -3320,7 +3349,7 @@ var _s = useState, _m = useMemo;
                     {hAus.listen.kontext.length>0&&<div style={{marginBottom:4}}>
                       <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>führt heraus</div>
                       {hAus.listen.kontext.map(function(k,i){ return <div key={i}>
-                        <span style={{fontFamily:"monospace",fontWeight:600}}>{k.code}</span> <span style={{color:"#555"}}>— {k.name} → {k.drg||drg}</span>
+                        <span style={{fontFamily:"monospace",fontWeight:600}}>{k.code}</span> <span style={{color:"#555"}}>— {k.name} → {hdrgZielDrg(k, hdrg||hAus.hdrg, drg)}</span>
                       </div>; })}
                     </div>}
                     {hAus.listen.aufwertung.length>0&&<div style={{marginBottom:4}}>
