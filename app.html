@@ -1304,6 +1304,94 @@ const ME_REGIONEN = window._DATA.opsteuerung.ME_REGIONEN;
 const AUFKLAERUNG_RISIKEN = window._DATA.aufklaerung.AUFKLAERUNG_RISIKEN;
 
 const OP_STEUERUNG = window._DATA.opsteuerung.OP_STEUERUNG;
+
+// ============================================================
+// Hybrid-Regeln je Hybrid-DRG (Konzept 07.09.2026).
+// Die Regeln haengen nicht an der OP, sondern an der Hybrid-DRG: I20O und
+// I20N teilen sich einen Satz, I20M hat einen eigenen. Fehlt der Block noch
+// im Bucket, bleibt alles beim Alten — dann greifen die je OP gepflegten
+// Bloecke ausschluss/aufwertung/kontext wie bisher.
+// ============================================================
+const HDRG_REGELN = window._DATA.opsteuerung.HDRG_REGELN || null;
+const HDRG_RAHMEN = window._DATA.opsteuerung.HDRG_RAHMEN || null;
+
+// Rangfolge der Voll-DRGs, hoechstwertig zuerst; und der Hybrid-DRGs.
+var DRG_RANG  = ["I20B","I20C","I20D","I20E","I20F"];
+var HDRG_RANG = ["I20M","I20N","I20O"];
+function hoechste(liste, rang){
+  var t = null;
+  liste.forEach(function(x){
+    if (!x) return;
+    if (t === null) { t = x; return; }
+    var a = rang.indexOf(x), b = rang.indexOf(t);
+    if (a >= 0 && (b < 0 || a < b)) t = x;
+  });
+  return t;
+}
+function hdrgRegelsatz(hdrg){
+  if (!HDRG_REGELN || !hdrg) return null;
+  var werte = Object.keys(HDRG_REGELN).map(function(k){ return HDRG_REGELN[k]; });
+  for (var i = 0; i < werte.length; i++) {
+    if ((werte[i].hdrg || []).indexOf(hdrg) >= 0) return werte[i];
+  }
+  return null;
+}
+
+// Eine Auswertung fuer beide Generatoren. codes ist die Menge der tatsaechlich
+// angeklickten OPS-Kodes; verglichen wird woertlich, keine Platzhalter.
+function hdrgAuswertung(opts){
+  var best = opts.best || {}, codes = opts.codes || [], hdrgStart = opts.hdrg || null;
+  var drgOp = opts.drg || best.drg || null;
+  var regel = hdrgRegelsatz(hdrgStart);
+  var erg = { hdrg: hdrgStart, drg: drgOp, hybrid: !!hdrgStart, warnungen: [],
+              listen: { kontext: [], aufwertung: [], nichtKontext: [] },
+              treffer: { kontext: [], aufwertung: [] }, satz: "", regel: regel };
+  if (!regel) return erg;   // ohne Regelsatz bleibt die bisherige Darstellung
+
+  erg.listen.kontext      = regel.kontext || [];
+  erg.listen.aufwertung   = regel.aufwertung || [];
+  erg.listen.nichtKontext = regel.nichtKontext || [];
+
+  var hat = function(c){ return codes.indexOf(c) >= 0; };
+  var kTreffer = (regel.kontext || []).filter(function(k){ return hat(k.code); });
+  var aTreffer = (regel.aufwertung || []).filter(function(a){ return hat(a.code); });
+  var nTreffer = (regel.nichtKontext || []).filter(function(n){ return hat(n.code); });
+  var pTreffer = (regel.positiv || []).filter(function(c){ return hat(c); });
+  erg.treffer.kontext = kTreffer; erg.treffer.aufwertung = aTreffer;
+
+  if (kTreffer.length) {
+    // Kontextprozedur fuehrt aus der Hybrid-DRG heraus.
+    erg.hybrid = false; erg.hdrg = null;
+    var ziele = kTreffer.map(function(k){ return k.drg || drgOp; });
+    erg.drg = hoechste(ziele, DRG_RANG) || drgOp;
+    erg.satz = kTreffer.map(function(k){ return k.name + " (" + k.code + ")"; }).join(" und ")
+      + " führt aus " + hdrgStart + " heraus. Stationär " + erg.drg + ", ambulant EBM.";
+  } else if (aTreffer.length) {
+    erg.hdrg = hoechste(aTreffer.map(function(a){ return a.hdrg; }), HDRG_RANG) || hdrgStart;
+    erg.satz = aTreffer.map(function(a){ return a.name + " (" + a.code + ")"; }).join(" und ")
+      + " wertet auf " + erg.hdrg + " auf.";
+  } else {
+    erg.satz = "Fall liegt in " + hdrgStart + ".";
+    if (best.hebel) erg.satz += " Ausweg für diese OP: " + (best.hebelName || "Kontextprozedur")
+      + " (" + best.hebel + ") nach " + (best.drg || drgOp) + ".";
+    else erg.satz += " Kein Ausweg gesetzt.";
+  }
+
+  // Warnungen
+  if (nTreffer.length && !kTreffer.length) {
+    nTreffer.forEach(function(n){
+      erg.warnungen.push(n.name + " (" + n.code + ") " + (n.txt || "wirkt hier nicht als Kontextprozedur, der Fall bleibt Hybrid") + ".");
+    });
+  }
+  if (pTreffer.length && opts.ambulant) {
+    pTreffer.forEach(function(c){
+      erg.warnungen.push(c + " steht nicht im AOP-Katalog, zieht den ambulanten Fall aus dem EBM in die Hybrid-DRG " + (erg.hdrg || hdrgStart) + ".");
+    });
+  }
+  erg.setting = { hybrid: erg.hybrid, stationaer: erg.drg,
+                  ambulant: pTreffer.length ? "hybrid" : (erg.hybrid ? "hybrid" : "ebm") };
+  return erg;
+}
 // Hydration (Single Source): Zahl-Literale in OP_STEUERUNG werden aus dem Erlösdaten-Block überschrieben,
 // €-Beträge in allen Texten (hinweise/ziel/…) über window._fx neu berechnet. Beim Jahres-Update nichts hier anfassen.
 (function(){
@@ -3127,6 +3215,18 @@ var _s = useState, _m = useMemo;
               // drg und best.drg sind nach einem Modifikator bereits die DRG
               // OHNE Hebel. Wohin der Hebel fuehrt, steht im Grundeintrag.
               var hebelZiel=(OP_STEUERUNG[bestKey]&&OP_STEUERUNG[bestKey].drg)||drg;
+              // Die tatsaechlich angeklickten Kodes des Falls: Hauptkodes des
+              // Eintrags, Kodes der gesetzten Modifikatoren und die Kodes, die
+              // aus den Anzahl-Chips folgen. Beim Lapidus gilt der Akin-Trigger
+              // als gesetzt, solange er nicht ausdruecklich entfernt wurde.
+              var fallCodes=[];
+              (best.opsCodes||[]).forEach(function(c){ fallCodes.push(c.code); });
+              (best._mods||[]).forEach(function(m){ (m.ops||[]).forEach(function(c){ fallCodes.push(c); }); });
+              var DMMO_CODE={"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
+              if(opMethode.indexOf("dmmo")>=0&&DMMO_CODE[dmmoCount]) fallCodes.push(DMMO_CODE[dmmoCount]);
+              if(bestKey==="lapidus"&&(best.hdrgTrigger||[]).length) (best.hdrgTrigger||[]).forEach(function(t){ fallCodes.push(t.code); });
+              var hAus=hdrgAuswertung({best:best, bestKey:bestKey, hdrg:hdrg, drg:drg,
+                        codes:fallCodes, ambulant:ambStatus!=="nichtmoeglich"});
               var displayHinweis=(override&&override.altHinweis)||best.hinweis;
               // Ambulant-Status: hdrg / ebm / nichtmoeglich
               // Priorität: override.ambStatus > best.ambStatus > abgeleitet aus hdrg
@@ -3202,6 +3302,41 @@ var _s = useState, _m = useMemo;
                     <div style={{fontSize:10,color:"#E65100",marginTop:4,fontStyle:"italic"}}>⚠ Notwendigkeit der stationären Führung für jeden Tag in der Akte dokumentieren</div>
                   </div>;}()}
                 </div>
+                {/* Konsequenz-Zeile: ein Satz, warum der Fall dort steht, wo er
+                    steht. Nur mit Regelsatz — ohne HDRG_REGELN bleibt die
+                    bisherige Darstellung unveraendert. */}
+                {hAus.regel&&<div style={{fontSize:11,color:"#2D3748",lineHeight:1.6,marginBottom:6}}>
+                  {hAus.satz}
+                  {hAus.warnungen.map(function(w,i){ return <div key={i} style={{color:"#C62828",marginTop:2}}>{w}</div>; })}
+                </div>}
+                {hAus.regel&&HDRG_RAHMEN&&<div style={{fontSize:10,color:"#718096",marginBottom:6}}>
+                  Hybrid nur bei: {HDRG_RAHMEN.join(", ")}.
+                </div>}
+                {hAus.regel&&<details style={{marginBottom:6}}>
+                  <summary style={{fontSize:10,color:"#1565C0",cursor:"pointer",userSelect:"none"}}>
+                    Kontextprozeduren {hdrg||hAus.hdrg||""} anzeigen
+                  </summary>
+                  <div style={{padding:"6px 8px",fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+                    {hAus.listen.kontext.length>0&&<div style={{marginBottom:4}}>
+                      <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>führt heraus</div>
+                      {hAus.listen.kontext.map(function(k,i){ return <div key={i}>
+                        <span style={{fontFamily:"monospace",fontWeight:600}}>{k.code}</span> <span style={{color:"#555"}}>— {k.name} → {k.drg||drg}</span>
+                      </div>; })}
+                    </div>}
+                    {hAus.listen.aufwertung.length>0&&<div style={{marginBottom:4}}>
+                      <div style={{fontWeight:700,color:"#2E7D32",marginBottom:2}}>wertet auf</div>
+                      {hAus.listen.aufwertung.map(function(a,i){ return <div key={i}>
+                        <span style={{fontFamily:"monospace",fontWeight:600}}>{a.code}</span> <span style={{color:"#555"}}>— {a.name} → {a.hdrg}</span>
+                      </div>; })}
+                    </div>}
+                    {hAus.listen.nichtKontext.length>0&&<div>
+                      <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>kein Ausweg</div>
+                      {hAus.listen.nichtKontext.map(function(n,i){ return <div key={i}>
+                        <span style={{fontFamily:"monospace",fontWeight:600}}>{n.code}</span> <span style={{color:"#555"}}>— {n.name}: {n.txt}</span>
+                      </div>; })}
+                    </div>}
+                  </div>
+                </details>}
                 {/* FALLKOSTEN + DB II — analog zu Endo (nur stationär, wenn DRG vorhanden und FUSS_DRG-Fallkosten gepflegt) */}
                 {hasStat && drg && (FUSS_DRG[drg] || ENDO_DRG[drg]) && (function(){
                   var d = FUSS_DRG[drg] || ENDO_DRG[drg];
@@ -3250,7 +3385,7 @@ var _s = useState, _m = useMemo;
                     })()}
                   </div>;
                 })()}
-                {!hideKontext&&hatHybridBezug&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
+                {!hAus.regel&&!hideKontext&&hatHybridBezug&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   {best.hdrgTrigger&&best.hdrgTrigger.length>0&&<div style={{marginBottom:6,padding:"4px 6px",background:"rgba(46,125,50,.06)",border:"1px solid rgba(46,125,50,.25)",borderRadius:4}}>
                     <div style={{fontSize:10,fontWeight:700,color:"#2E7D32",marginBottom:2}}>H-DRG-Trigger</div>
                     <div>
@@ -3274,12 +3409,12 @@ var _s = useState, _m = useMemo;
                   {ambStatus==="hdrg"&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>❌ Ambulant: NICHT kodieren — sonst Verlust der H-DRG. Bei klinischer Notwendigkeit besser stationäre Führung.</div>}
                   {hasStat&&<div style={{fontSize:10,color:"#2E7D32",marginTop:2}}>✅ Stationär: IMMER kodieren zum Ausschluss H-DRG → volle DRG {drg}.</div>}
                 </div>:null}
-                {best.aufwertung&&<div style={{padding:"8px 10px",background:"rgba(46,125,50,.08)",border:"2px solid rgba(46,125,50,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
+                {!hAus.regel&&best.aufwertung&&<div style={{padding:"8px 10px",background:"rgba(46,125,50,.08)",border:"2px solid rgba(46,125,50,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   <div style={{fontWeight:700,color:"#2E7D32",marginBottom:4,fontSize:11}}>↑ Aufwertung möglich bei Ansteuerung H-DRG → {best.aufwertung.ziel} {best.aufwertung.delta&&<span style={{background:"#2E7D32",color:"#fff",padding:"1px 6px",borderRadius:3,marginLeft:4,fontSize:10}}>{best.aufwertung.delta}</span>}</div>
                   <div style={{fontSize:10,color:"#555",marginBottom:3}}>Durch zusätzliche Kodierung von:</div>
                   {best.aufwertung.triggers.map(function(t,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#2E7D32"}}>{t.code}</span> <span style={{color:"#555"}}>— {OPS_LABELS[t.code]||t.name||t.code}</span></div>;})}
                 </div>}
-                {best.ausschluss&&<div style={{padding:"8px 10px",background:"rgba(198,40,40,.08)",border:"2px solid rgba(198,40,40,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
+                {!hAus.regel&&best.ausschluss&&<div style={{padding:"8px 10px",background:"rgba(198,40,40,.08)",border:"2px solid rgba(198,40,40,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   <div style={{fontWeight:700,color:"#C62828",marginBottom:4,fontSize:11}}>⚠ Ausschluss aus H-DRG → {best.ausschluss.ziel}</div>
                   <div style={{fontSize:10,color:"#555",marginBottom:3}}>Bei Kombination mit einem dieser Codes entfällt die H-DRG-Fähigkeit:</div>
                   {best.ausschluss.triggers.map(function(t,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#C62828"}}>{t.code}</span> <span style={{color:"#555"}}>— {OPS_LABELS[t.code]||t.name||t.code}</span></div>;})}
