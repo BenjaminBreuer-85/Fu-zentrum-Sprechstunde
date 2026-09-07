@@ -891,7 +891,11 @@
    "primaer_inbone",
    "Standard"
   ],
-  "supramal_ot": [
+  "supramal_valgus": [
+   "supramal_ot",
+   "Standard"
+  ],
+  "supramal_varus": [
    "supramal_ot",
    "Standard"
   ],
@@ -930,10 +934,6 @@
   "lcot": [
    "coalitio_lcot",
    "mit LCOT"
-  ],
-  "calcaneus_ot": [
-   "calc_ot_verl",
-   "Standard"
   ],
   "arthrodese_tmt": [
    "arthrodese_tmt",

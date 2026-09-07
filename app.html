@@ -1362,12 +1362,59 @@ function opSteuerungEff(key, mods){
 }
 // Der Halbsatz fuer die Empfehlungszeile: textErsatz ersetzt den Grundtext,
 // text wird angehaengt.
-function opTextMitMods(key, mods){
+// Zusatzauswahl je Eingriff, nach dem Muster der Seitenangabe. Sie praezisiert
+// den Brieftext; ohne Auswahl bleibt der generische Text stehen.
+var OP_ZUSATZWAHL = {
+  peroneal_naht:        { titel:"Sehne",       mehrfach:false, optionen:[["brevis","Peroneus brevis"],["longus","Peroneus longus"],["beide","beide"]] },
+  peroneal_rek:         { titel:"Sehne",       mehrfach:false, optionen:[["brevis","Peroneus brevis"],["longus","Peroneus longus"],["beide","beide"]] },
+  peroneal_lux:         { titel:"Sehne",       mehrfach:false, optionen:[["brevis","Peroneus brevis"],["longus","Peroneus longus"],["beide","beide"]] },
+  kleinzehen_pip:       { titel:"Zehe",        mehrfach:true,  optionen:[["d2","D2"],["d3","D3"],["d4","D4"],["d5","D5"]] },
+  kleinzehen_weichteil: { titel:"Zehe",        mehrfach:true,  optionen:[["d2","D2"],["d3","D3"],["d4","D4"],["d5","D5"]] },
+  morton_neurom:        { titel:"Zwischenraum",mehrfach:true,  optionen:[["23","II/III"],["34","III/IV"]] },
+  dmmo:                 { titel:"Strahl",      mehrfach:true,  optionen:[["mt2","MT II"],["mt3","MT III"],["mt4","MT IV"]] },
+  weil:                 { titel:"Strahl",      mehrfach:true,  optionen:[["mt2","MT II"],["mt3","MT III"],["mt4","MT IV"]] }
+};
+// Aus der Auswahl den Zusatz fuer den Brief bauen.
+function opZusatzText(key, wahl){
+  var def = OP_ZUSATZWAHL[key]; if (!def) return "";
+  var liste = [].concat(wahl && wahl[key] || []);
+  if (!liste.length) return "";
+  var namen = def.optionen.filter(function(o){ return liste.indexOf(o[0]) >= 0; }).map(function(o){ return o[1]; });
+  if (!namen.length) return "";
+  var aufzaehlung = namen.length > 1 ? namen.slice(0,-1).join(", ") + " und " + namen[namen.length-1] : namen[0];
+  if (key.indexOf("peroneal_") === 0) return aufzaehlung === "beide" ? "beide" : aufzaehlung.replace(" ", "-") + "-Sehne";
+  if (key === "morton_neurom") return "Zwischenraum " + aufzaehlung;
+  // "MT II und MT III" liest sich schwer; das wiederholte MT faellt weg.
+  if (key === "dmmo" || key === "weil") return "MT " + namen.map(function(x){ return x.replace(/^MT /, ""); })
+    .reduce(function(a, x, i, arr){ return i === 0 ? x : (i === arr.length - 1 ? a + " und " + x : a + ", " + x); }, "");
+  return aufzaehlung;
+}
+
+function opTextMitMods(key, mods, wahl){
   var t=(OPS[key]&&OPS[key].t)||key;
   aktiveMods(key, mods).forEach(function(m){
     if(m.textErsatz) t=m.textErsatz;
     else if(m.text) t=t+" "+m.text;
   });
+  var z=opZusatzText(key, wahl);
+  if(z){
+    // "Naht der Peronealsehne" -> "Naht der Peroneus-brevis-Sehne";
+    // bei den uebrigen haengt die Auswahl hinten an.
+    if(key.indexOf("peroneal_")===0){
+      // Steht die Sehne als eigenes Wort mit Artikel im Text ("Naht der
+      // Peronealsehne"), wird sie ersetzt. In zusammengesetzten Woertern
+      // ("Peronealsehnenrekonstruktion") ginge das schief — dort haengt die
+      // Angabe als eigene Bestimmung hinten an.
+      var artikel=/\b(der|die) Peronealsehnen?\b/;
+      if(artikel.test(t)) t=t.replace(artikel, z==="beide" ? "beider Peronealsehnen" : "der "+z);
+      else t=t+" an "+(z==="beide" ? "beiden Peronealsehnen" : "der "+z);
+    }
+    // Bei Strahl und Zehe gehoert die Angabe direkt hinter den Eingriffsnamen,
+    // nicht ans Ende — sonst haengt sie am letzten Halbsatz (etwa an der
+    // Schraube der Weil-Osteotomie).
+    else if(key==="dmmo"||key==="weil") t=t.replace(/^([^,(]+?)\s*(?=[,(]|$)/, "$1 "+z+" ").replace(/\s+,/g, ",").replace(/\s{2,}/g, " ").trim();
+    else t=t+" "+z;
+  }
   return t;
 }
 
@@ -1484,6 +1531,19 @@ var _s = useState, _m = useMemo;
   var dmmoCs = _s(""), dmmoCount = dmmoCs[0], setDmmoCount = dmmoCs[1];
   var pipCs = _s(""), pipCount = pipCs[0], setPipCount = pipCs[1];
   var lapRez = _s(false), lapidusRezidiv = lapRez[0], setLapidusRezidiv = lapRez[1];
+  // Zusatzauswahl je Eingriff (Sehne, Zehe, Zwischenraum, Strahl).
+  var ozw = _s({}), opZusatz = ozw[0], setOpZusatz = ozw[1];
+  function togZusatz(key, wert) {
+    setOpZusatz(function(alt) {
+      var n = {}; Object.keys(alt).forEach(function(x){ n[x] = alt[x]; });
+      var def = OP_ZUSATZWAHL[key]; if (!def) return alt;
+      var liste = [].concat(n[key] || []);
+      if (!def.mehrfach) liste = (liste[0] === wert) ? [] : [wert];
+      else liste = liste.indexOf(wert) >= 0 ? liste.filter(function(x){ return x !== wert; }) : liste.concat([wert]);
+      if (liste.length) n[key] = liste; else delete n[key];
+      return n;
+    });
+  }
   // Teilamputation zum Debridement, mit derselben Hoehenliste wie im OP-Bericht.
   var sbTa = _s(false), sbTeilamp = sbTa[0], setSbTeilamp = sbTa[1];
   var sbTaH = _s("teilres_2"), sbTeilampHoehe = sbTaH[0], setSbTeilampHoehe = sbTaH[1];
@@ -1757,6 +1817,16 @@ var _s = useState, _m = useMemo;
   // 30.08.2026 weit unterhalb der Diagnoseliste und wirkten dort beziehungslos.
   function opUnterbloecke() {
     return <>
+        {opMethode.filter(function(k){ return OP_ZUSATZWAHL[k]; }).map(function(k) {
+          var def = OP_ZUSATZWAHL[k];
+          var liste = [].concat(opZusatz[k] || []);
+          return <div key={"zw-"+k} style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
+            <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>{((OPS[k] && OPS[k].k) || k) + " — " + def.titel}</div>
+            <div style={row}>{def.optionen.map(function(o) {
+              return <div key={o[0]} style={CB(liste.indexOf(o[0]) >= 0)} onClick={function(){ togZusatz(k, o[0]); }}>{o[1]}</div>;
+            })}</div>
+          </div>;
+        })}
             {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
               <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
             </div>}
@@ -1816,7 +1886,7 @@ var _s = useState, _m = useMemo;
     var abschnitte = diagnosen.map(function(d) {
       return { titel: "Für " + (DIAG[d] ? DIAG[d].label : d), keys: (DIAG[d] && DIAG[d].opMethoden) || [] };
     });
-    if (coalitio) abschnitte.push({ titel: "Für Coalitio", keys: ["coalition_exzision", "subtalar_arthrodese"] });
+    if (coalitio) abschnitte.push({ titel: "Für Coalitio", keys: ["coalition_cn", "coalition_tc", "subtalar_arthrodese"] });
     var gesehen = {};
     abschnitte.forEach(function(a) {
       a.keys = a.keys.filter(function(k) { if (gesehen[k]) return false; gesehen[k] = true; return true; });
@@ -1853,7 +1923,7 @@ var _s = useState, _m = useMemo;
       var diag = DIAG[d];
       if (diag && diag.opMethoden) diag.opMethoden.forEach(function(m) { all[m] = true; });
     });
-    if (coalitio) { all["coalition_exzision"] = true; all["subtalar_arthrodese"] = true; }
+    if (coalitio) { all["coalition_cn"] = true; all["coalition_tc"] = true; all["subtalar_arthrodese"] = true; }
     return Object.keys(all);
   }, [diagnosen, coalitio]);
 
@@ -2326,12 +2396,12 @@ var _s = useState, _m = useMemo;
       var opTexte = ops.map(function(m) {
         if (m === "amic" && amicSpongiosa) return "Kürettage der OCL/Zyste, Spongiosaaugmentation autolog, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
         if (m === "amic") return "Kürettage der OCL, Nanofrakturierung, Deckung mit azellulärer Kollagenmembran/AMIC, ggf. minced cartilage";
-        if (m === "df_debridement" && sbTeilamp) return opTextMitMods(m, opMods) + ", " + dfHoehe(sbTeilampHoehe).brief;
-        return opTextMitMods(m, opMods);
+        if (m === "df_debridement" && sbTeilamp) return opTextMitMods(m, opMods, opZusatz) + ", " + dfHoehe(sbTeilampHoehe).brief;
+        return opTextMitMods(m, opMods, opZusatz);
       });
       p.push("\n\nElektive operative Option: " + opTexte.join(", ") + (seite ? " " + seite : "") + ", befundbezogenes Vorgehen");
       // Knöcherne Korrekturen (Osteotomien/Arthrodesen): Zusatzempfehlung als eigener Absatz (B. Breuer 07/2026)
-      var KNOECHERNE_KORREKTUR = ["chevron","chevron_akin","scarf","lapidus","mtp1_arthrodese","kleinzehen_pip","dmmo","arthrodese_tmt","mdo_offen","mdo_mini","lcot","cotton","calcaneus_ot","subtalar_arthrodese","arthrodese_osg","arthrodesenagel_retro","supramal_ot","tep_infinity","tep_vantage","tep_inbone","amic","oats"];
+      var KNOECHERNE_KORREKTUR = ["chevron","chevron_akin","scarf","lapidus","mtp1_arthrodese","kleinzehen_pip","dmmo","arthrodese_tmt","mdo_offen","mdo_mini","lcot","cotton","subtalar_arthrodese","arthrodese_osg","arthrodesenagel_retro","supramal_ot","tep_infinity","tep_vantage","tep_inbone","amic","oats"];
       if (ops.some(function(m) { return KNOECHERNE_KORREKTUR.indexOf(m) >= 0; })) {
         p.push("\n\nVitamin D3 Substitution und Kalzium reiche Ernährung");
       }
@@ -2499,7 +2569,7 @@ var _s = useState, _m = useMemo;
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return briefSauber(rawOut.replace(/\bundefined\b/g, "___"));
-  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, sbTeilamp, sbTeilampHoehe, scEfas, scEfasSport, scFaos, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
+  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, opZusatz, sbTeilamp, sbTeilampHoehe, scEfas, scEfasSport, scFaos, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
@@ -2651,7 +2721,7 @@ var _s = useState, _m = useMemo;
     setOpMethode([]); setOpMods({}); setOpEmpfohlen(true); setTherapieversuch(false); setNurDiagnostik(false);
     setOclZyste(false); setOclLok(""); setOclLaenge(""); setOclBreite(""); setOclTiefe(""); setAmicSpongiosa(false);
     setScEfas(""); setScEfasSport(""); setScFaos(""); setScVas("");
-    setSbTeilamp(false); setSbTeilampHoehe("teilres_2");
+    setSbTeilamp(false); setSbTeilampHoehe("teilres_2"); setOpZusatz({});
     setDauer(""); setDauerEinheit("Monaten"); setHaeufigkeit(""); setBelastung([]); setLeidensdruck(true);
     setBeruf(""); setAktivitaet(""); setSportEingeschr(false); setVorOPs(false); setStnText("");
     setKonservBisher([]); setRisiken([]); setFreitextRisiko("");
@@ -5233,7 +5303,16 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     // Mittelfuß
     if(mfTmt.length>0){
       const tmtLabel=mfTmt.map(t=>t==="tmt1"?"TMT 1":t==="tmt1_3"?"TMT 1–3":t==="tmt2_3"?"TMT 2–3":"TMT 2").join(", ");
-      if(mfTmt.length===1&&mfTmt[0]==="tmt2"){
+      // Je Umfang ein eigener Baustein — die Zugaenge unterscheiden sich:
+      // TMT I medial, TMT II/III dorsal, TMT I–III ueber zwei Zugaenge. Nur
+      // wo keiner passt, bleibt der allgemeine Text mit der Umfangszeile.
+      if(mfTmt.length===1&&mfTmt[0]==="tmt1"&&T.tmt1_arthrodese){
+        p.push("\n\n"+T.tmt1_arthrodese);
+      } else if(mfTmt.length===1&&mfTmt[0]==="tmt2_3"&&T.tmt23_arthrodese){
+        p.push("\n\n"+T.tmt23_arthrodese);
+      } else if(mfTmt.length===1&&mfTmt[0]==="tmt1_3"&&T.tmt123_arthrodese){
+        p.push("\n\n"+T.tmt123_arthrodese);
+      } else if(mfTmt.length===1&&mfTmt[0]==="tmt2"){
         p.push("\n\n"+T.tmt_arthrodese_2);
       } else {
         p.push("\n\nZuwendung zur TMT-Arthrodese ("+tmtLabel+").\n"+T.tmt_arthrodese);
