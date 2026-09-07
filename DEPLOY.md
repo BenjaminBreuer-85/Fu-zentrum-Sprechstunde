@@ -62,7 +62,7 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 03.09.2026 (abends): ZWEI UPLOADS OFFEN — `opmethoden.json`, `opsteuerung.json`** (je: erst löschen, dann hochladen). Die vier Uploads vom 30.08. (`optexte.json`, `opsteuerung.json`, `erloes2026.json`, `diagnosen.json`) hat der Autor am 30./31.08. bestätigt („alles geladen"); die zeichengenaue Bucket-Prüfung steht für alle noch aus.
+**Stand 07.09.2026 (abends): VIER UPLOADS OFFEN — `opmethoden.json`, `opsteuerung.json`, `diagnosen.json`, `optexte.json`** (je: erst löschen, dann hochladen). Reihenfolge egal, alle vier Änderungen sind abwärtskompatibel (neue Felder werden von der heutigen `app.html` ignoriert). Die vier Uploads vom 30.08. (`optexte.json`, `opsteuerung.json`, `erloes2026.json`, `diagnosen.json`) hat der Autor am 30./31.08. bestätigt („alles geladen"); die zeichengenaue Bucket-Prüfung steht für alle noch aus.
 
 Am 29.08.2026 wurden nacheinander erweitert und in den Bucket geladen:
 `erloes2026.json` (sechs neue DRG-Zeilen F27A/B/C und F13A/B/C in `_DRG` und
@@ -82,7 +82,9 @@ veraltet. Deshalb steht die Prüfung ab jetzt vor der Aussage.
 | Datei | Stand | Ergebnis |
 |---|---|---|
 | `opsteuerung.json` | 03.09.2026 | **Upload offen** — `kontext[]` bei `arthrodese_osg` und `haglund_as_split` entfernt (reine stationäre Erlöshebel, keine Hybrid-Kontextprozeduren), stattdessen info-Hinweis „Erlöshebel stationär: …"; Kommentar zur Bedeutung von `kontext[]` im Dateikopf. Anlass: Block „Kontextprozeduren" erschien in der Live-App bei der USG-Arthrodese, obwohl der lokale Eintrag kein `kontext` hat — vor dem Upload Bucket-Kopie herunterladen und vergleichen (Verdacht: Bucket älter als lokal). Zugehöriger Code-Auftrag: `auftrag-kontext-nur-hybrid.md` |
-| `opmethoden.json` | 03.09.2026 | **Upload offen** — neue Map `PATIENT_EINGRIFF_KB_MAP` (peroneal_naht/peroneal_rek → ptr_kb, peroneal_lux → peroneal_luxation_kb) für den OP-abhängigen Rückweg „Zum Krankheitsbild"; wirkt erst nach Umsetzung von `auftrag-kbinfo-eingriff.md` in `app.html`, schadet vorher nicht |
+| `diagnosen.json` | 07.09.2026 | **Upload offen** — neues optionales Feld `opText` (OP-abhängiger Diagnosetext) bei `usg_arthrose`, `lisfranc_arthrose`, `haglund`, `metatarsalgie`, `peronealsehnen`, `knick_senk`; `diagnoseText` bei `usg_arthrose` auf „Arthrose des unteren Sprunggelenkes" und bei `metatarsalgie` auf „Metatarsalgie" verallgemeinert; `bildBefunde` usg ohne „(Subtalargelenk)". Wirkt erst nach `auftrag-usg-diagnose-gelenke.md`, schadet vorher nicht |
+| `optexte.json` | 07.09.2026 | **Upload offen** — drei neue OP-Bericht-Bausteine `tmt1_arthrodese` (medial, Platte + Zugschraube, ohne Korrektur), `tmt23_arthrodese` (dorsal), `tmt123_arthrodese` (zwei Zugänge); alte `tmt_arthrodese`/`tmt_arthrodese_2` bleiben bis zur Chip-Umstellung (`auftrag-chips-struktur.md`) |
+| `opmethoden.json` | 07.09.2026 | **Upload offen** — Textkorrekturen nach Chip-Prüfung (`pruefung-chips-brieftexte-2026-09-07.md`): `subtalar_arthrodese` heißt „Subtalar-Arthrodese"; Beckenkamm bei allen Arthrodesen „ggf." im Brief und in der Aufklärung benannt; Lapidus mit fester Akin- und „ggf." subcapitaler Osteotomie; Peronealsehnennaht ohne Rekonstruktion; Strayer ohne Indikationszusatz; Haglund-Split mit Längsspaltung; Bandplastik mit Hamstring-/Plantarissehne; Coalitio mit Faszien-Fett-Lappen. Enthält weiterhin die Map `PATIENT_EINGRIFF_KB_MAP` vom 03.09.
 | `optexte.json`, `opsteuerung.json`, `erloes2026.json`, `diagnosen.json` | 30.08.2026 | Bucket = lokal (Uploads vom Autor bestätigt, zeichengenaue Prüfung ausstehend) |
 | übrige `data/`-Dateien | 29.08.2026 | Bucket = lokal (Uploads vom 29.08. bestätigt, zeichengenaue Prüfung ausstehend) |
 | `zuordnung/implantat_zuordnung.json` | 29.08.2026 | **Bucket veraltet**, siehe unten |
