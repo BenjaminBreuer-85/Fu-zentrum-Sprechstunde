@@ -3254,8 +3254,25 @@ var _s = useState, _m = useMemo;
               var DMMO_CODE={"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
               if(opMethode.indexOf("dmmo")>=0&&DMMO_CODE[dmmoCount]) fallCodes.push(DMMO_CODE[dmmoCount]);
               if(bestKey==="lapidus"&&(best.hdrgTrigger||[]).length) (best.hdrgTrigger||[]).forEach(function(t){ fallCodes.push(t.code); });
-              var hAus=hdrgAuswertung({best:best, bestKey:bestKey, hdrg:hdrg, drg:drg,
+              // Die Auswertung rechnet auf dem Grundzustand der OP, nicht auf
+              // dem bereits uebersteuerten Wert: Die handgeschriebenen
+              // Overrides (3x DMMO und Verwandte) sind die JS-Zwillinge der
+              // Regeln, die jetzt in HDRG_REGELN stehen. Wo ein Regelsatz
+              // greift, gilt seine Rechnung.
+              var hAus=hdrgAuswertung({best:best, bestKey:bestKey, hdrg:best.hdrg, drg:best.drg,
                         codes:fallCodes, ambulant:ambStatus!=="nichtmoeglich"});
+              if(hAus.regel){
+                hdrg  = hAus.hdrg;
+                // Hybrid-Pauschalen stehen in _HDRG, nicht in _DRG.
+                hdrgE = hdrg ? ((window._HDRG[hdrg]&&window._HDRG[hdrg].pauschale)||best.hdrgE||0) : 0;
+                drg   = hAus.drg;
+                drgE  = (drg&&window._E(drg)!=null) ? window._E(drg) : best.drgE;
+                var _z = window._DRG[drg];
+                if(_z){ if(_z.bwr!=null) cm=_z.bwr; if(_z.ugvd!=null) ugvd=_z.ugvd; if(_z.mvwd!=null) mvwd=_z.mvwd; }
+                hatHybridBezug = (hdrg!==null&&hdrg!==undefined)||(best.hdrgTrigger&&best.hdrgTrigger.length>0);
+                ambStatus = hdrg!==null ? "hdrg" : (hAus.setting&&hAus.setting.ambulant==="ebm" ? "ebm" : "nichtmoeglich");
+                extraNote = "";
+              }
               var displayHinweis=(override&&override.altHinweis)||best.hinweis;
               // Ambulant-Status: hdrg / ebm / nichtmoeglich
               // Priorität: override.ambStatus > best.ambStatus > abgeleitet aus hdrg
