@@ -2288,7 +2288,20 @@ var _s = useState, _m = useMemo;
         }
         return oclText;
       }
-      return DIAG[d] ? DIAG[d].diagnoseText : "";
+      if (!DIAG[d]) return "";
+      // Der Umfang des Eingriffs praezisiert die Diagnose: Wer die Triple
+      // waehlt, meint drei Gelenke, nicht nur das Subtalargelenk. Steht in
+      // opText ein Text zur gewaehlten OP-Methode, hat er Vorrang.
+      // Deterministisch: Bei mehreren Treffern gewinnt der LETZTE Schluessel
+      // in der Reihenfolge der Datei — die Maps sind vom engsten zum
+      // weitesten Befund sortiert, damit gewinnt der weiteste.
+      var ot = DIAG[d].opText;
+      if (ot) {
+        var treffer = "";
+        Object.keys(ot).forEach(function(k) { if (opMethode.indexOf(k) >= 0) treffer = ot[k]; });
+        if (treffer) return treffer;
+      }
+      return DIAG[d].diagnoseText;
     });
     if (coalitio && coalitioVar) diagParts.push(coalDiagText(coalitioVar));
     var diagText = diagParts.filter(Boolean).join(", ") + (seite ? " " + seite : "");
