@@ -91,9 +91,14 @@ typeof e)throw Error("bad rs block @ typeNumber:"+b+"/errorCorrectLevel:"+a);b=e
   .lm-gruppe > summary::-webkit-details-marker { display: none; }
   .lm-gruppe > summary:hover { background: #F6FAFA !important; }
   .lm-gruppe[open] > summary:hover { background: #E6F0F1 !important; }
-  /* P4: verhindert iOS-Auto-Zoom beim Antippen von Eingabefeldern */
+  /* iOS Safari zoomt beim Antippen jedes Feldes, dessen berechnete Schrift
+     unter 16px liegt, und bleibt danach gezoomt. Die Regel gab es seit P4
+     schon, sie kam aber nicht gegen die inline gesetzten Groessen an — inline
+     schlaegt jeden Selektor. Deshalb !important, und nur unterhalb 480px:
+     am Desktop bleiben die kleinen Groessen, wie sie sind.
+     Bewusst NICHT ueber user-scalable=no geloest, der Pinch-Zoom bleibt. */
   @media (max-width: 480px) {
-    input, textarea, select { font-size: 16px; }
+    input, textarea, select { font-size: 16px !important; }
   }
   /* Sprechstundenbrief layout */
   .sb-split { max-width: 1120px; margin: 0 auto; }
@@ -1788,7 +1793,7 @@ var _s = useState, _m = useMemo;
               {sbTeilamp && <div style={{ marginTop: 5, display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
                 <span style={{ fontSize: 10, color: "#718096", fontWeight: 700 }}>RESEKTIONS-/AMPUTATIONSHÖHE</span>
                 <select value={sbTeilampHoehe} onChange={function(e) { setSbTeilampHoehe(e.target.value); }}
-                        style={{ padding: "3px 6px", border: "1px solid rgba(0,0,0,.15)", borderRadius: 5, fontSize: 11, fontFamily: "inherit", background: "#fff" }}>
+                        style={{ padding: "3px 6px", border: "1px solid rgba(0,0,0,.15)", borderRadius: 5, fontSize: 11, fontFamily: "inherit", background: "#fff", maxWidth: "100%" }}>
                   {DF_TEILAMP_HOEHEN.map(function(h) { return <option key={h.id} value={h.id}>{h.label}</option>; })}
                 </select>
               </div>}
@@ -5770,7 +5775,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           {dfTeilamp&&<div style={{marginTop:5,display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
             <span style={{fontSize:10,color:"#718096",fontWeight:700}}>RESEKTIONS-/AMPUTATIONSHÖHE</span>
             <select value={dfTeilampHoehe} onChange={e=>setDfTeilampHoehe(e.target.value)}
-                    style={{padding:"3px 6px",border:"1px solid rgba(0,0,0,.15)",borderRadius:5,fontSize:11,fontFamily:"inherit",background:"#fff"}}>
+                    style={{padding:"3px 6px",border:"1px solid rgba(0,0,0,.15)",borderRadius:5,fontSize:11,fontFamily:"inherit",background:"#fff",maxWidth:"100%"}}>
               {DF_TEILAMP_HOEHEN.map(function(h){ return <option key={h.id} value={h.id}>{h.label}</option>; })}
             </select>
           </div>}
@@ -6918,7 +6923,7 @@ function HDRGSearch(){
 
   return <div style={{padding:16}}>
     <div style={{display:"flex",gap:8,marginBottom:16}}>
-      <input value={q} onChange={e=>{setQ(e.target.value);setSearched(false);}} onKeyDown={e=>{if(e.key==="Enter")doSearch();}} placeholder="OPS-Code oder Suchbegriff..." style={{flex:1,padding:"8px 12px",borderRadius:6,border:"1px solid rgba(0,107,111,.3)",fontSize:12,background:"rgba(255,255,255,.95)"}}/>
+      <input value={q} onChange={e=>{setQ(e.target.value);setSearched(false);}} onKeyDown={e=>{if(e.key==="Enter")doSearch();}} placeholder="OPS-Code oder Suchbegriff..." style={{flex:1,minWidth:0,padding:"8px 12px",borderRadius:6,border:"1px solid rgba(0,107,111,.3)",fontSize:12,background:"rgba(255,255,255,.95)"}}/>
       <div onClick={doSearch} style={{padding:"8px 16px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>Suchen</div>
     </div>
     <div style={{fontSize:10,color:"#718096",marginBottom:12}}>
@@ -6975,7 +6980,7 @@ function OPManuale(){
 
   return <div style={{padding:16}}>
     <div style={{display:"flex",gap:8,marginBottom:16}}>
-      <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Suche nach Titel, Implantat, Technik..." style={{flex:1,padding:"8px 12px",borderRadius:6,border:"1px solid rgba(0,107,111,.3)",fontSize:12,background:"rgba(255,255,255,.95)"}}/>
+      <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Suche nach Titel, Implantat, Technik..." style={{flex:1,minWidth:0,padding:"8px 12px",borderRadius:6,border:"1px solid rgba(0,107,111,.3)",fontSize:12,background:"rgba(255,255,255,.95)"}}/>
       {q&&<div onClick={()=>setQ("")} style={{padding:"8px 12px",borderRadius:6,background:"rgba(0,0,0,.06)",fontSize:12,cursor:"pointer",color:"#718096"}}>✕</div>}
     </div>
     {filtered.length===0&&<div style={{padding:20,textAlign:"center",color:"#718096"}}>
