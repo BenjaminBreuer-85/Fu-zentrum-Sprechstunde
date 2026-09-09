@@ -1330,7 +1330,19 @@ function hoechste(liste, rang){
 }
 // AOP-Katalog: Bitmaske im Katalogblock, Bit 1. Unbekannte Kodes gelten als
 // nicht im Katalog — lieber ein Hinweis zu viel als eine falsche Zusage.
-var _AOP_IDX=null;
+var _AOP_IDX=null, _KAT_NAME=null;
+// Kurzname eines Kodes aus dem Katalog; der Text hinter dem letzten Doppelpunkt
+// ist die spezifische Auspraegung und als Kurzname am brauchbarsten.
+function katalogName(code){
+  if(!_KAT_NAME){
+    _KAT_NAME={};
+    (window._HD||[]).forEach(function(e){ _KAT_NAME[e[0]]=e[1]; });
+  }
+  var t=_KAT_NAME[code];
+  if(!t) return "";
+  var teile=String(t).split(":");
+  return teile[teile.length-1].trim() || t;
+}
 function imAopKatalog(code){
   if(!_AOP_IDX){
     _AOP_IDX={};
@@ -1413,12 +1425,19 @@ function hdrgAuswertung(opts){
   }
   if (pTreffer.length && opts.ambulant) {
     pTreffer.forEach(function(c){
-      var n=(regel.positivNamen&&regel.positivNamen[c])||"Positivprozedur";
+      // Namen aus dem Katalog, sonst der Kode selbst — die Regelsaetze fuehren
+      // fuer positiv nur die Kodes.
+      var n=(regel.positivNamen&&regel.positivNamen[c])||katalogName(c)||("Kode "+c);
       erg.warnungen.push(n + " (" + c + ") steht nicht im AOP-Katalog, zieht den ambulanten Fall aus dem EBM in die Hybrid-DRG " + (erg.hdrg || hdrgStart) + ".");
     });
   }
+  // Ambulant als EBM setzt voraus, dass wirklich alle Kodes im AOP-Katalog
+  // stehen — sonst ist der ambulante Weg keine Option, sondern unverguetet.
+  var alleImAop = codes.every(function(c){ return imAopKatalog(c); });
   erg.setting = { hybrid: erg.hybrid, stationaer: erg.drg,
-                  ambulant: pTreffer.length ? "hybrid" : (erg.hybrid ? "hybrid" : "ebm") };
+                  ambulant: pTreffer.length ? "hybrid"
+                          : erg.hybrid ? "hybrid"
+                          : (alleImAop ? "ebm" : "nein") };
   return erg;
 }
 // Hydration (Single Source): Zahl-Literale in OP_STEUERUNG werden aus dem Erlösdaten-Block überschrieben,
