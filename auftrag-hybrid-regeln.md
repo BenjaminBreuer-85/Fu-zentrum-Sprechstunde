@@ -47,7 +47,7 @@ Die drei Spalten (ambulant, Hybrid, stationär) bleiben unverändert. Direkt dar
 „Fall liegt in I20O. Ausweg für diese OP: Sehnentransfer (5-854.2c) nach I20E."
 „3× DMMO (5-788.54) führt aus I20O heraus. Stationär I20E, ambulant EBM."
 „1× DMMO (5-788.52) wertet auf I20N auf."
-„Fall liegt in I20M. Kein Ausweg gesetzt; Spongiosa (5-783.0v + 5-784.0u) führt nach I20D."
+„Fall liegt in I20M. Kein Ausweg gesetzt; Spongiosa (5-783.0v + 5-784.0v) führt nach I20D."
 
 Kodes stehen nur im Satz, wenn sie angeklickt sind oder als der eine `hebel` der OP empfohlen werden. Unter der Konsequenz-Zeile die Warnungen aus Schritt 5, rot, je eine Zeile.
 
@@ -67,7 +67,7 @@ Der Block „Erlösrelevante Kodierhinweise" wird aus der Auswertung erzeugt: Ze
 |---|---|
 | Chevron allein | Hybrid I20O; ambulant Hybrid; stationär I20E; Satz nennt Hebel 5-854.2c |
 | Chevron + 5-788.52 | Hybrid I20N; Satz „wertet auf I20N auf" |
-| Chevron + 5-788.54 | kein Hybrid; stationär I20E; ambulant EBM |
+| Chevron + 5-788.54 | kein Hybrid; stationär I20E; ambulant nur mit unvergüteten DMMO (Kode nicht im AOP-Katalog) |
 | Chevron + 5-788.60 | kein Hybrid; stationär I20F; ambulant EBM |
 | MTP-I-Arthrodese allein | Hybrid I20N; Hebel 5-784.0v nach I20E |
 | MTP-I + 5-788.54 | kein Hybrid; stationär I20D; keine Spongiosa nötig |
@@ -79,3 +79,10 @@ Der Block „Erlösrelevante Kodierhinweise" wird aus der Auswertung erzeugt: Ze
 | USG-Arthrodese | kein Hybrid-Bezug; keine Konsequenz-Zeile zu Hybrid, kein Aufklapper |
 
 Ergebnisse müssen den GFFC-Folien vom 04.03.2026 entsprechen (Ablage `_vortrag/` nicht, sondern beim Autor; Zusammenfassung in `abgleich-gffc-hybrid-2026.md`).
+
+
+## Nachtrag 07.09.2026 abends: Datenblock liegt vor
+
+`data/opsteuerung.json` (Vorschlag, nach Freigabe des Autors im Repo) enthält `HDRG_REGELN` und `HDRG_RAHMEN`. Abweichung zur Skizze oben: `drg` einer Kontextprozedur kann ein String sein (gilt immer) oder ein Objekt nach der Hybrid-DRG der Haupt-OP (`{"I20O": "I20E", "I20N": "I20D"}`), weil 5-788.54 beim Chevron nach I20E, bei der MTP-I-Arthrodese nach I20D führt. Fehlt `drg`, gilt die `drg` der OP-Methode. Kodes mit `x` an letzter Stelle (5-811.xk) sind wörtliche Katalogkodes, keine Platzhalter. Die Arthroskopie-Ausschlüsse (5-810.4k, 5-810.9k, 5-811.3k, 5-811.4k, 5-812.3k, 5-812.9k, 5-819.4) liegen im Regelsatz `I20O_N` mit Ziel I20F; `neutral` enthält dort auch 5-810.2k, 5-812.0k, 5-819.1k. Beim Lapidus ist der Hebel auf „5-783.0v + 5-784.0v" korrigiert (5-784.0u ist keine Kontextprozedur), `hdrgTrigger` um 5-788.5e und 5-788.60 ergänzt, Warnhinweis nach Grouper-Prüfung des Autors. Die alten Blöcke `ausschluss`/`aufwertung` je OP sind noch da (Fallback) und tragen ein korrigiertes Ziel-Label; sie werden entfernt, sobald die Auswertung auf `HDRG_REGELN` läuft.
+
+Konsequenz-Zeile bei 5-788.54/55: „… führt aus I20O heraus. Stationär I20E; ambulant nur mit unvergüteten Osteotomien (5-788.54 nicht im AOP-Katalog)." Der Satz „ambulant EBM" gilt nur, wenn alle angeklickten Kodes im AOP-Katalog stehen.
