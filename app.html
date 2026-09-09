@@ -3398,38 +3398,6 @@ var _s = useState, _m = useMemo;
                 {hAus.regel&&HDRG_RAHMEN&&<div style={{fontSize:10,color:"#718096",marginBottom:6}}>
                   Hybrid nur bei: {HDRG_RAHMEN.join(", ")}.
                 </div>}
-                {hAus.regel&&<details style={{marginBottom:6}}>
-                  <summary style={{fontSize:10,color:"#1565C0",cursor:"pointer",userSelect:"none"}}>
-                    Kontextprozeduren {hdrg||hAus.hdrg||""} anzeigen
-                  </summary>
-                  <div style={{padding:"6px 8px",fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-                    {hAus.listen.kontext.length>0&&<div style={{marginBottom:4}}>
-                      <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>führt heraus</div>
-                      {/* Nach Kodegruppen unterteilt und je Gruppe zugeklappt —
-                          die Liste zaehlt ueber hundert Zeilen. */}
-                      {hdrgGruppiere(hAus.listen.kontext).map(function(g,gi){ return <details key={gi} style={{marginBottom:2}}>
-                        <summary style={{cursor:"pointer",userSelect:"none",color:"#1565C0"}}>{g.titel} ({g.eintraege.length})</summary>
-                        <div style={{paddingLeft:10,paddingTop:2}}>
-                          {g.eintraege.map(function(k,i){ return <div key={i}>
-                            <span style={{fontFamily:"monospace",fontWeight:600}}>{k.code}</span> <span style={{color:"#555"}}>— {k.name} → {hdrgZielDrg(k, hdrg||hAus.hdrg, drg)}</span>
-                          </div>; })}
-                        </div>
-                      </details>; })}
-                    </div>}
-                    {hAus.listen.aufwertung.length>0&&<div style={{marginBottom:4}}>
-                      <div style={{fontWeight:700,color:"#2E7D32",marginBottom:2}}>wertet auf</div>
-                      {hAus.listen.aufwertung.map(function(a,i){ return <div key={i}>
-                        <span style={{fontFamily:"monospace",fontWeight:600}}>{a.code}</span> <span style={{color:"#555"}}>— {a.name} → {a.hdrg}</span>
-                      </div>; })}
-                    </div>}
-                    {hAus.listen.nichtKontext.length>0&&<div>
-                      <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>kein Ausweg</div>
-                      {hAus.listen.nichtKontext.map(function(n,i){ return <div key={i}>
-                        <span style={{fontFamily:"monospace",fontWeight:600}}>{n.code}</span> <span style={{color:"#555"}}>— {n.name}: {n.txt}</span>
-                      </div>; })}
-                    </div>}
-                  </div>
-                </details>}
                 {/* FALLKOSTEN + DB II — analog zu Endo (nur stationär, wenn DRG vorhanden und FUSS_DRG-Fallkosten gepflegt) */}
                 {hasStat && drg && (FUSS_DRG[drg] || ENDO_DRG[drg]) && (function(){
                   var d = FUSS_DRG[drg] || ENDO_DRG[drg];
@@ -3478,7 +3446,7 @@ var _s = useState, _m = useMemo;
                     })()}
                   </div>;
                 })()}
-                {!hAus.regel&&!hideKontext&&hatHybridBezug&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
+                {!hideKontext&&hatHybridBezug&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   {best.hdrgTrigger&&best.hdrgTrigger.length>0&&<div style={{marginBottom:6,padding:"4px 6px",background:"rgba(46,125,50,.06)",border:"1px solid rgba(46,125,50,.25)",borderRadius:4}}>
                     <div style={{fontSize:10,fontWeight:700,color:"#2E7D32",marginBottom:2}}>H-DRG-Trigger</div>
                     <div>
@@ -3502,6 +3470,38 @@ var _s = useState, _m = useMemo;
                   {ambStatus==="hdrg"&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>❌ Ambulant: NICHT kodieren — sonst Verlust der H-DRG. Bei klinischer Notwendigkeit besser stationäre Führung.</div>}
                   {hasStat&&<div style={{fontSize:10,color:"#2E7D32",marginTop:2}}>✅ Stationär: IMMER kodieren zum Ausschluss H-DRG → volle DRG {drg}.</div>}
                 </div>:null}
+                {hAus.regel&&<details style={{marginBottom:6}}>
+                  <summary style={{fontSize:10,color:"#1565C0",cursor:"pointer",userSelect:"none"}}>
+                    Kontextprozeduren {hdrg||hAus.hdrg||""} anzeigen
+                  </summary>
+                  <div style={{padding:"6px 8px",fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+                    {hAus.listen.kontext.length>0&&<div style={{marginBottom:4}}>
+                      <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>Führt aus Hybrid heraus</div>
+                      {/* Nach Kodegruppen unterteilt und je Gruppe zugeklappt —
+                          die Liste zaehlt ueber hundert Zeilen. */}
+                      {hdrgGruppiere(hAus.listen.kontext).map(function(g,gi){ return <details key={gi} open style={{marginBottom:2}}>
+                        <summary style={{cursor:"pointer",userSelect:"none",color:"#1565C0"}}>{g.titel} ({g.eintraege.length})</summary>
+                        <div style={{paddingLeft:10,paddingTop:2}}>
+                          {g.eintraege.map(function(k,i){ return <div key={i}>
+                            <span style={{fontFamily:"monospace",fontWeight:600}}>{k.code}</span> <span style={{color:"#555"}}>— {k.name} → {hdrgZielDrg(k, hdrg||hAus.hdrg, drg)}</span>
+                          </div>; })}
+                        </div>
+                      </details>; })}
+                    </div>}
+                    {hAus.listen.aufwertung.length>0&&<div style={{marginBottom:4}}>
+                      <div style={{fontWeight:700,color:"#2E7D32",marginBottom:2}}>Wertet Eingriff auf</div>
+                      {hAus.listen.aufwertung.map(function(a,i){ return <div key={i}>
+                        <span style={{fontFamily:"monospace",fontWeight:600}}>{a.code}</span> <span style={{color:"#555"}}>— {a.name} → {a.hdrg}</span>
+                      </div>; })}
+                    </div>}
+                    {hAus.listen.nichtKontext.length>0&&<div>
+                      <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>kein Ausweg</div>
+                      {hAus.listen.nichtKontext.map(function(n,i){ return <div key={i}>
+                        <span style={{fontFamily:"monospace",fontWeight:600}}>{n.code}</span> <span style={{color:"#555"}}>— {n.name}: {n.txt}</span>
+                      </div>; })}
+                    </div>}
+                  </div>
+                </details>}
                 {!hAus.regel&&best.aufwertung&&<div style={{padding:"8px 10px",background:"rgba(46,125,50,.08)",border:"2px solid rgba(46,125,50,.4)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   <div style={{fontWeight:700,color:"#2E7D32",marginBottom:4,fontSize:11}}>↑ Aufwertung möglich bei Ansteuerung H-DRG → {best.aufwertung.ziel} {best.aufwertung.delta&&<span style={{background:"#2E7D32",color:"#fff",padding:"1px 6px",borderRadius:3,marginLeft:4,fontSize:10}}>{best.aufwertung.delta}</span>}</div>
                   <div style={{fontSize:10,color:"#555",marginBottom:3}}>Durch zusätzliche Kodierung von:</div>
