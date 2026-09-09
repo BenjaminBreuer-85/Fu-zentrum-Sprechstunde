@@ -11,12 +11,19 @@ Teil 2  Vergleichsliste der übrigen Literal-Zweige im Fuß-Erlösmemo gegen
         DRG-Code, den der Zweig anzeigt, mit `drg` im Steuerungseintrag.
         Nur Bestandsaufnahme — es wird nichts geändert.
 
-Aufruf:  python3 scripts/verify_zweige.py [<git-ref>]     (Default: HEAD)
+Aufruf:  python3 scripts/verify_zweige.py [<git-ref>]
+
+Der Default ist der Stand VOR dem Umzug (c378f42^). Gegen HEAD zu vergleichen
+wäre sinnlos: dort stehen die Literal-Zweige nicht mehr, und Teil 1 läse die
+Rückfallwerte aus `steuerAnzeige(...)||{...}` als wären es die alten Werte.
+Ziehen künftig weitere Zweige um, wird BASIS auf den dann letzten Stand mit
+Literal-Zweigen gesetzt.
 """
 import json, os, re, subprocess, sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REF  = sys.argv[1] if len(sys.argv) > 1 else "HEAD"
+BASIS = "c378f42^"   # letzter Stand mit den drei Zweigen als Literal
+REF  = sys.argv[1] if len(sys.argv) > 1 else BASIS
 
 # Bewusst herbeigeführte Abweichungen: (Zweig, Feld) -> Begründung
 ERWARTET = {
@@ -69,6 +76,16 @@ ZUORDNUNG = [
     ('"Diabetischer Fuß — "',              ["df_debridement", "df_amputation"]),  # umgezogen
     (None,                                 ["as_tendoskopie", "as_debridement"]), # umgezogen
 ]
+# Zeilen aus Teil 2, die der Autor am 09.09.2026 erklärt hat und die deshalb
+# keine Entscheidung mehr brauchen. Schlüssel ist der Label-Anfang.
+ERLAEUTERT = {
+    "MTP-I-Arthrodese + ≥3 DMMO":
+        "Kein Widerspruch (Autor 09.09.): mtp1_arthrodese.drg = I20E ist die Ziel-DRG "
+        "über den Hebel Spongiosa (5-784.0v). Mit 5-788.54 greift die Kontextregel "
+        "HDRG_REGELN.I20O_N mit drg {I20O: I20E, I20N: I20D} — also aus I20N heraus "
+        "nach I20D, ohne Spongiosa. Der Zweig hatte das fest kodiert, die Auswertung "
+        "liefert es aus den Regeln. Daten bleiben unverändert.",
+}
 UMGEZOGEN = {"metallentfernung", "df_debridement", "df_amputation",
              "as_tendoskopie", "as_debridement"}
 
@@ -165,8 +182,12 @@ for (anker, block), (erwartet_anker, keys) in zip(zweige, ZUORDNUNG):
     if status == "abweichend":
         print(f"  {'':38s}   nur im Zweig: {sorted(set(codes)-set(st_codes)) or '—'}   "
               f"nur in opsteuerung: {sorted(set(st_codes)-set(codes)) or '—'}")
+    for anfang, note in ERLAEUTERT.items():
+        if label.startswith(anfang):
+            print(f"  {'':38s}   erklärt: {note}")
 
 print(f"\n  {doppelt} Zweige doppelt gepflegt · {migriert} umgezogen · {ohne} ohne Steuerungseintrag")
 print("\n  Hinweis: 'abweichend' heißt nicht 'falsch'. Viele Zweige zeigen je nach Toggle")
-print("  mehrere DRG (z. B. mit/ohne Spongiosa), der Steuerungseintrag nennt nur eine.")
-print("  Die Liste ist Entscheidungsgrundlage, keine Fehlerliste.")
+print("  mehrere DRG (mit/ohne Spongiosa, ambulant/stationär, mit/ohne LCOT). Das sind")
+print("  genau die Fälle, die die Auswertung aus den Regeln erzeugt — sie brauchen keine")
+print("  Entscheidung. Die Liste ist Bestandsaufnahme, keine Fehlerliste.")

@@ -13,11 +13,10 @@ gekippt ist.
 ## Wie zu lesen
 
 Verglichen wird der DRG-Code, den der Zweig anzeigt, mit `drg` im zugehörigen
-Steuerungseintrag. `abweichend` heißt **nicht** `falsch`: viele Zweige zeigen je
-nach Toggle mehrere DRG (mit/ohne Spongiosa, ambulant/stationär), der
-Steuerungseintrag nennt nur den Regelfall. Genau diese Fälle sind beim Umzug die
-Arbeit — sie brauchen entweder Modifikatoren im Steuerungseintrag oder bleiben
-als Literal stehen.
+Steuerungseintrag. `abweichend` heißt **nicht** `falsch`: Viele Zweige zeigen je
+nach Toggle mehrere DRG (mit oder ohne Spongiosa, ambulant oder stationär, mit
+oder ohne LCOT). Das sind genau die Fälle, die die Auswertung aus den Regeln
+erzeugt — sie brauchen keine Entscheidung (Autor, 09.09.2026).
 
 Die Zuordnung Zweig → Schlüssel steht als Tabelle `ZUORDNUNG` im Skript und ist
 dort nachprüfbar.
@@ -31,6 +30,7 @@ dort nachprüfbar.
   Lapidus                                Zweig I20D             opsteuerung I20D             gleich
   MTP-I-Arthrodese + ≥3 DMMO             Zweig I20D             opsteuerung I20E             abweichend
                                            nur im Zweig: ['I20D']   nur in opsteuerung: ['I20E']
+                                           erklärt: Kein Widerspruch (Autor 09.09.): mtp1_arthrodese.drg = I20E ist die Ziel-DRG über den Hebel Spongiosa (5-784.0v). Mit 5-788.54 greift die Kontextregel HDRG_REGELN.I20O_N mit drg {I20O: I20E, I20N: I20D} — also aus I20N heraus nach I20D, ohne Spongiosa. Der Zweig hatte das fest kodiert, die Auswertung liefert es aus den Regeln. Daten bleiben unverändert.
   MTP-I-Arthrodese + DMMO                Zweig I20E,I20N        opsteuerung I20E             abweichend
                                            nur im Zweig: ['I20N']   nur in opsteuerung: —
   MTP-I-Arthrodese                       Zweig I20E,I20N        opsteuerung I20E             abweichend
@@ -77,37 +77,22 @@ dort nachprüfbar.
   28 Zweige doppelt gepflegt · 3 umgezogen · 3 ohne Steuerungseintrag
 ```
 
-## Was auffällt
+## Was noch offen ist
 
-**Drei Zweige haben gar keinen Steuerungseintrag** — OSG-TEP Wechsel und die
-beiden Sprunggelenksfraktur-Zweige (Weber B einfach / Weber B–C Mehrfragment,
-je mit und ohne Syndesmose). Sie können nur umziehen, wenn dafür Einträge
-angelegt werden.
+**Drei Zweige haben keinen Steuerungseintrag** — OSG-TEP Wechsel und die beiden
+Sprunggelenksfraktur-Zweige (Weber B einfach / Weber B–C Mehrfragment, je mit
+und ohne Syndesmose). Sie bleiben vorerst im Code; der Autor legt die Einträge
+im Rahmen des 28-Zweige-Auftrags an, nachdem er die Werte freigegeben hat
+(Entscheidung 09.09.2026).
 
-**Ein echter Wertunterschied**, kein Toggle-Effekt: Der Zweig
-„MTP-I-Arthrodese + ≥3 DMMO" zeigt **I20D**, `opsteuerung.mtp1_arthrodese`
-führt **I20E**. Der Zweig begründet das selbst („≥3 DMMO → keine H-DRG.
-Stationär ≥2 Nächte → I20D"), der Steuerungseintrag kennt diese Fallzahl-Regel
-nicht. Vor einem Umzug ist zu entscheiden, ob das als Modifikator abgebildet
-wird.
-
-**Die übrigen `abweichend`-Zeilen sind Toggle-Fälle** und je ein zusätzlicher
-Code neben dem Regelfall:
-
-| Zweig | zusätzlich im Zweig | Grund |
-|---|---|---|
-| MTP-I-Arthrodese (mit/ohne DMMO) | I20N | ambulante H-DRG |
-| Chevron/Scarf/Akin | I20F, I20O | Cheilektomie-Variante, H-DRG |
-| Kleinzehen/DMMO, Calcaneoplastie | I20O | H-DRG |
-| OSG-Arthrodese | I13E | ohne Spongiosa |
-| AMIC | I13E | mit Innenknöchelosteotomie |
-| Os Tib Ext | I20C | mit MDO |
-| Coalitio | I20C | mit LCOT |
-| Rückfuß-Arthrodesen (`rfLabel`) | – (I13E fehlt im Zweig) | Zweig zeigt nur die Triple-DRG |
-| Peronealsehnenluxation | – | DRG wird zur Laufzeit aus `luxDrg` gebildet |
+Alles Übrige ist geklärt. Die Zeile „MTP-I-Arthrodese + ≥3 DMMO" (Zweig I20D
+gegen `mtp1_arthrodese.drg` I20E) war zunächst als möglicher Wertunterschied
+notiert; der Autor hat am 09.09.2026 klargestellt, dass beides richtig ist und
+sich nichts an den Daten ändert. Die Begründung steht im Skript unter
+`ERLAEUTERT` und wird bei jedem Lauf mit ausgegeben.
 
 ## Nächster Schritt
 
-Offen und separat zu entscheiden: ob die 28 doppelt gepflegten Zweige umziehen,
-und in welcher Form die Toggle-Fälle in `OP_STEUERUNG` abgebildet werden
-(Modifikatoren wie bei `peroneal_lux`, oder Zweig bleibt Literal).
+Offen und separat zu entscheiden: ob die 28 doppelt gepflegten Zweige umziehen.
+Bei der Umstellung ersetzt die Auswertung aus `HDRG_REGELN` die fest kodierten
+Werte — die Toggle-Fälle lösen sich damit von selbst auf.
