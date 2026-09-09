@@ -62,7 +62,7 @@ Andersherum (erst Push) entsteht ein Zeitfenster, in dem der neue Code alte Date
 
 ## D) Upload-Stand
 
-**Stand 09.09.2026: VIER UPLOADS OFFEN — `opmethoden.json`, `opsteuerung.json`, `diagnosen.json`, `optexte.json`** (je: erst löschen, dann hochladen). Reihenfolge egal, alle vier Änderungen sind abwärtskompatibel (neue Felder werden von der heutigen `app.html` ignoriert). Die vier Uploads vom 30.08. (`optexte.json`, `opsteuerung.json`, `erloes2026.json`, `diagnosen.json`) hat der Autor am 30./31.08. bestätigt („alles geladen"); die zeichengenaue Bucket-Prüfung steht für alle noch aus.
+**Stand 09.09.2026: VIER UPLOADS OFFEN — `opmethoden.json`, `opsteuerung.json`, `diagnosen.json`, `optexte.json`** Zusätzlich `opsteuerung.json` am 09.09. nachmittags erneut geändert (Klartextnamen in `HDRG_REGELN`, muss im selben Upload landen). `katalog2026.json` folgt erst nach Aktualisierung der Master-Excel (siehe `abgleich-katalog-kontextprozeduren-2026-09-09.md`). (je: erst löschen, dann hochladen). Reihenfolge egal, alle vier Änderungen sind abwärtskompatibel (neue Felder werden von der heutigen `app.html` ignoriert). Die vier Uploads vom 30.08. (`optexte.json`, `opsteuerung.json`, `erloes2026.json`, `diagnosen.json`) hat der Autor am 30./31.08. bestätigt („alles geladen"); die zeichengenaue Bucket-Prüfung steht für alle noch aus.
 
 Am 29.08.2026 wurden nacheinander erweitert und in den Bucket geladen:
 `erloes2026.json` (sechs neue DRG-Zeilen F27A/B/C und F13A/B/C in `_DRG` und

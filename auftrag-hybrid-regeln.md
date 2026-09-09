@@ -97,3 +97,17 @@ Konsequenz-Zeile bei 5-788.54/55: „… führt aus I20O heraus. Stationär I20E
 3. Aufklapper mit 120 Zeilen: gewollt, aber bitte innerhalb des Aufklappers nach Kodegruppen unterteilen, jede Gruppe mit einer Überschrift und der Anzahl, standardmäßig zusammengeklappt: „Osteotomien und Arthroplastiken Vorfuß" (5-788.x, 5-808.bh), „Knochentransplantation und Knochenersatz" (5-784.x, 5-785.x), „Offene Frakturreposition" (5-795.x, 5-796.x), „Sehneneingriffe" (5-854.x, 5-855.19), „Arthroskopie OSG" (5-81x.xk). Die Gruppe ergibt sich aus dem Kodepräfix, dafür ist kein zusätzliches Datenfeld nötig. Wer eine Gruppe öffnet, sieht die Zeilen wie bisher.
 
 4. Abschnitt 4 (OP-Bericht-Kodierhinweise aus der Auswertung) und das Entfernen der `ausschluss`/`aufwertung`-Blöcke samt Overrides bleiben bewusst ein eigener dritter Durchgang, wie im Konzept vorgesehen. Reihenfolge: erst der Code hört auf, die alten Blöcke zu lesen (dieser Auftrag, Punkt 1 „ignoriert, sobald HDRG_REGELN vorhanden"), dann entferne ich die Blöcke aus den Daten. Zu `erloesData.kodier`: Bitte vor dem Umbau einmal auflisten, welche Führungstexte dort stehen, die die Auswertung nicht abdeckt (Belegungsdokumentation, Diabetes-Hauptdiagnose, Implantatdokumentation), damit wir entscheiden, was davon als `hinweise` vom Typ info in die OP-Einträge wandert und was entfällt. Diese Liste ist der Startpunkt für den dritten Durchgang.
+
+## Nachtrag 09.09.2026, zweiter Teil: Entscheidung des Autors zum Aufklapper
+
+Der Autor hat den Aufklapper in der App gesehen und entschieden, dass er bleibt. Darstellung nach seiner Vorgabe, Abweichung zu Punkt 3 oben:
+
+1. Überschriften innerhalb des Aufklappers heißen „Führt aus Hybrid heraus" und „Wertet Eingriff auf" (statt „führt heraus" und „wertet auf"). Unter „Wertet Eingriff auf" steht je Kode die nächste Hybrid-DRG, in die der Kode führt (z. B. „5-788.52 → I20N", „5-808.a4 → I20M").
+
+2. Die Kodegruppen („Osteotomien und Arthroplastiken Vorfuß", „Knochentransplantation und Knochenersatz", „Offene Frakturreposition", „Sehneneingriffe", „Arthroskopie") bleiben mit Überschrift und Anzahl, werden aber standardmäßig aufgeklappt gezeigt (`<details open>`), der Autor möchte die Kodes ohne weiteres Antippen sehen. Der äußere Aufklapper „Kontextprozeduren I20O anzeigen" bleibt standardmäßig geschlossen, damit die Fallsteuerung auf dem Handy kompakt bleibt.
+
+3. Die je Eingriff hinterlegten, im Alltag relevanten Kontextprozeduren aus dem OP-Eintrag (`kontext`, `kontextExcluded`, Hebel) bleiben wie bisher sichtbar oberhalb des Aufklappers. Der Aufklapper ist die Gesamtliste, der OP-Eintrag die Auswahl.
+
+4. Datenseite: In `HDRG_REGELN` tragen die Knochenersatz-Kodes 5-785.2s bis 5-785.5w und 5-796.pv jetzt Klartextnamen (bisher stand der Kode als Name). 5-819.4 bleibt ohne Namen, der Kode ist noch gegen die OPS-Systematik zu prüfen (Lokalisation fehlt), bitte in der Liste so lassen und nicht auffüllen.
+
+5. Katalog (`katalog2026.json`, Modul OPS-Code-Suche): Der Abgleich der Kontextflags gegen `HDRG_REGELN` ist in `abgleich-katalog-kontextprozeduren-2026-09-09.md` dokumentiert. Die Datei wird nach der 1:1-Regel nur aus der Master-Excel neu erzeugt; bis dahin zeigt die Code-Suche bei 23 Kontextprozeduren noch keinen oder einen falschen Status. Kein Code-Eingriff nötig, `_HD` und `_KX` werden weiter wie bisher gelesen.
