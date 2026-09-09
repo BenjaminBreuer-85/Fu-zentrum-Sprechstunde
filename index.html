@@ -117,19 +117,25 @@
 
   /* Swipebarer Streifen: ein Bild sichtbar, seitlich wischen zum naechsten.
      aspect-ratio fest, damit beim Laden nichts springt. */
-  .streifen{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+  .streifen{display:flex;gap:1px;background:var(--line);overflow-x:auto;scroll-snap-type:x mandatory;
             -webkit-overflow-scrolling:touch;scrollbar-width:none}
   .streifen::-webkit-scrollbar{display:none}
-  .streifen > figure{flex:0 0 100%;scroll-snap-align:center;margin:0}
-  .streifen img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px}
-  .streifen figcaption{margin-top:7px;font-size:.8rem;color:var(--muted);line-height:1.4}
+  .streifen > figure{flex:0 0 100%;scroll-snap-align:center;margin:0;background:#fff}
+  .streifen img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
   .punkte{display:flex;gap:6px;justify-content:center;margin-top:10px}
   .punkte i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s}
   .punkte i.aktiv{background:var(--op)}
   /* Ab 900 px stehen zwei Bilder nebeneinander, dann braucht es keine Punkte. */
   @media (min-width:900px){
-    .streifen > figure{flex:0 0 calc(50% - 6px)}
+    .streifen > figure{flex:0 0 calc(50% - .5px)}
     .punkte{display:none}
+    /* Nur ein Bild: Karte auf Bildbreite, mittig in der Spalte.
+       width:100% ist noetig, weil margin:0 auto auf einem Grid-Item das
+       Strecken abschaltet. Ohne definite Breite bemisst sich die Karte dann
+       an ihrem Inhalt — und der ist ein Flexkind mit flex-basis:100%, also
+       ein Prozentwert ohne Bezug. Die Karte fiele auf 0 zusammen. */
+    .shot.einzel{width:100%;max-width:calc(50% - .5px);margin:0 auto}
+    .shot.einzel .streifen > figure{flex:0 0 100%}
   }
 
   /* Patienten-Abschnitt: abgesetzte Flaeche, damit erkennbar ist, dass hier
@@ -320,7 +326,6 @@
                  sizes="(max-width: 900px) 92vw, 44vw"
                  width="1080" height="1350" loading="lazy" decoding="async"
                  alt="Briefschluss mit Kurzadresse und QR-Code zur Patienten-App">
-            <figcaption>Der fertige Brief endet mit dem Code für die Patienten-App.</figcaption>
           </figure>
         </div>
         <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i><i></i></div>
@@ -490,7 +495,6 @@
                  sizes="(max-width: 900px) 92vw, 44vw"
                  width="1080" height="1350" loading="lazy" decoding="async"
                  alt="Aufklärungstexte: gewählter Eingriff Chevron plus Akin und generierte Risikoliste">
-            <figcaption>Risikoliste je Eingriff, mit einem Klick übernommen.</figcaption>
           </figure>
         </div>
         <div class="punkte" aria-hidden="true"><i class="aktiv"></i><i></i></div>
@@ -502,7 +506,7 @@
           <h3>Abrechnungswissen, jährlich gepflegt</h3>
           <p>OPS-, ICD- und DRG-Daten werden mit jedem Katalogjahr aktualisiert. Die Pflege ist Teil des Abos, Sie arbeiten mit dem jeweils aktuellen Katalogstand.</p>
         </div>
-      <div class="shot">
+      <div class="shot einzel">
         <div class="streifen">
           <figure>
             <img src="bilder/screens/ops-1-suche.webp"
