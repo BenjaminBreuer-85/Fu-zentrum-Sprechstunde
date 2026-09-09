@@ -1357,6 +1357,25 @@ function hdrgZielDrg(k, hdrg, drgOp){
   if (typeof k.drg === "string") return k.drg;
   return k.drg[hdrg] || drgOp;
 }
+// Gruppen des Aufklappers. Sie ergeben sich aus dem Kodepraefix, damit die
+// Regelsaetze kein zusaetzliches Feld brauchen.
+var HDRG_GRUPPEN = [
+  { titel: "Osteotomien und Arthroplastiken Vorfuß", test: function(c){ return /^5-788\./.test(c) || c === "5-808.bh"; } },
+  { titel: "Knochentransplantation und Knochenersatz", test: function(c){ return /^5-78[45]\./.test(c); } },
+  { titel: "Offene Frakturreposition", test: function(c){ return /^5-79[56]\./.test(c); } },
+  { titel: "Sehneneingriffe", test: function(c){ return /^5-854\./.test(c) || c === "5-855.19"; } },
+  { titel: "Arthroskopie OSG", test: function(c){ return /^5-81[0-9]\./.test(c) || /^5-819\.?/.test(c); } }
+];
+function hdrgGruppiere(liste){
+  var rest = (liste || []).slice(), gruppen = [];
+  HDRG_GRUPPEN.forEach(function(g){
+    var treffer = rest.filter(function(k){ return g.test(k.code); });
+    if (treffer.length) gruppen.push({ titel: g.titel, eintraege: treffer });
+    rest = rest.filter(function(k){ return !g.test(k.code); });
+  });
+  if (rest.length) gruppen.push({ titel: "Weitere", eintraege: rest });
+  return gruppen;
+}
 function hdrgRegelsatz(hdrg){
   if (!HDRG_REGELN || !hdrg) return null;
   var werte = Object.keys(HDRG_REGELN).map(function(k){ return HDRG_REGELN[k]; });
@@ -1428,7 +1447,9 @@ function hdrgAuswertung(opts){
       // Namen aus dem Katalog, sonst der Kode selbst — die Regelsaetze fuehren
       // fuer positiv nur die Kodes.
       var n=(regel.positivNamen&&regel.positivNamen[c])||katalogName(c)||("Kode "+c);
-      erg.warnungen.push(n + " (" + c + ") steht nicht im AOP-Katalog, zieht den ambulanten Fall aus dem EBM in die Hybrid-DRG " + (erg.hdrg || hdrgStart) + ".");
+      // Steht der Kode schon im Namen, nicht noch einmal in Klammern dahinter.
+      var bez = n.indexOf(c) >= 0 ? n : n + " (" + c + ")";
+      erg.warnungen.push(bez + " steht nicht im AOP-Katalog, zieht den ambulanten Fall aus dem EBM in die Hybrid-DRG " + (erg.hdrg || hdrgStart) + ".");
     });
   }
   // Ambulant als EBM setzt voraus, dass wirklich alle Kodes im AOP-Katalog
@@ -3384,9 +3405,16 @@ var _s = useState, _m = useMemo;
                   <div style={{padding:"6px 8px",fontSize:10,color:"#2D3748",lineHeight:1.5}}>
                     {hAus.listen.kontext.length>0&&<div style={{marginBottom:4}}>
                       <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>führt heraus</div>
-                      {hAus.listen.kontext.map(function(k,i){ return <div key={i}>
-                        <span style={{fontFamily:"monospace",fontWeight:600}}>{k.code}</span> <span style={{color:"#555"}}>— {k.name} → {hdrgZielDrg(k, hdrg||hAus.hdrg, drg)}</span>
-                      </div>; })}
+                      {/* Nach Kodegruppen unterteilt und je Gruppe zugeklappt —
+                          die Liste zaehlt ueber hundert Zeilen. */}
+                      {hdrgGruppiere(hAus.listen.kontext).map(function(g,gi){ return <details key={gi} style={{marginBottom:2}}>
+                        <summary style={{cursor:"pointer",userSelect:"none",color:"#1565C0"}}>{g.titel} ({g.eintraege.length})</summary>
+                        <div style={{paddingLeft:10,paddingTop:2}}>
+                          {g.eintraege.map(function(k,i){ return <div key={i}>
+                            <span style={{fontFamily:"monospace",fontWeight:600}}>{k.code}</span> <span style={{color:"#555"}}>— {k.name} → {hdrgZielDrg(k, hdrg||hAus.hdrg, drg)}</span>
+                          </div>; })}
+                        </div>
+                      </details>; })}
                     </div>}
                     {hAus.listen.aufwertung.length>0&&<div style={{marginBottom:4}}>
                       <div style={{fontWeight:700,color:"#2E7D32",marginBottom:2}}>wertet auf</div>
