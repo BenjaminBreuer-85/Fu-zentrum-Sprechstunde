@@ -1376,6 +1376,20 @@ function hdrgGruppiere(liste){
   if (rest.length) gruppen.push({ titel: "Weitere", eintraege: rest });
   return gruppen;
 }
+// Belegungszeile je Ziel-DRG, aus den Erloesdaten gerechnet statt als Freitext
+// gepflegt: die festen Betraege veralten sonst. Untere Grenzverweildauer und
+// Abschlag stehen in erloes2026 beziehungsweise in UGVD_ABSCHLAG.
+function belegungsSatz(drg){
+  if (!drg) return "";
+  var g = (window._DATA.erloes2026.GVD && window._DATA.erloes2026.GVD[drg])
+       || (window._DRG && window._DRG[drg]) || null;
+  if (!g || g.ugvd == null) return "";
+  var ab = (window._DATA.opsteuerung.UGVD_ABSCHLAG || {})[drg];
+  var tage = g.ugvd + 1;
+  return "Volle DRG " + drg + " ab " + tage + " Belegungstag" + (tage === 1 ? "" : "en")
+       + (ab != null ? ", darunter Abschlag " + ab.toLocaleString("de-DE") + " € je Tag" : "")
+       + "; jeden Tag in der Akte begründen.";
+}
 function hdrgRegelsatz(hdrg){
   if (!HDRG_REGELN || !hdrg) return null;
   var werte = Object.keys(HDRG_REGELN).map(function(k){ return HDRG_REGELN[k]; });
@@ -1414,17 +1428,16 @@ function hdrgAuswertung(opts){
     // MTP-I-Arthrodese nach I20D. Fehlt die Angabe, gilt die drg der OP.
     erg.hybrid = false; erg.hdrg = null;
     erg.drg = hoechste(kTreffer.map(function(k){ return hdrgZielDrg(k, hdrgStart, drgOp); }), DRG_RANG) || drgOp;
-    // "ambulant EBM" gilt nur, wenn wirklich alle Kodes im AOP-Katalog stehen.
+    // Sprachregel des Autors (09.09.2026): Der AOP-Katalog bindet nur Kliniken,
+    // niedergelassene Operateure rechnen ambulant ueber den EBM ab. Deshalb nie
+    // "unvergütet" oder "nicht abrechenbar", sondern Sachverhalt und Empfehlung.
     var ausserhalb = codes.filter(function(c){ return !imAopKatalog(c); });
-    var ambSatz;
-    if (!ausserhalb.length) ambSatz = "ambulant EBM.";
-    else {
-      var nurOsteo = ausserhalb.every(function(c){ return c.indexOf("5-788.5") === 0; });
-      ambSatz = "ambulant nur mit unvergüteten " + (nurOsteo ? "Osteotomien" : "Leistungen")
-              + " (" + ausserhalb.join(", ") + " nicht im AOP-Katalog).";
-    }
+    var ambSatz = ausserhalb.length
+      ? "Ambulant: " + ausserhalb.join(", ") + (ausserhalb.length > 1 ? " stehen" : " steht")
+        + " nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen."
+      : "Ambulant EBM.";
     erg.satz = kTreffer.map(function(k){ return k.name + " (" + k.code + ")"; }).join(" und ")
-      + " führt aus " + hdrgStart + " heraus. Stationär " + erg.drg + "; " + ambSatz;
+      + " führt aus " + hdrgStart + " heraus. Stationär " + erg.drg + ". " + ambSatz;
   } else if (aTreffer.length) {
     erg.hdrg = hoechste(aTreffer.map(function(a){ return a.hdrg; }), HDRG_RANG) || hdrgStart;
     erg.satz = aTreffer.map(function(a){ return a.name + " (" + a.code + ")"; }).join(" und ")
@@ -3393,6 +3406,7 @@ var _s = useState, _m = useMemo;
                     bisherige Darstellung unveraendert. */}
                 {hAus.regel&&<div style={{fontSize:11,color:"#2D3748",lineHeight:1.6,marginBottom:6}}>
                   {hAus.satz}
+                  {!hAus.hybrid&&belegungsSatz(hAus.drg)&&<div style={{color:"#4A5568",marginTop:2}}>{belegungsSatz(hAus.drg)}</div>}
                   {hAus.warnungen.map(function(w,i){ return <div key={i} style={{color:"#C62828",marginTop:2}}>{w}</div>; })}
                 </div>}
                 {hAus.regel&&HDRG_RAHMEN&&<div style={{fontSize:10,color:"#718096",marginBottom:6}}>
@@ -6293,7 +6307,10 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         }()}
 
         {/* ERLÖSRELEVANTE KODIERHINWEISE — EINZIGE Stelle für OPS-Codes */}
-        {erloesData.kodier&&<div style={{marginBottom:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
+        {/* Mit Regelsatz erzeugt die Auswertung die Kodierhinweise; die 57
+            Kodezeilen aus kodier stuenden sonst doppelt daneben. Ohne
+            Regelsatz bleibt der Block wie bisher. */}
+        {!HDRG_REGELN&&erloesData.kodier&&<div style={{marginBottom:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
           <div style={{background:"#E65100",padding:"6px 12px"}}>
             <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
           </div>
