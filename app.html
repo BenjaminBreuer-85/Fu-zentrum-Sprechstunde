@@ -1390,6 +1390,24 @@ function belegungsSatz(drg){
        + (ab != null ? ", darunter Abschlag " + ab.toLocaleString("de-DE") + " € je Tag" : "")
        + "; jeden Tag in der Akte begründen.";
 }
+// Anzeigewerte aus einem OP_STEUERUNG-Eintrag. Die Datei traegt nur, was
+// statisch ist (hdrg, drg, empf, hinweise); Label, Kodeliste und die uebrigen
+// Anzeigefelder bleiben im Generator, weil sie zur Laufzeit entstehen.
+// null steht in der Datei fuer "keine", die Anzeige schreibt dafuer "—".
+function steuerAnzeige(key){
+  var e = OP_STEUERUNG[key];
+  if (!e) return null;
+  var infos = (e.hinweise || []).filter(function(h){ return h.typ === "info"; })
+    .map(function(h){ return (h.txt && h.txt.__fx) ? window._fx(h.txt.__fx) : h.txt; });
+  return {
+    hdrg: e.hdrg || "—",
+    drg:  e.drg  || "—",
+    empf: e.empf || "stat",
+    ziel: infos[0] || "",
+    kodier: infos.slice(1).join("\n\n"),
+    hinweise: e.hinweise || null
+  };
+}
 function hdrgRegelsatz(hdrg){
   if (!HDRG_REGELN || !hdrg) return null;
   var werte = Object.keys(HDRG_REGELN).map(function(k){ return HDRG_REGELN[k]; });
@@ -5095,10 +5113,15 @@ function OPBerichtApp(){
       kodier:"5-781.1t + 5-93b.0."+(dwyerSteindler?" + 5-850.59 (Steindler).":"")+(dwyerElevMT1?" + 5-781.ae (Elev. MT I).":"")+(dwyerJones?" + 5-854.2c (Jones).":"")+(dwyerPeroneal?" + 5-854.29 (Peroneal-Transfer).":"")}];
 
     // ME (generisch – keine fixe Zuordnung, manuelle Kodierung)
-    if(hasME) return [o,{label:"Metallentfernung (generisch)",ops:o,
-      hdrg:"—",ebm:"EBM je nach Region",kurz:"—",drg:"—",hdrg_n1:"—",empf:"amb",
-      ziel:window._fx("ME allein triggert keine H-DRG und meist keine attraktive DRG.\nAmbulant in LA möglich → EBM-Abrechnung (niedrig vergütet).\n\n💡 H-DRG-TRIGGER (I20O ~1.007 €): Wenn klinisch indiziert, Zusatzeingriff derselben Region kombinieren:"),
-      kodier:"⚠ Keine automatische Codierung – manuell setzen:\n\n• OPS: 5-787.x nach Lokalisation + Materialart (Schraube/Draht/Platte/winkelstab. Platte/Nagel/Fixateur)\n• ICD-HD: Z47.0 (Entfernung einer Metallplatte/Fixationsvorrichtung)\n• ND bei Komplikation: T84.6 (Infektion), M84.1 (Pseudarthrose)\n\n💡 H-DRG-TRIGGER I20O (Zusatzeingriff, nur wenn klinisch gerechtfertigt und im OP-Bericht dokumentiert):\n\n▸ Exostosenabtragung:\n  5-788.00 (MT I) · 5-788.06–09 (MT II–V, 1–4 Knochen)\n  5-788.0a (Dig I) · 5-788.0b–0f (Dig II–V, 1–5 Phalangen)\n\n▸ Bursektomie Fuß:\n  5-859.1a (totale Resektion Schleimbeutel Fuß)\n  5-859.0a (Inzision Schleimbeutel Fuß)\n\n▸ Tenolyse/Tenotomie Fuß:\n  5-851.1a (Tenotomie offen chir.) · 5-851.2a (perkutan)\n  5-852.2a (Exzision Sehnenscheide, partiell)\n\n▸ Revision/Wechsel OSE:\n  Wird als 5-78a.* kodiert (höher bewertet, NICHT als reine ME einstufen)"}];
+    // ME: Steuerwerte und Texte stehen in OP_STEUERUNG.metallentfernung.
+    // Label, Kodeliste und die Anzeigeform bleiben hier.
+    if(hasME){
+      var meS=steuerAnzeige("metallentfernung")||{hdrg:"—",drg:"—",empf:"amb",ziel:"",kodier:""};
+      return [o,{label:"Metallentfernung (generisch)",ops:o,
+        hdrg:meS.hdrg,ebm:"EBM je nach Region",kurz:"—",drg:meS.drg,hdrg_n1:"—",empf:meS.empf,
+        ziel:meS.ziel,kodier:meS.kodier,hinweise:meS.hinweise}];
+    }
+
     // Diabetischer Fuß: Die OPS-Zuordnung haengt an Tiefe, Ausdehnung und
     // Knochenbeteiligung und ist noch nicht abgenommen. Ohne diesen Zweig
     // bliebe der Fallsteuerungsblock leer — das liest sich wie "nichts zu tun".
@@ -5109,20 +5132,29 @@ function OPBerichtApp(){
       var dfKodier=[];
       if(dfOp)dfKodier.push("Empfohlene OPS und DRG-Stufe stehen in der Kodierbox der Sektion ③, sie richten sich nach den gesetzten Zusatzschaltern.");
       if(dfAmp)dfKodier.push("Empfohlene OPS und DRG-Stufe stehen in der Kodierbox der Sektion ③, sie richten sich nach der gewählten Amputationshöhe.");
+      // Steuerwerte aus OP_STEUERUNG. Sind beide Chips gesetzt, gilt der
+      // Eintrag der Amputation — dieselbe Regel wie im Regelsatz, wo bei
+      // mehreren Treffern die hoeherwertige DRG gilt.
+      var dfS=steuerAnzeige(dfAmp?"df_amputation":"df_debridement")||{hdrg:"—",drg:"—",empf:"stat",ziel:""};
       return [o,{label:"Diabetischer Fuß — "+(dfOp&&dfAmp?"Debridement und Amputation":dfAmp?"Amputation proximale Tibia":"Debridement"),ops:o,
-        hdrg:"—",ebm:"—",kurz:"—",drg:"—",hdrg_n1:"—",empf:"stat",
-        ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
-        kodier:dfKodier.join("\n\n")}];
+        hdrg:dfS.hdrg,ebm:"—",kurz:"—",drg:dfS.drg,hdrg_n1:"—",empf:dfS.empf,
+        ziel:dfS.ziel,
+        kodier:dfKodier.join("\n\n"),hinweise:dfS.hinweise}];
     }
 
     // OPS-Ziffern fuer Tendoskopie und AS-Debridement sind noch offen
     // (Stand 14.08.2026). Ohne diesen Zweig bliebe der Fallsteuerungsblock
     // ganz weg — das liest sich wie "nichts zu kodieren".
-    if(rfOp.includes("as_tendoskopie")||rfOp.includes("as_debridement")) return [o,{
-      label:rfOp.includes("as_debridement")?"AS-Débridement bei Tendinose":"Achillessehnen-Tendoskopie",ops:o,
-      hdrg:"—",ebm:"—",kurz:"—",drg:"—",hdrg_n1:"—",empf:"stat",
-      ziel:"Für diesen Eingriff sind OPS-Ziffern und Fallpauschale noch nicht hinterlegt.",
-      kodier:"⚠ TODO: OPS-Ziffern werden nachgetragen. Bis dahin manuell kodieren."}];
+    if(rfOp.includes("as_tendoskopie")||rfOp.includes("as_debridement")){
+      // Beide Eintraege liegen in OP_STEUERUNG (I27E) samt Kodierhinweisen —
+      // damit entfaellt die TODO-Zeile, die den Daten hinterherhinkte.
+      var asKey=rfOp.includes("as_debridement")?"as_debridement":"as_tendoskopie";
+      var asS=steuerAnzeige(asKey)||{hdrg:"—",drg:"—",empf:"stat",ziel:"",kodier:""};
+      return [o,{
+        label:asKey==="as_debridement"?"AS-Débridement bei Tendinose":"Achillessehnen-Tendoskopie",ops:o,
+        hdrg:asS.hdrg,ebm:"—",kurz:"—",drg:asS.drg,hdrg_n1:"—",empf:asS.empf,
+        ziel:asS.ziel,kodier:asS.kodier,hinweise:asS.hinweise}];
+    }
 
     return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 

@@ -67,8 +67,8 @@ Der Block „Erlösrelevante Kodierhinweise" wird aus der Auswertung erzeugt: Ze
 |---|---|
 | Chevron allein | Hybrid I20O; ambulant Hybrid; stationär I20E; Satz nennt Hebel 5-854.2c |
 | Chevron + 5-788.52 | Hybrid I20N; Satz „wertet auf I20N auf" |
-| Chevron + 5-788.54 | kein Hybrid; stationär I20E; ambulant nur mit unvergüteten DMMO (Kode nicht im AOP-Katalog) |
-| Chevron + 5-788.60 | kein Hybrid; stationär I20F; ambulant nur mit unvergüteter Arthroplastik (5-788.60 ist Hybrid-Kode ohne AOP-Eintrag) |
+| Chevron + 5-788.54 | kein Hybrid; stationär I20E; ambulant: 5-788.54 nicht im AOP-Katalog, für Kliniken Hybrid empfohlen |
+| Chevron + 5-788.60 | kein Hybrid; stationär I20F; ambulant: 5-788.60 nicht im AOP-Katalog (Hybrid-Kode ohne AOP-Eintrag), für Kliniken Hybrid empfohlen |
 | MTP-I-Arthrodese allein | Hybrid I20N; Hebel 5-784.0v nach I20E |
 | MTP-I + 5-788.54 | kein Hybrid; stationär I20D; keine Spongiosa nötig |
 | MTP-I + 5-808.a4 | Hybrid I20M |
@@ -110,4 +110,44 @@ Der Autor hat den Aufklapper in der App gesehen und entschieden, dass er bleibt.
 
 4. Datenseite: In `HDRG_REGELN` tragen die Knochenersatz-Kodes 5-785.2s bis 5-785.5w und 5-796.pv jetzt Klartextnamen (bisher stand der Kode als Name). 5-819.4 bleibt ohne Namen, der Kode ist noch gegen die OPS-Systematik zu prüfen (Lokalisation fehlt), bitte in der Liste so lassen und nicht auffüllen.
 
-5. Katalog (`katalog2026.json`, Modul OPS-Code-Suche): Der Abgleich der Kontextflags gegen `HDRG_REGELN` ist in `abgleich-katalog-kontextprozeduren-2026-09-09.md` dokumentiert. Die Datei wird nach der 1:1-Regel nur aus der Master-Excel neu erzeugt; bis dahin zeigt die Code-Suche bei 23 Kontextprozeduren noch keinen oder einen falschen Status. Kein Code-Eingriff nötig, `_HD` und `_KX` werden weiter wie bisher gelesen.
+5. Katalog (`katalog2026.json`, Modul OPS-Code-Suche): Der Abgleich der Kontextflags gegen `HDRG_REGELN` ist in `abgleich-katalog-kontextprozeduren-2026-09-09.md` dokumentiert. Der Autor hat die Änderungen freigegeben, `katalog2026.json` ist per Patch-Skript angepasst (25 neue Kontextprozeduren, Flags bei sieben Kodes, `_KX` um sechs Arthroskopiekodes erweitert; Bucket-Upload steht in DEPLOY.md). Kein Code-Eingriff nötig, `_HD` und `_KX` werden weiter wie bisher gelesen.
+
+## Nachtrag 09.09.2026, dritter Teil: Entscheidungen zum dritten Durchgang (Abschnitt 4 und `erloesData.kodier`)
+
+Grundlage ist eure Aufstellung der 31 `kodier`-Blöcke (90 Zeilen, 57 mit Kode, 24 ohne). Der Autor hat Stück für Stück entschieden:
+
+1. **Belegungsdauer und Abschläge (6 Zeilen):** entfallen als Freitext, weil die festen Beträge (1.209 €, MVWD 6,2) veralten. Ersatz ist eine berechnete Zeile je Ziel-DRG aus `erloes2026.json` (`GVD`, `UGVD_ABSCHLAG`), sinngemäß: „Volle DRG I20E ab N Belegungstagen, darunter Abschlag X € je Tag; jeden Tag in der Akte begründen." Die Zeile steht unter der Konsequenz-Zeile, nur wenn der Fall stationär landet.
+
+2. **Dokumentationspflichten und ICD-Hinweise (5 Zeilen):** wandern als `hinweise` vom Typ `info` an den jeweiligen Eingriff in `opsteuerung.json` (FHL-Transfer, Achillessehnennaht mit Paratenon, Metallentfernung mit Z47.0 und den Komplikations-Nebendiagnosen). FHL-Transfer (`fhl_transfer`) und Achillessehnennaht (`as_naht`) sind auf der Datenseite eingetragen. Für die Metallentfernung gibt es in `opsteuerung.json` keinen Eintrag; bitte nennt mir den Schlüssel, unter dem die `erloesData` der Metallentfernung im Code liegt, dann lege ich den Eintrag mit den ICD-Hinweisen an. Der Code muss dafür nichts Neues können. Die Zeile „H-DRG-TRIGGER I20O (Zusatzeingriff …)" ist eine Überschrift über Kodezeilen und entfällt mit ihnen.
+
+3. **Setting-Aussagen, Gliederungszeilen, TODO-Rest (13 Zeilen):** entfallen, die Konsequenz-Zeile deckt sie ab. Bitte nennt mir den Eingriff, bei dem „TODO: OPS-Ziffern werden nachgetragen" steht, damit ich prüfe, ob dort Daten fehlen.
+
+4. **Lapidus-Warnung:** bleibt, aber neu formuliert und bereits als `hinweise`-Warnung im Eintrag `lapidus` hinterlegt (siehe Sprachregel unten). Die alte Zeile „nicht abrechenbar" war falsch.
+
+5. **`erloesData.kodier` bleibt vorerst in den Daten** (Entscheidung des Autors: Reserve, bis die Auswertung einige Wochen im Alltag gelaufen ist). Anzeige: sobald `HDRG_REGELN` vorhanden ist, `kodier` nicht mehr rendern, sonst stehen die 57 Kodezeilen doppelt neben der Auswertung. Ohne Regelsatz wie bisher. Das Entfernen der alten `ausschluss`/`aufwertung`/`kontext`-Blöcke aus den Daten verschiebt sich entsprechend.
+
+**Sprachregel (Autor, 09.09.2026), gilt für Konsequenz-Zeile, Warnungen und Gegenprobe:** Der AOP-Katalog bindet nur Kliniken; niedergelassene Operateure dürfen die Eingriffe ambulant über den EBM abrechnen. Deshalb nie „ambulant unvergütet" oder „nicht abrechenbar" schreiben, sondern nur den Sachverhalt und die Empfehlung: „<Kode> steht nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen." Auf der Datenseite ist das umgesetzt: `ausschluss.ziel` bei Chevron, Chevron mit Akin, Scarf, Youngswick, DMMO und Weil lautet jetzt „keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen", und der `_kommentar` in `HDRG_REGELN` ist angepasst. Für den Code heißt das: Der Satzbaustein „ambulant nur mit unvergüteten …" aus dem Nachtrag vom 07.09. (Zeile 4 der Gegenprobe, Konsequenz-Zeile bei 5-788.54/55 und 5-788.60) wird ersetzt durch „… führt aus I20O heraus. Stationär I20E. Ambulant: 5-788.54 steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen." Die Gegenprobe-Zeilen 3 und 4 oben gelten mit dieser Formulierung.
+
+## Nachtrag 09.09.2026, vierter Teil: Antwort auf eure beiden Rückfragen, neuer Teilauftrag
+
+Der Autor hat entschieden: Alle vier fest im Code stehenden OP-Bericht-Zweige (Metallentfernung `app.html:5098`, Achillessehnen-Tendoskopie und AS-Débridement `app.html:5121–5125`, diabetischer Fuß, Unfallchirurgie) werden auf `OP_STEUERUNG` umgestellt.
+
+1. **Schlüssel:** `metallentfernung` wie von euch vorgeschlagen. Der Zustand `hasME` (`meOp.length>0 || (meRegion && meImpl)`) bleibt der Auslöser im Generator; er wählt dann den Eintrag `OP_STEUERUNG.metallentfernung` statt des Literal-Objekts. Für Achillessehne gelten die vorhandenen Einträge `as_tendoskopie` und `as_debridement` (beide `drg: "I27E"`), für diabetischen Fuß und Unfallchirurgie die Schlüssel, die ihr aus den heutigen Zweigen ableitet; bitte im Nachtrag benennen.
+
+2. **Werte 1:1:** Die Erlöswerte, Labels und Kodes der vier Zweige übernehmt ihr unverändert aus dem Code in `opsteuerung.json` (oberste Regel aus CLAUDE.md: keine Korrektur, keine Vereinheitlichung) und prüft Wert für Wert nach dem Muster von `scripts/verify_extraction.py`. Weil `data/*.json` gitignored ist, ist das eine Datei-Änderung mit Eintrag in DEPLOY.md Abschnitt D; `opsteuerung.json` steht dort ohnehin als offener Upload.
+
+3. **Hinweise:** Sobald der Eintrag `metallentfernung` existiert, hänge ich die ICD-Hinweise an (`hinweise` Typ `info`: Hauptdiagnose Z47.0 bei Entfernung einer Metallplatte oder Fixationsvorrichtung; Nebendiagnosen bei Komplikation T84.6 Infektion, M84.1 Pseudarthrose). Bitte meldet, wenn die Einträge angelegt sind, damit ich nicht in eine Datei schreibe, die ihr gerade ändert.
+
+4. **TODO-Zeile:** entfällt mit der Umstellung, die Daten liegen bereits in den beiden Achillessehnen-Einträgen.
+
+5. **Reihenfolge:** Dieser Teilauftrag läuft nach den Punkten 1 bis 5 des dritten Teils (Verweildauer-Zeile, `kodier` ausblenden, Sprachregel), damit die Auswertung im OP-Bericht am Ende für alle Eingriffe aus derselben Quelle kommt.
+
+## Nachtrag 09.09.2026, fünfter Teil: Schema für `metallentfernung`, Umgang mit den 31 Zweigen
+
+Antwort auf eure Analyse (31 Literal-Objekte im Fuß-Erlösmemo, 28 davon parallel in `OP_STEUERUNG`, unpassende Schemata). Der Autor hat entschieden:
+
+1. **Schema: OP_STEUERUNG-Konvention**, euer Vorschlag. `metallentfernung` bekommt `hdrg: null`, `drg: null`, `empf: "amb"` und die übrigen Felder in der Schreibweise der Datei („—" wird `null`, wie bei `morton_neurom`). Die Freitexte `ziel` und `kodier` werden `hinweise` vom Typ `info`, inhaltlich unverändert. Kein zweites Schema in der Datei. Laufzeitwerte (die gesammelte Kodeliste `ops: o`, bedingte Labels, der aus Schaltern zusammengesetzte DF-`kodier`) bleiben im Code; die Datei trägt nur, was statisch ist.
+
+2. **Jetzt nur drei Zweige:** `metallentfernung` neu anlegen, Achillessehne auf die vorhandenen `as_tendoskopie` und `as_debridement` (I27E, löst den Widerspruch zu `drg: "—"` und der TODO-Zeile), diabetischer Fuß auf `df_debridement` und `df_amputation`. Unfallchirurgie entfällt. Wertevergleich nach dem Muster von `scripts/verify_extraction.py`, DEPLOY.md Abschnitt D, Vollzugsmeldung; danach hänge ich die ICD-Hinweise an `metallentfernung`.
+
+3. **Die 28 Doppelpflege-Zweige bekommen einen eigenen Auftrag nach dem dritten Durchgang.** Erster Schritt dort ist kein Umbau, sondern ein Vergleich: je Zweig die Werte im Code gegen den Eintrag in `opsteuerung.json` (hdrg, drg, empf, Hebel, Kodes, Texte), Abweichungen als Liste an den Autor zur Entscheidung, welche Seite gilt. Erst danach die Umstellung, ebenfalls in der OP_STEUERUNG-Konvention. Bitte den Vergleich schon jetzt als Datei vorbereiten, wenn er sich beim Umzug der drei Zweige nebenbei erzeugen lässt; entschieden wird er separat.

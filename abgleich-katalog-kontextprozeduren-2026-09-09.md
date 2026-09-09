@@ -6,11 +6,15 @@ Stand: 09.09.2026. Auftraggeber: B. Breuer („Gleiche die Liste, die dir vorlie
 
 Die OPS-Code-Suche in `app.html` liest `data/katalog2026.json`: 3.796 Kodes in `_HD` mit Bitmaske (1 = AOP, 2 = Hybrid-DRG, 4 = Kontextprozedur) und die Ausnahmen je Hybrid-DRG in `_KX`. Die Kontextliste darin trägt den Vermerk „Bestand 02.07.2026" und umfasst 70 Kodes. Verglichen wurde gegen den Regelblock `HDRG_REGELN` in `data/opsteuerung.json`, der aus den Prozedurentabellen I20-V69 (I20O/I20N) und I20-V61 (I20M) des Definitionshandbuchs Hybrid-DRG 2026 gebaut ist, wie auf den GFFC-Folien vom 04.03.2026 abgebildet: 95 Kontextkodes für I20O/I20N, 85 für I20M.
 
-Ergebnis in einem Satz: 64 der 70 Katalogkodes stimmen, die Positivprozeduren, Aufwertungen und die drei bekannten I20M-Ausnahmen sind korrekt hinterlegt; 23 Kontextprozeduren fehlen im Katalog oder tragen kein Kontextflag, zwei tragen es zu Unrecht, vier sind unklar.
+Ergebnis in einem Satz: 64 der 70 Katalogkodes stimmen, die Positivprozeduren, Aufwertungen und die drei bekannten I20M-Ausnahmen sind korrekt hinterlegt; 25 Kontextprozeduren fehlen im Katalog oder tragen kein Kontextflag, zwei tragen es zu Unrecht, vier sind unklar.
 
-## Warum die Datei nicht direkt geändert wurde
+## Entscheidung des Autors (09.09.2026, Stück für Stück im Chat)
 
-`katalog2026.json` unterliegt der obersten Regel aus `CLAUDE.md`: Katalogdaten werden nur als Ganzes aus der Master-Excel (`OPS_Katalogdaten_2026_MASTER.xlsx`, Blatt „Katalog") erzeugt, nie einzeln editiert. Die Änderungen stehen deshalb hier als Zeilenliste für die Master-Excel. Ein fertiges Patch-Skript (`patch_katalog_kontext_20260909.py`, Sitzung) liegt bereit, falls der Autor die Datei ausnahmsweise direkt ändern lässt; es dokumentiert jede Änderung in `_kommentar`.
+Stück 1, der Weg: Patch-Skript direkt. `katalog2026.json` wurde am 09.09.2026 mit `patch_katalog_kontext_20260909.py` geändert, jede Änderung steht im `_kommentar` der Datei; das Zeilenlayout (eine `_HD`-Zeile je Kode) ist unverändert, der Git-Diff zeigt genau die 45 betroffenen Zeilen. Die Master-Excel (`OPS_Katalogdaten_2026_MASTER.xlsx`, Blatt „Katalog") liegt damit vorübergehend hinter der JSON; die Abschnitte A, B, C und E sind die Zeilenliste zum Nachziehen, damit die 1:1-Regel aus `CLAUDE.md` beim nächsten Neuerzeugen wieder gilt.
+
+Stück 2, die klaren Fälle: A, B, C und E vollständig übernommen.
+
+Stück 3, die unklaren Fälle (D): Flags belassen, Prüfung gegen Tabelle I20-V69 später; 5-819.4 nicht aufgenommen.
 
 ## A. Neue Zeilen in der Master-Excel (bisher gar nicht im Katalog), Flag 4 = Kontextprozedur
 
@@ -50,6 +54,6 @@ Bestand: 5-788.60, 5-854.1c, 5-854.2c mit [I20M], stimmt mit den Tabellen und de
 
 ## F. Reihenfolge für den Autor
 
-Master-Excel Blatt „Katalog" um die Zeilen aus A ergänzen, Flags aus B und C setzen, Ausnahmen aus E eintragen, D entscheiden, dann `katalog2026.json` neu erzeugen, `scripts/verify_extraction.py` laufen lassen, Bucket-Upload (erst löschen, dann hochladen), DEPLOY.md Abschnitt D nachtragen. Danach den Abgleich hier einmal wiederholen (Skript in der Sitzung vorhanden), erwartetes Ergebnis: keine Abweichung außer D.
+Jetzt: Bucket-Upload `katalog2026.json` (erst löschen, dann hochladen) zusammen mit den anderen offenen Uploads aus DEPLOY.md, danach Push. Später: Master-Excel Blatt „Katalog" um die Zeilen aus A ergänzen, Flags aus B und C setzen, Ausnahmen aus E eintragen, D entscheiden; beim nächsten Neuerzeugen aus der Excel muss die JSON bis auf D unverändert herauskommen. Kontrolle nach dem Patch (Abgleich-Skript in der Sitzung): einzige Restabweichungen sind 5-819.4 und die vier D-Kodes.
 
 Der Regelblock `HDRG_REGELN` bleibt die Quelle für die Fallsteuerung; die Code-Suche und die Fallsteuerung greifen nach dem Update auf denselben Stand zu.
