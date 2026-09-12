@@ -1670,6 +1670,25 @@ function HinweisListe({items}){
   </div>;
 }
 
+// Endoprothetik (Hueft- und Knieprothetik): vorerst nicht anwaehlbar
+// (Entscheidung 12.09.2026), weil die Integration noch nicht vollstaendig
+// ist. Anders als bei der Wirbelsaeule bleibt der Knopf sichtbar und wird
+// nur ausgegraut — der Bestand an Daten, Texten und Berechnungen ist
+// unangetastet. Hier auf true setzen genuegt zum Wiederanschalten.
+var ENDO_AKTIV=false;
+
+// Ausgegraute Fassung eines Auswahlknopfes: gedaempfte Farben, Mauszeiger
+// "nicht erlaubt". Der Knopf bleibt lesbar, nur eben nicht anklickbar.
+function stillgelegt(basis){
+  return Object.assign({}, basis, {
+    cursor: "not-allowed",
+    border: "2px solid rgba(0,0,0,.07)",
+    background: "rgba(0,0,0,.03)",
+    color: "#A0AEC0",
+    opacity: .7
+  });
+}
+
 function SprechstundenbriefApp() {
 
 var _s = useState, _m = useMemo;
@@ -2962,7 +2981,9 @@ var _s = useState, _m = useMemo;
           <div style={{ fontSize: 10, color: "#718096", fontWeight: 700, marginBottom: 3 }}>FACHRICHTUNG</div>
           <div style={row}>
             <div style={GB(pfad === "fuss")} onClick={function() { setPfad("fuss"); setEndoDiag(""); setEndoSep(""); setEndoUni(""); }}>🦶 Fuß / Sprunggelenk</div>
-            <div style={GB(pfad === "endo")} onClick={function() { setPfad("endo"); setDiagnosen([]); setMeMode(false); setKontrolleMode(false); setKontrolleType(""); setOpMethode([]); }}>🦿 Endoprothetik</div>
+            {ENDO_AKTIV
+              ? <div style={GB(pfad === "endo")} onClick={function() { setPfad("endo"); setDiagnosen([]); setMeMode(false); setKontrolleMode(false); setKontrolleType(""); setOpMethode([]); }}>🦿 Endoprothetik</div>
+              : <div style={stillgelegt(GB(false))} title="Endoprothetik ist noch nicht freigegeben." aria-disabled="true">🦿 Endoprothetik <span style={{fontSize:10,fontWeight:600}}>(in Arbeit)</span></div>}
           </div>
         </div>
         {pfad === "endo" && <div style={{ marginTop: 6, padding: "6px 10px", background: "rgba(255,193,7,.08)", border: "1px solid rgba(255,193,7,.3)", borderRadius: 6, fontSize: 10, color: "#BF360C", marginBottom: 8 }}>
@@ -5793,7 +5814,9 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={row}>
           <div style={gb(sektion==="fuss")} onClick={()=>setSektion(sektion==="fuss"?"":"fuss")}>Fuß / Sprunggelenk</div>
           <div style={gb(sektion==="uc")} onClick={()=>setSektion(sektion==="uc"?"":"uc")}>UC</div>
-          <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>Endo</div>
+          {ENDO_AKTIV
+            ? <div style={gb(sektion==="endo")} onClick={()=>setSektion(sektion==="endo"?"":"endo")}>Endo</div>
+            : <div style={stillgelegt(gb(false))} title="Endoprothetik ist noch nicht freigegeben." aria-disabled="true">Endo <span style={{fontSize:10,fontWeight:600}}>(in Arbeit)</span></div>}
           {/* WS-Modul vorerst stillgelegt (Entscheidung 28.08.2026): Daten teils
               Platzhalter. Der Knopf ist ausgeblendet, Sektion und Daten bleiben
               als inaktiver Bestand stehen — Wiederanschalten heisst: WS_AKTIV auf
