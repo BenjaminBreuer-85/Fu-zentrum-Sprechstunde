@@ -1479,16 +1479,16 @@ function hdrgAuswertung(opts){
         + " nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen."
       : "Ambulant EBM.";
     erg.satz = kTreffer.map(function(k){ return k.name + " (" + k.code + ")"; }).join(" und ")
-      + " führt aus " + hdrgStart + " heraus. Stationär " + erg.drg + ". " + ambSatz;
+      + " gruppiert den Fall nicht mehr in " + hdrgStart + ", sondern stationär nach " + erg.drg + ". " + ambSatz;
   } else if (aTreffer.length) {
     erg.hdrg = hoechste(aTreffer.map(function(a){ return a.hdrg; }), HDRG_RANG) || hdrgStart;
     erg.satz = aTreffer.map(function(a){ return a.name + " (" + a.code + ")"; }).join(" und ")
       + " wertet auf " + erg.hdrg + " auf.";
   } else {
-    erg.satz = "Fall liegt in " + hdrgStart + ".";
-    if (best.hebel) erg.satz += " Ausweg für diese OP: " + (best.hebelName || "Kontextprozedur")
-      + " (" + best.hebel + ") nach " + (best.drg || drgOp) + ".";
-    else erg.satz += " Kein Ausweg gesetzt.";
+    erg.satz = "Ambulant gruppiert der Fall nach " + hdrgStart + ".";
+    if (best.hebel) erg.satz += " Wird stationär zusätzlich " + (best.hebelName || "Kontextprozedur")
+      + " (" + best.hebel + ") durchgeführt, gruppiert der Fall nach " + (best.drg || drgOp) + ".";
+    else erg.satz += " Kein erlösrelevanter Zusatzeingriff hinterlegt.";
   }
 
   // Warnungen
@@ -1504,7 +1504,7 @@ function hdrgAuswertung(opts){
       var n=(regel.positivNamen&&regel.positivNamen[c])||katalogName(c)||("Kode "+c);
       // Steht der Kode schon im Namen, nicht noch einmal in Klammern dahinter.
       var bez = n.indexOf(c) >= 0 ? n : n + " (" + c + ")";
-      erg.warnungen.push(bez + " steht nicht im AOP-Katalog, zieht den ambulanten Fall aus dem EBM in die Hybrid-DRG " + (erg.hdrg || hdrgStart) + ".");
+      erg.warnungen.push(bez + " steht nicht im AOP-Katalog; der ambulante Fall gruppiert dann in die Hybrid-DRG " + (erg.hdrg || hdrgStart) + ", nicht nach EBM.");
     });
   }
   // Ambulant als EBM setzt voraus, dass wirklich alle Kodes im AOP-Katalog
@@ -3113,7 +3113,7 @@ var _s = useState, _m = useMemo;
             </div>
           </div>}
           {meBriefRegion&&meBriefImpl&&<div style={{marginBottom:8}}>
-            <div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:3}}>ZUSATZEINGRIFF (optional, triggert H-DRG I20O)</div>
+            <div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:3}}>ZUSATZEINGRIFF (optional, führt ambulant nach I20O)</div>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
               <div style={C(meBriefZusatz==="none")} onClick={function(){setMeBriefZusatz("none");}}>— kein Zusatzeingriff —</div>
               {ME_REGIONEN[meBriefRegion].zusatz.map(function(z){return <div key={z.code} style={{...C(meBriefZusatz===z.code),textAlign:"left"}} onClick={function(){setMeBriefZusatz(z.code);}}><span style={{fontFamily:"monospace",fontWeight:600}}>{z.code}</span> — {z.name}</div>;})}
@@ -3157,22 +3157,22 @@ var _s = useState, _m = useMemo;
               :meBriefZusatz!=="none"
               ?<div style={{display:"grid",gridTemplateColumns:"1fr",gap:4}}>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"2px solid #00897B",background:"rgba(0,137,123,.08)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <div><span style={{fontSize:10,fontWeight:700,color:"#00897B"}}>⭐ EMPFEHLUNG</span> <span style={{fontSize:10,color:"#2D3748"}}>· Ambulant mit H-DRG-Triggercode <span style={{fontFamily:"monospace",fontWeight:600}}>{meBriefZusatz}</span></span></div>
+                  <div><span style={{fontSize:10,fontWeight:700,color:"#00897B"}}>⭐ EMPFEHLUNG</span> <span style={{fontSize:10,color:"#2D3748"}}>· Ambulant mit Zusatzeingriff <span style={{fontFamily:"monospace",fontWeight:600}}>{meBriefZusatz}</span></span></div>
                   <div style={{fontSize:13,fontWeight:700,color:"#00897B"}}>H-DRG I20O · 1.007 €</div>
                 </div>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"1px solid rgba(160,160,160,.4)",background:"rgba(160,160,160,.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <div><span style={{fontSize:10,fontWeight:700,color:"#718096"}}>Alternative</span> <span style={{fontSize:10,color:"#718096"}}>· isolierte ME ohne Triggercode</span></div>
+                  <div><span style={{fontSize:10,fontWeight:700,color:"#718096"}}>Alternative</span> <span style={{fontSize:10,color:"#718096"}}>· isolierte ME ohne Zusatzeingriff</span></div>
                   <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · geringer Erlös</div>
                 </div>
                 {beidseitsSperre(seite,true,[meBriefZusatz])==="bleibt"&&<div style={{fontSize:10,color:"#E65100",marginTop:2}}>Beidseits: Hybrid bleibt nach Definitionshandbuch möglich (Kode nicht in I20-V67), vor Abrechnung im Webgrouper prüfen</div>}
               </div>
               :<div style={{display:"grid",gridTemplateColumns:"1fr",gap:4}}>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"1px solid rgba(198,40,40,.35)",background:"rgba(198,40,40,.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <div><span style={{fontSize:10,fontWeight:700,color:"#C62828"}}>aktuell:</span> <span style={{fontSize:10,color:"#2D3748"}}>· isolierte ME ohne Triggercode</span></div>
+                  <div><span style={{fontSize:10,fontWeight:700,color:"#C62828"}}>aktuell:</span> <span style={{fontSize:10,color:"#2D3748"}}>· isolierte ME ohne Zusatzeingriff</span></div>
                   <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · geringer Erlös</div>
                 </div>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"1px dashed #00897B",background:"rgba(0,137,123,.04)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <div><span style={{fontSize:10,fontWeight:700,color:"#00897B"}}>möglich bei medizinischer Indikation:</span> <span style={{fontSize:10,color:"#2D3748"}}>· H-DRG-Triggercode aus Positivliste oben wählen</span></div>
+                  <div><span style={{fontSize:10,fontWeight:700,color:"#00897B"}}>möglich bei medizinischer Indikation:</span> <span style={{fontSize:10,color:"#2D3748"}}>· Zusatzeingriff aus der Positivliste oben</span></div>
                   <div style={{fontSize:13,fontWeight:700,color:"#00897B"}}>H-DRG I20O · 1.007 €</div>
                 </div>
               </div>
@@ -3403,7 +3403,7 @@ var _s = useState, _m = useMemo;
                         <div style={{fontSize:10,color:"#718096",marginTop:2}}>Hybrid-DRG · pauschal</div>
                         {implZahl>0&&<div style={{fontSize:10,color:"#555",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>}
                         {implUnvoll&&<div style={{fontSize:10,color:"#8A5A00",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> unvollständig — {implUnvoll.fehlend} von {implUnvoll.positionen} Positionen ohne Preis <span style={{textDecoration:"underline",cursor:"pointer"}} onClick={()=>setTool("preise")}>Preise hinterlegen</span></div>}
-                        {best.hebel&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>❌ Kontextprozedur(en) NICHT kodieren — sonst Verlust der H-DRG</div>}
+                        {best.hebel&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>Hybrid-DRG nur ohne Kontextprozedur: wird sie durchgeführt, wird sie kodiert, und der Fall gruppiert in die stationäre DRG.</div>}
                       </div>;
                     }
                     if(ambStatus==="ebm-bds"){
@@ -3442,8 +3442,8 @@ var _s = useState, _m = useMemo;
                         Grund weg (etwa 3x DMMO), die DRG kommt dann nicht vom
                         Hebel dieses Eintrags — die Zeile waere irrefuehrend. */}
                     {!hatHybridBezug&&!hideKontext&&best.hebel&&<div style={{fontSize:10,color:"#2E7D32",marginTop:4,fontWeight:600}}>
-                      Erlöshebel: <span style={{fontFamily:"monospace"}}>{best.hebel}</span>{best.hebelName?" ("+best.hebelName+")":""} → {hebelZiel}
-                      {hebelZiel!==drg&&<span style={{color:"#C62828",fontWeight:400}}> (aktuell {drg}, Hebel nicht genutzt)</span>}
+                      Erlösrelevanter Zusatzeingriff: {best.hebelName?best.hebelName+" ":""}(<span style={{fontFamily:"monospace"}}>{best.hebel}</span>) → {hebelZiel}
+                      {hebelZiel!==drg&&<span style={{color:"#C62828",fontWeight:400}}> (ohne diesen Eingriff {drg})</span>}
                     </div>}
                     {implZahl>0&&<div style={{fontSize:10,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
                       <div><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>
@@ -3518,12 +3518,12 @@ var _s = useState, _m = useMemo;
                 })()}
                 {!hideKontext&&hatHybridBezug&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
                   {best.hdrgTrigger&&best.hdrgTrigger.length>0&&<div style={{marginBottom:6,padding:"4px 6px",background:"rgba(46,125,50,.06)",border:"1px solid rgba(46,125,50,.25)",borderRadius:4}}>
-                    <div style={{fontSize:10,fontWeight:700,color:"#2E7D32",marginBottom:2}}>H-DRG-Trigger</div>
+                    <div style={{fontSize:10,fontWeight:700,color:"#2E7D32",marginBottom:2}}>Führen in die Hybrid-DRG</div>
                     <div>
                       {best.hdrgTrigger.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2}}><span style={{fontWeight:600,fontFamily:"monospace"}}>{k.code}</span> <span style={{color:"#718096"}}>({OPS_LABELS[k.code]||k.name||k.code})</span></span>;})}
                     </div>
                     <div style={{fontSize:10,color:"#555",marginTop:3,fontStyle:"italic"}}>
-                      Ambulant: triggern die H-DRG erst — daher bei ambulanter Durchführung obligat mitkodieren. Stationär nicht zwingend nötig, klinisch aber meist mit durchgeführt — dann muss zusätzlich eine Kontextprozedur (s.u.) kodiert werden, um nicht in die niedriger bewertete H-DRG zu fallen.
+                      Ambulant gruppiert der Fall erst mit diesen Eingriffen in die Hybrid-DRG; werden sie durchgeführt, werden sie beschrieben und kodiert. Stationär gruppiert der Fall in die volle DRG, wenn zusätzlich eine Kontextprozedur (s.u.) durchgeführt wird, sonst in die Hybrid-DRG.
                     </div>
                   </div>}
                   <div style={{fontWeight:700,color:"#1565C0",marginBottom:2}}>Kontextprozeduren</div>
@@ -3537,8 +3537,8 @@ var _s = useState, _m = useMemo;
                       {best.kontextExcluded.map(function(k,i){return <span key={i} style={{display:"inline-block",marginRight:8,marginBottom:2,fontSize:10}}><span style={{fontFamily:"monospace",textDecoration:"line-through",color:"#C62828"}}>{k.code}</span> <span style={{color:"#999"}}>({OPS_LABELS[k.code]||k.name||k.code})</span></span>;})}
                     </div>
                   </div>}
-                  {ambStatus==="hdrg"&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>❌ Ambulant: NICHT kodieren — sonst Verlust der H-DRG. Bei klinischer Notwendigkeit besser stationäre Führung.</div>}
-                  {hasStat&&<div style={{fontSize:10,color:"#2E7D32",marginTop:2}}>✅ Stationär: IMMER kodieren zum Ausschluss H-DRG → volle DRG {drg}.</div>}
+                  {ambStatus==="hdrg"&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>Ambulant bleibt der Fall nur ohne diese Prozedur in der Hybrid-DRG; ist sie klinisch notwendig, stationäre Führung.</div>}
+                  {hasStat&&<div style={{fontSize:10,color:"#2E7D32",marginTop:2}}>Stationär: wird sie durchgeführt, wird sie beschrieben und kodiert; der Fall gruppiert dann nach {drg}.</div>}
                 </div>:null}
                 {hAus.regel&&<details style={{marginBottom:6}}>
                   <summary style={{fontSize:10,color:"#1565C0",cursor:"pointer",userSelect:"none"}}>
@@ -3565,7 +3565,7 @@ var _s = useState, _m = useMemo;
                       </div>; })}
                     </div>}
                     {hAus.listen.nichtKontext.length>0&&<div>
-                      <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>kein Ausweg</div>
+                      <div style={{fontWeight:700,color:"#C62828",marginBottom:2}}>kein Zusatzeingriff hinterlegt</div>
                       {hAus.listen.nichtKontext.map(function(n,i){ return <div key={i}>
                         <span style={{fontFamily:"monospace",fontWeight:600}}>{n.code}</span> <span style={{color:"#555"}}>— {n.name}: {n.txt}</span>
                       </div>; })}
@@ -3905,7 +3905,7 @@ var _s = useState, _m = useMemo;
                     })}
                   </div>}
                   {k.hebel && <div style={{ marginTop: 4, padding: "4px 8px", background: "rgba(230,81,0,.08)", borderRadius: 4, fontSize: 10, color: "#BF360C", lineHeight: 1.4 }}>
-                    💡 <strong>Hebel:</strong> {k.hebel}
+                    💡 <strong>Erlösrelevanter Zusatzeingriff:</strong> {k.hebel}
                   </div>}
                 </div>;
               })}
@@ -4351,7 +4351,7 @@ function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz,seite}){
     </div>}
     {/* Zusatz */}
     {region&&impl&&<div style={{marginBottom:10}}>
-      <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginBottom:4}}>Zusatzeingriff (triggert H-DRG I20O ambulant)</div>
+      <div style={{fontSize:10,fontWeight:700,color:"#2D3748",marginBottom:4}}>Zusatzeingriff (führt ambulant nach I20O)</div>
       <div style={{display:"flex",flexDirection:"column",gap:3}}>
         <div style={{...btn(zusatz==="none"),padding:"6px 10px",textAlign:"left"}} onClick={function(){setZusatz("none");}}>
           <span style={{fontWeight:600}}>— kein Zusatzeingriff —</span>
@@ -4388,7 +4388,7 @@ function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz,seite}){
         {zusatzAktiv&&<div style={{padding:"6px 8px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:5,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
           <div style={{fontWeight:700,color:"#1565C0",marginBottom:4}}>Zu kodierende OPS-Codes</div>
           <div><span style={{fontFamily:"monospace",fontWeight:600}}>{meCode}</span> — {OPS_LABELS[meCode]}</div>
-          <div><span style={{fontFamily:"monospace",fontWeight:600,color:"#2E7D32"}}>{zusatzEintrag.code}</span> — {zusatzEintrag.name} {bdsME!=="sperre"&&<span style={{color:"#2E7D32",fontWeight:600}}>(Hebel-Code)</span>}</div>
+          <div><span style={{fontFamily:"monospace",fontWeight:600,color:"#2E7D32"}}>{zusatzEintrag.code}</span> — {zusatzEintrag.name} {bdsME!=="sperre"&&<span style={{color:"#2E7D32",fontWeight:600}}>(führt nach I20O)</span>}</div>
         </div>}
       </div>
     </div>}
@@ -4947,23 +4947,23 @@ function OPBerichtApp(){
     if(gz==="lapidus"&&_prio==="lapidus") return [o,{label:"Lapidus",ops:o,
       hdrg:"—",ebm:"—",kurz:window._fx("I20D ~3.700 €"),drg:window._fx("I20D 4.710 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Keine H-DRG (5-808.a4 nicht auf Positivliste) → stationär, mind. 2 Nächte → volle DRG I20D (CM 1,033 = 4.710 €)."),
-      kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-783.0v (Entnahme MT) + 5-784.0u (Transplantation Tarsale).\n5-854.2c (Sehnentransfer) IMMER mitkodieren.\n⚠ 5-808.a4 NICHT auf H-DRG-Positivliste UND NICHT im AOP-Katalog!\n→ Nur stationär möglich. Mind. 2 Nächte für volle DRG.\n⚠ Häufiger Fehler: Lapidus als ambulant geplant → nicht abrechenbar!"}];
+      kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-783.0v (Entnahme MT) + 5-784.0u (Transplantation Tarsale).\nDer Sehnentransfer (5-854.2c) gehört zum Eingriff und wird beschrieben und kodiert.\n⚠ 5-808.a4 NICHT auf H-DRG-Positivliste UND NICHT im AOP-Katalog!\n→ Nur stationär möglich. Mind. 2 Nächte für volle DRG.\n⚠ Ambulant: 5-808.a4 steht nicht im AOP-Katalog; für Kliniken ambulant daher nur als Hybrid I20M (mit Akin)."}];
 
     // MTP-I-Arthrodese
     if(gz==="mtp1art"&&_prio==="mtp1art") {
       const dmmoCnt=dmmo.length;
       if(dmmoCnt>=3) return [o,{label:"MTP-I-Arthrodese + ≥3 DMMO",ops:o,
         hdrg:"—",ebm:"—",kurz:window._fx("I20D ~3.700 €"),drg:window._fx("I20D 4.710 €"),hdrg_n1:"—",empf:"n2",
-        ziel:window._fx("≥3 DMMO → keine H-DRG. Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €).\n5-784.0v (Spongiosa) IMMER mitkodieren."),
-        kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.54/55.\n5-784.0v (Spongiosa) IMMER mitkodieren → I20D. ⚠ Im OP-Bericht erwähnen!"}];
+        ziel:window._fx("≥3 DMMO → keine H-DRG. Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €).\nMit Spongiosaplastik (5-784.0v), wenn durchgeführt, gruppiert der Fall nach I20D."),
+        kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.54/55.\n⚠ Wird eine Spongiosaplastik (5-784.0v) durchgeführt, wird sie beschrieben und kodiert; Zuordnung I20D."}];
       if(dmmoCnt>=1) return [o,{label:"MTP-I-Arthrodese + DMMO",ops:o,
         hdrg:window._fx("I20N 2.085 €"),ebm:"—",kurz:window._fx("I20E ~2.800 €"),drg:window._fx("I20E 3.923 €"),hdrg_n1:window._fx("I20N 2.085 €"),empf:"amb",
-        ziel:window._fx("Ambulant → H-DRG I20N (2.085 €). ❌ 5-784.0v NICHT kodieren!\n1 Nacht: gekürzte DRG I20E (~2.800 €).\nAb 2 Nächte: 5-784.0v mitkodieren → volle DRG I20E (3.923 €)."),
-        kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.52/53.\n⚠ Ambulant: 5-784.0v NICHT kodieren → H-DRG I20N!\n⚠ Stationär: 5-784.0v IMMER → Kontextprozedur → I20E.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0v (Spongiosa MTP I) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."}];
+        ziel:window._fx("Ambulant ohne Spongiosaplastik: Hybrid-DRG I20N (2.085 €).\n1 Belegungstag: gekürzte DRG I20E (~2.800 €).\nMit Spongiosaplastik (5-784.0v) ab 2 Belegungstagen volle DRG I20E (3.923 €)."),
+        kodier:"5-808.b0 + 5-93b.0 + 5-93b.e + 5-788.52/53.\n⚠ Ambulant setzt die Hybrid-DRG I20N voraus, dass keine Spongiosaplastik durchgeführt wird.\n⚠ Stationär gruppiert der Fall mit Spongiosaplastik (5-784.0v) nach I20E.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\nZuordnung bei stationärer Führung:\n① ab 3 Belegungstagen volle DRG. ⚠ Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren, bei kürzerer Verweildauer gruppiert der Fall in die Hybrid-DRG.\n② Wird eine Spongiosaplastik (5-784.0v) durchgeführt, wird sie beschrieben und kodiert; der Fall gruppiert dann ab 2 Belegungstagen in die volle DRG, bei 1 Belegungstag in die gekürzte DRG."}];
       return [o,{label:"MTP-I-Arthrodese",ops:o,
         hdrg:window._fx("I20N 2.085 €"),ebm:"—",kurz:window._fx("I20E ~2.800 €"),drg:window._fx("I20E 3.923 €"),hdrg_n1:window._fx("I20N 2.085 €"),empf:"amb",
-        ziel:window._fx("Ambulant → H-DRG I20N (2.085 €). ❌ 5-784.0v NICHT kodieren!\nAb 2 Nächte: 5-784.0v mitkodieren → I20E (3.923 €)."),
-        kodier:"5-808.b0 + 5-93b.0 + 5-93b.e.\n⚠ Ambulant: 5-784.0v NICHT kodieren!\n⚠ Stationär ≥2N: 5-784.0v IMMER → I20E.\n\n⚠ DMMO-REGEL: Bei Kombination mit ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0v (Spongiosa MTP I) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN."}];
+        ziel:window._fx("Ambulant ohne Spongiosaplastik: Hybrid-DRG I20N (2.085 €).\nMit Spongiosaplastik (5-784.0v) ab 2 Belegungstagen I20E (3.923 €)."),
+        kodier:"5-808.b0 + 5-93b.0 + 5-93b.e.\n⚠ Ambulant setzt die Hybrid-DRG I20N voraus, dass keine Spongiosaplastik durchgeführt wird.\n⚠ Stationär gruppiert der Fall mit Spongiosaplastik (5-784.0v) nach I20E.\n\n⚠ DMMO-REGEL: Bei Kombination mit ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\nZuordnung bei stationärer Führung:\n① ab 3 Belegungstagen volle DRG. ⚠ Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren, bei kürzerer Verweildauer gruppiert der Fall in die Hybrid-DRG.\n② Wird eine Spongiosaplastik (5-784.0v) durchgeführt, wird sie beschrieben und kodiert; der Fall gruppiert dann ab 2 Belegungstagen in die volle DRG, bei 1 Belegungstag in die gekürzte DRG."}];
     }
 
     // Chevron/Scarf/Cheilektomie/Exostose
@@ -4972,15 +4972,15 @@ function OPBerichtApp(){
       const isOT=gz==="chevron"||gz==="scarf";
       if(true) return [o,{label:lbl+(mitAkin?" + Akin":"")+(dmmo.length>0?" + DMMO":""),ops:o,
         hdrg:window._fx("I20O 1.007 €"),ebm:"EBM ~300 €",kurz:isOT?window._fx("I20E ~2.800 €"):window._fx("I20F ~2.000 €"),drg:isOT?window._fx("I20E 3.923 €"):window._fx("I20F 3.040 €"),hdrg_n1:window._fx("I20O 1.007 €"),empf:"amb",
-        ziel:window._fx("Ambulant → H-DRG I20O (1.007 €). ❌ 5-854.2c NICHT kodieren!")+(isOT?window._fx("\nStationär ≥2N: 5-854.2c IMMER mitkodieren → I20E (3.923 €)."):""),
-        kodier:isOT?"⚠ HEBEL-CODE: 5-854.2c (Sehnentransfer/Rebalancing).\nAmbulant: NICHT kodieren → H-DRG I20O.\nStationär: IMMER mitkodieren → Kontextprozedur → I20E.\n⚠ Sehnentransfer muss im OP-Bericht dokumentiert sein!\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag muss dokumentarisch gerechtfertigt sein. Bei MDK-Kürzung: Rückfall in H-DRG!\n② Kontextprozedur 5-854.2c mitkodieren → volle DRG bereits ab 2 Nächten. Mit Kontextprozedur ist ein Belegungstag weniger zu begründen. Bei Kürzung: gekürzte DRG (besser als H-DRG).":"OPS: 5-788.00 (Cheilektomie/Exostose) → I20O ambulant.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG."}];
+        ziel:window._fx("Ambulant ohne Sehnentransfer: Hybrid-DRG I20O (1.007 €).")+(isOT?window._fx("\nStationär mit Sehnentransfer (5-854.2c) ab 2 Belegungstagen I20E (3.923 €)."):""),
+        kodier:isOT?"⚠ Sehnentransfer/Rebalancing (5-854.2c): ambulant bleibt der Fall nur ohne Sehnentransfer in der Hybrid-DRG I20O; wird er durchgeführt, wird er beschrieben und kodiert, und der Fall gruppiert stationär nach I20E.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\nZuordnung bei stationärer Führung:\n① ab 3 Belegungstagen volle DRG. ⚠ Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren, bei kürzerer Verweildauer gruppiert der Fall in die Hybrid-DRG.\n② Wird der Sehnentransfer (5-854.2c) durchgeführt, wird er beschrieben und kodiert; der Fall gruppiert dann ab 2 Belegungstagen in die volle DRG, bei 1 Belegungstag in die gekürzte DRG.":"OPS: 5-788.00 (Cheilektomie/Exostose) → I20O ambulant.\n\n⚠ DMMO-REGEL: Max. 2× DMMO (5-788.52/53) für H-DRG! Ab ≥3 DMMO (5-788.54/55): KEINE H-DRG möglich → nur stationär.\n\nZuordnung bei stationärer Führung:\n① ab 3 Belegungstagen volle DRG. ⚠ Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren, bei kürzerer Verweildauer gruppiert der Fall in die Hybrid-DRG."}];
     }
 
     // Kleinzehen/DMMO ≤2
     if((Object.values(zc).some(function(a){return a.length>0;})||mtStrahlen.length>0)&&!hasDMMOover2&&_prio==="dmmo") return [o,{label:"Kleinzehen/DMMO"+(weil.length?" + Weil":""),ops:o,
       hdrg:window._fx("I20O 1.007 €"),ebm:"EBM ~300 €",kurz:window._fx("I20F ~2.000 €"),drg:window._fx("I20F 3.040 €"),hdrg_n1:window._fx("I20O 1.007 €"),empf:"amb",
       ziel:window._fx("Ambulant → H-DRG I20O (1.007 €)."),
-      kodier:"DMMO max. 2× (5-788.52/53) für H-DRG! >2× = keine H-DRG.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\nVWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG."}];
+      kodier:"DMMO max. 2× (5-788.52/53) für H-DRG! >2× = keine H-DRG.\n\nZuordnung bei stationärer Führung:\nab 3 Belegungstagen volle DRG. ⚠ Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren, bei kürzerer Verweildauer gruppiert der Fall in die Hybrid-DRG."}];
 
     // DMMO >2
     if(hasDMMOover2&&_prio==="dmmo") return [o,{label:(weil.length&&!dmmo.length?"Weil":dmmo.length&&weil.length?"DMMO + Weil":"DMMO")+" ≥3 MT",ops:o,
@@ -5009,7 +5009,7 @@ function OPBerichtApp(){
     if(osgOp.includes("arthrodese_osg")) return [o,{label:"OSG-Arthrodese"+(osgArtSpongiosa?" + Spongiosa":""),ops:o,
       hdrg:"—",ebm:"—",kurz:osgArtSpongiosa?window._fx("I13D ~5.600 €"):window._fx("I13E ~4.600 €"),drg:osgArtSpongiosa?window._fx("I13D 7.079 €"):window._fx("I13E 5.829 €"),hdrg_n1:"—",empf:"n2",
       ziel:osgArtSpongiosa?window._fx("Mit Spongiosa → I13D (CM 1,552 = 7.079 €). ⚠ ERLÖSRELEVANT! +1.250 € gegenüber ohne Spongiosa."):window._fx("Ohne Spongiosa → I13E (CM 1,278 = 5.829 €).\n💡 Mit Spongiosa (5-784.0n + 5-783.0d) → I13D (7.079 €)!"),
-      kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?window._fx("\n⚠ HEBEL-CODE: 5-784.0n + 5-783.0d (Spongiosa Tibia) → I13E → I13D (+1.250 €)!\n⚠ Spongiosa muss im OP-Bericht dokumentiert sein!\n⚠ Häufiger Fehler: Spongiosa entnommen aber nicht kodiert → 1.250 € Erlösverlust!"):window._fx("\n💡 Toggle: + Spongiosa → I13D (7.079 € statt 5.829 €)\n⚠ Häufiger Fehler: Spongiosa vergessen zu kodieren → 1.250 € verschenkt!"))}];
+      kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?window._fx("\n⚠ Mit Spongiosaplastik (5-783.0d Entnahme Beckenkamm, 5-784.0n Transplantation Tibia) gruppiert der Fall nach I13D (7.079 €), ohne nach I13E (5.829 €). Wird sie durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."):window._fx("\n⚠ Mit Spongiosaplastik (5-783.0d Entnahme Beckenkamm, 5-784.0n Transplantation Tibia) gruppiert der Fall nach I13D (7.079 €), ohne nach I13E (5.829 €). Wird sie durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."))}];
 
     // AMIC → I13G / I13E
     if(osgOp.includes("amic")&&_prio==="amic") return [o,{label:amicIKO?"AMIC + Innenknöchelosteotomie":"AMIC offen",ops:o,
@@ -5021,7 +5021,7 @@ function OPBerichtApp(){
     if(osgOp.includes("brostrom")&&_prio==="brostrom") return [o,{label:"Brostrom-Gould"+(brostromIB?" + Internal Brace":""),ops:o,
       hdrg:"—",ebm:"EBM ~300 €",kurz:window._fx("I59Z ~2.627 €"),drg:window._fx("I59Z 3.225 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Kein H-DRG! Auch mit ASK kein H-DRG.\n1 Nacht: gekürzte DRG I59Z (CM 0,576 = ~2.627 €).\nAb 2 Nächte → I59Z (CM 0,707 = 3.225 €)."),
-      kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+window._fx(" → I59Z.\n⚠ KEIN H-DRG möglich — auch nicht mit zusätzlicher ASK!\n⚠ Häufiger Fehler: Brostrom als H-DRG-fähig eingestuft → Erlösverlust bei ambulanter Planung.\nOhne H-DRG-Fähigkeit ist nur die stationäre Abrechnung möglich; die volle DRG I59Z (3.225 €) wird ab 2 Nächten erreicht.")}];
+      kodier:"5-806.4h (Brostrom)"+(brostromIB?" + 5-806.6 (Internal Brace)":"")+(askVorher?" + 5-812.ek (ASK vorher)":"")+window._fx(" → I59Z.\n⚠ KEIN H-DRG möglich — auch nicht mit zusätzlicher ASK!\n⚠ Brostrom-Gould gruppiert nicht in eine Hybrid-DRG; ambulant nur EBM.\nOhne H-DRG-Fähigkeit ist nur die stationäre Abrechnung möglich; die volle DRG I59Z (3.225 €) wird ab 2 Nächten erreicht.")}];
 
 
     // Arthrorise → kein H-DRG (Klientel <18)
@@ -5034,7 +5034,7 @@ function OPBerichtApp(){
     if(hasASnaht&&_prio==="as_naht") return [o,{label:"Achillessehnennaht (offen)",ops:o,
       hdrg:"—",ebm:"Möglich, da auch AOP-Liste. Für Kliniken meist geringer Erlös",kurz:window._fx("I27E ~2.700 €"),drg:window._fx("I27E 3.389 €"),hdrg_n1:"—",empf:"n2",aopMoeglich:true,
       ziel:window._fx("Kein H-DRG (seit 2025 entfernt). Stationär ≥2 Nächte → I27E (CM 0,743 = 3.389 €)."),
-      kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ ZWINGEND BEIDE OPS-CODES KODIEREN: Wird nur 5-855.19 kodiert, fällt der Fall in I20F → Erlösverlust 268 € bei voller DRG, 328 € bei UGVD-Abschlag (1 Tag).\n⚠ Naht der Sehnenscheide/Paratenon MUSS im OP-Bericht stehen!"}];
+      kodier:"5-855.19 (Sehnennaht) + 5-855.39 (Naht Sehnenscheide).\n⚠ Mit Naht der Sehnenscheide/des Paratenons (5-855.39) gruppiert der Fall nach I27E, mit Sehnennaht allein (5-855.19) nach I20F.\n⚠ Wird die Naht der Sehnenscheide/des Paratenons durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."}];
 
     // FHL Transfer → I27D
     if(rfOp.includes("fhl_transfer")&&_prio==="fhl_transfer") return [o,{label:"FHL-Transfer",ops:o,
@@ -5147,13 +5147,13 @@ function OPBerichtApp(){
       if(fxSyndes){
         return [o,{label:fxLabel+" + Syndesmose",ops:o,
           hdrg:window._fx("I13N 3.091 €"),ebm:"—",kurz:window._fx("I13E ~4.600 €"),drg:window._fx("I13E 5.829 €"),hdrg_n1:window._fx("I13N 3.091 €"),empf:"amb",
-          ziel:window._fx("Ambulant/1N → H-DRG I13N (3.091 €). ❌ 5-784.0r NICHT kodieren!\nAb 2N: 5-784.0r mitkodieren → I13E (CM 1,278 = 5.829 €)."),
-          kodier:"⚠ HEBEL-CODE: 5-784.0r (Spongiosa Fibula).\nAmbulant: NICHT kodieren → H-DRG I13N.\nStationär ≥2N: IMMER mitkodieren.\n+ 5-795.kr (Stellschraube Syndesmose).\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0r (Spongiosa) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."}];
+          ziel:window._fx("Ambulant/1 Belegungstag ohne Spongiosaplastik: Hybrid-DRG I13N (3.091 €).\nMit Spongiosaplastik an der Fibula (5-784.0r), wenn durchgeführt, ab 2 Belegungstagen I13E (CM 1,278 = 5.829 €)."),
+          kodier:"⚠ Spongiosaplastik an der Fibula (5-784.0r): ambulant bleibt der Fall nur ohne Spongiosaplastik in der Hybrid-DRG I13N; wird sie durchgeführt, wird sie beschrieben und kodiert, und der Fall gruppiert ab 2 Belegungstagen in die volle DRG.\n+ 5-795.kr (Stellschraube Syndesmose).\n\nZuordnung bei stationärer Führung:\n① ab 3 Belegungstagen volle DRG. ⚠ Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren, bei kürzerer Verweildauer gruppiert der Fall in die Hybrid-DRG.\n② Wird die Spongiosaplastik an der Fibula (5-784.0r) durchgeführt, wird sie beschrieben und kodiert; der Fall gruppiert dann ab 2 Belegungstagen in die volle DRG, bei 1 Belegungstag in die gekürzte DRG."}];
       }
       return [o,{label:fxLabel,ops:o,
         hdrg:window._fx("I13N 3.091 €"),ebm:"—",kurz:fxOp.includes("fibula_mehr")?window._fx("I13E ~4.600 €"):window._fx("I13G ~3.600 €"),drg:fxOp.includes("fibula_mehr")?(fxOp.includes("fibula_mehr")?window._fx("I13E 5.829 €"):window._fx("I13F 4.671 €")):window._fx("I13G 4.539 €"),hdrg_n1:window._fx("I13N 3.091 €"),empf:"amb",
-        ziel:window._fx("Ambulant/1N → H-DRG I13N (3.091 €). ❌ 5-784.0r NICHT kodieren!\nAb 2N: 5-784.0r mitkodieren → volle DRG (höher als H-DRG)."),
-        kodier:"⚠ HEBEL-CODE: 5-784.0r (Spongiosa Fibula).\nAmbulant: NICHT kodieren → H-DRG I13N.\nStationär ≥2N: IMMER mitkodieren.\nEinfach Platte: 5-793.3r → I13G. Einfach WSP: 5-793.kr → I13G.\nMehrfragment Platte: 5-794.2r → I13F. Mehrfragment WSP: 5-794.kr → I13E.\n\n💡 WEGE AUS DER H-DRG → VOLLE DRG:\n① VWD ≥3 Tage (3 Nächte post-OP) → volle DRG. ⚠ Jeder Tag dokumentarisch rechtfertigen! Bei Kürzung: Rückfall in H-DRG.\n② Kontextprozedur 5-784.0r (Spongiosa) mitkodieren → volle DRG ab 2 Nächten. ✅ EMPFOHLEN: Bei Kürzung nur gekürzte DRG (besser als H-DRG)."}];
+        ziel:window._fx("Ambulant/1 Belegungstag ohne Spongiosaplastik: Hybrid-DRG I13N (3.091 €).\nMit Spongiosaplastik an der Fibula (5-784.0r), wenn durchgeführt, ab 2 Belegungstagen volle DRG."),
+        kodier:"⚠ Spongiosaplastik an der Fibula (5-784.0r): ambulant bleibt der Fall nur ohne Spongiosaplastik in der Hybrid-DRG I13N; wird sie durchgeführt, wird sie beschrieben und kodiert, und der Fall gruppiert ab 2 Belegungstagen in die volle DRG.\nEinfach Platte: 5-793.3r → I13G. Einfach WSP: 5-793.kr → I13G.\nMehrfragment Platte: 5-794.2r → I13F. Mehrfragment WSP: 5-794.kr → I13E.\n\nZuordnung bei stationärer Führung:\n① ab 3 Belegungstagen volle DRG. ⚠ Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren, bei kürzerer Verweildauer gruppiert der Fall in die Hybrid-DRG.\n② Wird die Spongiosaplastik an der Fibula (5-784.0r) durchgeführt, wird sie beschrieben und kodiert; der Fall gruppiert dann ab 2 Belegungstagen in die volle DRG, bei 1 Belegungstag in die gekürzte DRG."}];
     }
 
     // Hohlfuß/Dwyer (ohne Arthrodese) → I20C
@@ -5232,7 +5232,7 @@ function OPBerichtApp(){
     if(erloesBds==="sperre")t+="Beidseitiger Eingriff → keine Hybrid-DRG (Definitionshandbuch I20-V67)\n";
     if(erloesBds==="bleibt")t+="Beidseits: Hybrid bleibt nach Definitionshandbuch möglich (Kode nicht in I20-V67), vor Abrechnung im Webgrouper prüfen\n";
     t+="Gekürzte DRG (1N): "+d.kurz+" | Volle DRG (2N+): "+d.drg+"\n\n";
-    t+="ÖKONOMISCHES CODIERZIEL:\n"+d.ziel+"\n";
+    t+="ZUORDNUNG NACH SETTING:\n"+d.ziel+"\n";
     if(d.kodier)t+="\nERLÖSRELEVANTE KODIERHINWEISE:\n"+d.kodier;
     return t;
   },[erloesData,erloesBds]);
@@ -5843,7 +5843,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         </div>
         {gz==="chevron"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-788.5c, 5-788.40, 5-93b.0, 5-854.2c{mitAkin?", 5-788.56":""}</div></div>}
         {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-93b.0, 5-93b.e{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
-        {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(hoffTill)} onClick={()=>setHoffTill(!hoffTill)}>Hoffmann-Tillmann</div><div style={{fontSize:10,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · Stat: +5-784.0v (Spongiosa) · Amb: 5-784.0v NICHT kodieren!</div></div>}
+        {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(hoffTill)} onClick={()=>setHoffTill(!hoffTill)}>Hoffmann-Tillmann</div><div style={{fontSize:10,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · stationär mit Spongiosaplastik 5-784.0v → I20E · ambulant ohne Spongiosaplastik → I20N</div></div>}
         {gz==="cheilek"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-788.00 (Exostosenabtragung MT I) · Amb: H-DRG I20O · Stat: 5-854.2c/0c bei tatsächlich erbrachter Leistung → I20E</div></div>}
         {gz==="morton"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-846.7 · ICD: G57.6 (zu bestätigen) · Intermetatarsalraum im Text anpassen</div></div>}
 
@@ -6206,7 +6206,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         {meRegion&&meImpl&&meZusatz&&meZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
           <div style={{fontSize:10,fontWeight:700,color:"#E65100",marginBottom:3}}>⚠ Zusatzeingriff im OP-Bericht zwingend dokumentieren</div>
           <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-            Der Zusatzcode <b>{meZusatz}</b> triggert die H-DRG nur, wenn er im OP-Bericht ausdrücklich beschrieben ist. Der Text dazu wird als ausformulierter Abschnitt eingefügt — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
+            Der Zusatzeingriff <b>{meZusatz}</b> führt nur dann in die Hybrid-DRG, wenn er durchgeführt und im OP-Bericht beschrieben ist. Der Text dazu wird als ausformulierter Abschnitt eingefügt — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
           </div>
         </div>}
       </OBSec>
@@ -6265,9 +6265,9 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           })}
         </div>;}()}
 
-        {/* ÖKONOMISCHES CODIERZIEL */}
+        {/* ZUORDNUNG NACH SETTING */}
         {function(){var _dc=erloesData.drg?erloesData.drg.split(" ")[0]:"";var _ugvd=GVD[_dc]?GVD[_dc].ugvd:1;var _minT=_ugvd+1;return <div style={{marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
-          <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Ökonomisches Codierziel:</div>
+          <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Zuordnung nach Setting:</div>
           {(erloesData.label.includes("Metallentfernung")||erloesData.label==="Cheilektomie"||erloesData.label.indexOf("Kleinzehen/DMMO")===0||erloesData.label==="Exostose")
             ?<div style={{fontSize:11,color:"#2D3748"}}>Bei ambulanter Führung: {erloesBds==="sperre"?"nur EBM (beidseitiger Eingriff, keine Hybrid-DRG)":"Hybrid-DRG "+erloesData.hdrg}</div>
             :erloesData.hdrg==="—"
@@ -6380,15 +6380,15 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             {erloesData.hdrg!=="—"&&erloesBds!=="sperre"&&<div style={{marginBottom:12}}>
               <div style={{fontWeight:700,color:"#00695C",marginBottom:6,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {erloesData.hdrg}):</div>
               <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c,ci){var isKP=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-855.39"].concat(erloesData.kpAmbZusatz||[]).indexOf(c)>=0;return <span key={c+"a"+ci} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:isKP?"rgba(230,81,0,.12)":"rgba(0,107,111,.08)",color:isKP?"#C62828":"#006B6F",textDecoration:isKP?"line-through":"none"}}>{c}</span>;})}</span></div>
-              {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-855.39"].concat(erloesData.kpAmbZusatz||[]);var kLbl=function(c){var l=codeLabel(c);return (l===c&&erloesData.hebelName&&(erloesData.kpAmbZusatz||[]).indexOf(c)>=0)?erloesData.hebelName:l;};var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div>{found.map(function(c){return <div key={c} style={{color:"#C62828"}}>❌ {c} ({kLbl(c)}) NICHT kodieren</div>;})}<div style={{marginTop:2,fontStyle:"italic",color:"#004D40"}}>Im OP-Bericht: {found.map(function(c){return kLbl(c);}).join(", ")} NICHT beschreiben.</div></div>;return <div style={{fontStyle:"italic",color:"#004D40"}}>Keine Kontextprozeduren in diesem Eingriff.</div>;}()}
+              {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d","5-855.39"].concat(erloesData.kpAmbZusatz||[]);var kLbl=function(c){var l=codeLabel(c);return (l===c&&erloesData.hebelName&&(erloesData.kpAmbZusatz||[]).indexOf(c)>=0)?erloesData.hebelName:l;};var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div style={{color:"#C62828"}}>Ambulante Führung in der Hybrid-DRG setzt voraus, dass {found.map(function(c){return kLbl(c)+" ("+c+")";}).join(", ")} nicht durchgeführt {found.length>1?"werden; werden sie":"wird; wird der Eingriff"} durchgeführt, gruppiert der Fall in die stationäre DRG.</div>;return <div style={{fontStyle:"italic",color:"#004D40"}}>Keine Kontextprozeduren in diesem Eingriff.</div>;}()}
             </div>}
 
             {/* STATIONÄRE FÜHRUNG */}
             <div>
               <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (volle DRG {erloesData.drg||""}):</div>
-              <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c,ci){var isH=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"].concat(erloesData.hebelStat||[]).indexOf(c)>=0;return <span key={c+"s"+ci} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:isH?"rgba(230,81,0,.15)":"rgba(0,107,111,.08)",color:isH?"#E65100":"#006B6F",fontWeight:isH?700:400,border:isH?"1px solid #E65100":"none"}}>{c}{isH?" ⚠ HEBEL":""}</span>;})}</span></div>
-              {(erloesData.hebelStat||[]).filter(function(c){return erloesData.ops.indexOf(c)>=0;}).map(function(c){var l=codeLabel(c);return <div key={"hebel"+c} style={{color:"#E65100",fontWeight:600}}>✅ {c} ({l!==c?l:(erloesData.hebelName||c)}) = Hebel → IMMER kodieren → {erloesData.hebelZiel}</div>;})}
-              {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"];var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div><div style={{marginBottom:4}}>{found.map(function(c){return <div key={c} style={{color:"#E65100",fontWeight:600}}>✅ {c} ({codeLabel(c)}) = Kontextprozedur → IMMER kodieren</div>;})}</div><div style={{fontStyle:"italic",color:"#004D40",marginBottom:4}}>Im OP-Bericht: {found.map(function(c){return codeLabel(c);}).join(", ")} MUSS beschrieben und dokumentiert werden.</div>{erloesData.hdrg!=="—"&&<div style={{padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)",marginBottom:4}}><div style={{fontWeight:600,color:"#004D40"}}>Mit Kontextprozedur:</div><div>1 Nacht → gekürzte DRG (besser als Hybrid-DRG)</div><div>2 Nächte → volle DRG {erloesData.drg||""}</div><div style={{marginTop:2}}>Ohne Kontextprozedur: VWD ≥ 3 Tage nötig für volle DRG. Bei Kürzung: Rückfall in Hybrid-DRG.</div></div>}</div>;
+              <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{erloesData.ops.map(function(c,ci){var isH=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"].concat(erloesData.hebelStat||[]).indexOf(c)>=0;return <span key={c+"s"+ci} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:isH?"rgba(230,81,0,.15)":"rgba(0,107,111,.08)",color:isH?"#E65100":"#006B6F",fontWeight:isH?700:400,border:isH?"1px solid #E65100":"none"}}>{c}{isH?" · erlösrelevant":""}</span>;})}</span></div>
+              {(erloesData.hebelStat||[]).filter(function(c){return erloesData.ops.indexOf(c)>=0;}).map(function(c){var l=codeLabel(c);return <div key={"hebel"+c} style={{color:"#E65100",fontWeight:600}}>{l!==c?l:(erloesData.hebelName||c)} ({c}): wird beschrieben und kodiert, Zuordnung {erloesData.hebelZiel}</div>;})}
+              {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"];var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div><div style={{marginBottom:4}}>{found.map(function(c){return <div key={c} style={{color:"#E65100",fontWeight:600}}>{codeLabel(c)} ({c}) = Kontextprozedur: wird beschrieben und kodiert</div>;})}</div>{erloesData.hdrg!=="—"&&<div style={{padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)",marginBottom:4}}><div>Zuordnung mit Kontextprozedur: 1 Belegungstag gekürzte DRG, ab 2 Belegungstagen volle DRG {erloesData.drg||""}. Ohne Kontextprozedur: ab 3 Belegungstagen volle DRG, sonst Hybrid-DRG. Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren.</div></div>}</div>;
               var warnLines=erloesData.kodier.split("\n").filter(function(l){return(l.indexOf("⚠")>=0||l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("Nur stationär")||l.includes("Mind."))&&!l.includes("DMMO")&&!l.includes("WEGE");});if(warnLines.length>0)return <div style={{whiteSpace:"pre-line"}}>{warnLines.join("\n")}</div>;return null;}()}
               <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>
             </div>
@@ -6398,6 +6398,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
               <div style={{fontWeight:700,color:"#E65100",marginBottom:4,borderBottom:"1px solid rgba(230,81,0,.2)",paddingBottom:2}}>DMMO-Regel:</div>
               <div>Max. 2× DMMO (5-788.52/53) für Hybrid-DRG. Ab ≥3 DMMO (5-788.54/55): KEINE Hybrid-DRG → nur stationär.</div>
             </div>}
+            <div style={{marginTop:8,paddingTop:6,borderTop:"1px solid rgba(230,81,0,.2)",color:"#4A5568",fontStyle:"italic"}}>Kodiert wird, was durchgeführt und im Bericht beschrieben ist.</div>
           </div>
         </div>}
 
@@ -6581,7 +6582,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             {ucMeRegion&&ucMeImpl&&ucMeZusatz&&ucMeZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
               <div style={{fontSize:10,fontWeight:700,color:"#E65100",marginBottom:3}}>⚠ Zusatzeingriff im OP-Bericht zwingend dokumentieren</div>
               <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-                Der Zusatzcode <b>{ucMeZusatz}</b> triggert die H-DRG nur, wenn er im OP-Bericht ausdrücklich beschrieben ist. Der Text dazu wird als ausformulierter Abschnitt eingefügt — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
+                Der Zusatzeingriff <b>{ucMeZusatz}</b> führt nur dann in die Hybrid-DRG, wenn er durchgeführt und im OP-Bericht beschrieben ist. Der Text dazu wird als ausformulierter Abschnitt eingefügt — bitte manuell an den tatsächlichen Befund anpassen (Lokalisation, Größe, durchgeführte Technik).
               </div>
             </div>}
           </OBSec>
@@ -6689,9 +6690,9 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
               <div style={{fontSize:11,color:"#2D3748"}}>{ucErloesData.basisE} €</div>
             </div>
           </div>
-          {/* Ökonomisches Codierziel */}
+          {/* Zuordnung nach Setting */}
           <div style={{marginTop:8,marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
-            <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Ökonomisches Codierziel:</div>
+            <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Zuordnung nach Setting:</div>
             {ucErloesData.hdrg!=="—"
               ?<div style={{fontSize:11,color:"#2D3748"}}>
                 <div>Bei ambulanter Führung: Hybrid-DRG {ucErloesData.hdrg} ({ucErloesData.hdrgE} €)</div>
@@ -6777,20 +6778,20 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
               {ucErloesData.hdrg!=="—"&&<div style={{marginBottom:12}}>
                 <div style={{fontWeight:700,color:"#00695C",marginBottom:6,borderBottom:"1px solid rgba(0,107,111,.2)",paddingBottom:2}}>Ambulante Führung (Hybrid-DRG {ucErloesData.hdrg}):</div>
                 <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{ucErloesData.ops.map(function(c){return <span key={c+"a"} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,107,111,.08)",color:"#006B6F"}}>{c}</span>;})}</span></div>
-                <div>H-DRG-Code kodieren. Kontextprozeduren (z.B. Spongiosa) NICHT mitkodieren.</div>
-                <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Kontextprozedur-Eingriff NICHT beschreiben.</div>
+                <div style={{color:"#C62828"}}>Ambulante Führung in der Hybrid-DRG setzt voraus, dass keine Kontextprozedur (z. B. Spongiosaplastik) durchgeführt wird; wird sie durchgeführt, gruppiert der Fall in die stationäre DRG.</div>
               </div>}
               <div>
                 <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (reguläre DRG {ucErloesData.basis}):</div>
                 <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{ucErloesData.ops.map(function(c){return <span key={c+"s"} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,107,111,.08)",color:"#006B6F"}}>{c}</span>;})}{ucErloesData.kontextOps&&ucErloesData.kontextOps.length>0&&ucErloesData.hdrg!=="—"&&<span style={{display:"inline",marginLeft:4}}><span style={{fontSize:10,fontWeight:600,color:"#004D40",marginRight:4}}>+ Kontextprozedur:</span>{ucErloesData.kontextOps.map(function(c){return <span key={c+"k"} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,77,64,.1)",color:"#004D40",fontWeight:600}}>{c}</span>;})}</span>}</span></div>
-                <div style={{whiteSpace:"pre-line"}}>{ucErloesData.kodier.split("\n").filter(function(l){return l.trim()&&!l.includes("WEGE AUS")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Bei Kürzung nur")&&!l.includes("EMPFOHLEN:");}).join("\n")}</div>
+                <div style={{whiteSpace:"pre-line"}}>{ucErloesData.kodier.split("\n").filter(function(l){return l.trim()&&!l.includes("WEGE AUS")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Bei Kürzung nur")&&!l.includes("EMPFOHLEN:")&&!l.includes("Zuordnung bei stationärer Führung")&&!/^\s*① ab 3 Belegungstagen/i.test(l)&&l.indexOf("② Wird ")!==0;}).join("\n")}</div>
                 <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Alle kodierten Eingriffe MÜSSEN beschrieben werden.</div>
-                {ucErloesData.hdrg!=="—"&&ucErloesData.kodier.includes("WEGE AUS DER H-DRG")&&<div style={{marginTop:6,padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)"}}>
+                {ucErloesData.hdrg!=="—"&&(ucErloesData.kodier.includes("WEGE AUS DER H-DRG")||ucErloesData.kodier.includes("Zuordnung bei stationärer Führung"))&&<div style={{marginTop:6,padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)"}}>
                   <div style={{fontWeight:600,color:"#004D40",marginBottom:2}}>Kontextprozedur → volle DRG ab 2 Nächten (empfohlen):</div>
-                  <div>Bei Nutzung: volle DRG ab 2 ÜN. Bei MDK-Kürzung: gekürzte DRG (besser als H-DRG). Alternative: VWD ≥ 3 Tage ohne Kontextprozedur, bei Kürzung Rückfall in H-DRG.</div>
+                  <div>Zuordnung mit Kontextprozedur: 1 Belegungstag gekürzte DRG, ab 2 Belegungstagen volle DRG. Ohne Kontextprozedur: ab 3 Belegungstagen volle DRG, sonst Hybrid-DRG. Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren.</div>
                 </div>}
                 <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>
               </div>
+              <div style={{marginTop:8,paddingTop:6,borderTop:"1px solid rgba(230,81,0,.2)",color:"#4A5568",fontStyle:"italic"}}>Kodiert wird, was durchgeführt und im Bericht beschrieben ist.</div>
             </div>
           </div>}
           <div style={{marginTop:4,fontSize:10,color:"#718096"}}>Anlage 2a, 2026 · +30 € bei Nachbehandlung im KH · Orientierungswerte</div>
@@ -7043,7 +7044,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
 
             {/* Hebel aus Konstellation */}
             {konstEntry && konstEntry.hebel && <div style={{marginTop:8,padding:"4px 8px",background:"rgba(230,81,0,.08)",borderRadius:4,fontSize:10,color:"#BF360C",lineHeight:1.4}}>
-              💡 <strong>Hebel:</strong> {konstEntry.hebel}
+              💡 <strong>Erlösrelevanter Zusatzeingriff:</strong> {konstEntry.hebel}
             </div>}
 
             {/* Materialkosten-Block — Komponenten-Aufschlüsselung mit InEK-Ampel (bei Duokopf + H-TEP) */}
@@ -7614,11 +7615,11 @@ function CodeUebersicht(){
     const e=OP_STEUERUNG[k];
     if(e.hebel){
       // hebel kann "A" oder "A + B" sein
-      e.hebel.split(/\s*\+\s*/).forEach(c=>add(c,k,"Hebel"));
+      e.hebel.split(/\s*\+\s*/).forEach(c=>add(c,k,"Erlösrelevanter Zusatzeingriff"));
     }
     if(e.kontext)e.kontext.forEach(o=>add(o.code,k,"Kontextprozedur"));
     if(e.kontextExcluded)e.kontextExcluded.forEach(o=>add(o.code,k,"nicht als Kontext wirksam"));
-    if(e.hdrgTrigger)e.hdrgTrigger.forEach(o=>add(o.code,k,"H-DRG-Trigger"));
+    if(e.hdrgTrigger)e.hdrgTrigger.forEach(o=>add(o.code,k,"Führt in die Hybrid-DRG"));
     if(e.aufwertung&&e.aufwertung.triggers)e.aufwertung.triggers.forEach(o=>add(o.code,k,"Aufwertung"));
     if(e.ausschluss&&e.ausschluss.triggers)e.ausschluss.triggers.forEach(o=>add(o.code,k,"Ausschluss H-DRG"));
   });
@@ -7629,7 +7630,7 @@ function CodeUebersicht(){
 
   const labelOnly=Object.keys(OPS_LABELS).filter(c=>!usage[c]).sort();
 
-  const roleColor=r=>r==="Hebel"?"#2E7D32":r==="Kontextprozedur"?"#1565C0":r==="H-DRG-Trigger"?"#00695C":r==="Aufwertung"?"#2E7D32":r==="Ausschluss H-DRG"?"#C62828":r==="nicht als Kontext wirksam"?"#C62828":"#718096";
+  const roleColor=r=>r==="Erlösrelevanter Zusatzeingriff"?"#2E7D32":r==="Kontextprozedur"?"#1565C0":r==="Führt in die Hybrid-DRG"?"#00695C":r==="Aufwertung"?"#2E7D32":r==="Ausschluss H-DRG"?"#C62828":r==="nicht als Kontext wirksam"?"#C62828":"#718096";
 
   return <div style={{padding:"16px 20px"}}>
     <div style={{marginBottom:14,fontSize:11,color:"#555",lineHeight:1.5}}>
