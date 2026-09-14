@@ -1314,6 +1314,7 @@ const OP_STEUERUNG = window._DATA.opsteuerung.OP_STEUERUNG;
 // ============================================================
 const HDRG_REGELN = window._DATA.opsteuerung.HDRG_REGELN || null;
 const HDRG_RAHMEN = window._DATA.opsteuerung.HDRG_RAHMEN || null;
+const HDRG_FALLREGELN = window._DATA.opsteuerung.HDRG_FALLREGELN || null;
 
 // Rangfolge der Voll-DRGs, hoechstwertig zuerst; und der Hybrid-DRGs.
 var DRG_RANG  = ["I20B","I20C","I20D","I20E","I20F"];
@@ -1415,6 +1416,29 @@ function hdrgRegelsatz(hdrg){
     if ((werte[i].hdrg || []).indexOf(hdrg) >= 0) return werte[i];
   }
   return null;
+}
+
+// Beidseitiger Eingriff (Definitionshandbuch 2026 Band 2 S. 1042, Tabelle
+// I20-V67): Die Fuss-Hybrid-DRGs verlangen "Nicht [beids. Pr Hybrid MDC 08 – 17]".
+// Variante b (Entscheidung des Autors 14.09.2026): gesperrt wird nur, wenn der
+// Fall Hybrid-Bezug hat und mindestens ein Kode in I20-V67 steht.
+// Ergebnis: "sperre", "bleibt" (Hybrid nach Handbuch weiter moeglich, im
+// Webgrouper pruefen) oder "" (nicht beidseitig oder ohne Hybrid-Bezug).
+// Fehlt die Liste in den Daten, gilt die Sperre — so wird nie eine Hybrid
+// angeboten, die das Handbuch ausschliesst. Sind keine Kodes bekannt (im
+// Sprechstundenbrief der Regelfall), entscheidet beidseitsHybridBleibt am
+// OP-Eintrag; fehlt das Feld, gilt ebenfalls die Sperre.
+function beidseitsSperre(seiteWert, hatHybridBezug, codes, opKey){
+  if (seiteWert !== "bds" || !hatHybridBezug) return "";
+  var b = HDRG_FALLREGELN && HDRG_FALLREGELN.beidseits;
+  if (!b || !b.codes) return "sperre";
+  var liste = b.codes.concat(b.ergaenzungOps2026 || []);
+  codes = codes || [];
+  if (!codes.length) {
+    var e = opKey ? OP_STEUERUNG[opKey] : null;
+    return (e && e.beidseitsHybridBleibt === true) ? "bleibt" : "sperre";
+  }
+  return codes.some(function(c){ return liste.indexOf(c) >= 0; }) ? "sperre" : "bleibt";
 }
 
 // Eine Auswertung fuer beide Generatoren. codes ist die Menge der tatsaechlich
@@ -3158,6 +3182,14 @@ var _s = useState, _m = useMemo;
                 <div style={{fontSize:10,color:"#BF360C"}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
                 <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung möglich</div>
               </div>
+              :(meBriefZusatz!=="none"&&beidseitsSperre(seite,true,[meBriefZusatz])==="sperre")
+              ?<div style={{padding:"8px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.1)",background:"rgba(160,160,160,.05)"}}>
+                <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:3}}>AMBULANT · nur EBM</div>
+                <div style={{fontSize:13,fontWeight:700,color:"#718096"}}>nur EBM</div>
+                <div style={{fontSize:10,color:"#718096",marginTop:2}}>Beidseits: keine Hybrid-Abrechnung möglich, nur EBM.</div>
+                <div style={{fontSize:10,color:"#C62828",marginTop:6,padding:"4px 6px",background:"rgba(198,40,40,.06)",border:"1px solid rgba(198,40,40,.2)",borderRadius:4}}>Ambulant ist nur die EBM-Abrechnung möglich; sie deckt den klinischen Aufwand meist nicht.</div>
+                <div style={{fontSize:10,color:"#C62828",fontWeight:600,marginTop:6}}>Beidseitiger Eingriff → keine Hybrid-DRG (Definitionshandbuch I20-V67)</div>
+              </div>
               :meBriefZusatz!=="none"
               ?<div style={{display:"grid",gridTemplateColumns:"1fr",gap:4}}>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"2px solid #00897B",background:"rgba(0,137,123,.08)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
@@ -3168,6 +3200,7 @@ var _s = useState, _m = useMemo;
                   <div><span style={{fontSize:10,fontWeight:700,color:"#718096"}}>Alternative</span> <span style={{fontSize:10,color:"#718096"}}>· isolierte ME ohne Triggercode</span></div>
                   <div style={{fontSize:11,color:"#C62828",fontWeight:600}}>nur EBM · geringer Erlös</div>
                 </div>
+                {beidseitsSperre(seite,true,[meBriefZusatz])==="bleibt"&&<div style={{fontSize:10,color:"#E65100",marginTop:2}}>Beidseits: Hybrid bleibt nach Definitionshandbuch möglich (Kode nicht in I20-V67), vor Abrechnung im Webgrouper prüfen</div>}
               </div>
               :<div style={{display:"grid",gridTemplateColumns:"1fr",gap:4}}>
                 <div style={{padding:"7px 10px",borderRadius:5,border:"1px solid rgba(198,40,40,.35)",background:"rgba(198,40,40,.05)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
@@ -3366,9 +3399,18 @@ var _s = useState, _m = useMemo;
                 extraNote = "";
               }
               var displayHinweis=(override&&override.altHinweis)||best.hinweis;
-              // Ambulant-Status: hdrg / ebm / nichtmoeglich
+              // Ambulant-Status: hdrg / ebm / ebm-bds / nichtmoeglich
               // Priorität: override.ambStatus > best.ambStatus > abgeleitet aus hdrg
               var ambStatus=(override&&override.ambStatus)||best.ambStatus||(hdrg!==null?"hdrg":"nichtmoeglich");
+              // Beidseitiger Eingriff: Hybrid-DRG nach I20-V67 ausgeschlossen.
+              // hatHybridBezug bleibt, damit der Kontextkasten sichtbar bleibt;
+              // die DRG-Seite aendert sich nicht. Die Empfehlung wandert auf
+              // stationaer, wenn es eine DRG gibt, sonst entfaellt sie.
+              var bdsLage=beidseitsSperre(seite, hatHybridBezug, fallCodes, bestKey);
+              if(bdsLage==="sperre"){
+                hdrg=null; hdrgE=0; ambStatus="ebm-bds";
+                if(empf==="amb"||empf==="both") empf=drg?"stat":"";
+              }
               var hasStat=drg!==null;
               // Implantat-Ampel vs. InEK-Sachkostenreferenz
               // Materialkosten aus den hinterlegten Nutzerpreisen (nicht mehr aus den Stammdaten)
@@ -3387,7 +3429,7 @@ var _s = useState, _m = useMemo;
                 <div style={{fontSize:12,fontWeight:700,color:"#2D3748",marginBottom:8}}>Fallsteuerung – {OPS[bestKey]?OPS[bestKey].k:bestKey}{extraNote}</div>
                 {implGesperrt && <KontoSperre status={implGesperrt.status} />}
                 <div style={{display:"grid",gridTemplateColumns:hasStat?"1fr 1fr":"1fr",gap:8,marginBottom:10}}>
-                  {/* AMBULANT-BOX — drei Zustände */}
+                  {/* AMBULANT-BOX — vier Zustände */}
                   {function(){
                     if(ambStatus==="hdrg"){
                       var ambEmpf=empf==="amb"||empf==="both";
@@ -3398,6 +3440,14 @@ var _s = useState, _m = useMemo;
                         {implZahl>0&&<div style={{fontSize:10,color:"#555",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>}
                         {implUnvoll&&<div style={{fontSize:10,color:"#8A5A00",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> unvollständig — {implUnvoll.fehlend} von {implUnvoll.positionen} Positionen ohne Preis <span style={{textDecoration:"underline",cursor:"pointer"}} onClick={()=>setTool("preise")}>Preise hinterlegen</span></div>}
                         {best.hebel&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>❌ Kontextprozedur(en) NICHT kodieren — sonst Verlust der H-DRG</div>}
+                      </div>;
+                    }
+                    if(ambStatus==="ebm-bds"){
+                      return <div style={{padding:10,borderRadius:8,border:"1px solid rgba(0,0,0,.1)",background:"rgba(160,160,160,.05)"}}>
+                        <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:4}}>AMBULANT · nur EBM</div>
+                        <div style={{fontSize:14,fontWeight:700,color:"#718096"}}>nur EBM</div>
+                        <div style={{fontSize:10,color:"#718096",marginTop:2}}>Beidseits: keine Hybrid-Abrechnung möglich, nur EBM.</div>
+                        <div style={{fontSize:10,color:"#C62828",marginTop:6,padding:"4px 6px",background:"rgba(198,40,40,.06)",border:"1px solid rgba(198,40,40,.2)",borderRadius:4}}>Ambulant ist nur die EBM-Abrechnung möglich; sie deckt den klinischen Aufwand meist nicht.</div>
                       </div>;
                     }
                     if(ambStatus==="ebm"){
@@ -3440,13 +3490,16 @@ var _s = useState, _m = useMemo;
                     <div style={{fontSize:10,color:"#E65100",marginTop:4,fontStyle:"italic"}}>⚠ Notwendigkeit der stationären Führung für jeden Tag in der Akte dokumentieren</div>
                   </div>;}()}
                 </div>
+                {bdsLage==="sperre"&&<div style={{fontSize:11,color:"#C62828",fontWeight:600,lineHeight:1.6,marginBottom:6}}>Beidseitiger Eingriff → keine Hybrid-DRG (Definitionshandbuch I20-V67)</div>}
+                {bdsLage==="bleibt"&&<div style={{fontSize:11,color:"#E65100",lineHeight:1.6,marginBottom:6}}>Beidseits: Hybrid bleibt nach Definitionshandbuch möglich (Kode nicht in I20-V67), vor Abrechnung im Webgrouper prüfen</div>}
                 {/* Konsequenz-Zeile: ein Satz, warum der Fall dort steht, wo er
                     steht. Nur mit Regelsatz — ohne HDRG_REGELN bleibt die
                     bisherige Darstellung unveraendert. */}
                 {hAus.regel&&<div style={{fontSize:11,color:"#2D3748",lineHeight:1.6,marginBottom:6}}>
-                  {hAus.satz}
-                  {!hAus.hybrid&&belegungsSatz(hAus.drg)&&<div style={{color:"#4A5568",marginTop:2}}>{belegungsSatz(hAus.drg)}</div>}
-                  {hAus.warnungen.map(function(w,i){ return <div key={i} style={{color:"#C62828",marginTop:2}}>{w}</div>; })}
+                  {bdsLage!=="sperre"&&hAus.satz}
+                  {bdsLage!=="sperre"&&!hAus.hybrid&&belegungsSatz(hAus.drg)&&<div style={{color:"#4A5568",marginTop:2}}>{belegungsSatz(hAus.drg)}</div>}
+                  {bdsLage==="sperre"&&belegungsSatz(hAus.drg)&&<div style={{color:"#4A5568"}}>{belegungsSatz(hAus.drg)}</div>}
+                  {bdsLage!=="sperre"&&hAus.warnungen.map(function(w,i){ return <div key={i} style={{color:"#C62828",marginTop:2}}>{w}</div>; })}
                 </div>}
                 {hAus.regel&&HDRG_RAHMEN&&<div style={{fontSize:10,color:"#718096",marginBottom:6}}>
                   Hybrid nur bei: {HDRG_RAHMEN.join(", ")}.
@@ -4308,10 +4361,11 @@ function MaterialkostenBlock({items, drg, label}){
 // ME-PICKER: wiederverwendbare ME-Auswahl mit Region/Implantat/Zusatz
 // verwendet von Fuß-OP-Bericht UND UC-OP-Bericht
 // ============================================================
-function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz}){
+function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz,seite}){
   const reg=region?ME_REGIONEN[region]:null;
   const meCode=(reg&&impl)?reg.codes[impl]:null;
   const zusatzAktiv=zusatz&&zusatz!=="none";
+  const bdsME=zusatzAktiv?beidseitsSperre(seite,true,[zusatz]):"";
   const zusatzEintrag=(reg&&zusatzAktiv)?reg.zusatz.find(function(z){return z.code===zusatz;}):null;
   const btn=function(active){return{cursor:"pointer",padding:"6px 10px",borderRadius:6,border:active?"2px solid #00897B":"1px solid rgba(0,0,0,.12)",background:active?"rgba(0,137,123,.08)":"#fff",color:active?"#00897B":"#4A5568",fontSize:10,fontWeight:active?700:500,transition:"all .15s"};};
   return <div>
@@ -4349,9 +4403,14 @@ function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz}){
       <div style={{background:"#006B6F",padding:"6px 10px"}}><span style={{fontSize:10,fontWeight:700,color:"#fff"}}>Fallsteuerung</span></div>
       <div style={{padding:"8px 10px",background:"rgba(0,107,111,.04)"}}>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:zusatzAktiv?8:0}}>
-          {zusatzAktiv?<div style={{padding:8,borderRadius:6,border:"2px solid #00897B",background:"rgba(0,137,123,.08)"}}>
+          {zusatzAktiv&&bdsME!=="sperre"?<div style={{padding:8,borderRadius:6,border:"2px solid #00897B",background:"rgba(0,137,123,.08)"}}>
             <div style={{fontSize:10,fontWeight:700,color:"#00897B",marginBottom:2}}>AMBULANT ✓ EMPFOHLEN</div>
             <div style={{fontSize:13,fontWeight:700,color:"#00897B"}}>I20O 1.007 €</div>
+            {bdsME==="bleibt"&&<div style={{fontSize:10,color:"#E65100",marginTop:4}}>Beidseits: Hybrid bleibt nach Definitionshandbuch möglich (Kode nicht in I20-V67), vor Abrechnung im Webgrouper prüfen</div>}
+          </div>:zusatzAktiv?<div style={{padding:8,borderRadius:6,border:"1px solid rgba(0,0,0,.1)",background:"rgba(160,160,160,.05)"}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:2}}>AMBULANT · nur EBM</div>
+            <div style={{fontSize:11,fontWeight:700,color:"#718096"}}>nur EBM</div>
+            <div style={{fontSize:10,color:"#C62828",marginTop:4}}>Beidseits: keine Hybrid-Abrechnung möglich, nur EBM.</div>
           </div>:<div style={{padding:8,borderRadius:6,border:"1px solid rgba(0,0,0,.1)",background:"rgba(160,160,160,.05)"}}>
             <div style={{fontSize:10,fontWeight:700,color:"#718096",marginBottom:2}}>AMBULANT · nur EBM</div>
             <div style={{fontSize:11,fontWeight:700,color:"#718096"}}>keine H-DRG</div>
@@ -4365,7 +4424,7 @@ function MEPicker({region,setRegion,impl,setImpl,zusatz,setZusatz}){
         {zusatzAktiv&&<div style={{padding:"6px 8px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:5,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
           <div style={{fontWeight:700,color:"#1565C0",marginBottom:4}}>Zu kodierende OPS-Codes</div>
           <div><span style={{fontFamily:"monospace",fontWeight:600}}>{meCode}</span> — {OPS_LABELS[meCode]}</div>
-          <div><span style={{fontFamily:"monospace",fontWeight:600,color:"#2E7D32"}}>{zusatzEintrag.code}</span> — {zusatzEintrag.name} <span style={{color:"#2E7D32",fontWeight:600}}>(Hebel-Code)</span></div>
+          <div><span style={{fontFamily:"monospace",fontWeight:600,color:"#2E7D32"}}>{zusatzEintrag.code}</span> — {zusatzEintrag.name} {bdsME!=="sperre"&&<span style={{color:"#2E7D32",fontWeight:600}}>(Hebel-Code)</span>}</div>
         </div>}
       </div>
     </div>}
@@ -4693,7 +4752,7 @@ function OPBerichtApp(){
   // ICD-10 CODES – automatisch pro Eingriff
   // ============================================================
   const icdCodes=useMemo(()=>{
-    const s=side==="rechts"?"R":"L";
+    const s=side==="rechts"?"R":side==="bds"?"B":"L";
     const codes=[];
     // VORFUSS
     if(gz==="chevron"||gz==="scarf")codes.push({hd:true,code:"M20.1"+s,desc:"Hallux valgus (acquisitus)"});
@@ -5187,16 +5246,26 @@ function OPBerichtApp(){
     return t;
   },[icdCodes]);
 
+  // Beidseitiger Eingriff (I20-V67): "sperre", "bleibt" oder "". Hybrid-Bezug
+  // heisst hier: erloesData.hdrg ist gesetzt und nicht "—".
+  const erloesBds=useMemo(()=>{
+    if(!erloesData)return "";
+    var h=erloesData.hdrg;
+    return beidseitsSperre(side,!!h&&h!=="—",erloesData.ops||[]);
+  },[erloesData,side]);
+
   const erloesText=useMemo(()=>{
     if(!erloesData)return "";
     var d=erloesData;
     var t="\n\nERLÖSÜBERSICHT – "+d.label+"\n";
-    t+="H-DRG: "+d.hdrg+" | EBM: "+d.ebm+"\n";
+    t+="H-DRG: "+(erloesBds==="sperre"?"—":d.hdrg)+" | EBM: "+d.ebm+"\n";
+    if(erloesBds==="sperre")t+="Beidseitiger Eingriff → keine Hybrid-DRG (Definitionshandbuch I20-V67)\n";
+    if(erloesBds==="bleibt")t+="Beidseits: Hybrid bleibt nach Definitionshandbuch möglich (Kode nicht in I20-V67), vor Abrechnung im Webgrouper prüfen\n";
     t+="Gekürzte DRG (1N): "+d.kurz+" | Volle DRG (2N+): "+d.drg+"\n\n";
     t+="ÖKONOMISCHES CODIERZIEL:\n"+d.ziel+"\n";
     if(d.kodier)t+="\nERLÖSRELEVANTE KODIERHINWEISE:\n"+d.kodier;
     return t;
-  },[erloesData]);
+  },[erloesData,erloesBds]);
 
   // UC ERLÖS MATRIX (Trauma H-DRGs, Anlage 2a, 2026)
   // ============================================================
@@ -5237,10 +5306,11 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   // Abgeleitet: H-DRG-Ausschluss durch Ausschlusskriterien oder Alter <18
   const ucHdrgAusgeschlossen=useMemo(()=>{
     if(alter==="kind")return {grund:"Alter <18 Jahre"};
+    if(side==="bds")return {grund:"Beidseitiger Eingriff (I20-V67)"};
     const labels={pccl:"PCCL ≥ 3 (äußerst schwere Komorbidität)",vwd:"Geplante VWD ≥ 3 Tage",pflege:"Pflegegrad 4–5",fallzs:"Fallzusammenlegung",behind:"Mensch mit Behinderung",ze:"Unbewertetes Zusatzentgelt"};
     for(const k in ucHdrg){if(ucHdrg[k]===true)return {grund:labels[k]||k};}
     return null;
-  },[alter,ucHdrg]);
+  },[alter,side,ucHdrg]);
 
   const ucErloesData=useMemo(()=>{
     if(!ucOp||!UC_EINGRIFFE[ucOp])return null;
@@ -5274,8 +5344,8 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(!ucOp||!UC_TEXT_MAP||!UC_TEXT_MAP[ucOp])return "";
     var t=textPlatzhalter(T[UC_TEXT_MAP[ucOp]]);
     if(ucOp==="tfna")t=t.replace(/§TFNA_ANGLE§/g,tfnaAngle).replace(/§TFNA_LENGTH§/g,tfnaLength).replace(/§TFNA_DIAM§/g,tfnaDiam||"___").replace(/§TFNA_BLADE§/g,tfnaBlade||"___");
-    else if(ucOp==="duokopf")t=t.replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":"linken");
-    else if(ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox"))t=t.replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":"links").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben");
+    else if(ucOp==="duokopf")t=t.replace(/§DK_SHELL§/g,dkShell||"___").replace(/§DK_SHAFT§/g,dkShaft||"___").replace(/§DK_HEAD§/g,dkHead||"___").replace(/§DK_SEITE§/g,side==="rechts"?"rechten":side==="links"?"linken":"___");
+    else if(ucOp&&ucOp.startsWith("radius")&&!ucOp.startsWith("radius_prox"))t=t.replace(/§SIDE_ADJ§/g,side==="rechts"?"rechts":side==="links"?"links":"___").replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentäre":"einfache").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"3-Loch-winkelstabilen Aptusplatte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben");
     else if(ucOp&&ucOp.startsWith("fibula"))t=t.replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"mehrfragmentären ":"").replace(/§REPOSITION§/g,ucOp.includes("mehr")?"sorgfältige Reposition der Fragmente bzw. der Fraktur":"Reposition der Fraktur").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":ucOp.includes("schr")?"Platte":"Drittelrohrplatte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?", teilweise mit winkelstabilen Schrauben":"");
     else if(ucOp&&ucOp.startsWith("klav"))t=t.replace(/§FRAKTURART§/g,ucOp.includes("mehr")?"wie bereits klinisch bei deutlicher Stufe grob disloziert und mehrfragmentär im medialen Drittel, es liegt ein nach caudal verrotiert stehendes Zwischenfragment vor. Insgesamt bereits deutliche narbige Veränderung":"wie bereits klinisch bei deutlicher Stufe disloziert").replace(/§MEHRFRAGMENT_DETAIL§/g,ucOp.includes("mehr")?", das Zwischenfragment kann mühsam aber ohne Loslösung vom Weichteil angelegt und letztlich mit mehreren Fadencerclagen gesichert werden":"").replace(/§KOMPRESSION§/g,ucOp.includes("mehr")?", durch Cerclage und Klemmen besteht Kompression":"").replace(/§PLATTENART§/g,ucOp.includes("wsp")?"winkelstabilen Platte":"Platte").replace(/§SCHRAUBENART§/g,ucOp.includes("wsp")?"winkelstabilen Schrauben":"Schrauben");
     else if(ucOp&&ucOp.startsWith("olekranon")){
@@ -5390,15 +5460,15 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       }
       if(op==="ask_nano"){
         if(askOsteo){
-          p.push("\n\nAnlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein ventrales Impingement mit Osteophytenbildung an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, Entfernung der Osteophyten mittels arthroskopischer Fräse, partielle Synovektomie. Es erfolgt eine erneute genaue Prüfung unter Stresstest, kein Hinweis auf Instabilität des lateralen- oder medialen Bandapparates oder der Syndesmose.\nAuffüllen des "+(side==="rechts"?"rechten":"linken")+" OSG mit 15ml Kochsalzlösung. Anlage des medialen Portales nach Palpation und Markierung des Ext. Dig. longus Sehne, der Tib. Ant. Sehne und des Nerv peroneus superficialis. Dafür Hautinzision oberflächlich medial der Tib. Ant. Sehne, dann stumpfes Eingehen mit Klemmchen in die Kapsel und Dehnen dieser. Eingehen mit Trokar und Optik bei maximaler Dorsalextension des OSG in das Gelenk.\nEs zeigen sich hier deutliche Verwachsungen und Bridenbildung, nun unter Sicht Anlage des antero-lateralen Portales. Eingehen mit dem Shaver und Entfernung der Vernarbungen, dann Eingehen mit dem Tasthaken. Stabilitätstestung, die Syndesmose ist stabil, keine vermehrte laterale Aufklappbarkeit.\nIn Plantarflexion und unter Distraktion kommt ein deutlicher "+nanoSeite+"r IV° Knorpelschaden der Talusschulter zur Darstellung. Hier lokalisiert deutlich avitaler delaminierter Knorpel, keine Zyste. Kürretage des nekrotischen Gewebes, die subchondrale Lamelle ist intakt, Nanofrakturierung, deutliche Fettaugen und Austritt von Blut in den Defekt. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.");
+          p.push("\n\nAnlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein ventrales Impingement mit Osteophytenbildung an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, Entfernung der Osteophyten mittels arthroskopischer Fräse, partielle Synovektomie. Es erfolgt eine erneute genaue Prüfung unter Stresstest, kein Hinweis auf Instabilität des lateralen- oder medialen Bandapparates oder der Syndesmose.\nAuffüllen des "+(side==="rechts"?"rechten":side==="links"?"linken":"___")+" OSG mit 15ml Kochsalzlösung. Anlage des medialen Portales nach Palpation und Markierung des Ext. Dig. longus Sehne, der Tib. Ant. Sehne und des Nerv peroneus superficialis. Dafür Hautinzision oberflächlich medial der Tib. Ant. Sehne, dann stumpfes Eingehen mit Klemmchen in die Kapsel und Dehnen dieser. Eingehen mit Trokar und Optik bei maximaler Dorsalextension des OSG in das Gelenk.\nEs zeigen sich hier deutliche Verwachsungen und Bridenbildung, nun unter Sicht Anlage des antero-lateralen Portales. Eingehen mit dem Shaver und Entfernung der Vernarbungen, dann Eingehen mit dem Tasthaken. Stabilitätstestung, die Syndesmose ist stabil, keine vermehrte laterale Aufklappbarkeit.\nIn Plantarflexion und unter Distraktion kommt ein deutlicher "+nanoSeite+"r IV° Knorpelschaden der Talusschulter zur Darstellung. Hier lokalisiert deutlich avitaler delaminierter Knorpel, keine Zyste. Kürretage des nekrotischen Gewebes, die subchondrale Lamelle ist intakt, Nanofrakturierung, deutliche Fettaugen und Austritt von Blut in den Defekt. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.");
         } else {
-          p.push("\n\nAnlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein weichteiliges Impingement an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, partielle Synovektomie. Es erfolgt eine erneute genaue Prüfung unter Stresstest, kein Hinweis auf Instabilität des lateralen- oder medialen Bandapparates oder der Syndesmose.\nAuffüllen des "+(side==="rechts"?"rechten":"linken")+" OSG mit 15ml Kochsalzlösung. Anlage des medialen Portales nach Palpation und Markierung des Ext. Dig. longus Sehne, der Tib. Ant. Sehne und des Nerv peroneus superficialis. Dafür Hautinzision oberflächlich medial der Tib. Ant. Sehne, dann stumpfes Eingehen mit Klemmchen in die Kapsel und Dehnen dieser. Eingehen mit Trokar und Optik bei maximaler Dorsalextension des OSG in das Gelenk.\nEs zeigen sich hier deutliche Verwachsungen und Bridenbildung, nun unter Sicht Anlage des antero-lateralen Portales. Eingehen mit dem Shaver und Entfernung der Vernarbungen, dann Eingehen mit dem Tasthaken. Stabilitätstestung, die Syndesmose ist stabil, keine vermehrte laterale Aufklappbarkeit.\nIn Plantarflexion und unter Distraktion kommt ein deutlicher "+nanoSeite+"r IV° Knorpelschaden der Talusschulter zur Darstellung. Hier lokalisiert deutlich avitaler delaminierter Knorpel, keine Zyste. Kürretage des nekrotischen Gewebes, die subchondrale Lamelle ist intakt, Nanofrakturierung, deutliche Fettaugen und Austritt von Blut in den Defekt. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.");
+          p.push("\n\nAnlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein weichteiliges Impingement an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, partielle Synovektomie. Es erfolgt eine erneute genaue Prüfung unter Stresstest, kein Hinweis auf Instabilität des lateralen- oder medialen Bandapparates oder der Syndesmose.\nAuffüllen des "+(side==="rechts"?"rechten":side==="links"?"linken":"___")+" OSG mit 15ml Kochsalzlösung. Anlage des medialen Portales nach Palpation und Markierung des Ext. Dig. longus Sehne, der Tib. Ant. Sehne und des Nerv peroneus superficialis. Dafür Hautinzision oberflächlich medial der Tib. Ant. Sehne, dann stumpfes Eingehen mit Klemmchen in die Kapsel und Dehnen dieser. Eingehen mit Trokar und Optik bei maximaler Dorsalextension des OSG in das Gelenk.\nEs zeigen sich hier deutliche Verwachsungen und Bridenbildung, nun unter Sicht Anlage des antero-lateralen Portales. Eingehen mit dem Shaver und Entfernung der Vernarbungen, dann Eingehen mit dem Tasthaken. Stabilitätstestung, die Syndesmose ist stabil, keine vermehrte laterale Aufklappbarkeit.\nIn Plantarflexion und unter Distraktion kommt ein deutlicher "+nanoSeite+"r IV° Knorpelschaden der Talusschulter zur Darstellung. Hier lokalisiert deutlich avitaler delaminierter Knorpel, keine Zyste. Kürretage des nekrotischen Gewebes, die subchondrale Lamelle ist intakt, Nanofrakturierung, deutliche Fettaugen und Austritt von Blut in den Defekt. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.");
         }
       }
       else if(op==="brostrom"){
         if(askVorher){
           var askBroText=T.ask_vorher_brostrom;
-          askBroText=askBroText.replace(/§SIDE_GEN§/g,side==="rechts"?"rechten":"linken");
+          askBroText=askBroText.replace(/§SIDE_GEN§/g,side==="rechts"?"rechten":side==="links"?"linken":"___");
           p.push("\n\n"+askBroText);
         }
         p.push("\n\n"+T.brostrom);
@@ -5570,7 +5640,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         if(peronealTyp==="tenodese"){
           var tenText=T.peroneal_tenodese;
           tenText=tenText.replace(/§PERONEAL_SEHNE§/g,peronealLongus?"Longus":"Brevis");
-          tenText=tenText.replace(/§SIDE_ADJ§/g,side==="rechts"?"rechten":"linken");
+          tenText=tenText.replace(/§SIDE_ADJ§/g,side==="rechts"?"rechten":side==="links"?"linken":"___");
           p.push("\n\n"+tenText);
         }
         if(peronealTyp==="luxation"){
@@ -5803,7 +5873,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       <div style={card}>
         <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
           <div><div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:3}}>GESCHLECHT</div><div style={row}><div style={gb(gender==="m")} onClick={()=>setGender("m")}>♂ M</div><div style={gb(gender==="w")} onClick={()=>setGender("w")}>♀ W</div></div></div>
-          <div><div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:3}}>OP-SEITE</div><div style={row}><div style={gb(side==="links")} onClick={()=>setSide("links")}>← L</div><div style={gb(side==="rechts")} onClick={()=>setSide("rechts")}>R →</div></div></div>
+          <div><div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:3}}>OP-SEITE</div><div style={row}><div style={gb(side==="links")} onClick={()=>setSide("links")}>← L</div><div style={gb(side==="rechts")} onClick={()=>setSide("rechts")}>R →</div><div style={gb(side==="bds")} onClick={()=>setSide("bds")}>Bds.</div></div></div>
           <div><div style={{fontSize:10,color:"#718096",fontWeight:700,marginBottom:3}}>ALTER</div><div style={row}><div style={gb(alter==="erw")} onClick={()=>setAlter(alter==="erw"?"":"erw")}>≥18 J.</div><div style={{...gb(alter==="kind"),borderColor:alter==="kind"?"#E65100":"",color:alter==="kind"?"#E65100":"",background:alter==="kind"?"rgba(230,81,0,.08)":""}} onClick={()=>setAlter(alter==="kind"?"":"kind")}>{"<18 J. ⚠"}</div></div></div>
         </div>
       </div>
@@ -6209,7 +6279,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </OBSec>
 
       <OBSec title="Metallentfernung" open={sec.me} onToggle={()=>togSec("me")} active={!!meRegion} onReset={()=>{setMeRegion("");setMeImpl("");setMeZusatz("");setMeOp([]);}}>
-        <MEPicker region={meRegion} setRegion={setMeRegion} impl={meImpl} setImpl={setMeImpl} zusatz={meZusatz} setZusatz={setMeZusatz}/>
+        <MEPicker region={meRegion} setRegion={setMeRegion} impl={meImpl} setImpl={setMeImpl} zusatz={meZusatz} setZusatz={setMeZusatz} seite={side}/>
         {meRegion&&meImpl&&meZusatz&&meZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
           <div style={{fontSize:10,fontWeight:700,color:"#E65100",marginBottom:3}}>⚠ Zusatzeingriff im OP-Bericht zwingend dokumentieren</div>
           <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5}}>
@@ -6242,6 +6312,12 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
         <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung möglich · stationär ab 2 Nächten volle DRG</div>
       </div>}
+      {erloesBds==="sperre"&&erloesData&&<div style={{margin:"0 0 6px",padding:"10px 14px",borderRadius:8,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
+        <div style={{fontSize:13,fontWeight:700,color:"#E65100"}}>⛔ KEIN H-DRG MÖGLICH – beidseitiger Eingriff</div>
+        <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>Definitionshandbuch I20-V67: beidseitige Prozedur → Hybrid-DRG nicht anwendbar.</div>
+        <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung möglich · stationär volle DRG nach Verweildauer</div>
+      </div>}
+      {erloesBds==="bleibt"&&erloesData&&<div style={{margin:"0 0 6px",padding:"8px 12px",borderRadius:8,border:"1px solid rgba(230,81,0,.4)",background:"rgba(230,81,0,.04)",fontSize:11,color:"#BF360C"}}>Beidseits: Hybrid bleibt nach Definitionshandbuch möglich (Kode nicht in I20-V67), vor Abrechnung im Webgrouper prüfen</div>}
       {erloesData&&<div data-tour="ob-erloes" style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {erloesData.label}</div>
 
         {/* 4 ERLÖS-SPALTEN */}
@@ -6252,9 +6328,10 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             ["n3","3+ NÄCHTE","—","—","—","Volle DRG"]
           ].map(function(col){
             var key=col[0],title=col[1],top=col[2],bot=col[3],topLbl=col[4],botLbl=col[5];
+            if(erloesBds==="sperre"&&topLbl==="H-DRG")top="—";
             if(key==="n2")bot=ugvd>=2?(erloesData.kurz||"Gekürzt"):(erloesData.drg||"—");
             if(key==="n3")bot=erloesData.drg||"—";
-            var isEmpf=erloesData.empf===key;
+            var isEmpf=erloesData.empf===key&&!(erloesBds==="sperre"&&key==="amb");
             return <div key={key} style={{borderRadius:8,padding:8,textAlign:"center",background:isEmpf?"rgba(0,137,123,.08)":"transparent",border:isEmpf?"2px solid #00897B":"1px solid rgba(0,0,0,.08)"}}>
               <div style={{fontSize:10,fontWeight:700,color:isEmpf?"#00897B":"#718096",marginBottom:6}}>{title}{isEmpf?" ✓":""}</div>
               <div style={{fontSize:10,color:"#718096",marginBottom:2}}>{topLbl}</div>
@@ -6269,14 +6346,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         {function(){var _dc=erloesData.drg?erloesData.drg.split(" ")[0]:"";var _ugvd=GVD[_dc]?GVD[_dc].ugvd:1;var _minT=_ugvd+1;return <div style={{marginBottom:8,padding:"8px 12px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.15)",borderRadius:6}}>
           <div style={{fontSize:10,fontWeight:700,color:"#006B6F",marginBottom:4}}>Ökonomisches Codierziel:</div>
           {(erloesData.label.includes("Metallentfernung")||erloesData.label==="Cheilektomie"||erloesData.label.indexOf("Kleinzehen/DMMO")===0||erloesData.label==="Exostose")
-            ?<div style={{fontSize:11,color:"#2D3748"}}>Bei ambulanter Führung: Hybrid-DRG {erloesData.hdrg}</div>
+            ?<div style={{fontSize:11,color:"#2D3748"}}>Bei ambulanter Führung: {erloesBds==="sperre"?"nur EBM (beidseitiger Eingriff, keine Hybrid-DRG)":"Hybrid-DRG "+erloesData.hdrg}</div>
             :erloesData.hdrg==="—"
             ?<div style={{fontSize:11,color:"#2D3748"}}>
               <div>Bei stationärer Führung: Volle DRG {erloesData.drg||"—"}, Liegezeit ≥ {_minT} Tage</div>
               {erloesData.aopMoeglich&&<div style={{marginTop:4,fontSize:10,color:"#E65100"}}>Bei ambulanter Führung: Abrechnung per EBM möglich. Hierfür Auseinandersetzung mit EBM-Logik und Abrechnungsregeln zwingend nötig.</div>}
             </div>
             :<div style={{fontSize:11,color:"#2D3748"}}>
-              <div>Bei ambulanter Führung: Hybrid-DRG {erloesData.hdrg}</div>
+              <div>Bei ambulanter Führung: {erloesBds==="sperre"?"nur EBM (beidseitiger Eingriff, keine Hybrid-DRG)":"Hybrid-DRG "+erloesData.hdrg}</div>
               <div>Bei stationärer Führung: Volle DRG {erloesData.drg||"—"}, Liegezeit ≥ {_minT} Tage</div>
             </div>
           }
@@ -6441,8 +6518,9 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             const stateIcon=function(v){if(v===true)return {icon:"✓",color:"#C62828",bg:"rgba(198,40,40,.08)",border:"#C62828"};if(v===false)return {icon:"✗",color:"#2E7D32",bg:"rgba(46,125,50,.06)",border:"#2E7D32"};return {icon:"○",color:"#A0AEC0",bg:"rgba(160,160,160,.04)",border:"rgba(0,0,0,.12)"};};
             const anyTrue=Object.values(ucHdrg).some(function(v){return v===true;});
             const alterKind=alter==="kind";
-            const ausgeschlossen=alterKind||anyTrue;
-            const summaryText=ausgeschlossen?"("+(alterKind?"Alter <18":"Ausschlusskriterium trifft zu")+")":(Object.keys(ucHdrg).length===0?"keine Ausschlüsse angegeben → Annahme: H-DRG möglich":"geprüft: keine Ausschlüsse → H-DRG möglich");
+            const bdsUC=side==="bds";
+            const ausgeschlossen=alterKind||bdsUC||anyTrue;
+            const summaryText=ausgeschlossen?"("+(alterKind?"Alter <18":bdsUC?"Beidseitiger Eingriff (I20-V67)":"Ausschlusskriterium trifft zu")+")":(Object.keys(ucHdrg).length===0?"keine Ausschlüsse angegeben → Annahme: H-DRG möglich":"geprüft: keine Ausschlüsse → H-DRG möglich");
             return <details style={{marginTop:6,marginBottom:6,border:ausgeschlossen?"2px solid #C62828":"1px solid rgba(0,0,0,.12)",borderRadius:8,background:ausgeschlossen?"rgba(198,40,40,.03)":"rgba(0,107,111,.02)"}}>
               <summary style={{padding:"8px 12px",cursor:"pointer",fontSize:11,fontWeight:700,color:ausgeschlossen?"#C62828":"#006B6F",userSelect:"none"}}>
                 🔍 H-DRG-Fähigkeit {ausgeschlossen?"⛔ AUSGESCHLOSSEN":"prüfen"} 
@@ -6571,7 +6649,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             </div>
           </OBSec>
           <OBSec title="Metallentfernung" open={ucSec.me} onToggle={()=>setUcSec(p=>({...p,me:!p.me}))} active={!!ucMeRegion} onReset={()=>{setUcMeRegion("");setUcMeImpl("");setUcMeZusatz("");setUcMe(false);}}>
-            <MEPicker region={ucMeRegion} setRegion={(r)=>{setUcMeRegion(r);setUcMe(!!r);if(r)setUcOp("");}} impl={ucMeImpl} setImpl={setUcMeImpl} zusatz={ucMeZusatz} setZusatz={setUcMeZusatz}/>
+            <MEPicker region={ucMeRegion} setRegion={(r)=>{setUcMeRegion(r);setUcMe(!!r);if(r)setUcOp("");}} impl={ucMeImpl} setImpl={setUcMeImpl} zusatz={ucMeZusatz} setZusatz={setUcMeZusatz} seite={side}/>
             {ucMeRegion&&ucMeImpl&&ucMeZusatz&&ucMeZusatz!=="none"&&<div style={{marginTop:8,padding:"8px 10px",border:"2px solid #E65100",borderRadius:6,background:"rgba(230,81,0,.06)"}}>
               <div style={{fontSize:10,fontWeight:700,color:"#E65100",marginBottom:3}}>⚠ Zusatzeingriff im OP-Bericht zwingend dokumentieren</div>
               <div style={{fontSize:10,color:"#2D3748",lineHeight:1.5}}>
@@ -6609,6 +6687,11 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={{fontSize:13,fontWeight:700,color:"#E65100"}}>⛔ KEIN H-DRG MÖGLICH – Patient {"<"}18 Jahre!</div>
         <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>§115f SGB V Ausschlusskriterium: Alter {"<"}18 → Hybrid-DRG nicht anwendbar.</div>
         <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung möglich · stationär ab 2 Nächten volle DRG</div>
+      </div>}
+      {side==="bds"&&ucErloesData&&UC_EINGRIFFE[ucOp]&&UC_EINGRIFFE[ucOp].hdrg!=="—"&&<div style={{margin:"0 0 6px",padding:"10px 14px",borderRadius:8,border:"2px solid #E65100",background:"rgba(230,81,0,.08)"}}>
+        <div style={{fontSize:13,fontWeight:700,color:"#E65100"}}>⛔ KEIN H-DRG MÖGLICH – beidseitiger Eingriff</div>
+        <div style={{fontSize:11,color:"#BF360C",marginTop:4}}>Definitionshandbuch I20-V67: beidseitige Prozedur → Hybrid-DRG nicht anwendbar.</div>
+        <div style={{fontSize:10,color:"#E65100",marginTop:4}}>→ Ambulant: nur EBM-Abrechnung möglich · stationär volle DRG nach Verweildauer</div>
       </div>}
       {ucErloesData&&<div style={card}><div style={{fontSize:13,fontWeight:700,color:"#2D3748",marginBottom:10}}>Fallsteuerung – {ucErloesData.label}</div>
           {ucErloesData.hasHDRG
@@ -7250,7 +7333,7 @@ function buildDocx(fullText,erloesText){
 // ============================================================
 // TEXT BUILDERS
 // ============================================================
-function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient":"Die Patientin",dd2=g==="m"?"der Patient":"die Patientin",sa=side==="links"?"linken":"rechten";let t="";if(typ==="me")t=`${dd} stellte sich bei uns vor zur geplanten Metallentfernung am ${sa} Fuß. Über die operativen Alternativen und die Möglichkeit des Belassens des Materials wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;else if(typ==="tep")t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde die Implantation einer Sprunggelenksprothese am ${sa} oberen Sprunggelenk vereinbart. Die Indikation, die nicht-operativen und operativen Alternativen sowie die Details mit Komplikationen und Nachbehandlung wurden erneut erläutert. ${dd} wünscht keine weiteren konservativen Maßnahmen. Operative Risiken wurden thematisiert.`;else t=`${dd} stellte sich bei uns vor mit Beschwerden am ${sa} Fuß. Nach ausführlicher Abwägung wurde der operative Eingriff vereinbart. ${dd} wünscht keine Durchführung weiterer konservativer Maßnahmen. Über die operativen und nicht-operativen Alternativen wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;if(risk){t+=`\nEs erfolgte eine spezifische Aufklärung, dass ${dd2} einer Risikogruppe angehört`;if(riskTxt.trim())t+=` (${riskTxt.trim()})`;t+=` und ein erhöhtes Risiko für jegliche intra- oder postoperative Komplikation besteht.`;}if(frei.trim())t+=`\n${frei.trim()}`;return t;}
+function buildPraeop(g,side,risk,riskTxt,frei,typ){const dd=g==="m"?"Der Patient":"Die Patientin",dd2=g==="m"?"der Patient":"die Patientin",sa=side==="links"?"linken":"rechten",amFuss=side==="bds"?"an beiden Füßen":"am "+sa+" Fuß",amOsg=side==="bds"?"an beiden oberen Sprunggelenken":"am "+sa+" oberen Sprunggelenk";let t="";if(typ==="me")t=`${dd} stellte sich bei uns vor zur geplanten Metallentfernung ${amFuss}. Über die operativen Alternativen und die Möglichkeit des Belassens des Materials wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;else if(typ==="tep")t=`${dd} stellte sich bei uns vor mit Beschwerden ${amFuss}. Nach ausführlicher Abwägung wurde die Implantation einer Sprunggelenksprothese ${amOsg} vereinbart. Die Indikation, die nicht-operativen und operativen Alternativen sowie die Details mit Komplikationen und Nachbehandlung wurden erneut erläutert. ${dd} wünscht keine weiteren konservativen Maßnahmen. Operative Risiken wurden thematisiert.`;else t=`${dd} stellte sich bei uns vor mit Beschwerden ${amFuss}. Nach ausführlicher Abwägung wurde der operative Eingriff vereinbart. ${dd} wünscht keine Durchführung weiterer konservativer Maßnahmen. Über die operativen und nicht-operativen Alternativen wurde ${dd2} informiert. Es bestehen operative Risiken, diese wurden thematisiert.`;if(risk){t+=`\nEs erfolgte eine spezifische Aufklärung, dass ${dd2} einer Risikogruppe angehört`;if(riskTxt.trim())t+=` (${riskTxt.trim()})`;t+=` und ein erhöhtes Risiko für jegliche intra- oder postoperative Komplikation besteht.`;}if(frei.trim())t+=`\n${frei.trim()}`;return t;}
 
 function buildLagerung(side,bs,ss,ana,lage){const sa=side==="links"?"linken":"rechten";let p=[];if(ss)p.push("Single-Shot-Antibiose entsprechend Hausstandard durch die Anästhesie");p.push("Lagerung in "+(lage==="bauch"?"Bauchlage":"Rückenlage")+", Polsterung aller druckgefährdeten Stellen, insbesondere aller Stellen an denen Nerven durch Kompression geschädigt werden könnten");p.push("Precleaning des gesamten OP-Gebietes");if(bs)p.push("Anlage der Oberschenkelblutsperre unter Nutzung eines Polsterstrumpfes und wasserdichter Versiegelung nach distal, so dass keine Flüssigkeit unter die Sperre oder in das Polster laufen kann");p.push("Abwaschen und Abdecken entsprechend den aktuellen Hygienestandards, Abkleben der Zehen und der Teile des Vorfußes, die nicht zum OP-Gebiet gehören mit Inzisionsfolie");p.push("Durchführen Team-Time-Out");if(bs)p.push("Aufblasen der Blutsperre auf 300 mmHg");let t=p.join(", ")+".";if(ana==="lokal")t+="\nSterile Applikation Lokalanästhesie.";t+="\n\nNarkoseuntersuchung des betroffenen und der angrenzenden Gelenke unter spezifischer Beachtung der Bandstabilität und der Achsverhältnisse.\nEinzeichnen der relevanten Anatomie des OP-Gebietes, insbesondere Verlauf von Nerven, Gefäßen, Sehnen und knöcherner Marker.";return t;}
 
