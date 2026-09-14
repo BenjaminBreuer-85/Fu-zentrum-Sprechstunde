@@ -4946,8 +4946,8 @@ function OPBerichtApp(){
     // Lapidus
     if(gz==="lapidus"&&_prio==="lapidus") return [o,{label:"Lapidus",ops:o,
       hdrg:"—",ebm:"—",kurz:window._fx("I20D ~3.700 €"),drg:window._fx("I20D 4.710 €"),hdrg_n1:"—",empf:"n2",
-      ziel:window._fx("Keine H-DRG (5-808.a4 nicht auf Positivliste) → stationär, mind. 2 Nächte → volle DRG I20D (CM 1,033 = 4.710 €)."),
-      kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-783.0v (Entnahme MT) + 5-784.0u (Transplantation Tarsale).\nDer Sehnentransfer (5-854.2c) gehört zum Eingriff und wird beschrieben und kodiert.\n5-808.a4 selbst steht nicht in der Positivliste; der Fall gruppiert über den Akin (5-788.56) in I20M.\n⚠ Ambulant: 5-808.a4 steht nicht im AOP-Katalog; für Kliniken ambulant daher nur als Hybrid I20M (mit Akin)."}];
+      ziel:window._fx("Mit Spongiosaplastik oder mit DMMO an 3 bis 4 Mittelfußknochen (5-788.54/55) keine Hybrid-DRG: stationär, ab 2 Belegungstagen volle DRG I20D (CM 1,033 = 4.710 €). Ohne diese Zusatzeingriffe gruppiert der Fall mit Akin (5-788.56) in die Hybrid-DRG I20M."),
+      kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-783.0v (Entnahme MT) + 5-784.0u (Transplantation Tarsale).\nDer Sehnentransfer (5-854.2c) gehört zum Eingriff und wird beschrieben und kodiert.\n5-808.a4 selbst steht nicht in der Positivliste; mit Akin (5-788.56) gruppiert der Fall in I20M, sofern keine Kontextprozedur (Spongiosaplastik am Metatarsale, DMMO an 3 bis 4 Mittelfußknochen 5-788.54/55) durchgeführt wird; dann I20D.\n⚠ Ambulant: 5-808.a4 steht nicht im AOP-Katalog; für Kliniken ambulant daher nur als Hybrid I20M (mit Akin)."}];
 
     // MTP-I-Arthrodese
     if(gz==="mtp1art"&&_prio==="mtp1art") {
@@ -5008,8 +5008,8 @@ function OPBerichtApp(){
     // OSG-Arthrodese → I13E / I13D
     if(osgOp.includes("arthrodese_osg")) return [o,{label:"OSG-Arthrodese"+(osgArtSpongiosa?" + Spongiosa":""),ops:o,
       hdrg:"—",ebm:"—",kurz:osgArtSpongiosa?window._fx("I13D ~5.600 €"):window._fx("I13E ~4.600 €"),drg:osgArtSpongiosa?window._fx("I13D 7.079 €"):window._fx("I13E 5.829 €"),hdrg_n1:"—",empf:"n2",
-      ziel:osgArtSpongiosa?window._fx("Mit Spongiosa → I13D (CM 1,552 = 7.079 €). Mit Spongiosaplastik I13D (7.080 €), ohne I13E (5.830 €)."):window._fx("Ohne Spongiosa → I13E (CM 1,278 = 5.829 €).\n💡 Mit Spongiosa (5-784.0n + 5-783.0d) → I13D (7.079 €)!"),
-      kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?window._fx("\n⚠ Mit Spongiosaplastik (5-783.0d Entnahme Beckenkamm, 5-784.0n Transplantation Tibia) gruppiert der Fall nach I13D (7.079 €), ohne nach I13E (5.829 €). Wird sie durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."):window._fx("\n⚠ Mit Spongiosaplastik (5-783.0d Entnahme Beckenkamm, 5-784.0n Transplantation Tibia) gruppiert der Fall nach I13D (7.079 €), ohne nach I13E (5.829 €). Wird sie durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."))}];
+      ziel:osgArtSpongiosa?window._fx("Mit Spongiosaplastik an der distalen Tibia (Entnahme Beckenkamm 5-783.0d, Transplantation Tibia distal 5-784.0n) I13D (CM 1,552 = 7.079 €), ohne I13E (5.829 €)."):window._fx("Ohne Spongiosa → I13E (CM 1,278 = 5.829 €).\n💡 Mit Spongiosa (5-784.0n + 5-783.0d) → I13D (7.079 €)!"),
+      kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?window._fx("\n⚠ Mit Spongiosaplastik (5-783.0d Entnahme Beckenkamm, 5-784.0n Transplantation Tibia distal) gruppiert der Fall nach I13D (7.079 €), ohne nach I13E (5.829 €). Wird sie durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."):window._fx("\n⚠ Mit Spongiosaplastik (5-783.0d Entnahme Beckenkamm, 5-784.0n Transplantation Tibia distal) gruppiert der Fall nach I13D (7.079 €), ohne nach I13E (5.829 €). Wird sie durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."))}];
 
     // AMIC → I13G / I13E
     if(osgOp.includes("amic")&&_prio==="amic") return [o,{label:amicIKO?"AMIC + Innenknöchelosteotomie":"AMIC offen",ops:o,
