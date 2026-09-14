@@ -4947,7 +4947,7 @@ function OPBerichtApp(){
     if(gz==="lapidus"&&_prio==="lapidus") return [o,{label:"Lapidus",ops:o,
       hdrg:"—",ebm:"—",kurz:window._fx("I20D ~3.700 €"),drg:window._fx("I20D 4.710 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Keine H-DRG (5-808.a4 nicht auf Positivliste) → stationär, mind. 2 Nächte → volle DRG I20D (CM 1,033 = 4.710 €)."),
-      kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-783.0v (Entnahme MT) + 5-784.0u (Transplantation Tarsale).\nDer Sehnentransfer (5-854.2c) gehört zum Eingriff und wird beschrieben und kodiert.\n⚠ 5-808.a4 NICHT auf H-DRG-Positivliste UND NICHT im AOP-Katalog!\n→ Nur stationär möglich. Mind. 2 Nächte für volle DRG.\n⚠ Ambulant: 5-808.a4 steht nicht im AOP-Katalog; für Kliniken ambulant daher nur als Hybrid I20M (mit Akin)."}];
+      kodier:"5-808.a4 + 5-93b.0 + 5-93b.e + 5-783.0v (Entnahme MT) + 5-784.0u (Transplantation Tarsale).\nDer Sehnentransfer (5-854.2c) gehört zum Eingriff und wird beschrieben und kodiert.\n5-808.a4 selbst steht nicht in der Positivliste; der Fall gruppiert über den Akin (5-788.56) in I20M.\n⚠ Ambulant: 5-808.a4 steht nicht im AOP-Katalog; für Kliniken ambulant daher nur als Hybrid I20M (mit Akin)."}];
 
     // MTP-I-Arthrodese
     if(gz==="mtp1art"&&_prio==="mtp1art") {
@@ -4993,7 +4993,7 @@ function OPBerichtApp(){
     if(tepType&&tepType.startsWith("primaer")) return [o,{label:"OSG-TEP primär ("+(tepType.includes("inbone")?"achsgeführt":tepType.includes("vantage")?"Mobile Bearing":"Low Profile")+")",ops:o,
       hdrg:"—",ebm:"—",kurz:"I05B gekürzt (VWD 1: Abschlag)",drg:window._fx("I05B 8.773 €"),hdrg_n1:"—",empf:"n2",
       ziel:window._fx("Immer stationär. Volle DRG I05B (CM 1,923 = 8.773 €) ab 2 Belegungstagen (= 2 Übernachtungen).\nMVWD 6,2 Tage."),
-      kodier:"5-826.00 (Implantation Endoprothese OSG).\n⚠ Nicht im AOP-Katalog, nicht auf H-DRG-Positivliste → nur stationär.\n⚠ Häufiger Fehler: VWD zu kurz → Abschlag! Mind. 2 Belegungstage für volle DRG.\n💡 MVWD 6,2 Tage — Belegungstage sorgfältig dokumentieren."}];
+      kodier:"5-826.00 (Implantation Endoprothese OSG).\n⚠ Nicht im AOP-Katalog, nicht auf H-DRG-Positivliste → nur stationär.\nUnterhalb der unteren Grenzverweildauer erfolgt ein Abschlag je Tag. Mind. 2 Belegungstage für volle DRG.\n💡 MVWD 6,2 Tage — Belegungstage sorgfältig dokumentieren."}];
     if(tepType&&tepType.startsWith("wechsel")) return [o,{label:"OSG-TEP Wechsel ("+(tepType.includes("inbone")?"achsgeführt":tepType.includes("vantage")?"Vantage":"Infinity")+")",ops:o,
       hdrg:"—",ebm:"—",kurz:"I43B gekürzt (VWD 1–2: Abschlag!)",drg:window._fx("I43B 10.819 €"),hdrg_n1:"—",empf:"n3",
       ziel:window._fx("⚠ UGVD = 2 Tage! Volle DRG I43B (CM 2,372 = 10.819 €) erst ab 3 Belegungstagen (= 3 Übernachtungen, Entlassung frühestens am 4. Kalendertag).\nBei Entlassung am 1. oder 2. Tag nach OP: Abschlag pro Tag.\nDie volle DRG wird ab 3 Belegungstagen erreicht; bei früherer Entlassung greift der Abschlag."),
@@ -5008,7 +5008,7 @@ function OPBerichtApp(){
     // OSG-Arthrodese → I13E / I13D
     if(osgOp.includes("arthrodese_osg")) return [o,{label:"OSG-Arthrodese"+(osgArtSpongiosa?" + Spongiosa":""),ops:o,
       hdrg:"—",ebm:"—",kurz:osgArtSpongiosa?window._fx("I13D ~5.600 €"):window._fx("I13E ~4.600 €"),drg:osgArtSpongiosa?window._fx("I13D 7.079 €"):window._fx("I13E 5.829 €"),hdrg_n1:"—",empf:"n2",
-      ziel:osgArtSpongiosa?window._fx("Mit Spongiosa → I13D (CM 1,552 = 7.079 €). ⚠ ERLÖSRELEVANT! +1.250 € gegenüber ohne Spongiosa."):window._fx("Ohne Spongiosa → I13E (CM 1,278 = 5.829 €).\n💡 Mit Spongiosa (5-784.0n + 5-783.0d) → I13D (7.079 €)!"),
+      ziel:osgArtSpongiosa?window._fx("Mit Spongiosa → I13D (CM 1,552 = 7.079 €). Mit Spongiosaplastik I13D (7.080 €), ohne I13E (5.830 €)."):window._fx("Ohne Spongiosa → I13E (CM 1,278 = 5.829 €).\n💡 Mit Spongiosa (5-784.0n + 5-783.0d) → I13D (7.079 €)!"),
       kodier:"5-808.70 + 5-93b.0"+(osgArtPlatte?" + 5-93b.e (WSP, nicht erlösrelevant)":"")+(osgArtSpongiosa?window._fx("\n⚠ Mit Spongiosaplastik (5-783.0d Entnahme Beckenkamm, 5-784.0n Transplantation Tibia) gruppiert der Fall nach I13D (7.079 €), ohne nach I13E (5.829 €). Wird sie durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."):window._fx("\n⚠ Mit Spongiosaplastik (5-783.0d Entnahme Beckenkamm, 5-784.0n Transplantation Tibia) gruppiert der Fall nach I13D (7.079 €), ohne nach I13E (5.829 €). Wird sie durchgeführt, wird sie im OP-Bericht beschrieben und kodiert."))}];
 
     // AMIC → I13G / I13E
@@ -6390,7 +6390,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
               {(erloesData.hebelStat||[]).filter(function(c){return erloesData.ops.indexOf(c)>=0;}).map(function(c){var l=codeLabel(c);return <div key={"hebel"+c} style={{color:"#E65100",fontWeight:600}}>{l!==c?l:(erloesData.hebelName||c)} ({c}): wird beschrieben und kodiert, Zuordnung {erloesData.hebelZiel}</div>;})}
               {function(){var kpCodes=["5-854.2c","5-784.0v","5-784.0r","5-784.0n","5-783.0d"];var found=erloesData.ops.filter(function(c){return kpCodes.indexOf(c)>=0;});if(found.length>0)return <div><div style={{marginBottom:4}}>{found.map(function(c){return <div key={c} style={{color:"#E65100",fontWeight:600}}>{codeLabel(c)} ({c}) = Kontextprozedur: wird beschrieben und kodiert</div>;})}</div>{erloesData.hdrg!=="—"&&<div style={{padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)",marginBottom:4}}><div>Zuordnung mit Kontextprozedur: 1 Belegungstag gekürzte DRG, ab 2 Belegungstagen volle DRG {erloesData.drg||""}. Ohne Kontextprozedur: ab 3 Belegungstagen volle DRG, sonst Hybrid-DRG. Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren.</div></div>}</div>;
               var warnLines=erloesData.kodier.split("\n").filter(function(l){return(l.indexOf("⚠")>=0||l.includes("Häufiger Fehler")||l.includes("Positivliste")||l.includes("Nur stationär")||l.includes("Mind."))&&!l.includes("DMMO")&&!l.includes("WEGE");});if(warnLines.length>0)return <div style={{whiteSpace:"pre-line"}}>{warnLines.join("\n")}</div>;return null;}()}
-              <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>
+              <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Die medizinische Notwendigkeit jedes Belegungstages ist im Verlauf dokumentiert.</div>
             </div>
 
             {/* DMMO-REGEL — einmal am Ende */}
@@ -6784,12 +6784,12 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
                 <div style={{fontWeight:700,color:"#004D40",marginBottom:6,borderBottom:"1px solid rgba(0,77,64,.2)",paddingBottom:2}}>Stationäre Führung (reguläre DRG {ucErloesData.basis}):</div>
                 <div style={{marginBottom:4}}><span style={{fontWeight:600,color:"#718096"}}>Codes: </span><span style={{display:"inline",lineHeight:2.2}}>{ucErloesData.ops.map(function(c){return <span key={c+"s"} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,107,111,.08)",color:"#006B6F"}}>{c}</span>;})}{ucErloesData.kontextOps&&ucErloesData.kontextOps.length>0&&ucErloesData.hdrg!=="—"&&<span style={{display:"inline",marginLeft:4}}><span style={{fontSize:10,fontWeight:600,color:"#004D40",marginRight:4}}>+ Kontextprozedur:</span>{ucErloesData.kontextOps.map(function(c){return <span key={c+"k"} style={{fontFamily:"'IBM Plex Mono',ui-monospace,monospace",fontSize:10,padding:"1px 5px",borderRadius:3,marginRight:3,background:"rgba(0,77,64,.1)",color:"#004D40",fontWeight:600}}>{c}</span>;})}</span>}</span></div>
                 <div style={{whiteSpace:"pre-line"}}>{ucErloesData.kodier.split("\n").filter(function(l){return l.trim()&&!l.includes("WEGE AUS")&&!l.includes("① VWD")&&!l.includes("② Kontextprozedur")&&!l.includes("1 Tag weniger")&&!l.includes("Rückfall in H")&&!l.includes("Bei Kürzung nur")&&!l.includes("EMPFOHLEN:")&&!l.includes("Zuordnung bei stationärer Führung")&&!/^\s*① ab 3 Belegungstagen/i.test(l)&&l.indexOf("② Wird ")!==0;}).join("\n")}</div>
-                <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>OP-Bericht: Alle kodierten Eingriffe MÜSSEN beschrieben werden.</div>
+                <div style={{marginTop:4,fontStyle:"italic",color:"#004D40"}}>Alle kodierten Eingriffe sind im OP-Bericht beschrieben (DKR P001).</div>
                 {ucErloesData.hdrg!=="—"&&(ucErloesData.kodier.includes("WEGE AUS DER H-DRG")||ucErloesData.kodier.includes("Zuordnung bei stationärer Führung"))&&<div style={{marginTop:6,padding:"6px 8px",background:"rgba(0,77,64,.06)",borderRadius:4,border:"1px solid rgba(0,77,64,.12)"}}>
                   <div style={{fontWeight:600,color:"#004D40",marginBottom:2}}>Kontextprozedur → volle DRG ab 2 Nächten (empfohlen):</div>
                   <div>Zuordnung mit Kontextprozedur: 1 Belegungstag gekürzte DRG, ab 2 Belegungstagen volle DRG. Ohne Kontextprozedur: ab 3 Belegungstagen volle DRG, sonst Hybrid-DRG. Die medizinische Notwendigkeit jedes Belegungstages ist zu dokumentieren.</div>
                 </div>}
-                <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Jeder Belegungstag im Verlauf dokumentieren und begründen.</div>
+                <div style={{marginTop:4,color:"#E65100",fontWeight:600}}>Die medizinische Notwendigkeit jedes Belegungstages ist im Verlauf dokumentiert.</div>
               </div>
               <div style={{marginTop:8,paddingTop:6,borderTop:"1px solid rgba(230,81,0,.2)",color:"#4A5568",fontStyle:"italic"}}>Kodiert wird, was durchgeführt und im Bericht beschrieben ist.</div>
             </div>
