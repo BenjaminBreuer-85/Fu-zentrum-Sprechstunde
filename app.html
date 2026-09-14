@@ -1040,8 +1040,8 @@ const PATIENT_EINGRIFF_KB_MAP = window._DATA.opmethoden.PATIENT_EINGRIFF_KB_MAP 
 // Krankheitsbild-Artikel -> Anker des konservativen Abschnitts (alle 47).
 const KB_THEMA = window._DATA.opmethoden.KB_THEMA || {};
 
-// Beschriftung des einen Code-Felds im Brief. Word- und Rich-Text-Export
-// erkennen die Zeile an diesem Praefix und setzen das QR-Bild darunter.
+// Beschriftung des einen Code-Felds im Brief. Die Rich-Text-Kopie erkennt
+// die Zeile an diesem Praefix und setzt das QR-Bild darunter.
 const QR_LABEL = "Ihr Code: fuss-track.de/i/";
 
 const KONSERV = window._DATA.diagnosen.KONSERV;
@@ -1661,7 +1661,7 @@ function QRCanvas(props) {
   return <div ref={ref} style={{ width: size, height: size, background: "#fff", padding: 4, borderRadius: 4, border: "1px solid rgba(0,0,0,.08)" }} />;
 }
 
-// Helper: QR-Code als Data-URL (PNG) holen, für Word-Export
+// Helper: QR-Code als Data-URL (PNG) holen, für die Rich-Text-Kopie
 function getQrDataUrl(text, size) {
   if (!text) return "";
   var s = size || 200;
@@ -2803,11 +2803,11 @@ var _s = useState, _m = useMemo;
   }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, opZusatz, sbTeilamp, sbTeilampHoehe, scEfas, scEfasSport, scFaos, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
-  // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Beide Export-Wege
-  // suchen die Zeile mit dem passenden marker-Präfix und setzen das Bild darunter —
+  // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Die Rich-Text-Kopie
+  // sucht die Zeile mit dem passenden marker-Präfix und setzt das Bild darunter —
   // die Zuordnung läuft also über den Text, nicht über eine Reihenfolge-Annahme.
-  // Der eine Code. Beide Export-Wege suchen die Zeile mit dem QR_LABEL-Praefix
-  // und setzen das Bild darunter.
+  // Der eine Code. Die Rich-Text-Kopie sucht die Zeile mit dem QR_LABEL-Praefix
+  // und setzt das Bild darunter.
   function qrListe() {
     if (!qrShow) return [];
     return [{ url: qr.url, alt: "QR-Code Fuss-Track", marker: QR_LABEL }];
@@ -2910,42 +2910,6 @@ var _s = useState, _m = useMemo;
     ta.select();
     try{document.execCommand("copy");showToast("📋 Kopiert!");}catch(e){showToast("❌ Bitte manuell kopieren");}
     document.body.removeChild(ta);
-  }
-  // UI-Knopf am 27.08.2026 auf Wunsch des Autors entfernt, Funktion bleibt für evtl. Reaktivierung
-  function downloadWord() {
-    try {
-      // Die Codes stehen im Brief direkt unter ihrem Code-Feld, nicht mehr am
-      // Dokumentende — sonst zeigt „die folgenden Codes" ins Leere.
-      var queue = qrListe().map(function(q) { return { data: getQrDataUrl(q.url, 300), alt: q.alt, marker: q.marker }; });
-      var lines = fullText.split("\n");
-      var htmlBody = lines.map(function(line) {
-        if (!line.trim()) return "";
-        if (line.startsWith("Diagnosen:") || line.startsWith("Elektive operative Option:") || line.startsWith("Klinische Untersuchung:") || line.startsWith("Bildgebung:") || line.startsWith("Weitere Informationen Online:")) {
-          return "<p style='margin:6pt 0 2pt;font-weight:bold;font-size:11pt;font-family:Arial'>" + line + "</p>";
-        }
-        if (line.startsWith("Zur weiteren Information")) {
-          return "<p style='margin:6pt 0 0;font-size:9pt;font-family:Arial;color:#555'>" + line + "</p>";
-        }
-        var q = queue.filter(function(x) { return line.indexOf(x.marker) === 0; })[0];
-        if (q) {
-          var abs = "<p style='margin:2pt 0;font-size:11pt;font-family:Arial'>" + line + "</p>";
-          if (q.data) {
-            abs += "<p style='margin:8pt 0 10pt;font-family:Arial'><img src='" + q.data + "' width='130' height='130' style='display:block' alt='" + q.alt + "'/></p>";
-          }
-          return abs;
-        }
-        return "<p style='margin:2pt 0;font-size:11pt;font-family:Arial'>" + line + "</p>";
-      }).join("");
-      var html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>@page{margin:2.5cm}</style></head><body>" + htmlBody + "</body></html>";
-      var blob = new Blob(["\ufeff" + html], { type: "application/msword" });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      a.href = url;
-      a.download = "Sprechstundenbrief.doc";
-      downloadKlick(a);
-      URL.revokeObjectURL(url);
-      showToast("📄 Word-Datei heruntergeladen!");
-    } catch (e) { showToast("Fehler beim Download"); }
   }
   function resetAll() {
     setGender(""); setBegleitung(""); setSeite(""); setDiagnosen([]); setCoalitio(false); setCoalitioVar("");
@@ -5244,7 +5208,7 @@ function OPBerichtApp(){
 
     return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
-  // Text version for Word export
+  // ICD-Codes als Textblock
   const icdText=useMemo(()=>{
     if(icdCodes.length===0)return "";
     var t="\nICD-10 DIAGNOSEN:\n";
@@ -5345,7 +5309,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       ausgeschlossen:ucHdrgAusgeschlossen};
   },[ucOp,ucHdrgAusgeschlossen]);
 
-  // UC full text for Word export
+  // UC-Bericht als Volltext für die Kopie
   const ucFullText=useMemo(()=>{
     if(!ucOp||!UC_TEXT_MAP||!UC_TEXT_MAP[ucOp])return "";
     var t=textPlatzhalter(T[UC_TEXT_MAP[ucOp]]);
@@ -5798,53 +5762,6 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     document.body.removeChild(ta);
   }
   const copy=()=>{if(!canExport)return;obFallbackCopy(fullText);};
-  const dlDocx=()=>{
-    if(!canExport)return;
-    try{
-      const f=buildDocx(fullText,"");
-      const z=createZip(f);
-      // Convert to base64
-      const bytes=new Uint8Array(z);
-      let binary='';
-      const chunkSize=8192;
-      for(let i=0;i<bytes.length;i+=chunkSize){
-        binary+=String.fromCharCode.apply(null,bytes.subarray(i,Math.min(i+chunkSize,bytes.length)));
-      }
-      const b64=btoa(binary);
-      
-      // Try multiple download methods
-      // Method 1: Blob URL
-      try{
-        const byteArray=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-        const blob=new Blob([byteArray],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-        const url=URL.createObjectURL(blob);
-        const link=document.createElement('a');
-        link.href=url;
-        link.download=`OP-Bericht_${side}_${gender}.docx`;
-        downloadKlick(link);
-        setTimeout(()=>URL.revokeObjectURL(url),5000);
-        showToast("✓ Word generiert!");
-        return;
-      }catch(e1){}
-      
-      // Method 2: Data URI
-      try{
-        const link=document.createElement('a');
-        link.href=`data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${b64}`;
-        link.download=`OP-Bericht_${side}_${gender}.docx`;
-        downloadKlick(link);
-        showToast("✓ Word generiert!");
-        return;
-      }catch(e2){}
-
-      showToast("⚠ Download blockiert – Text kopiert");
-      obFallbackCopy(fullText)
-    }catch(e){
-      console.error(e);
-      showToast("⚠ Fehler – Text wird kopiert");
-      obFallbackCopy(fullText);
-    }
-  };
 
   const chip=(sel)=>({padding:"6px 12px",borderRadius:6,fontSize:11.5,cursor:"pointer",border:sel?"1px solid #006B6F":"1px solid rgba(0,0,0,.1)",background:sel?"rgba(0,107,111,.15)":"rgba(255,255,255,1)",color:sel?"#006B6F":"#4A5568",display:"inline-block",margin:2,userSelect:"none"});
   const gb=(sel)=>({padding:"9px 18px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:sel?"2px solid #006B6F":"2px solid rgba(0,0,0,.1)",background:sel?"rgba(0,107,111,.12)":"rgba(255,255,255,.95)",color:sel?"#006B6F":"#4A5568",display:"inline-flex",alignItems:"center",gap:5,margin:3});
@@ -6501,7 +6418,6 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           <div style={{display:"flex",gap:4}}>
             <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setFxSyndes(false);setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");setRuhig("keine");setEntlassGespr(false);setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);setMdoTyp("");setFdlTransfer(false);setMdoCotton("");setT2Length("200");setT2Width("11");setT2Becken(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);}}>Reset</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#006B6F",color:"#F5F7FA",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={copy}>📋</div>
-            <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#005F63",color:"#fff",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
           </div>
         </div>
         <div style={{cursor:"pointer",fontSize:11,color:"#006B6F",marginBottom:6}} onClick={()=>setShowPv(!showPv)}>{showPv?"▼ Ausblenden":"▶ Anzeigen"}</div>
@@ -6899,7 +6815,6 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",color:"#2D3748",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{ucFullText}</div>
           <div style={{display:"flex",gap:6,marginTop:8}}>
             <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{obFallbackCopy(ucFullText+ucErloesText)}}>📋 Kopieren</div>
-            <div style={{cursor:"pointer",padding:"5px 12px",borderRadius:6,background:"#006B6F",color:"#fff",fontSize:10,fontWeight:600}} onClick={()=>{try{var icdT="";if(icdCodes.length>0){icdT="\n\nICD-10 DIAGNOSEN:\n";icdCodes.forEach(function(c){icdT+=(c.hd?"HD: ":"ND: ")+c.code+" "+c.desc+"\n";});}var f=buildDocx(ucFullText+icdT,ucErloesText);var z=createZip(f);var bytes=new Uint8Array(z);var b="";for(var i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]);var d="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,"+btoa(b);var a=document.createElement("a");a.href=d;a.download="UC_OP_Bericht.docx";downloadKlick(a);showToast("📄 Word heruntergeladen!");}catch(e){console.error(e);showToast("⚠ Fehler beim Download");}}}>📄 Word</div>
           </div>
         </div>}
         {ucOp&&!UC_TEXT_MAP[ucOp]&&<div style={{marginTop:12,fontSize:10,color:"#718096",fontStyle:"italic"}}>OP-Text für diesen Eingriff noch nicht hinterlegt.</div>}
@@ -7216,7 +7131,6 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           <div style={{fontSize:12,fontWeight:700,color:"#006B6F",textTransform:"uppercase",letterSpacing:1}}>Vorschau</div>
           <div style={{display:"flex",gap:4}}>
             <div style={{padding:"5px 10px",border:"none",borderRadius:5,background:"#006B6F",color:"#F5F7FA",fontWeight:600,fontSize:10,cursor:"pointer"}} onClick={copy}>📋 Kopieren</div>
-            <div style={{padding:"5px 10px",border:"none",borderRadius:5,background:"#005F63",color:"#fff",fontWeight:600,fontSize:10,cursor:"pointer"}} onClick={dlDocx}>📄 Word</div>
           </div>
         </div>
         <div style={{background:"transparent",border:"none",borderRadius:0,padding:"14px 0",fontFamily:"'Trebuchet MS',sans-serif",fontSize:"10pt",lineHeight:1.7,whiteSpace:"pre-wrap",color:"#2D3748",overflowY:"auto",maxHeight:"calc(100vh - 180px)"}}>{fullText}</div>
@@ -7226,120 +7140,6 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </div>{/* END ob-split */}
     </div>
           );
-}
-
-// ============================================================
-function escXml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-function createZip(files){
-  const enc=new TextEncoder();
-  const parts=[];const cd=[];let offset=0;const entries=Object.entries(files);
-  for(const[name,content]of entries){
-    const nameBytes=enc.encode(name);
-    const dataBytes=enc.encode(content);
-    // CRC32
-    let crc=0xFFFFFFFF;const table=new Uint32Array(256);
-    for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xEDB88320^(c>>>1):c>>>1;table[i]=c;}
-    for(let i=0;i<dataBytes.length;i++)crc=table[(crc^dataBytes[i])&0xFF]^(crc>>>8);
-    crc=(crc^0xFFFFFFFF)>>>0;
-    // Local file header
-    const lf=new ArrayBuffer(30+nameBytes.length);const lv=new DataView(lf);
-    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);lv.setUint16(8,0,true);
-    lv.setUint16(10,0,true);lv.setUint16(12,0,true);lv.setUint32(14,crc,true);
-    lv.setUint32(18,dataBytes.length,true);lv.setUint32(22,dataBytes.length,true);
-    lv.setUint16(26,nameBytes.length,true);lv.setUint16(28,0,true);
-    new Uint8Array(lf).set(nameBytes,30);
-    parts.push(new Uint8Array(lf));parts.push(dataBytes);
-    // Central directory
-    const ce=new ArrayBuffer(46+nameBytes.length);const cv=new DataView(ce);
-    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
-    cv.setUint16(8,0,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0,true);
-    cv.setUint32(16,crc,true);cv.setUint32(20,dataBytes.length,true);cv.setUint32(24,dataBytes.length,true);
-    cv.setUint16(28,nameBytes.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);
-    cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);cv.setUint32(42,offset,true);
-    new Uint8Array(ce).set(nameBytes,46);
-    cd.push(new Uint8Array(ce));
-    offset+=30+nameBytes.length+dataBytes.length;
-  }
-  let cdSize=0;cd.forEach(c=>cdSize+=c.length);
-  const eocd=new ArrayBuffer(22);const ev=new DataView(eocd);
-  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
-  ev.setUint16(8,entries.length,true);ev.setUint16(10,entries.length,true);
-  ev.setUint32(12,cdSize,true);ev.setUint32(16,offset,true);ev.setUint16(20,0,true);
-  const allParts=[...parts,...cd,new Uint8Array(eocd)];
-  const totalLen=allParts.reduce((s,p)=>s+p.length,0);
-  const result=new Uint8Array(totalLen);let pos=0;
-  for(const p of allParts){result.set(p,pos);pos+=p.length;}
-  return result;
-}
-
-function buildDocx(fullText,erloesText){
-  const ps=[];
-  const addP=(text,bold=false,size=22)=>{
-    if(!text)return;
-    text.split('\n').forEach(line=>{
-      if(!line.trim()){ps.push('<w:p><w:pPr><w:spacing w:after="0"/></w:pPr></w:p>');return;}
-      const rpr=`<w:rPr>${bold?'<w:b/>':''}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr>`;
-      ps.push(`<w:p><w:pPr><w:spacing w:after="80" w:line="276" w:lineRule="auto"/><w:jc w:val="both"/></w:pPr><w:r>${rpr}<w:t xml:space="preserve">${escXml(line)}</w:t></w:r></w:p>`);
-    });
-  };
-  // Title
-  ps.push(`<w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="32"/><w:szCs w:val="32"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr><w:t>OP-Bericht</w:t></w:r></w:p>`);
-  addP(fullText);
-  if(erloesText){
-    ps.push(`<w:p><w:pPr><w:spacing w:before="300" w:after="200"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="2E5090"/></w:rPr><w:t>Fallsteuerung</w:t></w:r></w:p>`);
-    addP(erloesText,false,20);
-  }
-  ps.push('<w:p><w:pPr><w:spacing w:before="300"/></w:pPr></w:p>');
-  addP("Operateur: ___________________________",false,20);
-  addP("Datum: ___________________________",false,20);
-
-  const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-</Types>`;
-
-  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`;
-
-  const docRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>`;
-
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
-    <w:name w:val="Normal"/>
-    <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
-  </w:style>
-</w:styles>`;
-
-  const document=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>
-    ${ps.join('\n    ')}
-    <w:sectPr>
-      <w:pgSz w:w="11906" w:h="16838"/>
-      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
-    </w:sectPr>
-  </w:body>
-</w:document>`;
-
-  return {
-    "[Content_Types].xml": contentTypes,
-    "_rels/.rels": rels,
-    "word/_rels/document.xml.rels": docRels,
-    "word/document.xml": document,
-    "word/styles.xml": styles
-  };
 }
 
 // ============================================================
@@ -9213,7 +9013,7 @@ const RUNDGANG_SCHRITTE = [
   { titel: "Willkommen bei Fuss-Track Clinic",
     text: "Diese Anwendung bündelt die Schreibarbeit rund um Fuß- und Sprunggelenkeingriffe — Arztbriefe, OP-Berichte, Aufklärung und die Kalkulation Ihrer Materialkosten. Der Rundgang zeigt Ihnen in einer Minute, was wo liegt." },
   { ziele: ['[data-tour="sb"]'], titel: "Sprechstundenbrief",
-    text: "Hier entstehen die Briefe aus der Sprechstunde. Sie wählen Diagnose und Befunde, die Anwendung errechnet den passenden Score, und den fertigen Text übernehmen Sie nach Word." },
+    text: "Hier entstehen die Briefe aus der Sprechstunde. Sie wählen Diagnose und Befunde, die Anwendung errechnet den passenden Score, und den fertigen Text übernehmen Sie über Kopieren in Ihre Dokumentation." },
   { ziele: ['[data-tour="ob"]'], titel: "OP-Bericht Generator",
     text: "Für den Operationsbericht stellen Sie den Eingriff zusammen und erhalten den ausformulierten Text, die zugehörigen OPS-Codes und eine Übersicht der Erlöse." },
   { ziele: ['[data-tour="preise"]'], titel: "Implantatpreise",
@@ -9261,7 +9061,7 @@ const RUNDGANG_SB = [
   { ziele:['[data-tour="sb-erloes"]'], titel: "Erlös und Standardversorgung",
     text: "Hier sehen Sie, was der Fall voraussichtlich einbringt und welches Material die Standardversorgung vorsieht. Der Block ist eine Einschätzung für Ihre Planung, keine Abrechnung." },
   { ziele:['[data-tour="sb-export"]'], titel: "Vorschau und Übernahme",
-    text: "Klappen Sie die Vorschau auf und lesen Sie gegen. Passt der Text, geht er über „Word“ in Ihre Dokumentation oder über „Kopieren“ direkt in die Zwischenablage." }
+    text: "Klappen Sie die Vorschau auf und lesen Sie gegen. Passt der Text, geht er über „Kopieren“ direkt in die Zwischenablage." }
 ];
 
 const RUNDGANG_OB = [
@@ -9278,8 +9078,8 @@ const RUNDGANG_OB = [
     hinweis: "Diese Änderung gilt nur für diesen Bericht. Ihr hinterlegter Materialsatz bleibt unverändert." },
   { ziele:['[data-tour="versorgung"]'], titel: "Abweichung im Blick",
     text: "Sobald Sie etwas ändern, zeigt die Ansicht die Differenz zur Standardversorgung. So sehen Sie sofort, ob der Fall teurer oder günstiger ausgefallen ist." },
-  { ziele:['[data-tour="ob-export"]'], wennFehlt: "Vorschau und Word-Export erscheinen, sobald der Bericht Inhalt hat.", titel: "Bericht übernehmen",
-    text: "Zum Schluss den Text gegenlesen und über „Word“ oder „Kopieren“ in Ihre Dokumentation übernehmen." }
+  { ziele:['[data-tour="ob-export"]'], wennFehlt: "Vorschau und Kopieren erscheinen, sobald der Bericht Inhalt hat.", titel: "Bericht übernehmen",
+    text: "Zum Schluss den Text gegenlesen und über „Kopieren“ in Ihre Dokumentation übernehmen." }
 ];
 
 const RUNDGANG_PREISE = [
