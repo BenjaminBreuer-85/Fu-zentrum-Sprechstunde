@@ -1,10 +1,22 @@
 # Auftrag: Word-Knopf entfernen, Briefprüfung einbauen
 
-Stand: 13.09.2026. Grundlage: `konzept-briefpruefung.md` (Repo-Root), vom Autor freigegeben. Zwei Teile, getrennt zu committen.
+Stand: 13.09.2026, Teil A neu gefasst 14.09.2026 (Entscheidung „alle drei", Zeilen am aktuellen Stand geprüft). Grundlage: `konzept-briefpruefung.md` (Repo-Root), vom Autor freigegeben. Zwei Teile, getrennt zu committen.
 
-## Teil A, sofort: Word-Knopf entfernen
+## Teil A, sofort: Word-Export entfernen (alle drei Generatoren)
 
-Der Word-Export im Sprechstundenbrief (eingeführt nach `auftrag-word-button-sb.md`, Funktion mit `Sprechstundenbrief.doc` und eingebetteten QR-Bildern, `app.html` ab Zeile 2895) entfällt ersatzlos. Bestandsaufnahme vom 13.09.: Dieselbe Funktion gibt es auch im OP-Bericht (`OP-Bericht_<Seite>_<Geschlecht>.docx`, Zeilen 5747 und 5758) und im UC-Bericht (`UC_OP_Bericht.docx`, Zeile 6807). Ob diese beiden ebenfalls entfallen, entscheidet der Autor vor Beginn; bis dahin gilt Teil A nur für den Sprechstundenbrief. Die Excel-Bibliothek `lib/xlsx-style.min.js` bleibt, sie trägt Import und Export der Implantatpreise. Der Autor: „Diese Funktion wird nicht benötigt, man kopiert diesen Bericht immer wo rein." Zu entfernen sind der Knopf, die Erzeugungsfunktion für die Word-Datei und alle nur dafür eingebundenen Hilfsroutinen; „Kopie" bleibt der einzige Ausgabeweg, in beiden Generatoren. Falls die Hilfe oder ein Rundgang den Word-Knopf erwähnt, dort ebenfalls streichen. Gegenprobe: Sprechstundenbrief erzeugen, Kopie funktioniert, kein Word-Element mehr sichtbar, keine Konsolenfehler; Suche im Code nach dem Word-Bezeichner liefert keine Reste.
+Entscheidung des Autors 13.09.2026: alle drei. Freigabe 14.09.2026 („weiter mit Word-Knopf"). Der Autor: „Diese Funktion wird nicht benötigt, man kopiert diesen Bericht immer wo rein." „Kopie" bleibt der einzige Ausgabeweg. Bestandsaufnahme am Stand `app.html` vom 14.09.2026 (779.959 Byte, nach dem Folgeauftrag Beidseits/Calcaneoplastie; Zeilennummern dieses Stands):
+
+Sprechstundenbrief: Der Knopf ist seit `auftrag-word-button-sb.md` (27.08.2026) weg, die Funktion `downloadWord()` (Z. 2915–2949, `Sprechstundenbrief.doc`, HTML-Blob mit eingebetteten QR-Bildern) steht noch im Code und wird nirgends mehr aufgerufen. Sie entfällt jetzt ersatzlos, samt Kommentar zur Reaktivierung. Bleiben müssen: `getQrDataUrl` (Z. 1665, auch von der Rich-Text-Kopie Z. 2826/2866 genutzt), `copyQrToClipboard` und `downloadKlick` (Z. 736, QR-Bild-Download Z. 2873/2887 und Excel-Export der Preise).
+
+OP-Bericht: `dlDocx` (Z. 5801–5840, `OP-Bericht_<Seite>_<Geschlecht>.docx`) und die beiden Knöpfe „📄 Word" (Z. 6504 Desktop-Leiste „Vorschau & Export", Z. 7219 mobile Vorschau) entfallen. `canExport` bleibt, weil die Vorschau davon abhängt.
+
+UC-Bericht: der Knopf „📄 Word" mit Inline-Erzeugung (Z. 6902, `UC_OP_Bericht.docx`) entfällt; „📋 Kopieren" (Z. 6901) bleibt.
+
+Gemeinsame Hilfsroutinen, nur für Word genutzt: `createZip` (Z. 7234), `buildDocx` mit den eingebetteten docx-Vorlagen (Z. 7276–7343, Content-Types, Relationships, `word/document.xml`, `word/styles.xml`) (die CRC32-Berechnung liegt innerhalb von `createZip`, Z. 7240–7244). Alles entfernen. Die Excel-Bibliothek `lib/xlsx-style.min.js` bleibt (Implantatpreise). Kommentare „für Word-Export" an `icdText` (Z. 5247) und `ucFullText` (Z. 5348) anpassen, die Werte selbst werden weiter für die Kopie gebraucht.
+
+Rundgang und Hilfe: Texte, die „Word" nennen, umformulieren: Z. 9216 („… übernehmen Sie nach Word" → „… übernehmen Sie über Kopieren in Ihre Dokumentation"), Z. 9264 („geht er über „Word" in Ihre Dokumentation oder über „Kopieren" …" → nur Kopieren), Z. 9281–9282 (`wennFehlt` „Vorschau und Word-Export erscheinen …" → „Vorschau und Kopieren erscheinen …"; Text „über „Word" oder „Kopieren"" → „über „Kopieren""). Danach Suche im Code nach `Word`, `docx`, `.doc"`, `msword`, `wordprocessingml`, `dlDocx`, `downloadWord`, `buildDocx`, `createZip` ohne Reste (Treffer in Passwort-Feldern und Kommentaren zum Rich-Text-Kopieren sind keine Reste).
+
+Gegenprobe (Cowork-Prüfstand): Sprechstundenbrief 81 Fälle, OP-Bericht 68 Fälle, Kombinationen 6 Fälle zeichengleich mit den Referenzläufen zum Stand nach dem Folgeauftrag (`baseline_*_code2.json`), abgesehen vom Wegfall der Zeile „📄 Word" in den Vorschau-Leisten; Kopieren in allen drei Generatoren funktioniert; keine Konsolenfehler. Abnahme: Autor am Handy.
 
 Eigener kleiner Commit, deploybar ohne Bucket-Änderung.
 
