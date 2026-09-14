@@ -6439,10 +6439,11 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         }()}
 
         {/* ERLÖSRELEVANTE KODIERHINWEISE — EINZIGE Stelle für OPS-Codes */}
-        {/* Mit Regelsatz erzeugt die Auswertung die Kodierhinweise; die 57
-            Kodezeilen aus kodier stuenden sonst doppelt daneben. Ohne
-            Regelsatz bleibt der Block wie bisher. */}
-        {!HDRG_REGELN&&erloesData.kodier&&<div style={{marginBottom:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
+        {/* Vorerst immer aus kodier (Auftrag 14.09.2026): Die Unterdrueckung bei
+            vorhandenem HDRG_REGELN setzte voraus, dass die Auswertung den
+            Block ersetzt — das ist im OP-Bericht noch nicht gebaut (Schritt 6),
+            ohne diesen Block stuenden dort gar keine OPS-Kodes. */}
+        {erloesData.kodier&&<div style={{marginBottom:8,border:"2px solid #E65100",borderRadius:8,overflow:"hidden"}}>
           <div style={{background:"#E65100",padding:"6px 12px"}}>
             <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>Erlösrelevante Kodierhinweise</span>
           </div>
