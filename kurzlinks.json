@@ -8,12 +8,17 @@
     "der Eintrag entfernt; die ID bleibt danach dauerhaft unbenutzt.",
     "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter."
   ],
-  "_STAND": "2026-09-03",
+  "_STAND": "2026-09-14",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
   "ZIELE": {
     "achilles-insertional": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=achilles_insertional_kb&modus=aufklaerung",
       "titel": "Achillessehne — insertionsnahe Tendinopathie",
+      "art": "diagnose"
+    },
+    "achilles-insuffizienz": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=achilles_insuffizienz_kb&modus=aufklaerung",
+      "titel": "Achillessehneninsuffizienz",
       "art": "diagnose"
     },
     "achilles-naht": {
@@ -79,6 +84,11 @@
     "coalitio-cn": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=coalitio_cn&modus=aufklaerung",
       "titel": "Coalitio calcaneonavicular — Resektion",
+      "art": "op"
+    },
+    "coalitio-tc": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=coalitio_tc&modus=aufklaerung",
+      "titel": "Coalitio talocalcaneare — OP",
       "art": "op"
     },
     "cotton": {
@@ -254,6 +264,11 @@
     "smot-valgus": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=smot_valgus&modus=aufklaerung",
       "titel": "Supramalleoläre Osteotomie (Valgus)",
+      "art": "op"
+    },
+    "smot-varus": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=smot_varus&modus=aufklaerung",
+      "titel": "Supramalleoläre Osteotomie (Varus)",
       "art": "op"
     },
     "subtalar": {
