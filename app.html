@@ -9055,7 +9055,8 @@ const RUNDGANG_SB = [
   { ziele:['[data-tour="sb-erloes"]'], titel: "Erlös und Standardversorgung",
     text: "Hier sehen Sie, was der Fall voraussichtlich einbringt und welches Material die Standardversorgung vorsieht. Der Block ist eine Einschätzung für Ihre Planung, keine Abrechnung." },
   { ziele:['[data-tour="sb-export"]'], titel: "Vorschau und Übernahme",
-    text: "Klappen Sie die Vorschau auf und lesen Sie gegen. Passt der Text, geht er über „Kopieren“ direkt in die Zwischenablage." }
+    text: "Klappen Sie die Vorschau auf und lesen Sie gegen. Passt der Text, geht er über „Kopieren“ direkt in die Zwischenablage.",
+    hinweis: "Die Vorschläge der App sind Formulierungshilfen. Bitte prüfen Sie jeden Brief und passen Sie ihn an den Einzelfall an; die Verantwortung für Inhalt und Kodierung bleibt bei Ihnen." }
 ];
 
 const RUNDGANG_OB = [
@@ -9401,6 +9402,8 @@ function EinstellungenView({onSelect, onRundgang}){
     {/* ---- Hilfe & Rundgänge ---- */}
     <div style={kasten}>
       <div style={kopf}>Hilfe &amp; Rundgänge</div>
+      <div style={{padding:"10px 14px",fontSize:12,lineHeight:1.55,color:GRAU,borderTop:"1px solid "+LINIE}}>
+        Die Vorschläge der App sind Formulierungshilfen. Bitte prüfen Sie jeden Brief und passen Sie ihn an den Einzelfall an; die Verantwortung für Inhalt und Kodierung bleibt bei Ihnen.</div>
       <div style={zeile(true)} onClick={()=>onRundgang("menue")}>
         <span>Überblick über die App</span><span style={{color:GRAU}}>›</span></div>
       <div style={zeile(true)} onClick={()=>onRundgang("sb")}>
