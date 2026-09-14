@@ -191,6 +191,8 @@ window.TOOLBOX_AUTH = {
   }
   window._IM_STANDALONE = imStandalone;
   var useSupabase=!isLocal || /[?&]auth=1/.test(location.search); // ?auth=1 = Supabase-Pfad lokal testen
+  // Fuer den Selbsttest: derselbe Ladeweg wie hier (Dateien, Quelle, Bucket).
+  window._DATEN_LADEWEG={gruppen:GROUPS.slice(), datei:DATEI, supabase:useSupabase, bucket:CFG.bucket, zuordnungPfad:ZUORDNUNG_PFAD};
 
   function fail(e){
     var d=document.getElementById("err-display");
@@ -9363,6 +9365,178 @@ function Rundgang({onFertig, schritte: eigeneSchritte, merker}){
 
 
 // ============================================================================
+// SELBSTTEST — Querpruefungen der Daten (Auftrag Verbesserungen 09/2026, E1).
+// Laedt die Dateien neu auf demselben Weg wie die App (lokal ./data/, sonst
+// Bucket) und nicht aus dem Speicher der laufenden Sitzung. Erreichbar ueber
+// app.html?selbsttest=1 und fuenfmaliges Tippen auf die Versionszeile.
+// ============================================================================
+function selbsttestLaden(){
+  var L = window._DATEN_LADEWEG || {gruppen:[], datei:{}, supabase:false, bucket:"", zuordnungPfad:"zuordnung/implantat_zuordnung.json"};
+  function messen(name, holen){
+    var t0 = performance.now();
+    return holen().then(function(txt){
+      return {name:name, ms:Math.round(performance.now()-t0), bytes:new Blob([txt]).size, json:JSON.parse(txt)};
+    });
+  }
+  function repo(pfad){
+    return function(){ return fetch(pfad+"?v="+Date.now()).then(function(r){
+      if(!r.ok) throw new Error(pfad+": HTTP "+r.status); return r.text(); }); };
+  }
+  var dateien = L.gruppen.map(function(g){
+    var dn = (L.datei && L.datei[g]) || g;
+    if (L.supabase && window._SB) return messen(dn+".json", function(){
+      return window._SB.storage.from(L.bucket).download(dn+".json").then(function(r){
+        if (r.error) throw new Error(dn+".json: "+(r.error.message||"Download fehlgeschlagen"));
+        return r.data.text(); }); });
+    return messen("data/"+dn+".json", repo("data/"+dn+".json"));
+  });
+  dateien.push(messen(L.zuordnungPfad, repo(L.zuordnungPfad)));
+  dateien.push(messen("kurzlinks.json", repo("kurzlinks.json")));
+  return Promise.all(dateien).then(function(liste){
+    var D = {}; L.gruppen.forEach(function(g,i){ D[g] = liste[i].json; });
+    D.zuordnung = liste[L.gruppen.length].json;
+    D.kurzlinks = liste[L.gruppen.length+1].json;
+    return {D:D, dateien:liste.map(function(x){ return {name:x.name, ms:x.ms, bytes:x.bytes}; }),
+            quelle: L.supabase ? "Bucket "+L.bucket : "lokal ./data/"};
+  });
+}
+
+function selbsttestPruefen(D){
+  var DIAG = (D.diagnosen||{}).DIAG || {}, OM = D.opmethoden || {}, OPS = OM.OPS || {};
+  var ST = D.opsteuerung || {}, OS = ST.OP_STEUERUNG || {}, REG = ST.HDRG_REGELN || {};
+  var OT = D.optexte || {}, T = OT.T || {}, UCM = OT.UC_TEXT_MAP || {};
+  var KAT = D.katalog2026 || {}, HD = {}, KX = KAT._KX || {};
+  (KAT._HD || []).forEach(function(r){ HD[r[0]] = r[2]; });
+  var ZU = (D.zuordnung || {}).KATALOG || {}, ZIELE = (D.kurzlinks || {}).ZIELE || {};
+  var quelltext = (document.getElementById("app-src") || {}).textContent || "";
+  var txt = function(t){ return (t && typeof t === "object" && typeof t.__fx === "string") ? t.__fx : t; };
+  var eindeutig = function(a){ return Array.from(new Set(a)).sort(); };
+  var p = [];
+
+  var p1 = [];
+  Object.keys(DIAG).forEach(function(d){ (DIAG[d].opMethoden||[]).forEach(function(m){ if(!(m in OPS)) p1.push(d+" → "+m); }); });
+  p.push({nr:"1", art:"Fehler", titel:"DIAG.opMethoden ohne Eintrag in OPS", treffer:eindeutig(p1)});
+
+  p.push({nr:"2", art:"Hinweis", titel:"OPS-Schlüssel ohne Eintrag in OP_STEUERUNG", treffer:Object.keys(OPS).filter(function(k){ return !(k in OS); }).sort()});
+
+  var p3 = [];
+  Object.keys(DIAG).forEach(function(d){ Object.keys(DIAG[d].opText||{}).forEach(function(k){ if(!(k in OPS)) p3.push(d+" → "+k); }); });
+  p.push({nr:"3", art:"Fehler", titel:"opText-Schlüssel ohne Eintrag in OPS", treffer:eindeutig(p3)});
+
+  // 4: referenziert = Schluessel woertlich mit Punkt oder in eckigen Klammern hinter T,
+  // Wert in UC_TEXT_MAP oder Praefix me_zusatz_ (Schreibweise hier bewusst umschrieben,
+  // sonst faende die Suche diesen Kommentar selbst)
+  var ref = {}, m, rx1 = /\bT\.([A-Za-z_]\w*)/g, rx2 = /\bT\[\s*"([^"]+)"\s*\]/g;
+  while ((m = rx1.exec(quelltext))) ref[m[1]] = true;
+  while ((m = rx2.exec(quelltext))) ref[m[1]] = true;
+  Object.keys(UCM).forEach(function(k){ ref[UCM[k]] = true; });
+  p.push({nr:"4a", art:"Hinweis", titel:"optexte.T ohne Verweis im Code", treffer:Object.keys(T).filter(function(k){ return !ref[k] && k.indexOf("me_zusatz_") !== 0; }).sort()});
+  p.push({nr:"4b", art:"Fehler", titel:"Verweise auf optexte.T ohne Text", treffer:Object.keys(ref).filter(function(k){ return !(k in T); }).sort()});
+
+  var p5 = [];
+  Object.keys(T).forEach(function(k){ var v = T[k]; if (typeof v !== "string") return;
+    var rx = /\{IMPL:([^}]+)\}/g, mm; while ((mm = rx.exec(v))) if (!(mm[1] in ZU)) p5.push(mm[1]+" ("+k+")"); });
+  p.push({nr:"5", art:"Fehler", titel:"{IMPL:…} ohne Eintrag in der Implantat-Zuordnung", treffer:eindeutig(p5)});
+
+  // 6: gleiche Regel wie kurzlinkId() im Sprechstundenbrief
+  var kid = function(z){ return String(z).replace(/_/g,"-").replace(/-kb$/,""); }, p6 = [];
+  ["PATIENT_EINGRIFF_MAP","PATIENT_DIAGNOSE_MAP"].forEach(function(n){
+    var map = OM[n] || {};
+    Object.keys(map).forEach(function(k){ [].concat(map[k]).forEach(function(z){ if(!(kid(z) in ZIELE)) p6.push(n+"."+k+" → "+z); }); });
+  });
+  p.push({nr:"6", art:"Fehler", titel:"Patienten-Ziele ohne Kurzlink", treffer:p6.sort()});
+
+  // 7: Steuerungskodes gegen den Katalog
+  var herkunft = {}, kontext = {};
+  var merke = function(code, wo){ String(code).split(/\s*\+\s*/).forEach(function(c){ if(!c) return; (herkunft[c] = herkunft[c] || {})[wo] = true; }); };
+  Object.keys(REG).forEach(function(g){ if (g.charAt(0) === "_") return;
+    (REG[g].kontext||[]).forEach(function(e){ merke(e.code, "HDRG_REGELN."+g+".kontext"); kontext[e.code] = true; });
+    (REG[g].aufwertung||[]).forEach(function(e){ merke(e.code, "HDRG_REGELN."+g+".aufwertung"); });
+  });
+  Object.keys(OS).forEach(function(k){ var e = OS[k];
+    if (e.hebel) merke(e.hebel, k+".hebel");
+    ["hdrgTrigger","kontext","opsCodes"].forEach(function(f){ (e[f]||[]).forEach(function(x){ merke(x.code, k+"."+f); }); });
+  });
+  p.push({nr:"7a", art:"Hinweis", titel:"Steuerungskodes ohne Katalogzeile", treffer:Object.keys(herkunft).filter(function(c){ return !(c in HD); }).sort()
+    .map(function(c){ return c+" ("+Object.keys(herkunft[c]).sort().join(", ")+")"; })});
+  p.push({nr:"7b", art:"Fehler", titel:"Kontextkode (HDRG_REGELN) ohne Flag 4 im Katalog", treffer:Object.keys(kontext).filter(function(c){ return (c in HD) && !(HD[c] & 4); }).sort()});
+
+  p.push({nr:"8", art:"Fehler", titel:"_KX ohne Katalogzeile", treffer:Object.keys(KX).filter(function(c){ return !(c in HD); }).sort()});
+
+  var p9 = [];
+  Object.keys(OS).forEach(function(k){ var e = OS[k], texte = [];
+    (e.hinweise||[]).forEach(function(h){ texte.push(txt(h.txt)); });
+    (e.modifikatoren||[]).forEach(function(mo){ if (mo.hinweis) texte.push(txt(mo.hinweis.txt)); });
+    texte.forEach(function(t){ if (typeof t !== "string") return;
+      if (/:\s*$/.test(t) || t.indexOf("undefined") >= 0) p9.push(k+": „"+t.slice(0,60)+"…“"); });
+  });
+  p.push({nr:"9", art:"Fehler", titel:"Hinweise mit Doppelpunkt am Ende oder „undefined“", treffer:p9});
+  return p;
+}
+
+function SelbsttestView(){
+  const [stand, setStand] = useState({laeuft:true});
+  const [kopiert, setKopiert] = useState(false);
+  function starten(){
+    setStand({laeuft:true}); setKopiert(false);
+    selbsttestLaden().then(function(r){
+      setStand({laeuft:false, quelle:r.quelle, dateien:r.dateien, pruefungen:selbsttestPruefen(r.D), zeit:new Date()});
+    }).catch(function(e){ setStand({laeuft:false, fehler:(e && e.message) || String(e)}); });
+  }
+  useEffect(starten, []);
+  function alsText(){
+    var z = [];
+    z.push("Fuss-Track Clinic · Selbsttest · "+APP_VERSION+" · "+stand.zeit.toLocaleString("de-DE")+" · Quelle: "+stand.quelle);
+    stand.pruefungen.forEach(function(pr){
+      z.push("("+pr.nr+") "+pr.titel+": "+pr.treffer.length+(pr.treffer.length && pr.art==="Hinweis" ? " (Hinweis)" : ""));
+      pr.treffer.forEach(function(t){ z.push("    - "+t); });
+    });
+    z.push("(10) Ladezeit und Größe je Datei:");
+    stand.dateien.forEach(function(d){ z.push("    - "+d.name+": "+d.ms+" ms, "+(d.bytes/1024).toLocaleString("de-DE",{maximumFractionDigits:1})+" KB"); });
+    return z.join("\n");
+  }
+  function kopieren(){
+    var t = alsText();
+    var fertig = function(){ setKopiert(true); setTimeout(function(){ setKopiert(false); }, 2000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(fertig, function(){ fallback(t); fertig(); });
+    else { fallback(t); fertig(); }
+    function fallback(x){ var ta=document.createElement("textarea"); ta.value=x; ta.style.cssText="position:fixed;top:0;left:0;opacity:0.01;";
+      document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); }catch(e){} document.body.removeChild(ta); }
+  }
+  const P="#10535B", LINIE="#D6E2E3", GRAU="#5C6660";
+  const farbe = function(pr){ return !pr.treffer.length ? "#2E7D32" : pr.art==="Hinweis" ? "#8A5A00" : "#C62828"; };
+  return <div style={{maxWidth:820,margin:"0 auto",padding:"16px 14px 40px",fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"}}>
+    <div style={{fontSize:18,fontWeight:700,color:P,marginBottom:4}}>Selbsttest der Daten</div>
+    <div style={{fontSize:12,color:GRAU,marginBottom:14,lineHeight:1.5}}>Querprüfungen über die aktuell geladenen Dateien. Die Dateien werden dafür neu geholt, nicht aus der laufenden Sitzung übernommen.</div>
+    {stand.laeuft && <div style={{fontSize:13,color:GRAU}}>Dateien werden geladen und geprüft …</div>}
+    {stand.fehler && <div style={{fontSize:13,color:"#C62828",whiteSpace:"pre-wrap"}}>Laden fehlgeschlagen: {stand.fehler}</div>}
+    {stand.pruefungen && <div>
+      <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:12,flexWrap:"wrap"}}>
+        <div onClick={kopieren} data-selbsttest-kopieren="1" style={{padding:"7px 14px",borderRadius:8,background:P,color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>{kopiert ? "Kopiert" : "Ergebnis kopieren"}</div>
+        <div onClick={starten} style={{padding:"7px 14px",borderRadius:8,border:"1px solid "+LINIE,color:P,fontSize:12,fontWeight:600,cursor:"pointer"}}>Neu prüfen</div>
+        <div style={{fontSize:11,color:GRAU}}>Quelle: {stand.quelle} · {stand.zeit.toLocaleString("de-DE")}</div>
+      </div>
+      {stand.pruefungen.map(function(pr){
+        return <div key={pr.nr} data-pruefung={pr.nr} style={{border:"1px solid "+LINIE,borderRadius:8,padding:"9px 12px",marginBottom:6,background:"#fff"}}>
+          <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"baseline"}}>
+            <span style={{fontSize:13,color:"#1D2421"}}>({pr.nr}) {pr.titel}</span>
+            <span style={{fontSize:13,fontWeight:700,color:farbe(pr),whiteSpace:"nowrap"}}>{pr.treffer.length}{pr.treffer.length && pr.art==="Hinweis" ? " · Hinweis" : ""}</span>
+          </div>
+          {pr.treffer.length>0 && <div style={{marginTop:6,fontSize:11,color:GRAU,fontFamily:"'IBM Plex Mono',ui-monospace,monospace",lineHeight:1.6,wordBreak:"break-word"}}>
+            {pr.treffer.map(function(t,i){ return <div key={i}>{t}</div>; })}
+          </div>}
+        </div>;
+      })}
+      <div data-pruefung="10" style={{border:"1px solid "+LINIE,borderRadius:8,padding:"9px 12px",marginBottom:6,background:"#fff"}}>
+        <div style={{fontSize:13,color:"#1D2421",marginBottom:6}}>(10) Ladezeit und Größe je Datei</div>
+        {stand.dateien.map(function(d){ return <div key={d.name} style={{display:"flex",justifyContent:"space-between",gap:10,fontSize:11,color:GRAU,fontFamily:"'IBM Plex Mono',ui-monospace,monospace",lineHeight:1.7}}>
+          <span>{d.name}</span><span style={{whiteSpace:"nowrap"}}>{d.ms} ms · {(d.bytes/1024).toLocaleString("de-DE",{maximumFractionDigits:1})} KB</span></div>; })}
+      </div>
+    </div>}
+  </div>;
+}
+
+// ============================================================================
 // EINSTELLUNGEN — Hilfe, Konto, eigene Daten, Darstellung, Über.
 // Bewusst nur Abschnitte, hinter denen auch etwas steht.
 // ============================================================================
@@ -9416,6 +9590,13 @@ function EinstellungenView({onSelect, onRundgang}){
   const [pwOffen, setPwOffen] = useState(false);
   const [pw1, setPw1] = useState(""), [pw2, setPw2] = useState("");
   const [meldung, setMeldung] = useState("");
+  // Fuenfmal auf die Versionszeile tippen oeffnet den Selbsttest (E1).
+  const versionTipps = useRef({n:0, t:0});
+  function versionGetippt(){
+    var jetzt = Date.now(), v = versionTipps.current;
+    v.n = (jetzt - v.t < 1500) ? v.n + 1 : 1; v.t = jetzt;
+    if (v.n >= 5) { v.n = 0; if (onSelect) onSelect("selbsttest"); }
+  }
 
   useEffect(function(){
     if (!window._SB) { setEmail("lokaler Entwicklungszugang"); return; }
@@ -9549,7 +9730,7 @@ function EinstellungenView({onSelect, onRundgang}){
     {/* ---- Über ---- */}
     <div style={kasten}>
       <div style={kopf}>Über</div>
-      <div style={zeile(false)}>
+      <div style={zeile(false)} onClick={versionGetippt} data-versionszeile="1">
         <span style={{color:GRAU}}>Version</span>
         <span style={{fontWeight:600}}>{APP_VERSION} · Stand {APP_STAND}</span></div>
       <div style={{padding:"11px 14px",borderTop:"1px solid "+LINIE,fontSize:13}}>
@@ -9699,7 +9880,7 @@ function LandingPage({onSelect, rundgangWunsch, onWunschVerbraucht}) {
 }
 
 function App() {
-  const [tool, setTool] = React.useState(null);
+  const [tool, setTool] = React.useState(function(){ return /[?&]selbsttest=1/.test(location.search) ? "selbsttest" : null; });
   // Ein Abonnent an der Wurzel: wechselt der Konto-Abruf seinen Zustand, rendert
   // der ganze Baum neu. Sonst haengen Werkzeuge, die schon montiert waren, auf
   // dem Ladezustand fest, obwohl die Preise laengst da sind.
@@ -9839,6 +10020,12 @@ function App() {
   );
 
 
+    if (tool === "selbsttest") return (
+      <div>
+        <ToolKopfleiste titel="Selbsttest" onHome={()=>setTool(null)} onEinstellungen={()=>setTool("einstellungen")}/>
+        <SelbsttestView/>
+      </div>
+    );
     if (tool === "einstellungen") return (
       <div>
         <ToolKopfleiste titel="Einstellungen" onHome={()=>setTool(null)}/>
