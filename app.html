@@ -6107,13 +6107,6 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         </div>
       </OBSec>
 
-      {/* UMSTELLUNG */}
-      <OBSec title="Umstellungsosteotomien" open={sec.um} anzahl={umOp.length} onToggle={()=>togSec("um")} active={hasUM} onReset={()=>{setUmOp([]);}}>
-        <div style={row}>
-          
-        </div>
-      </OBSec>
-
       {/* FRAKTUREN - Fibula → UC-Modul */}
       <OBSec title="Frakturen (Fuß)" open={sec.fx} anzahl={fxOp.length} onToggle={()=>togSec("fx")} active={hasFX} onReset={()=>{setFxOp([]);setFxSyndes(false);}}>
         <div style={row}>
