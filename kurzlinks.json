@@ -8,7 +8,7 @@
     "der Eintrag entfernt; die ID bleibt danach dauerhaft unbenutzt.",
     "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter."
   ],
-  "_STAND": "2026-09-14",
+  "_STAND": "2026-09-15",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
   "ZIELE": {
     "achilles-insertional": {
@@ -79,6 +79,11 @@
     "clai": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=clai_kb&modus=aufklaerung",
       "titel": "Chronische OSG-Instabilität",
+      "art": "diagnose"
+    },
+    "coalitio": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=coalitio_kb&modus=aufklaerung",
+      "titel": "Coalitio (angeborene Fußwurzelverbindung)",
       "art": "diagnose"
     },
     "coalitio-cn": {
