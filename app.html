@@ -1735,7 +1735,11 @@ function stillgelegt(basis){
   });
 }
 
-function SprechstundenbriefApp() {
+function SprechstundenbriefApp(props) {
+  // Wechsel in ein anderes Werkzeug (etwa „Preise hinterlegen" in der
+  // Fallsteuerung). setTool lebt in App und kommt als Eigenschaft herein;
+  // die Links riefen es bisher ins Leere (ReferenceError).
+  var setTool = (props && props.onWerkzeug) || function(){};
 
 var _s = useState, _m = useMemo;
   var gs = _s(""), gender = gs[0], setGender = gs[1];
@@ -3471,6 +3475,7 @@ var _s = useState, _m = useMemo;
                       <div><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>
                       {ampel?<div style={{marginTop:2,color:ampelColor,fontWeight:600}}>{ampelIcon} {ampelText} <span style={{color:"#718096",fontWeight:400}}>(InEK-Ref. {ampel.soll.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €)</span></div>:null}
                     </div>}
+                    {implUnvoll&&<div style={{fontSize:10,color:"#8A5A00",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> unvollständig — {implUnvoll.fehlend} von {implUnvoll.positionen} Positionen ohne Preis <span style={{textDecoration:"underline",cursor:"pointer"}} onClick={()=>setTool("preise")}>Preise hinterlegen</span></div>}
                     {ampel&&ampel.state==="rot"&&<div style={{fontSize:10,color:"#C62828",marginTop:4,padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung oder Erlös unter regulärer DRG. Volle DRG zwingend ansteuern (Liegezeit {ugvd+1} Tage halten), Materialalternativen prüfen.</div>}
                     {ampel&&ampel.state==="gelb"&&<div style={{fontSize:10,color:"#E65100",marginTop:4,padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
                     <div style={{fontSize:10,color:"#E65100",marginTop:4,fontStyle:"italic"}}>⚠ Notwendigkeit der stationären Führung für jeden Tag in der Akte dokumentieren</div>
@@ -9931,7 +9936,7 @@ function App() {
     <div>
       <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
       <MitRundgang schritte={RUNDGANG_SB} merker={RUNDGANG_SB_MERKER} anstoss={tourWunsch.sb} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.sb=0; return n; })}>
-        <SprechstundenbriefApp />
+        <SprechstundenbriefApp onWerkzeug={setTool} />
       </MitRundgang>
     </div>
   );
