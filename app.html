@@ -972,17 +972,37 @@ function textPlatzhalter(text, eingriffId, variante, faktor){
   }
   return out;
 }
-function implKostenFuer(opsKey){
+// Materialpositionen zu einem OP_STEUERUNG-Key: zuerst der Grundeingriff
+// (MAPPING_OPS), dann je aktivem Zusatzeingriff mit Feld material
+// [eingriffId, variante] dessen Satz, in Listenreihenfolge. Ein Zusatzeingriff
+// ohne material bringt kein Material.
+function materialPositionenFuer(opsKey, mods){
   var m = _ZUORD.MAPPING_OPS && _ZUORD.MAPPING_OPS[opsKey];
-  if (!m) return 0;
-  var r = paketPreis(m[0], m[1]);
+  var pos = m ? MATPOS(m[0], m[1]) : [];
+  (mods || []).forEach(function(mo){
+    if (!mo || !Array.isArray(mo.material)) return;
+    var zus = MATPOS(mo.material[0], mo.material[1]);
+    if (!zus.length) console.warn("Materialsatz zum Zusatzeingriff nicht gefunden:", opsKey, mo.id, mo.material);
+    pos = pos.concat(zus);
+  });
+  return pos;
+}
+function implKostenFuer(opsKey, mods){
+  var m = _ZUORD.MAPPING_OPS && _ZUORD.MAPPING_OPS[opsKey];
+  var mitMaterial = (mods || []).some(function(mo){ return mo && Array.isArray(mo.material); });
+  if (!m && !mitMaterial) return 0;
+  var r = paketPreisAusPositionen(materialPositionenFuer(opsKey, mods));
   return r == null ? 0 : r;
 }
 function paketPreis(eingriffId, variante, faktor){
   // Solange das Konto nicht vollstaendig geladen ist, gibt es KEINEN Betrag und
   // auch kein "unvollstaendig" — die Aufrufer zeigen stattdessen KontoSperre.
   if (!kontoBereit()) return { nichtGeladen: true, status: kontoStatus() };
-  var pos = MATPOS(eingriffId, variante, faktor);
+  return paketPreisAusPositionen(MATPOS(eingriffId, variante, faktor));
+}
+// Dieselbe Regel wie paketPreis, fuer eine fertige Positionsliste.
+function paketPreisAusPositionen(pos){
+  if (!kontoBereit()) return { nichtGeladen: true, status: kontoStatus() };
   if (!pos.length) return null;
   var offen = pos.filter(function(x){ return x.preis == null; });
   if (offen.length) return { unvollstaendig: true, fehlend: offen.length, positionen: pos.length };
@@ -3380,7 +3400,7 @@ var _s = useState, _m = useMemo;
               var hasStat=drg!==null;
               // Implantat-Ampel vs. InEK-Sachkostenreferenz
               // Materialkosten aus den hinterlegten Nutzerpreisen (nicht mehr aus den Stammdaten)
-              var implWert=implKostenFuer(bestKey);
+              var implWert=implKostenFuer(bestKey, best._mods);
               // Konto noch nicht vollstaendig geladen: keine Materialzahl und
               // ausdruecklich auch kein "unvollstaendig" — das waere eine Aussage
               // ueber die Preisliste des Nutzers, die hier niemand treffen kann.
@@ -3586,8 +3606,8 @@ var _s = useState, _m = useMemo;
                 </div>}
                 {/* Standardversorgung aufgeschlüsselt — interne Anzeige, nicht im Brief */}
                 {(function(){
-                  var m=_ZUORD.MAPPING_OPS&&_ZUORD.MAPPING_OPS[bestKey];
-                  return <MaterialsatzAnsicht eingriffId={m?m[0]:null} variante={m?m[1]:null}
+                  // Grundeingriff plus Material der aktiven Zusatzeingriffe
+                  return <MaterialsatzAnsicht positionen={materialPositionenFuer(bestKey, best._mods)}
                             drg={drg} readOnly={true} fall={null} setFall={function(){}}/>;
                 })()}
                 {function(){
