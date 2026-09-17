@@ -168,12 +168,12 @@ window._fx = function(t){
 window.TOOLBOX_AUTH = {
   url: "https://nfvrdhrxfgclczllzwzz.supabase.co",   // Supabase Projekt-URL
   anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdnJkaHJ4ZmdjbGN6bGx6d3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MzIzMDUsImV4cCI6MjEwMDQwODMwNX0.Ce8qDJiOalb4k8pwDzn4CmAXDv4j0nFg9lekWa59Lhg",   // anon public Key (öffentlich by design)
-  bucket: "toolbox-data"   // privater Storage-Bucket mit den zehn data/*.json
+  bucket: "toolbox-data"   // privater Storage-Bucket mit den elf data/*.json
 };
 
 (function(){
   // Lizenzpflichtige Inhalte: lokal aus ./data/, produktiv aus dem privaten Supabase-Bucket
-  var GROUPS=["katalog2026","erloes2026","diagnosen","opmethoden","opsteuerung","endo","preise","optexte","aufklaerung","referenz"];
+  var GROUPS=["katalog2026","erloes2026","diagnosen","sono","opmethoden","opsteuerung","endo","preise","optexte","aufklaerung","referenz"];
   // Der Standard-Materialsatz enthält KEINE Preise und ist markenfrei — er liegt
   // deshalb offen im Repo (zuordnung/) und nicht im geschützten Bucket.
   var ZUORDNUNG_PFAD="zuordnung/implantat_zuordnung.json";
@@ -779,6 +779,8 @@ function InekKostenbaum(props){
    DIAGNOSE-DATEN
    ============================================================ */
 const DIAG = window._DATA.diagnosen.DIAG;
+// Sonographie-Katalog (data/sono.json, Schritt 3r): Strukturen mit Normal- und Vorschlagstext
+const SONO = window._DATA.sono || {GRUPPEN:[], STRUKTUREN:{}};
 
 const COALITIO_BEFUNDE = window._DATA.diagnosen.COALITIO_BEFUNDE;
 
@@ -1823,8 +1825,16 @@ var _s = useState, _m = useMemo;
   var bis = _s({}), befInputs = bis[0], setBefInputs = bis[1];
   var fus = _s(""), freitextUnters = fus[0], setFreitextUnters = fus[1];
   var bils = _s([{ typ: "", region: "", datum: "", befund: "" }]), bilder = bils[0], setBilder = bils[1];
+  // Sonographie (Abschnitt ⑤): Befund je Struktur ("normal" | "auff"), bearbeitete
+  // Auffaelligkeitstexte, Datum wie in der Bildgebung, Freitext, Katalog, Zusatzstrukturen
+  var sonoS1 = _s({}), sonoState = sonoS1[0], setSonoState = sonoS1[1];
+  var sonoS2 = _s({}), sonoText = sonoS2[0], setSonoText = sonoS2[1];
+  var sonoS3 = _s("heute"), sonoDatum = sonoS3[0], setSonoDatum = sonoS3[1];
+  var sonoS4 = _s(""), sonoFrei = sonoS4[0], setSonoFrei = sonoS4[1];
+  var sonoS5 = _s(false), sonoKatalogOffen = sonoS5[0], setSonoKatalogOffen = sonoS5[1];
+  var sonoS6 = _s([]), sonoExtra = sonoS6[0], setSonoExtra = sonoS6[1];
   var fabs = _s(""), freitextAbschluss = fabs[0], setFreitextAbschluss = fabs[1];
-  var secs = _s({ anam: true, risiko: false, unters: false, bild: false, abschluss: false, erloes: false }), sec = secs[0], setSec = secs[1];
+  var secs = _s({ anam: true, risiko: false, unters: false, bild: false, sono: false, abschluss: false, erloes: false }), sec = secs[0], setSec = secs[1];
   // Anker fuer die Zeile "Weiter zur Anamnese". Gescrollt wird nur auf Klick;
   // ein automatischer Sprung beim Diagnose-Klick uebersprang die OP-Karte.
   var sektionenRef = React.useRef(null);
@@ -2019,6 +2029,55 @@ var _s = useState, _m = useMemo;
   var dem = gender === "m" ? "dem Patienten" : gender === "w" ? "der Patientin" : "dem/der Patient(in)";
   var sich = gender === "m" ? "Er" : gender === "w" ? "Sie" : "Er/Sie";
 
+  // Sichtbare Sono-Strukturen in Katalogreihenfolge: immer-Strukturen, Vorauswahl der
+  // gewaehlten Diagnosen, aus dem Katalog dazugenommene und alle mit gesetztem Befund.
+  var availSono = _m(function() {
+    if (pfad === "endo") return [];
+    var drin = {};
+    diagnosen.forEach(function(d) { var diag = DIAG[d]; ((diag && diag.sono) || []).forEach(function(id) { drin[id] = true; }); });
+    sonoExtra.forEach(function(id) { drin[id] = true; });
+    Object.keys(sonoState).forEach(function(id) { if (sonoState[id]) drin[id] = true; });
+    return Object.keys(SONO.STRUKTUREN).filter(function(id) { return SONO.STRUKTUREN[id].immer || drin[id]; });
+  }, [pfad, diagnosen, sonoExtra, sonoState]);
+  // Diagnosewechsel: dazugenommene Strukturen ohne Befund fallen weg (mit Befund haelt
+  // sie sonoState); nur „Diffuse Beschwerden" oeffnet den Katalog von selbst.
+  useEffect(function() {
+    setSonoExtra([]);
+    if (diagnosen.length === 1 && diagnosen[0] === "diffuse_beschwerden") setSonoKatalogOffen(true);
+  }, [diagnosen.join("|")]);
+  // {SEITE} nach gewaehlter Seite; ohne Seite entfaellt der Platzhalter samt Leerzeichen davor.
+  function sonoSeite(t) {
+    var sk = seite === "links" ? "links" : seite === "rechts" ? "rechts" : seite === "bds" ? "beidseits" : "";
+    return sk ? String(t || "").replace(/\{SEITE\}/g, sk) : String(t || "").replace(/ ?\{SEITE\}/g, "");
+  }
+  // Befund setzen oder loeschen; jeder Wechsel verwirft einen bearbeiteten Text.
+  function setzeSono(id, wert) {
+    setSonoState(function(p) { var n = Object.assign({}, p); if (wert) n[id] = wert; else delete n[id]; return n; });
+    setSonoText(function(p) { if (!(id in p)) return p; var n = Object.assign({}, p); delete n[id]; return n; });
+  }
+  function sonoZeile(id) {
+    var S = SONO.STRUKTUREN[id];
+    if (!S) return null;
+    var st = sonoState[id] || "";
+    var knopf = function(wert, text) {
+      var aktiv = st === wert;
+      return <div onClick={function() { setzeSono(id, aktiv ? "" : wert); }}
+        style={{ padding: "3px 8px", borderRadius: 4, fontSize: 10, cursor: "pointer", userSelect: "none",
+          border: aktiv ? "1.5px solid #006B6F" : "1px solid rgba(0,0,0,.15)",
+          background: aktiv ? "rgba(0,107,111,.15)" : "rgba(255,255,255,.95)",
+          color: aktiv ? "#006B6F" : "#666", fontWeight: aktiv ? 600 : 400 }}>{text}</div>;
+    };
+    return <div key={id} data-sono={id} style={{ marginBottom: 6 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ fontSize: 11, color: "#2D3748", flex: "1 1 auto", minWidth: 0 }}>{S.label}</span>
+        <div style={{ display: "flex", gap: 4, flex: "0 0 auto" }}>{knopf("normal", "Normal")}{knopf("auff", "auffällig")}</div>
+      </div>
+      {st === "normal" && <div style={{ fontSize: 10, color: "#718096", marginTop: 3, lineHeight: 1.5 }}>{sonoSeite(S.normal)}</div>}
+      {st === "auff" && <textarea rows={3} value={sonoText[id] != null ? sonoText[id] : sonoSeite(S.auffaellig)}
+        onChange={function(e) { var v = e.target.value; setSonoText(function(p) { var n = Object.assign({}, p); n[id] = v; return n; }); }}
+        style={{ marginTop: 4, width: "100%", boxSizing: "border-box" }} />}
+    </div>;
+  }
   var availBef = _m(function() {
     var all = [], seen = {};
     if (pfad === "endo") {
@@ -2757,6 +2816,32 @@ var _s = useState, _m = useMemo;
       p.push(bt);
     }
 
+    // Sonographie: auffaellige Strukturen mit (bearbeitetem) Vorschlagstext, aufeinander-
+    // folgende Normalbefunde ab zwei zusammengezogen, Duplex immer mit vollem Satz.
+    var sonoGesetzt = availSono.filter(function(id) { return sonoState[id]; });
+    if (sonoGesetzt.length > 0 || sonoFrei.trim()) {
+      var sonoSaetze = [], sonoLauf = [];
+      var sonoLaufSchliessen = function() {
+        if (sonoLauf.length >= 2) {
+          var lb = sonoLauf.map(function(id) { return SONO.STRUKTUREN[id].label; });
+          sonoSaetze.push(lb.slice(0, -1).join(", ") + " und " + lb[lb.length - 1] + " sonographisch unauffällig.");
+        } else if (sonoLauf.length === 1) {
+          sonoSaetze.push(sonoSeite(SONO.STRUKTUREN[sonoLauf[0]].normal));
+        }
+        sonoLauf = [];
+      };
+      sonoGesetzt.forEach(function(id) {
+        var S = SONO.STRUKTUREN[id];
+        if (sonoState[id] === "auff") { sonoLaufSchliessen(); sonoSaetze.push(sonoText[id] != null ? sonoText[id] : sonoSeite(S.auffaellig)); }
+        else if (S.immer) { sonoLaufSchliessen(); sonoSaetze.push(sonoSeite(S.normal)); }
+        else sonoLauf.push(id);
+      });
+      sonoLaufSchliessen();
+      if (sonoFrei.trim()) sonoSaetze.push(sonoFrei.trim());
+      var sonoDt = sonoDatum === "heute" ? " vom heutigen Tag" : (sonoDatum ? " " + sonoDatum : "");
+      p.push("\n\nSonographie" + sonoDt + ":\n" + sonoSaetze.join(" "));
+    }
+
     // Abschluss
     var konservOptionen = [];
     diagnosen.forEach(function(d) {
@@ -2826,7 +2911,7 @@ var _s = useState, _m = useMemo;
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
     return briefSauber(rawOut.replace(/\bundefined\b/g, "___"));
-  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, opZusatz, sbTeilamp, sbTeilampHoehe, scEfas, scEfasSport, scFaos, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive]);
+  }, [kontrolleMode, kv2Volltext, gender, begleitung, seite, alter, diagnosen, coalitio, coalitioVar, opMethode, opMods, opEmpfohlen, therapieversuch, amicSpongiosa, opZusatz, sbTeilamp, sbTeilampHoehe, scEfas, scEfasSport, scFaos, scVas, oclZyste, oclLok, oclLaenge, oclBreite, oclTiefe, dauer, dauerEinheit, haeufigkeit, belastung, leidensdruck, beruf, aktivitaet, sportEingeschr, vorOPs, stnText, konservBisher, risiken, freitextRisiko, befState, befInputs, availBef, freitextUnters, bilder, freitextAbschluss, dd, dd2, dem, sich, meMode, meBriefRegion, meBriefImpl, meBriefZusatz, meBriefDauer, meBriefDauerEinheit, meBriefOS, meBriefBeschwerden, meBriefBefund, kontrolleMode, kontrolleType, pfad, endoDiag, endoSep, endoUni, endoBmi, nurDiagnostik, wd, wdNeuroFrage, wdMrtRegion, wdCtRegion, qrShow, qr, aufActive, diagActive, availSono, sonoState, sonoText, sonoDatum, sonoFrei]);
 
   function showToast(m) { setToast(m); setTimeout(function() { setToast(""); }, 2500); }
   // Die aktiven Codes mit ihrer Feld-Beschriftung im Brief. Die Rich-Text-Kopie
@@ -2948,7 +3033,8 @@ var _s = useState, _m = useMemo;
     setKonservBisher([]); setRisiken([]); setFreitextRisiko("");
     setBefState({}); setBefInputs({}); setFreitextUnters("");
     setBilder([{ typ: "", region: "", datum: "", befund: "" }]); setFreitextAbschluss("");
-    setSec({ anam: true, risiko: false, unters: false, bild: false, abschluss: false, erloes: false });
+    setSec({ anam: true, risiko: false, unters: false, bild: false, sono: false, abschluss: false, erloes: false });
+    setSonoState({}); setSonoText({}); setSonoDatum("heute"); setSonoFrei(""); setSonoKatalogOffen(false); setSonoExtra([]);
     setShowPv(false);
     setMeMode(false); setMeBriefRegion(""); setMeBriefImpl(""); setMeBriefZusatz("");
     setKontrolleMode(false); setKontrolleType("");
@@ -3742,7 +3828,29 @@ var _s = useState, _m = useMemo;
           <div style={CB(false)} onClick={function() { setBilder(bilder.concat([{ typ: "", region: "", datum: "", befund: "" }])); }}>+ Weitere Bildgebung</div>
         </Sec>
 
-        <Sec title="⑤ Abschluss & Empfehlung" open={sec.abschluss} onToggle={function() { togSec("abschluss"); }}>
+        {pfad !== "endo" && <div data-tour="sb-sono"><Sec title="⑤ Sonographie" open={sec.sono} onToggle={function() { togSec("sono"); }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+            <div style={{ flex: "0 0 120px" }}><div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Datum</div><input value={sonoDatum === "heute" ? "" : sonoDatum} onChange={function(e) { setSonoDatum(e.target.value); }} placeholder="TT.MM.JJJJ" /></div>
+            <div style={{ display: "flex", alignItems: "flex-end" }}><div style={CB(sonoDatum === "heute")} onClick={function() { setSonoDatum(sonoDatum === "heute" ? "" : "heute"); }}>heute (in Sprechstunde)</div></div>
+          </div>
+          {availSono.filter(function(id) { return SONO.STRUKTUREN[id].immer; }).map(sonoZeile)}
+          {availSono.some(function(id) { return !SONO.STRUKTUREN[id].immer; }) && <div style={cat}>Gelenke, Sehnen, Bänder, Weichteile</div>}
+          {availSono.filter(function(id) { return !SONO.STRUKTUREN[id].immer; }).map(sonoZeile)}
+          <div style={{ marginTop: 8 }}><div style={CB(false)} onClick={function() { setSonoKatalogOffen(!sonoKatalogOffen); }}>Weitere Strukturen {sonoKatalogOffen ? "▴" : "▾"}</div></div>
+          {sonoKatalogOffen && <div data-sono-katalog="1">
+            {SONO.GRUPPEN.filter(function(g) { return g.id !== "gefaesse"; }).map(function(g) {
+              var frei = Object.keys(SONO.STRUKTUREN).filter(function(id) { return SONO.STRUKTUREN[id].gruppe === g.id && availSono.indexOf(id) < 0; });
+              if (!frei.length) return null;
+              return <div key={g.id}>
+                <div style={cat}>{g.titel}</div>
+                <div style={row}>{frei.map(function(id) { return <div key={id} style={CB(false)} onClick={function() { setSonoExtra(sonoExtra.concat([id])); }}>{SONO.STRUKTUREN[id].label}</div>; })}</div>
+              </div>;
+            })}
+          </div>}
+          <textarea value={sonoFrei} onChange={function(e) { setSonoFrei(e.target.value); }} placeholder="Freitext Sonographie..." rows={2} style={{ marginTop: 8 }} />
+        </Sec></div>}
+
+        <Sec title="⑥ Abschluss & Empfehlung" open={sec.abschluss} onToggle={function() { togSec("abschluss"); }}>
           <div style={cat}>Empfehlung</div>
           <div style={row}>
             <div style={{ padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: opEmpfohlen && !nurDiagnostik ? "1px solid #00897B" : "1px solid rgba(0,0,0,.1)", background: opEmpfohlen && !nurDiagnostik ? "rgba(46,204,113,.15)" : "rgba(255,255,255,1)", color: opEmpfohlen && !nurDiagnostik ? "#00897B" : "#718096", display: "inline-block", margin: 2, userSelect: "none" }} onClick={function() { setOpEmpfohlen(true); setNurDiagnostik(false); }}>✓ OP empfohlen</div>
@@ -9142,6 +9250,10 @@ const RUNDGANG_SB = [
   { ziele:['[data-tour="sb-befunde"]'], titel: "Die Befund-Schalter",
     text: "Jeder Schalter ist ein Textbaustein. Eingeschaltet erscheint der zugehörige Satz im Brief, ausgeschaltet fehlt er. Die Reihenfolge, in der Sie schalten, spielt keine Rolle — der Brief ordnet die Sätze selbst.",
     hinweis: "Sie müssen nichts formulieren. Was Sie anschalten, steht anschließend als fertiger Satz im Text." },
+  { ziele:['[data-tour="sb-sono"]'],
+    wennFehlt: "Die Sonographie erscheint, sobald eine Diagnose gewählt ist.",
+    titel: "Sonographie",
+    text: "Die beiden Duplex-Zeilen stehen immer bereit, die übrigen Strukturen richten sich nach der gewählten Diagnose. „Normal“ setzt den festen Satz, „auffällig“ öffnet einen Vorschlagstext, den Sie im Feld anpassen; die Klammern zeigen, was zu ersetzen ist. Weitere Strukturen finden Sie hinter dem Aufklapp-Knopf." },
   { ziele:['[data-tour="sb-export"]'],
     wennFehlt: "Die Vorschau erscheint, sobald der Brief Inhalt hat.",
     titel: "Die Scores im Brief",
@@ -9496,7 +9608,24 @@ function selbsttestPruefen(D){
       if (/:\s*$/.test(t) || t.indexOf("undefined") >= 0) p9.push(k+": „"+t.slice(0,60)+"…“"); });
   });
   p.push({nr:"9", art:"Fehler", titel:"Hinweise mit Doppelpunkt am Ende oder „undefined“", treffer:p9});
+
+  // 11/12: Sonographie-Katalog (erscheinen hinter (10) Ladezeit)
+  var SO = D.sono || {}, SS = SO.STRUKTUREN || {}, SG = {};
+  (SO.GRUPPEN || []).forEach(function(g){ SG[g.id] = true; });
+  var p11 = [];
+  Object.keys(DIAG).forEach(function(d){ (DIAG[d].sono||[]).forEach(function(id){ if(!(id in SS)) p11.push(d+" → "+id); }); });
+  p.push({nr:"11", art:"Fehler", titel:"DIAG[].sono ohne Struktur in sono.json", treffer:eindeutig(p11)});
+  var p12 = [];
+  Object.keys(SS).forEach(function(id){ var e = SS[id] || {}, f = [];
+    if (!e.normal) f.push("normal fehlt");
+    if (!e.auffaellig) f.push("auffaellig fehlt");
+    if (!e.gruppe) f.push("gruppe fehlt"); else if (!SG[e.gruppe]) f.push("gruppe „"+e.gruppe+"“ nicht in GRUPPEN");
+    if (f.length) p12.push(id+": "+f.join(", "));
+  });
+  p.push({nr:"12", art:"Fehler", titel:"sono.json: Struktur ohne normal/auffaellig/gruppe oder Gruppe nicht in GRUPPEN", treffer:p12});
   return p;
+}
+function selbsttestNachLadezeit(pr){ return parseInt(pr.nr, 10) > 10;
 }
 
 function SelbsttestView(){
@@ -9512,12 +9641,14 @@ function SelbsttestView(){
   function alsText(){
     var z = [];
     z.push("Fuss-Track Clinic · Selbsttest · "+APP_VERSION+" · "+stand.zeit.toLocaleString("de-DE")+" · Quelle: "+stand.quelle);
-    stand.pruefungen.forEach(function(pr){
+    var zeile = function(pr){
       z.push("("+pr.nr+") "+pr.titel+": "+pr.treffer.length+(pr.treffer.length && pr.art==="Hinweis" ? " (Hinweis)" : ""));
       pr.treffer.forEach(function(t){ z.push("    - "+t); });
-    });
+    };
+    stand.pruefungen.filter(function(pr){ return !selbsttestNachLadezeit(pr); }).forEach(zeile);
     z.push("(10) Ladezeit und Größe je Datei:");
     stand.dateien.forEach(function(d){ z.push("    - "+d.name+": "+d.ms+" ms, "+(d.bytes/1024).toLocaleString("de-DE",{maximumFractionDigits:1})+" KB"); });
+    stand.pruefungen.filter(selbsttestNachLadezeit).forEach(zeile);
     return z.join("\n");
   }
   function kopieren(){
@@ -9529,6 +9660,17 @@ function SelbsttestView(){
       document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); }catch(e){} document.body.removeChild(ta); }
   }
   const P="#10535B", LINIE="#D6E2E3", GRAU="#5C6660";
+  const pruefzeile = function(pr){
+    return <div key={pr.nr} data-pruefung={pr.nr} style={{border:"1px solid "+LINIE,borderRadius:8,padding:"9px 12px",marginBottom:6,background:"#fff"}}>
+          <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"baseline"}}>
+            <span style={{fontSize:13,color:"#1D2421"}}>({pr.nr}) {pr.titel}</span>
+            <span style={{fontSize:13,fontWeight:700,color:farbe(pr),whiteSpace:"nowrap"}}>{pr.treffer.length}{pr.treffer.length && pr.art==="Hinweis" ? " · Hinweis" : ""}</span>
+          </div>
+          {pr.treffer.length>0 && <div style={{marginTop:6,fontSize:11,color:GRAU,fontFamily:"'IBM Plex Mono',ui-monospace,monospace",lineHeight:1.6,wordBreak:"break-word"}}>
+            {pr.treffer.map(function(t,i){ return <div key={i}>{t}</div>; })}
+          </div>}
+        </div>;
+  };
   const farbe = function(pr){ return !pr.treffer.length ? "#2E7D32" : pr.art==="Hinweis" ? "#8A5A00" : "#C62828"; };
   return <div style={{maxWidth:820,margin:"0 auto",padding:"16px 14px 40px",fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"}}>
     <div style={{fontSize:18,fontWeight:700,color:P,marginBottom:4}}>Selbsttest der Daten</div>
@@ -9541,22 +9683,13 @@ function SelbsttestView(){
         <div onClick={starten} style={{padding:"7px 14px",borderRadius:8,border:"1px solid "+LINIE,color:P,fontSize:12,fontWeight:600,cursor:"pointer"}}>Neu prüfen</div>
         <div style={{fontSize:11,color:GRAU}}>Quelle: {stand.quelle} · {stand.zeit.toLocaleString("de-DE")}</div>
       </div>
-      {stand.pruefungen.map(function(pr){
-        return <div key={pr.nr} data-pruefung={pr.nr} style={{border:"1px solid "+LINIE,borderRadius:8,padding:"9px 12px",marginBottom:6,background:"#fff"}}>
-          <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"baseline"}}>
-            <span style={{fontSize:13,color:"#1D2421"}}>({pr.nr}) {pr.titel}</span>
-            <span style={{fontSize:13,fontWeight:700,color:farbe(pr),whiteSpace:"nowrap"}}>{pr.treffer.length}{pr.treffer.length && pr.art==="Hinweis" ? " · Hinweis" : ""}</span>
-          </div>
-          {pr.treffer.length>0 && <div style={{marginTop:6,fontSize:11,color:GRAU,fontFamily:"'IBM Plex Mono',ui-monospace,monospace",lineHeight:1.6,wordBreak:"break-word"}}>
-            {pr.treffer.map(function(t,i){ return <div key={i}>{t}</div>; })}
-          </div>}
-        </div>;
-      })}
+      {stand.pruefungen.filter(function(pr){ return !selbsttestNachLadezeit(pr); }).map(pruefzeile)}
       <div data-pruefung="10" style={{border:"1px solid "+LINIE,borderRadius:8,padding:"9px 12px",marginBottom:6,background:"#fff"}}>
         <div style={{fontSize:13,color:"#1D2421",marginBottom:6}}>(10) Ladezeit und Größe je Datei</div>
         {stand.dateien.map(function(d){ return <div key={d.name} style={{display:"flex",justifyContent:"space-between",gap:10,fontSize:11,color:GRAU,fontFamily:"'IBM Plex Mono',ui-monospace,monospace",lineHeight:1.7}}>
           <span>{d.name}</span><span style={{whiteSpace:"nowrap"}}>{d.ms} ms · {(d.bytes/1024).toLocaleString("de-DE",{maximumFractionDigits:1})} KB</span></div>; })}
       </div>
+      {stand.pruefungen.filter(selbsttestNachLadezeit).map(pruefzeile)}
     </div>}
   </div>;
 }
