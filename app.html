@@ -2816,27 +2816,23 @@ var _s = useState, _m = useMemo;
       p.push(bt);
     }
 
-    // Sonographie: auffaellige Strukturen mit (bearbeitetem) Vorschlagstext, aufeinander-
-    // folgende Normalbefunde ab zwei zusammengezogen, Duplex immer mit vollem Satz.
+    // Sonographie (Nachtrag 17.09.2026, Option C): (1) Duplex zuerst, immer im vollen
+    // Satz; (2) alle auffaelligen Strukturen in Katalogreihenfolge; (3) alle uebrigen
+    // Normalbefunde in einem Satz mit ihren Labels; (4) Freitext zuletzt.
     var sonoGesetzt = availSono.filter(function(id) { return sonoState[id]; });
     if (sonoGesetzt.length > 0 || sonoFrei.trim()) {
-      var sonoSaetze = [], sonoLauf = [];
-      var sonoLaufSchliessen = function() {
-        if (sonoLauf.length >= 2) {
-          var lb = sonoLauf.map(function(id) { return SONO.STRUKTUREN[id].label; });
-          sonoSaetze.push(lb.slice(0, -1).join(", ") + " und " + lb[lb.length - 1] + " sonographisch unauffällig.");
-        } else if (sonoLauf.length === 1) {
-          sonoSaetze.push(sonoSeite(SONO.STRUKTUREN[sonoLauf[0]].normal));
-        }
-        sonoLauf = [];
-      };
-      sonoGesetzt.forEach(function(id) {
-        var S = SONO.STRUKTUREN[id];
-        if (sonoState[id] === "auff") { sonoLaufSchliessen(); sonoSaetze.push(sonoText[id] != null ? sonoText[id] : sonoSeite(S.auffaellig)); }
-        else if (S.immer) { sonoLaufSchliessen(); sonoSaetze.push(sonoSeite(S.normal)); }
-        else sonoLauf.push(id);
+      var sonoSaetze = [];
+      var sonoAuffText = function(id) { return sonoText[id] != null ? sonoText[id] : sonoSeite(SONO.STRUKTUREN[id].auffaellig); };
+      sonoGesetzt.filter(function(id) { return SONO.STRUKTUREN[id].immer; }).forEach(function(id) {
+        sonoSaetze.push(sonoState[id] === "auff" ? sonoAuffText(id) : sonoSeite(SONO.STRUKTUREN[id].normal));
       });
-      sonoLaufSchliessen();
+      sonoGesetzt.filter(function(id) { return !SONO.STRUKTUREN[id].immer && sonoState[id] === "auff"; }).forEach(function(id) {
+        sonoSaetze.push(sonoAuffText(id));
+      });
+      var sonoNormal = sonoGesetzt.filter(function(id) { return !SONO.STRUKTUREN[id].immer && sonoState[id] === "normal"; })
+        .map(function(id) { return SONO.STRUKTUREN[id].label; });
+      if (sonoNormal.length === 1) sonoSaetze.push(sonoNormal[0] + " sonographisch unauffällig.");
+      else if (sonoNormal.length > 1) sonoSaetze.push(sonoNormal.slice(0, -1).join(", ") + " und " + sonoNormal[sonoNormal.length - 1] + " sonographisch unauffällig.");
       if (sonoFrei.trim()) sonoSaetze.push(sonoFrei.trim());
       var sonoDt = sonoDatum === "heute" ? " vom heutigen Tag" : (sonoDatum ? " " + sonoDatum : "");
       p.push("\n\nSonographie" + sonoDt + ":\n" + sonoSaetze.join(" "));
