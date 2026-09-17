@@ -51,3 +51,11 @@ Cowork-Prüfstand (`baseline_sb_3n2.json` + Stationär-Zeile aus e2984a7): alle 
 Abnahme des Autors am Handy: Sprechstundenbrief, Sehnen und Faszien, Plantarfasciitis, Seite links: Abschnitt ⑤ zeigt Duplex arteriell, Duplex venös, Plantarfaszie, N. tibialis, Achillessehne Mittelteil. Plantarfaszie „auffällig" tippen, im Textfeld „[6]" durch „5,8" ersetzen, Duplex arteriell „Normal": in der Briefvorschau steht der Absatz „Sonographie vom heutigen Tag:" mit dem Duplex-Satz und dem bearbeiteten Plantarfaszien-Satz. „Weitere Strukturen" öffnen, unter Gelenke „Oberes Sprunggelenk" antippen, Zeile erscheint oben.
 
 Vollzugsmeldung bitte mit Commit-Hash, Zeilennummern der neuen Blöcke (Abschnitt, Briefabsatz, Selbsttest-Prüfungen, Rundgang) und dem Selbsttest-Ergebnis (11)/(12).
+
+## Nachtrag 17.09.2026: Reihenfolge im Briefabsatz (Entscheidung des Autors: Option C)
+
+Ersetzt in Punkt 7 die Regel „Zeilen in `availSono`-Reihenfolge … zusammengezogen, wenn mindestens zwei hintereinander stehen". Neue Regel: (1) Duplex arteriell und Duplex venös, sofern gesetzt, zuerst und immer im vollen Satz (normal oder auffällig). (2) Dann alle auffälligen Strukturen in Katalogreihenfolge, je ein Satz (`sonoText[id]` oder `sonoSeite(auffaellig)`). (3) Zum Schluss alle Strukturen mit Normalbefund (ohne Duplex) in einem einzigen Satz: bei einer Struktur „`Label` sonographisch unauffällig.", bei mehreren „`Label1`, `Label2` und `Label3` sonographisch unauffällig." (Labels aus `sono.json`, Katalogreihenfolge). (4) `sonoFrei` als letzter Satz. Das Beispiel in Punkt 7 lautet damit:
+
+„Sonographie vom heutigen Tag: Farbkodierte Duplexsonographie der Unterschenkel- und Fußarterien links: … regelrecht darstellbar. Plantarfaszie links am Ansatz verdickt auf 5,8 mm (Normwert bis 4 mm), … Achillessehne, Mittelteil und N. tibialis (Tarsaltunnel) sonographisch unauffällig."
+
+Die drei selbst festgelegten Punkte der Code-Sitzung (Katalog-Zeilen verfallen beim Diagnosewechsel ohne Befund; Rundgang-Hinweis „Die Sonographie erscheint, sobald eine Diagnose gewählt ist."; Endo-Pfad ausgeblendet) sind angenommen. Abnahme unverändert, Beispielbrief nach der neuen Regel.
