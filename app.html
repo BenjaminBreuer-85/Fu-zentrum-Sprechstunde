@@ -1254,7 +1254,7 @@ function BefTog({ b, state, onTog, val, onVal }) {
   if (state === "pos") { bg = "rgba(0,107,111,.12)"; bd = "#006B6F"; c = "#006B6F"; lb = "✓"; }
   else if (state === "neg") { bg = "rgba(231,76,60,.1)"; bd = "#C62828"; c = "#C62828"; lb = "✗"; }
   else { bg = "rgba(255,255,255,.95)"; bd = "rgba(0,0,0,.1)"; c = "#555"; lb = "—"; }
-  var txt = state === "pos" ? b.pos : state === "neg" ? b.neg : (b.pos ? b.pos.split(",")[0] : "");
+  var txt = state === "pos" ? b.pos : state === "neg" ? b.neg : (b.pos ? b.pos.split(", ")[0] : "");
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, cursor: "pointer", userSelect: "none" }} onClick={onTog}>
       <div style={{ width: 22, height: 22, borderRadius: 4, border: "1px solid " + bd, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: c, flexShrink: 0 }}>{lb}</div>
@@ -3448,6 +3448,9 @@ var _s = useState, _m = useMemo;
               var fallCodes=[];
               (best.opsCodes||[]).forEach(function(c){ fallCodes.push(c.code); });
               (best._mods||[]).forEach(function(m){ (m.ops||[]).forEach(function(c){ fallCodes.push(c); }); });
+              // Kodes des Grundeingriffs, die mit einem aktiven Zusatzeingriff entfallen (opsWeg)
+              var opsWegFall={}; (best._mods||[]).forEach(function(m){ (m.opsWeg||[]).forEach(function(c){ opsWegFall[c]=true; }); });
+              fallCodes=fallCodes.filter(function(c){ return !opsWegFall[c]; });
               var DMMO_CODE={"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
               if(opMethode.indexOf("dmmo")>=0&&DMMO_CODE[dmmoCount]) fallCodes.push(DMMO_CODE[dmmoCount]);
               if(bestKey==="lapidus"&&(best.hdrgTrigger||[]).length) (best.hdrgTrigger||[]).forEach(function(t){ fallCodes.push(t.code); });
@@ -3558,8 +3561,8 @@ var _s = useState, _m = useMemo;
                       {ampel?<div style={{marginTop:2,color:ampelColor,fontWeight:600}}>{ampelIcon} {ampelText} <span style={{color:"#718096",fontWeight:400}}>(InEK-Ref. {ampel.soll.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €)</span></div>:null}
                     </div>}
                     {implUnvoll&&<div style={{fontSize:10,color:"#8A5A00",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> unvollständig — {implUnvoll.fehlend} von {implUnvoll.positionen} Positionen ohne Preis <span style={{textDecoration:"underline",cursor:"pointer"}} onClick={()=>setTool("preise")}>Preise hinterlegen</span></div>}
-                    {ampel&&ampel.state==="rot"&&<div style={{fontSize:10,color:"#C62828",marginTop:4,padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung oder Erlös unter regulärer DRG. Volle DRG zwingend ansteuern (Liegezeit {ugvd+1} Tage halten), Materialalternativen prüfen.</div>}
-                    {ampel&&ampel.state==="gelb"&&<div style={{fontSize:10,color:"#E65100",marginTop:4,padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
+                    {ampel&&ampel.state==="rot"&&<div style={{fontSize:10,color:"#C62828",marginTop:4,padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über der InEK-Referenz. Bei einem Abschlag unter der unteren Grenzverweildauer deckt der Erlös die Kosten nicht mehr; Materialalternativen prüfen.</div>}
+                    {ampel&&ampel.state==="gelb"&&<div style={{fontSize:10,color:"#E65100",marginTop:4,padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über der InEK-Referenz.</div>}
                     <div style={{fontSize:10,color:"#E65100",marginTop:4,fontStyle:"italic"}}>⚠ Notwendigkeit der stationären Führung für jeden Tag in der Akte dokumentieren</div>
                   </div>;}()}
                 </div>
@@ -3709,10 +3712,18 @@ var _s = useState, _m = useMemo;
                   if(!items&&displayHinweis)items=[{typ:"info",txt:displayHinweis}];
                   return <HinweisListe items={items}/>;
                 }()}
-                {best.opsCodes && best.opsCodes.length>0 && <div style={{marginTop:6,padding:"8px 10px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.3)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
-                  <div style={{fontWeight:700,color:"#006B6F",marginBottom:4,fontSize:11}}>OPS-Codes (zwingend beide kodieren)</div>
-                  {best.opsCodes.map(function(c,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#006B6F"}}>{c.code}</span> <span style={{color:"#555"}}>— {c.name}</span></div>;})}
-                </div>}
+                {function(){
+                  // Sichtbare Kodeliste: Grundeingriff ohne die opsWeg-Kodes der aktiven
+                  // Zusatzeingriffe, danach deren ops (Name aus OPS_LABELS, sonst der Kode).
+                  var weg={}; (best._mods||[]).forEach(function(m){ (m.opsWeg||[]).forEach(function(c){ weg[c]=true; }); });
+                  var kodeListe=(best.opsCodes||[]).filter(function(c){ return !weg[c.code]; }).map(function(c){ return {code:c.code, name:c.name}; });
+                  (best._mods||[]).forEach(function(m){ (m.ops||[]).forEach(function(c){ kodeListe.push({code:c, name:OPS_LABELS[c]||c}); }); });
+                  if(!kodeListe.length) return null;
+                  return <div style={{marginTop:6,padding:"8px 10px",background:"rgba(0,107,111,.06)",border:"1px solid rgba(0,107,111,.3)",borderRadius:6,fontSize:10,color:"#2D3748",lineHeight:1.5}}>
+                    <div style={{fontWeight:700,color:"#006B6F",marginBottom:4,fontSize:11}}>OPS-Kodes des Eingriffs</div>
+                    {kodeListe.map(function(c,i){return <div key={i} style={{marginBottom:1}}><span style={{fontWeight:600,fontFamily:"monospace",color:"#006B6F"}}>{c.code}</span> <span style={{color:"#555"}}>— {c.name}</span></div>;})}
+                  </div>;
+                }()}
               </div>;
             }()}
           </div>}
@@ -4445,8 +4456,8 @@ function MaterialkostenBlock({items, drg, label}){
         </tr>}
         </tbody>
       </table>
-      {a && a.state==="rot" && <div style={{marginTop:6,fontSize:10,color:"#C62828",padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über InEK-Referenz — Fall droht defizitär zu werden bei Kürzung. Volle DRG zwingend ansteuern, Materialalternativen prüfen.</div>}
-      {a && a.state==="gelb" && <div style={{marginTop:6,fontSize:10,color:"#E65100",padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über InEK-Referenz — volle DRG sollte sicher angesteuert werden.</div>}
+      {a && a.state==="rot" && <div style={{marginTop:6,fontSize:10,color:"#C62828",padding:"4px 6px",background:"rgba(198,40,40,.08)",border:"1px solid rgba(198,40,40,.3)",borderRadius:4,fontWeight:600}}>⚠ Implantatkosten deutlich über der InEK-Referenz; Materialalternativen prüfen.</div>}
+      {a && a.state==="gelb" && <div style={{marginTop:6,fontSize:10,color:"#E65100",padding:"4px 6px",background:"rgba(230,81,0,.08)",border:"1px solid rgba(230,81,0,.25)",borderRadius:4}}>⚠ Implantatkosten über der InEK-Referenz.</div>}
       {items.some(function(m){return !m.preis;}) && <div style={{marginTop:4,fontSize:10,color:"#E65100"}}>⚠️ Einige Preise fehlen – Gesamtsumme ist unvollständig</div>}
     </div>
   </div>;
