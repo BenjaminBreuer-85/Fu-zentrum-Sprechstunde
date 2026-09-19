@@ -992,9 +992,11 @@ function materialPositionenFuer(opsKey, mods){
 function implKostenFuer(opsKey, mods){
   var m = _ZUORD.MAPPING_OPS && _ZUORD.MAPPING_OPS[opsKey];
   var mitMaterial = (mods || []).some(function(mo){ return mo && Array.isArray(mo.material); });
-  if (!m && !mitMaterial) return 0;
+  // Ohne Materialsatz gibt es keine Materialzahl (null), nicht 0 € — sonst
+  // rechnete die Stationaer-Box eine DB II (real) mit Implantaten zum Nulltarif.
+  if (!m && !mitMaterial) return null;
   var r = paketPreisAusPositionen(materialPositionenFuer(opsKey, mods));
-  return r == null ? 0 : r;
+  return r;
 }
 function paketPreis(eingriffId, variante, faktor){
   // Solange das Konto nicht vollstaendig geladen ist, gibt es KEINEN Betrag und
@@ -1216,6 +1218,18 @@ const ENDO_IMPL_PRO_DIAG = {
 /* ============================================================
    UI COMPONENTS
    ============================================================ */
+// Label eines nicht gesetzten Befunds: Text bis zum ersten ", " ausserhalb
+// runder und eckiger Klammern (nur Anzeige, der Brieftext bleibt unberuehrt).
+function befLabel(pos){
+  var tiefe = 0;
+  for (var i = 0; i < pos.length - 1; i++) {
+    var c = pos[i];
+    if (c === "(" || c === "[") tiefe++;
+    else if (c === ")" || c === "]") tiefe = Math.max(0, tiefe - 1);
+    else if (c === "," && pos[i+1] === " " && tiefe === 0) return pos.slice(0, i);
+  }
+  return pos;
+}
 function BefTog({ b, state, onTog, val, onVal }) {
   if (b.input) {
     return (
@@ -1254,7 +1268,7 @@ function BefTog({ b, state, onTog, val, onVal }) {
   if (state === "pos") { bg = "rgba(0,107,111,.12)"; bd = "#006B6F"; c = "#006B6F"; lb = "✓"; }
   else if (state === "neg") { bg = "rgba(231,76,60,.1)"; bd = "#C62828"; c = "#C62828"; lb = "✗"; }
   else { bg = "rgba(255,255,255,.95)"; bd = "rgba(0,0,0,.1)"; c = "#555"; lb = "—"; }
-  var txt = state === "pos" ? b.pos : state === "neg" ? b.neg : (b.pos ? b.pos.split(", ")[0] : "");
+  var txt = state === "pos" ? b.pos : state === "neg" ? b.neg : (b.pos ? befLabel(b.pos) : "");
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, cursor: "pointer", userSelect: "none" }} onClick={onTog}>
       <div style={{ width: 22, height: 22, borderRadius: 4, border: "1px solid " + bd, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: c, flexShrink: 0 }}>{lb}</div>
@@ -1549,12 +1563,15 @@ function hdrgAuswertung(opts){
     if(v&&typeof v==="object"){ Object.keys(v).forEach(function(k){ v[k]=walk(v[k]); }); return v; }
     return v;
   };
+  // MVWD fehlt in _DRG bei einzelnen DRGs (etwa I43B); dann aus GVD, wie im OP-Bericht.
+  var _GVD=(window._DATA&&window._DATA.erloes2026&&window._DATA.erloes2026.GVD)||{};
+  var mvwdAus=function(drg){ return window._DRG[drg].mvwd!=null?window._DRG[drg].mvwd:(_GVD[drg]&&_GVD[drg].mvwd!=null?_GVD[drg].mvwd:null); };
   Object.keys(OP_STEUERUNG).forEach(function(k){
     var e=OP_STEUERUNG[k];
     if(e.drg&&window._DRG[e.drg]&&window._DRG[e.drg].bwr!=null){
       e.drgE=window._E(e.drg); e.cm=window._DRG[e.drg].bwr;
       if(window._DRG[e.drg].ugvd!=null) e.ugvd=window._DRG[e.drg].ugvd;
-      if(window._DRG[e.drg].mvwd!=null) e.mvwd=window._DRG[e.drg].mvwd;
+      if(mvwdAus(e.drg)!=null) e.mvwd=mvwdAus(e.drg);
     }
     if(e.hdrg&&window._HDRG[e.hdrg]) e.hdrgE=window._HDRG[e.hdrg].pauschale;
     // Zusatzeingriffe tragen ihre eigene DRG. Ohne diese Zeilen haetten sie
@@ -1563,7 +1580,7 @@ function hdrgAuswertung(opts){
       if(m.drg&&window._DRG[m.drg]&&window._DRG[m.drg].bwr!=null){
         m.drgE=window._E(m.drg); m.cm=window._DRG[m.drg].bwr;
         if(window._DRG[m.drg].ugvd!=null) m.ugvd=window._DRG[m.drg].ugvd;
-        if(window._DRG[m.drg].mvwd!=null) m.mvwd=window._DRG[m.drg].mvwd;
+        if(mvwdAus(m.drg)!=null) m.mvwd=mvwdAus(m.drg);
       }
       if(m.hdrg&&window._HDRG[m.hdrg]) m.hdrgE=window._HDRG[m.hdrg].pauschale;
     });
@@ -1893,8 +1910,8 @@ var _s = useState, _m = useMemo;
   // Grundlage der Ziele: ../Fuss-Track/nonop-ziele.md (Uebergabetabelle).
   // ==========================================================================
   var aups = _s(true), qrAktiv = aups[0], setQrAktiv = aups[1];
-  // Nachbehandlungsschema. Nur dort waehlbar, wo die Patienten-App Varianten
-  // kennt (chevron, osg_arthrodese, osg_tep).
+  // Nachbehandlungsschema. Waehlbar, wo PATIENT_VARIANTEN fuer den Chip oder
+  // sein Ziel Varianten kennt (siehe aufVarianten).
   var avs = _s("einfach"), aufVariante = avs[0], setAufVariante = avs[1];
 
   // Erster gewaehlter Eingriff mit Patientenziel.
@@ -1956,8 +1973,13 @@ var _s = useState, _m = useMemo;
   var kbArtikel = (opWeg && PATIENT_EINGRIFF_KB_MAP[aufActive.key]) || kbArtikelDiag;
 
   var aufZielKey = aufActive ? (PATIENT_EINGRIFF_MAP[aufActive.key] || aufActive.key) : "";
-  // Varianten haengen am ZIEL, nicht am Toolbox-Schluessel.
-  var aufVarianten = opWeg ? (PATIENT_VARIANTEN[aufZielKey] || null) : null;
+  // Varianten: zuerst am Chip (Toolbox-Schluessel), sonst am Ziel.
+  var aufVarianten = opWeg && aufActive ? (PATIENT_VARIANTEN[aufActive.key] || PATIENT_VARIANTEN[aufZielKey] || null) : null;
+  // Gewaehlte Variante gibt es beim neuen Chip nicht → erste Variante, damit
+  // nie ein var= ohne passenden Eintrag im Link steht.
+  useEffect(function() {
+    if (aufVarianten && !aufVarianten[aufVariante]) setAufVariante(Object.keys(aufVarianten)[0]);
+  }, [aufVarianten]);
 
   // Der eine Code: Ziel, Kurzadresse und Beschriftung in einem Stueck.
   var qr = _m(function() {
@@ -1966,7 +1988,7 @@ var _s = useState, _m = useMemo;
         art: "eingriff",
         ziel: aufZielKey,
         url: FUSSTRACK_BASE_URL + "?op=" + aufZielKey
-             + (PATIENT_VARIANTEN[aufZielKey] ? "&var=" + aufVariante : "")
+             + (aufVarianten ? "&var=" + aufVariante : "")
              + "&modus=aufklaerung"
              + (kbArtikel ? "&kbinfo=" + kbArtikel : "")
       };
@@ -1981,7 +2003,7 @@ var _s = useState, _m = useMemo;
       };
     }
     return null;
-  }, [opWeg, aufZielKey, aufVariante, kbArtikel]);
+  }, [opWeg, aufZielKey, aufVarianten, aufVariante, kbArtikel]);
 
   var qrShow = qrAktiv && !!qr;
 
@@ -3547,7 +3569,7 @@ var _s = useState, _m = useMemo;
                     <div style={{fontSize:10,fontWeight:700,color:"#004D40",marginTop:4,padding:"2px 6px",background:"rgba(0,77,64,.1)",borderRadius:4,display:"inline-block"}}>Liegezeit: {ugvd+1} Tag{ugvd+1!==1?"e":""}</div>
                     <div style={{fontSize:10,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
                       <div><span style={{fontWeight:600}}>UGVD:</span> {ugvd} Tag{ugvd!==1?"e":""}{ab&&<span style={{color:"#C62828"}}> · Abschlag: {ab.toLocaleString("de-DE")} €/Tag</span>}</div>
-                      <div><span style={{fontWeight:600}}>MVWD:</span> {mvwd} Tage · CM {cm.toFixed(3)}</div>
+                      <div>{mvwd!=null&&mvwd!==""?<><span style={{fontWeight:600}}>MVWD:</span> {mvwd} Tage · </>:null}CM {cm.toFixed(3)}</div>
                     </div>
                     {/* hideKontext heisst: die H-DRG faellt aus einem anderen
                         Grund weg (etwa 3x DMMO), die DRG kommt dann nicht vom
