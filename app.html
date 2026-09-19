@@ -3648,6 +3648,11 @@ var _s = useState, _m = useMemo;
                         <div style={{fontSize:10,fontWeight:400,fontStyle:"italic",paddingLeft:22,opacity:0.85}}>{dbRealText}</div>
                       </div>;
                     })()}
+                    {/* Kein Materialsatz (implKostenFuer liefert null): ausdruecklich
+                        "nicht berechenbar" statt einer Marge mit 0 € Implantaten. */}
+                    {implZahl===null&&!implGesperrt&&!implUnvoll&&<div style={{padding:"6px 8px",background:"rgba(113,128,150,.06)",border:"1px solid rgba(113,128,150,.25)",borderRadius:4,fontSize:11,color:dbRealColor,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
+                      <span>{dbRealAmpel}</span><span>{dbRealText}</span>
+                    </div>}
                   </div>;
                 })()}
                 {!hideKontext&&hatHybridBezug&&((best.kontext&&best.kontext.length>0)||(best.kontextExcluded&&best.kontextExcluded.length>0)||(best.hdrgTrigger&&best.hdrgTrigger.length>0))?<div style={{padding:"8px 10px",background:"rgba(21,101,192,.06)",border:"1px solid rgba(21,101,192,.25)",borderRadius:6,marginBottom:6,fontSize:10,color:"#2D3748",lineHeight:1.6}}>
