@@ -1638,6 +1638,14 @@ var OP_ZUSATZWAHL = {
 var DMMO_CODE = {"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
 // OPS-Kode der PIP-Arthrodese nach Zahl der Zehen (Regelsatz 2026 bewertet ihn).
 var PIP_CODE = {1:"5-808.bd", 2:"5-808.be", 3:"5-808.bf", 4:"5-808.bg"};
+// Zahl der Gelenkfaecher aus den TMT-Chips; Materialsatz und OPS-Kode rechnen
+// mit derselben Zahl.
+function tmtGelenkzahl(chips){
+  var n = 0;
+  (chips || []).forEach(function(t){ if(t==="tmt1"||t==="tmt2") n += 1; if(t==="tmt2_3") n += 2; if(t==="tmt1_3") n += 3; });
+  return n;
+}
+var TMT_CODE = {1:"5-808.a4", 2:"5-808.a5", 3:"5-808.a6", 4:"5-808.a7"};
 // Aus der Auswahl den Zusatz fuer den Brief bauen.
 function opZusatzText(key, wahl){
   var def = OP_ZUSATZWAHL[key]; if (!def) return "";
@@ -4887,7 +4895,7 @@ function OPBerichtApp(){
     if(coalLCOT)PZ("coalitio_lcot","mit LCOT");
     // MITTELFUSS
     if(mfCotton&&mfCottonKnochen==="allogen")PZ("allogen","allogen (Spenderknochen)");
-    if(mfTmt.length>0){var tmtGelenke=0;mfTmt.forEach(function(t){if(t==="tmt1"||t==="tmt2")tmtGelenke+=1;if(t==="tmt2_3")tmtGelenke+=2;if(t==="tmt1_3")tmtGelenke+=3;});if(tmtGelenke>0)PZ("arthrodese_tmt","Standard",tmtGelenke);}
+    if(mfTmt.length>0){var tmtGelenke=tmtGelenkzahl(mfTmt);if(tmtGelenke>0)PZ("arthrodese_tmt","Standard",tmtGelenke);}
     // FRAKTUREN
     fxOp.forEach(op=>{
       if(op==="fibula_einf")PZ("fibula_einf","einfach");
@@ -5058,8 +5066,18 @@ function OPBerichtApp(){
       if(op==="fhl_transfer")o.push("5-854.49","5-869.2","5-855.39","5-855.19");
     })
     if(fdlTransfer)o.push("5-854.2b");  // FDL-Transfer Rückfuß (nicht 5-854.2c = Vorfuß!)
-    if(mdoCotton==="autolog")o.push("5-781.6t");
-    if(mdoCotton==="allogen")o.push("5-781.6t");;
+    // MITTELFUSS
+    if(mfTmt.length>0){
+      var tmtG=tmtGelenkzahl(mfTmt);
+      o.push(TMT_CODE[Math.min(tmtG,4)]||"5-808.a8");
+      o.push("5-93b.e");                                                      // winkelstabile Platte (alle TMT-Texte)
+      if(mfTmt.includes("tmt1")||mfTmt.includes("tmt1_3"))o.push("5-93b.0");  // Kompressionsschraube TMT I
+      o.push("5-784.0u");                                                     // lokal gewonnene Spongiosa, Tarsale
+      if(mfTmt.includes("tmt2"))o.push("5-784.1u","5-783.2d");                // trikortikaler Beckenkammspan (Text tmt_arthrodese_2)
+    }
+    // Cotton-Osteotomie: ohne Implantat, Augmentation autolog oder allogen.
+    if(mfCotton)o.push("5-781.4u",mfCottonKnochen==="allogen"?"5-784.7u":"5-784.0u");
+    if(mdoCotton)o.push("5-781.4u",mdoCotton==="allogen"?"5-784.7u":"5-784.0u");
     // Metallentfernung: Region und Material sind eindeutig gewaehlt, der Code
     // laesst sich also ableiten — der MEPicker zeigt ihn ohnehin schon an.
     // Zusammen mit dem Zusatzcode ist genau das der H-DRG-Hebel (I20O); ihn von
@@ -5316,7 +5334,7 @@ function OPBerichtApp(){
       return [o,{label:"TMT-Arthrodese"+(hasTmt23?" 2–3":"")+(hasTmt2?" TMT 2":"")+(hasTmt1?" TMT 1":""),ops:o,
         hdrg:"—",ebm:"—",empf:"n2",kurz:window._fx("I20D ~3.700 €"),drg:window._fx("I20D 4.710 €"),hdrg_n1:"—",
         ziel:window._fx("Stationär ≥2 Nächte → I20D (CM 1,033 = 4.710 €)."),
-        kodier:"5-808.a4 + 5-93b.e + 5-93b.0. TMT 2: + 5-784.0v (Spongiosa immer dabei)."}];
+        kodier:"5-808.a4 + 5-93b.e + 5-93b.0. Spongiosa 5-784.0u bei allen TMT, TMT 2 zusätzlich Beckenkammspan 5-784.1u + 5-783.2d."}];
     }
 
     // Supramalleolare OT → I13E
