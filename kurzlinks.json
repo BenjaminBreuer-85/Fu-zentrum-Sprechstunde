@@ -8,7 +8,7 @@
     "der Eintrag entfernt; die ID bleibt danach dauerhaft unbenutzt.",
     "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter."
   ],
-  "_STAND": "2026-09-15",
+  "_STAND": "2026-09-20",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
   "ZIELE": {
     "achilles-insertional": {
@@ -154,6 +154,11 @@
     "kindl-ppv": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=kindl_ppv_kb&modus=aufklaerung",
       "titel": "Kindlicher Knick-Senk-Fuß (Pes planovalgus)",
+      "art": "diagnose"
+    },
+    "kleinzehen": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=kleinzehen_kb&modus=aufklaerung",
+      "titel": "Fehlstellungen der Kleinzehen",
       "art": "diagnose"
     },
     "kleinzehen-pip": {
