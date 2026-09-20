@@ -1631,9 +1631,11 @@ var OP_ZUSATZWAHL = {
   kleinzehen_pip:       { titel:"Zehe",        mehrfach:true,  optionen:[["d2","D2"],["d3","D3"],["d4","D4"],["d5","D5"]] },
   kleinzehen_weichteil: { titel:"Zehe",        mehrfach:true,  optionen:[["d2","D2"],["d3","D3"],["d4","D4"],["d5","D5"]] },
   morton_neurom:        { titel:"Zwischenraum",mehrfach:true,  optionen:[["23","II/III"],["34","III/IV"]] },
-  dmmo:                 { titel:"Strahl",      mehrfach:true,  optionen:[["mt2","MT II"],["mt3","MT III"],["mt4","MT IV"]] },
-  weil:                 { titel:"Strahl",      mehrfach:true,  optionen:[["mt2","MT II"],["mt3","MT III"],["mt4","MT IV"]] }
+  dmmo:                 { titel:"Strahl",      mehrfach:true,  optionen:[["mt2","MT II"],["mt3","MT III"],["mt4","MT IV"],["mt5","MT V"]] },
+  weil:                 { titel:"Strahl",      mehrfach:true,  optionen:[["mt2","MT II"],["mt3","MT III"],["mt4","MT IV"],["mt5","MT V"]] }
 };
+// OPS-Kode der DMMO nach Zahl der Strahlen (Fallsteuerung und Statuszeile).
+var DMMO_CODE = {"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
 // Aus der Auswahl den Zusatz fuer den Brief bauen.
 function opZusatzText(key, wahl){
   var def = OP_ZUSATZWAHL[key]; if (!def) return "";
@@ -1811,11 +1813,15 @@ var _s = useState, _m = useMemo;
   var sc3 = _s(""), scFaos = sc3[0], setScFaos = sc3[1];
   var sc4 = _s(""), scVas = sc4[0], setScVas = sc4[1];
   var ams = _s(false), amicSpongiosa = ams[0], setAmicSpongiosa = ams[1];
-  var dmmoCs = _s(""), dmmoCount = dmmoCs[0], setDmmoCount = dmmoCs[1];
-  var pipCs = _s(""), pipCount = pipCs[0], setPipCount = pipCs[1];
   var lapRez = _s(false), lapidusRezidiv = lapRez[0], setLapidusRezidiv = lapRez[1];
   // Zusatzauswahl je Eingriff (Sehne, Zehe, Zwischenraum, Strahl).
   var ozw = _s({}), opZusatz = ozw[0], setOpZusatz = ozw[1];
+  // Anzahl kommt aus der Zehen-/Strahlwahl; ohne Wahl bleibt sie leer (wie
+  // frueher ohne Klick im eigenen Anzahl-Block).
+  var pipZahl  = [].concat(opZusatz.kleinzehen_pip || []).length;
+  var dmmoZahl = [].concat(opZusatz.dmmo || []).length;
+  var pipCount  = pipZahl === 0 ? "" : (pipZahl <= 2 ? "1-2" : "3");
+  var dmmoCount = ({1:"1", 2:"2-3", 3:"2-4", 4:"2-5"})[dmmoZahl] || "";
   function togZusatz(key, wert) {
     setOpZusatz(function(alt) {
       var n = {}; Object.keys(alt).forEach(function(x){ n[x] = alt[x]; });
@@ -2170,26 +2176,21 @@ var _s = useState, _m = useMemo;
             <div style={row}>{def.optionen.map(function(o) {
               return <div key={o[0]} style={CB(liste.indexOf(o[0]) >= 0)} onClick={function(){ togZusatz(k, o[0]); }}>{o[1]}</div>;
             })}</div>
+            {/* Die Zahl der Zehen beziehungsweise Strahlen entscheidet ueber
+                Fallpauschale und OPS-Kode; die Zeile sagt, was gerade gilt. */}
+            {k === "kleinzehen_pip" && <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>
+              {pipZahl === 0 ? "Bitte Zehe(n) wählen; die Anzahl bestimmt die Fallpauschale."
+                             : pipZahl + (pipZahl <= 2 ? " Zehe(n) → Hybrid-DRG möglich" : " Zehen → nur stationär")}
+            </div>}
+            {k === "dmmo" && <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>
+              {dmmoZahl === 0 ? "Bitte Strahl(en) wählen; die Anzahl bestimmt OPS-Kode und Fallpauschale."
+                              : dmmoZahl + (dmmoZahl <= 2 ? " Strahl(en) → " : " Strahlen → ") + DMMO_CODE[dmmoCount]
+                                + (dmmoZahl <= 2 ? " → Hybrid-DRG möglich" : " → nur stationär")}
+            </div>}
           </div>;
         })}
             {opMethode.indexOf("amic") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
               <div style={CB(amicSpongiosa)} onClick={function() { setAmicSpongiosa(!amicSpongiosa); }}>+ Spongiosa</div>
-            </div>}
-            {opMethode.indexOf("dmmo") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
-              <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>DMMO Anzahl/Lokalisation MT</div>
-              <div style={row}>
-                <div style={CB(dmmoCount === "1")} onClick={function() { setDmmoCount(dmmoCount === "1" ? "" : "1"); }}>1 MT</div>
-                <div style={CB(dmmoCount === "2-3")} onClick={function() { setDmmoCount(dmmoCount === "2-3" ? "" : "2-3"); }}>MT II–III (2×)</div>
-                <div style={CB(dmmoCount === "2-4")} onClick={function() { setDmmoCount(dmmoCount === "2-4" ? "" : "2-4"); }}>MT II–IV (3×)</div>
-                <div style={CB(dmmoCount === "2-5")} onClick={function() { setDmmoCount(dmmoCount === "2-5" ? "" : "2-5"); }}>MT II–V (4×)</div>
-              </div>
-            </div>}
-            {opMethode.indexOf("kleinzehen_pip") >= 0 && <div style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(93,173,236,.2)", paddingLeft: 10 }}>
-              <div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Kleinzehen/PIP Anzahl</div>
-              <div style={row}>
-                <div style={CB(pipCount === "1-2")} onClick={function() { setPipCount(pipCount === "1-2" ? "" : "1-2"); }}>1–2 Zehen</div>
-                <div style={CB(pipCount === "3")} onClick={function() { setPipCount(pipCount === "3" ? "" : "3"); }}>≥3 Zehen</div>
-              </div>
             </div>}
             {opMethode.filter(function(k){ return OP_STEUERUNG[k] && OP_STEUERUNG[k].modifikatoren; }).map(function(k) {
               return <div key={"mod-"+k} style={{ marginTop: 4, marginLeft: 14, borderLeft: "2px solid rgba(0,137,123,.25)", paddingLeft: 10 }}>
@@ -3476,7 +3477,6 @@ var _s = useState, _m = useMemo;
               // Kodes des Grundeingriffs, die mit einem aktiven Zusatzeingriff entfallen (opsWeg)
               var opsWegFall={}; (best._mods||[]).forEach(function(m){ (m.opsWeg||[]).forEach(function(c){ opsWegFall[c]=true; }); });
               fallCodes=fallCodes.filter(function(c){ return !opsWegFall[c]; });
-              var DMMO_CODE={"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
               if(opMethode.indexOf("dmmo")>=0&&DMMO_CODE[dmmoCount]) fallCodes.push(DMMO_CODE[dmmoCount]);
               if(bestKey==="lapidus"&&(best.hdrgTrigger||[]).length) (best.hdrgTrigger||[]).forEach(function(t){ fallCodes.push(t.code); });
               // Die Auswertung rechnet auf dem Grundzustand der OP, nicht auf
