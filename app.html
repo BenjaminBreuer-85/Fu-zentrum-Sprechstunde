@@ -3536,7 +3536,7 @@ var _s = useState, _m = useMemo;
                         <div style={{fontSize:10,color:"#718096",marginTop:2}}>Hybrid-DRG · pauschal</div>
                         {implZahl>0&&<div style={{fontSize:10,color:"#555",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>}
                         {implUnvoll&&<div style={{fontSize:10,color:"#8A5A00",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> unvollständig — {implUnvoll.fehlend} von {implUnvoll.positionen} Positionen ohne Preis <span style={{textDecoration:"underline",cursor:"pointer"}} onClick={()=>setTool("preise")}>Preise hinterlegen</span></div>}
-                        {best.hebel&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>Hybrid-DRG nur ohne Kontextprozedur: wird sie durchgeführt, wird sie kodiert, und der Fall gruppiert in die stationäre DRG.</div>}
+                        {best.hebel&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>Hybrid-DRG nur, wenn keine Kontextprozedur erfolgt/kodiert wird.</div>}
                       </div>;
                     }
                     if(ambStatus==="ebm-bds"){
@@ -3786,6 +3786,9 @@ var _s = useState, _m = useMemo;
 
         <div data-tour="sb-befunde"><Sec title="③ Klinische Untersuchung" open={sec.unters} onToggle={function() { togSec("unters"); }}>
           <div style={{ fontSize: 10, color: "#718096", marginBottom: 6 }}>Klicken: — → ✓ (positiv) → ✗ (negativ) → —</div>
+          {/* Eckige Klammern sind Platzhalter (heute nur beim diabetischen Fuss). */}
+          {availBef.some(function(b) { return /\[[^\]]+\]/.test(b.pos || ""); }) &&
+            <div style={{ fontSize: 10, color: "#718096", marginBottom: 6 }}>Werte in eckigen Klammern sind Vorgaben, bitte im Brief durch den gemessenen Wert ersetzen.</div>}
           {availBef.map(function(b) { return <BefTog key={b.id} b={b} state={befState[b.id] || null} onTog={function() { togBef(b.id); }} val={befInputs[b.id]} onVal={function(v) { setBefInputs(function(p) { var n = {}; for (var x in p) n[x] = p[x]; n[b.id] = v; return n; }); }} />; })}
           <textarea placeholder="Freitext Befund..." value={freitextUnters} onChange={function(e) { setFreitextUnters(e.target.value); }} rows={2} style={{ marginTop: 6 }} />
         </Sec></div>
