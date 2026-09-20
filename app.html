@@ -2506,8 +2506,6 @@ var _s = useState, _m = useMemo;
       lines.push("Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: Infektion, Nervenverletzung, Gefäßverletzung, Weichteilirritation über der Narbe, Implantatunvollständigkeit bei gebrochenen Schrauben, Rezidiv der Beschwerden).");
       lines.push("");
       lines.push("Nach gründlicher Abwägung bieten wir den oben genannten Eingriff an. Der Eingriff ist elektiv.");
-      lines.push("");
-      lines.push("Mit freundlichen Grüßen,");
       return briefSauber(lines.join("\n"));
     }
 
@@ -2681,8 +2679,6 @@ var _s = useState, _m = useMemo;
         ? dd + " wurde über Diagnose, Therapieoption, Risiken und Alternativen ausführlich aufgeklärt. Die Aufklärung erfolgte mündlich und schriftlich, " + (gender === "m" ? "der Patient" : "die Patientin") + " hat eine Bedenkzeit erhalten."
         : "Es erfolgte die ausführliche Aufklärung über Diagnose, Therapieoption, Risiken und Alternativen. Die Aufklärung erfolgte mündlich und schriftlich, eine Bedenkzeit wurde eingeräumt.");
 
-      elines.push("");
-      elines.push("Mit freundlichen Grüßen,");
       return briefSauber(elines.join("\n"));
     }
 
@@ -2931,7 +2927,6 @@ var _s = useState, _m = useMemo;
         "Sie können sie über den folgenden Code aufrufen." +
         "\n\n" + QR_LABEL + kurzlinkId(qr.ziel);
     }
-    ab += "\n\nMit freundlichen Grüßen,";
     p.push(ab);
     var rawOut = p.join("");
     // Schutzschicht: falls trotz aller Defaults das Wort "undefined" als String entsteht, kosmetisch ersetzen
@@ -2973,7 +2968,8 @@ var _s = useState, _m = useMemo;
         }
         return safe + "<br>";
       }).join("\n");
-      var html = "<div style='font-family:Arial,sans-serif;font-size:11pt'>" + htmlBody + "</div>";
+      // Ohne font-family: Word uebernimmt die Schrift der Briefvorlage; 10pt wie deren Text.
+      var html = "<div style='font-size:10pt'>" + htmlBody + "</div>";
       // Plain-Text-Variante als Fallback
       var plain = fullText;
       // ClipboardItem API (Chrome, Edge, neuere Safari/Firefox)
