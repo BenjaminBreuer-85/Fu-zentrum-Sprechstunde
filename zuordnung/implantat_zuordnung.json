@@ -417,7 +417,7 @@
    "varianten": {
     "Standard": [
      {
-      "implantat_id": "schraube_kanuel_7_0",
+      "implantat_id": "schraube_hcs_7_0",
       "anzahl": 3
      }
     ]
@@ -824,6 +824,94 @@
      }
     ]
    }
+  },
+  "youngswick": {
+   "name": "Youngswick-Osteotomie",
+   "sektion": "Vorfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_2_5",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "arthrodese_tmt1": {
+   "name": "TMT-I-Arthrodese",
+   "sektion": "Mittelfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_4_0",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "platte_ws_gebogen_4l",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "schraube_ws_2_7",
+      "anzahl": 4
+     }
+    ]
+   }
+  },
+  "arthrodese_tmt13": {
+   "name": "TMT-I-bis-III-Arthrodese",
+   "sektion": "Mittelfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_4_0",
+      "anzahl": 1
+     },
+     {
+      "implantat_id": "platte_ws_gebogen_4l",
+      "anzahl": 2
+     },
+     {
+      "implantat_id": "schraube_ws_2_7",
+      "anzahl": 8
+     }
+    ]
+   }
+  },
+  "oats": {
+   "name": "OATS (mit Innenknöchelosteotomie)",
+   "sektion": "Sprunggelenk",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "schraube_hcs_4_0",
+      "anzahl": 2
+     }
+    ]
+   }
+  },
+  "os_tib_ext": {
+   "name": "Resektion Os tibiale externum (Kidner)",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "anker_faden_geflochten",
+      "anzahl": 1
+     }
+    ]
+   }
+  },
+  "fdl_transfer": {
+   "name": "FDL-Transfer",
+   "sektion": "Rückfuß",
+   "varianten": {
+    "Standard": [
+     {
+      "implantat_id": "anker_tenodese_4_75",
+      "anzahl": 1
+     }
+    ]
+   }
   }
  },
  "MAPPING_OPS": {
@@ -945,6 +1033,42 @@
   ],
   "fhl_transfer": [
    "fhl_transfer",
+   "Standard"
+  ],
+  "hohlfuss_dwyer": [
+   "dwyer",
+   "Standard"
+  ],
+  "hohlfuss_lambrinudi": [
+   "lambrinudi",
+   "Standard"
+  ],
+  "weil": [
+   "kleinzehen_weil",
+   "je Osteotomie"
+  ],
+  "fdl_transfer": [
+   "fdl_transfer",
+   "Standard"
+  ],
+  "youngswick": [
+   "youngswick",
+   "Standard"
+  ],
+  "arthrodese_tmt1": [
+   "arthrodese_tmt1",
+   "Standard"
+  ],
+  "arthrodese_tmt13": [
+   "arthrodese_tmt13",
+   "Standard"
+  ],
+  "oats": [
+   "oats",
+   "Standard"
+  ],
+  "os_tib_ext": [
+   "os_tib_ext",
    "Standard"
   ]
  }
