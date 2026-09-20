@@ -1636,6 +1636,8 @@ var OP_ZUSATZWAHL = {
 };
 // OPS-Kode der DMMO nach Zahl der Strahlen (Fallsteuerung und Statuszeile).
 var DMMO_CODE = {"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
+// OPS-Kode der PIP-Arthrodese nach Zahl der Zehen (Regelsatz 2026 bewertet ihn).
+var PIP_CODE = {1:"5-808.bd", 2:"5-808.be", 3:"5-808.bf", 4:"5-808.bg"};
 // Aus der Auswahl den Zusatz fuer den Brief bauen.
 function opZusatzText(key, wahl){
   var def = OP_ZUSATZWAHL[key]; if (!def) return "";
@@ -1820,7 +1822,6 @@ var _s = useState, _m = useMemo;
   // frueher ohne Klick im eigenen Anzahl-Block).
   var pipZahl  = [].concat(opZusatz.kleinzehen_pip || []).length;
   var dmmoZahl = [].concat(opZusatz.dmmo || []).length;
-  var pipCount  = pipZahl === 0 ? "" : (pipZahl <= 2 ? "1-2" : "3");
   var dmmoCount = ({1:"1", 2:"2-3", 3:"2-4", 4:"2-5"})[dmmoZahl] || "";
   function togZusatz(key, wert) {
     setOpZusatz(function(alt) {
@@ -2179,8 +2180,8 @@ var _s = useState, _m = useMemo;
             {/* Die Zahl der Zehen beziehungsweise Strahlen entscheidet ueber
                 Fallpauschale und OPS-Kode; die Zeile sagt, was gerade gilt. */}
             {k === "kleinzehen_pip" && <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>
-              {pipZahl === 0 ? "Bitte Zehe(n) wählen; die Anzahl bestimmt die Fallpauschale."
-                             : pipZahl + (pipZahl <= 2 ? " Zehe(n) → Hybrid-DRG möglich" : " Zehen → nur stationär")}
+              {pipZahl === 0 ? "Bitte Zehe(n) wählen; die Anzahl bestimmt OPS-Kode und Fallpauschale."
+                             : pipZahl + (pipZahl === 1 ? " Zehe → " : " Zehen → ") + PIP_CODE[pipZahl]}
             </div>}
             {k === "dmmo" && <div style={{ fontSize: 10, color: "#718096", marginTop: 2 }}>
               {dmmoZahl === 0 ? "Bitte Strahl(en) wählen; die Anzahl bestimmt OPS-Kode und Fallpauschale."
@@ -3415,9 +3416,10 @@ var _s = useState, _m = useMemo;
               var dmmo3=dmmoCount==="2-4";
               var dmmo4=dmmoCount==="2-5";
               var dmmoBig=dmmo3||dmmo4;
-              // Destruktiv: DMMO ≥3 oder PIP ≥3 (alleinstehend oder mit Chevron/Scarf)
+              // Destruktiv: DMMO ≥3 (alleinstehend oder mit Chevron/Scarf).
+              // Die Zehenzahl der PIP-Arthrodese bewertet seit dem Regelsatz
+              // 2026 HDRG_REGELN.I20O_N ueber den Kode (PIP_CODE).
               if(bestKey==="dmmo"&&dmmoBig)override={hdrg:null,hdrgE:0,empf:"stat",note:" ("+(dmmo4?"4":"3")+"× MT → KEINE H-DRG möglich → nur stationär)"};
-              else if(bestKey==="kleinzehen_pip"&&pipCount==="3")override={hdrg:null,hdrgE:0,empf:"stat",note:" (≥3 Zehen → KEINE H-DRG möglich → nur stationär)"};
               else if(isChevGroup&&opMethode.indexOf("dmmo")>=0&&dmmoBig)override={hdrg:null,hdrgE:0,empf:"stat",note:" + "+(dmmo4?"4":"3")+"× DMMO → KEINE H-DRG möglich → nur stationär"};
               else if(bestKey==="lapidus"&&lapidusRezidiv)override={hdrg:null,hdrgE:0,empf:"stat",note:" (Rezidiv-OP → nicht als Hybrid-OP abrechenbar → nur stationär)"};
               // Die Hoehe der Teilamputation verschiebt die DRG. Werte aus dem
@@ -3445,8 +3447,8 @@ var _s = useState, _m = useMemo;
                 {typ:"erloes",txt:window._fx("Bei stationärer Führung greift I20C (5.068 €) statt I20E (3.923 €), ein Unterschied von 1.145 €.")},
                 {typ:"info",txt:"Eine Kontextprozedur ist nicht mehr erforderlich, da H-DRG ohnehin ausgeschlossen."}
               ]};
-              // Konstruktiv: Chevron/Scarf + ≤2 DMMO oder + ≥3 PIP → I20N
-              else if(isChevGroup&&((opMethode.indexOf("dmmo")>=0&&dmmoSmall)||(opMethode.indexOf("kleinzehen_pip")>=0&&pipCount==="3")))override={hdrg:"I20N",hdrgE:2085,empf:best.empf,note:" → Aufwertung zur H-DRG I20N durch Kombination"};
+              // Konstruktiv: Chevron/Scarf + ≤2 DMMO → I20N
+              else if(isChevGroup&&opMethode.indexOf("dmmo")>=0&&dmmoSmall)override={hdrg:"I20N",hdrgE:2085,empf:best.empf,note:" → Aufwertung zur H-DRG I20N durch Kombination"};
               var hdrg=override&&override.hdrg!==undefined?override.hdrg:best.hdrg;
               var hdrgE=override&&override.hdrgE!==undefined?override.hdrgE:best.hdrgE;
               var drg=override&&override.drg!==undefined?override.drg:best.drg;
@@ -3478,6 +3480,7 @@ var _s = useState, _m = useMemo;
               var opsWegFall={}; (best._mods||[]).forEach(function(m){ (m.opsWeg||[]).forEach(function(c){ opsWegFall[c]=true; }); });
               fallCodes=fallCodes.filter(function(c){ return !opsWegFall[c]; });
               if(opMethode.indexOf("dmmo")>=0&&DMMO_CODE[dmmoCount]) fallCodes.push(DMMO_CODE[dmmoCount]);
+              if(opMethode.indexOf("kleinzehen_pip")>=0&&PIP_CODE[pipZahl]) fallCodes.push(PIP_CODE[pipZahl]);
               if(bestKey==="lapidus"&&(best.hdrgTrigger||[]).length) (best.hdrgTrigger||[]).forEach(function(t){ fallCodes.push(t.code); });
               // Die Auswertung rechnet auf dem Grundzustand der OP, nicht auf
               // dem bereits uebersteuerten Wert: Die handgeschriebenen
