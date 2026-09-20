@@ -989,12 +989,19 @@ function materialPositionenFuer(opsKey, mods){
   });
   return pos;
 }
+// Eingriff ohne Implantat (Feld implantatfrei in opsteuerung.json) und ohne
+// Zusatz mit eigenem Materialsatz: Materialkosten sind echte 0 €.
+function implantatfrei(opsKey, mods){
+  var e = OP_STEUERUNG[opsKey];
+  return !!(e && e.implantatfrei === true) && !(mods || []).some(function(mo){ return mo && Array.isArray(mo.material); });
+}
 function implKostenFuer(opsKey, mods){
   var m = _ZUORD.MAPPING_OPS && _ZUORD.MAPPING_OPS[opsKey];
   var mitMaterial = (mods || []).some(function(mo){ return mo && Array.isArray(mo.material); });
   // Ohne Materialsatz gibt es keine Materialzahl (null), nicht 0 € — sonst
   // rechnete die Stationaer-Box eine DB II (real) mit Implantaten zum Nulltarif.
-  if (!m && !mitMaterial) return null;
+  // Ausnahme: implantatfreie Eingriffe, dort sind 0 € richtig.
+  if (!m && !mitMaterial) return implantatfrei(opsKey, mods) ? 0 : null;
   var r = paketPreisAusPositionen(materialPositionenFuer(opsKey, mods));
   return r;
 }
@@ -3535,6 +3542,7 @@ var _s = useState, _m = useMemo;
                         <div style={{fontSize:16,fontWeight:700,color:"#00897B"}}>{hdrg} {hdrgE.toLocaleString("de-DE")} €</div>
                         <div style={{fontSize:10,color:"#718096",marginTop:2}}>Hybrid-DRG · pauschal</div>
                         {implZahl>0&&<div style={{fontSize:10,color:"#555",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>}
+                        {implZahl===0&&implantatfrei(bestKey,best._mods)&&<div style={{fontSize:10,color:"#555",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> kein Implantat</div>}
                         {implUnvoll&&<div style={{fontSize:10,color:"#8A5A00",marginTop:4,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}><span style={{fontWeight:600}}>Materialkosten:</span> unvollständig — {implUnvoll.fehlend} von {implUnvoll.positionen} Positionen ohne Preis <span style={{textDecoration:"underline",cursor:"pointer"}} onClick={()=>setTool("preise")}>Preise hinterlegen</span></div>}
                         {best.hebel&&<div style={{fontSize:10,color:"#C62828",marginTop:4}}>Hybrid-DRG nur, wenn keine Kontextprozedur erfolgt/kodiert wird.</div>}
                       </div>;
@@ -3578,6 +3586,9 @@ var _s = useState, _m = useMemo;
                       Erlösrelevanter Zusatzeingriff: {best.hebelName?best.hebelName+" ":""}(<span style={{fontFamily:"monospace"}}>{best.hebel}</span>) → {hebelZiel}
                       {hebelZiel!==drg&&<span style={{color:"#C62828",fontWeight:400}}> (ohne diesen Eingriff {drg})</span>}
                     </div>}
+                    {implZahl===0&&implantatfrei(bestKey,best._mods)&&<div style={{fontSize:10,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
+                      <div><span style={{fontWeight:600}}>Materialkosten:</span> kein Implantat</div>
+                    </div>}
                     {implZahl>0&&<div style={{fontSize:10,color:"#555",marginTop:6,paddingTop:4,borderTop:"1px solid rgba(0,77,64,.1)"}}>
                       <div><span style={{fontWeight:600}}>Materialkosten:</span> {implZahl.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div>
                       {ampel?<div style={{marginTop:2,color:ampelColor,fontWeight:600}}>{ampelIcon} {ampelText} <span style={{color:"#718096",fontWeight:400}}>(InEK-Ref. {ampel.soll.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €)</span></div>:null}
@@ -3620,7 +3631,10 @@ var _s = useState, _m = useMemo;
                   var dbIIReal = hasRealImpl ? dbII + (inekImpRef - implZahl) : null;
                   var dbRealAmpel = "⚪", dbRealColor = "#718096", dbRealText = implUnvoll ? ("DB II (real) nicht berechenbar — " + implUnvoll.fehlend + " von " + implUnvoll.positionen + " Materialpositionen ohne Preis") : "DB II (real) nicht berechenbar — keine Materialkosten hinterlegt";
                   if (hasRealImpl) {
-                    if (dbIIReal < 0) {
+                    if (implZahl === 0 && implantatfrei(bestKey, best._mods)) {
+                      dbRealAmpel = "🟢"; dbRealColor = "#00897B";
+                      dbRealText = "kein Implantat, InEK-Implantatreferenz von " + inekImpRef.toLocaleString("de-DE") + " € entfällt";
+                    } else if (dbIIReal < 0) {
                       dbRealAmpel = "🔴"; dbRealColor = "#C62828";
                       dbRealText = "Defizit — Eingriff verlustbringend";
                     } else if (dbIIReal > dbII) {
