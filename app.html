@@ -3746,7 +3746,8 @@ var _s = useState, _m = useMemo;
                 {(function(){
                   // Grundeingriff plus Material der aktiven Zusatzeingriffe
                   return <MaterialsatzAnsicht positionen={materialPositionenFuer(bestKey, best._mods)}
-                            drg={drg} readOnly={true} fall={null} setFall={function(){}}/>;
+                            drg={drg} readOnly={true} fall={null} setFall={function(){}}
+                            implantatfrei={implantatfrei(bestKey, best._mods)}/>;
                 })()}
                 {function(){
                   // Neues strukturiertes Format: best.hinweise = [{typ, txt}, ...]
@@ -4336,7 +4337,7 @@ function OBSec({title,open,onToggle,active,anzahl,onReset,children}){
 // OP-Bericht. readOnly=true zeigt nur die Standardversorgung (Sprechstundenbrief),
 // sonst ist der Modus "tatsächliche Versorgung" mit Bearbeitung verfügbar.
 // ============================================================================
-function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fall, setFall, readOnly}){
+function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fall, setFall, readOnly, implantatfrei}){
   const [suche, setSuche] = React.useState("");
   // Sperre zuerst: ohne vollstaendig geladenes Konto keine Summe, kein
   // "unvollstaendig — X ohne Preis". Der Hook rendert neu, sobald der Abruf steht.
@@ -4388,7 +4389,9 @@ function MaterialsatzAnsicht({eingriffId, variante, faktor, positionen, drg, fal
   if (!zeilen.length && !istModus) {
     return <div style={{marginTop:10,padding:"10px 12px",border:"1px dashed #D6E2E3",borderRadius:8,
                         fontSize:11,color:"#5C6660",background:"#FAFAF7"}}>
-      keine Materialkosten hinterlegt
+      {/* implantatfrei: der Eingriff braucht kein Implantat; der Link bleibt,
+          damit Ausnahmen (etwa ein Anker) erfasst werden koennen. */}
+      {implantatfrei ? "kein Implantat vorgesehen" : "keine Materialkosten hinterlegt"}
       {!readOnly && <span onClick={()=>setFall([])} style={{marginLeft:8,color:"#10535B",textDecoration:"underline",cursor:"pointer"}}>
         tatsächliche Versorgung erfassen</span>}
     </div>;
