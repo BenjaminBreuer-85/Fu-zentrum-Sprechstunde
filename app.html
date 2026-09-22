@@ -749,7 +749,8 @@ function downloadKlick(a){
    ============================================================ */
 function ToolKopfleiste(props){
   return <div data-kopfleiste="1" style={{position:"sticky",top:0,zIndex:999,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,padding:"8px 12px",background:"rgba(255,255,255,.97)",borderBottom:"1px solid rgba(0,0,0,.08)"}}>
-    <div onClick={props.onHome} style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:11,fontWeight:600,whiteSpace:"nowrap",boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>← Menü</div>
+    {/* onZurueck ersetzt den Weg ins Menue (etwa zurueck zum Brief); der ⌂-Knopf bleibt. */}
+    <div onClick={props.onZurueck || props.onHome} style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:11,fontWeight:600,whiteSpace:"nowrap",boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>{props.onZurueck ? (props.zurueckText || "← Zurück") : "← Menü"}</div>
     <div style={{fontSize:12,fontWeight:700,color:"#006B6F",textAlign:"center",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{props.titel}</div>
     <div onClick={props.onHome} title="Zum Menü" style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:12,fontWeight:600,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>⌂</div>
     {props.onEinstellungen && <div onClick={props.onEinstellungen} title="Einstellungen"
@@ -10124,30 +10125,39 @@ function App() {
   // Welcher Funktions-Rundgang soll beim nächsten Öffnen laufen? null = keiner,
   // "auto" = nur beim ersten Mal, "erzwingen" = aus den Einstellungen heraus.
   const [tourWunsch, setTourWunsch] = React.useState({});
+  // Der Brief bleibt montiert, wenn aus seiner Fallsteuerung ins Preiswerkzeug
+  // gewechselt wird — sonst waere er beim Ruecksprung leer.
+  const [briefHinterPreisen, setBriefHinterPreisen] = React.useState(false);
+  function wechselTool(t){ if (t !== "preise" && t !== "sb") setBriefHinterPreisen(false); setTool(t); }
 
   function zurEinstellung(){ setTool("einstellungen"); }
   // Aus den Einstellungen heraus: Funktion öffnen und dort den Rundgang starten
   function rundgangStarten(welcher){
-    if (welcher === "menue") { setTool(null); setMenueRundgangWunsch(true); return; }
+    if (welcher === "menue") { wechselTool(null); setMenueRundgangWunsch(true); return; }
     setTourWunsch(function(w){ var n=Object.assign({},w); n[welcher]=(n[welcher]||0)+1; return n; });
-    setTool(welcher === "sb" ? "sb" : welcher === "ob" ? "ob" : "preise");
+    wechselTool(welcher === "sb" ? "sb" : welcher === "ob" ? "ob" : "preise");
   }
   const kopf = function(titel){
-    return {titel:titel, onHome:()=>setTool(null), onEinstellungen:zurEinstellung};
+    return {titel:titel, onHome:()=>wechselTool(null), onEinstellungen:zurEinstellung};
   };
   
-  if (tool === "sb") return (
-    <div>
-      <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
-      <MitRundgang schritte={RUNDGANG_SB} merker={RUNDGANG_SB_MERKER} anstoss={tourWunsch.sb} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.sb=0; return n; })}>
-        <SprechstundenbriefApp onWerkzeug={setTool} />
-      </MitRundgang>
-    </div>
+  // Der Brief bleibt im Baum, solange das Preiswerkzeug aus ihm heraus offen
+  // ist; versteckt nimmt er keinen Platz ein und behaelt seinen Zustand.
+  if (tool === "sb" || (tool === "preise" && briefHinterPreisen)) return (
+    <>
+      <div style={{display: tool === "sb" ? "block" : "none"}}>
+        <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
+        <MitRundgang schritte={RUNDGANG_SB} merker={RUNDGANG_SB_MERKER} anstoss={tourWunsch.sb} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.sb=0; return n; })}>
+          <SprechstundenbriefApp onWerkzeug={function(t){ if (t === "preise") setBriefHinterPreisen(true); setTool(t); }} />
+        </MitRundgang>
+      </div>
+      {tool === "preise" && preiseAnsicht()}
+    </>
   );
   
   if (tool === "ob") return (
     <div>
-      <ToolKopfleiste titel="OP-Bericht Generator" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="OP-Bericht Generator" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
       <MitRundgang schritte={RUNDGANG_OB} merker={RUNDGANG_OB_MERKER} anstoss={tourWunsch.ob} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.ob=0; return n; })}>
         <OPBerichtApp />
       </MitRundgang>
@@ -10157,14 +10167,14 @@ function App() {
   
   if (tool === "aufklaerung") return (
     <div>
-      <ToolKopfleiste titel="Aufklärungstexte" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="Aufklärungstexte" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
       <AufklaerungstoolView />
     </div>
   );
 
   if (tool === "hdrg") return (
     <div>
-      <ToolKopfleiste titel="OPS-Code Zuordnung 2026" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="OPS-Code Zuordnung 2026" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F"}}>🔍 OPS-Code Zuordnung 2026</div>
@@ -10179,7 +10189,7 @@ function App() {
 
   if (tool === "manuale") return (
     <div>
-      <ToolKopfleiste titel="OP-Manuale" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="OP-Manuale" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:700,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F"}}>📚 OP-Manuale</div>
@@ -10193,7 +10203,7 @@ function App() {
 
   if (tool === "klassifikationen") return (
     <div>
-      <ToolKopfleiste titel="Klassifikationen" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="Klassifikationen" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F"}}>📊 Klassifikationen</div>
@@ -10205,9 +10215,11 @@ function App() {
     </div>
   );
 
-  if (tool === "preise") return (
+  function preiseAnsicht(){ return (
     <div>
-      <ToolKopfleiste titel="Implantatpreise" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="Implantatpreise" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}
+        zurueckText={briefHinterPreisen ? "← Zurück zum Brief" : undefined}
+        onZurueck={briefHinterPreisen ? function(){ setTool("sb"); } : undefined}/>
       <MitRundgang schritte={RUNDGANG_PREISE} merker={RUNDGANG_PREISE_MERKER} anstoss={tourWunsch.preise} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.preise=0; return n; })}>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:1020,margin:"0 auto",padding:"16px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:18}}>
@@ -10217,11 +10229,12 @@ function App() {
       </div>
       </MitRundgang>
     </div>
-  );
+  ); }
+  if (tool === "preise" && !briefHinterPreisen) return preiseAnsicht();
 
   if (tool === "roentgen") return (
     <div>
-      <ToolKopfleiste titel="Röntgen & Messmethoden" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="Röntgen & Messmethoden" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:900,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F"}}>📐 Röntgenbilder mit Messmethoden</div>
@@ -10235,7 +10248,7 @@ function App() {
 
   if (tool === "codes") return (
     <div>
-      <ToolKopfleiste titel="Code-Übersicht" onHome={()=>setTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="Code-Übersicht" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
       <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",maxWidth:1100,margin:"0 auto",padding:"20px 16px 40px"}}>
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{fontFamily:"'Source Serif 4',Georgia,serif",fontSize:22,fontWeight:700,color:"#006B6F",marginBottom:4}}>🧾 Code-Übersicht</div>
@@ -10251,18 +10264,18 @@ function App() {
 
     if (tool === "selbsttest") return (
       <div>
-        <ToolKopfleiste titel="Selbsttest" onHome={()=>setTool(null)} onEinstellungen={()=>setTool("einstellungen")}/>
+        <ToolKopfleiste titel="Selbsttest" onHome={()=>wechselTool(null)} onEinstellungen={()=>setTool("einstellungen")}/>
         <SelbsttestView/>
       </div>
     );
     if (tool === "einstellungen") return (
       <div>
-        <ToolKopfleiste titel="Einstellungen" onHome={()=>setTool(null)}/>
-        <EinstellungenView onSelect={setTool} onRundgang={rundgangStarten}/>
+        <ToolKopfleiste titel="Einstellungen" onHome={()=>wechselTool(null)}/>
+        <EinstellungenView onSelect={wechselTool} onRundgang={rundgangStarten}/>
       </div>
     );
 
-    return <LandingPage onSelect={setTool} rundgangWunsch={menueRundgangWunsch}
+    return <LandingPage onSelect={wechselTool} rundgangWunsch={menueRundgangWunsch}
              onWunschVerbraucht={()=>setMenueRundgangWunsch(false)} />;
 }
 
