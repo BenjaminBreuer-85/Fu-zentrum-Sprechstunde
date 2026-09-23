@@ -1,0 +1,5136 @@
+{
+ "stand": {
+  "app_html_sha256": "d3f63960249c866cfed4dc4a4697fcb9ccd89936927359bad54751e505cb02f0",
+  "runtime": "jsc",
+  "zweige_im_memo": 34,
+  "zeilen": 84
+ },
+ "zaehlung": {
+  "gleich": 50,
+  "toggle": 3,
+  "abweichend": 28,
+  "kein Eintrag": 3
+ },
+ "warnungen": [],
+ "zeilen": [
+  {
+   "nr": 1,
+   "zweig": "\"Lapidus\"",
+   "stellung": "Lapidus ohne Akin",
+   "keys": [
+    "lapidus"
+   ],
+   "codes": [
+    "5-808.a4",
+    "5-788.40",
+    "5-93b.0",
+    "5-93b.e",
+    "5-783.0v",
+    "5-784.0u",
+    "5-854.2c"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20M",
+    "drg": "I20D",
+    "empf": "both",
+    "hdrgTrigger": [
+     {
+      "code": "5-788.56",
+      "name": "Akin-Osteotomie"
+     },
+     {
+      "code": "5-788.5e",
+      "name": "Reverdin-Osteotomie"
+     },
+     {
+      "code": "5-788.60",
+      "name": "Arthroplastik MTP I"
+     },
+     {
+      "code": "5-788.5c",
+      "name": "distale OT MT I"
+     },
+     {
+      "code": "5-788.40",
+      "name": "Arthroplastik MT-Basis"
+     }
+    ],
+    "hebel": "5-783.0v + 5-784.0v",
+    "hebelName": "Spongiosa MT I",
+    "kontext": [
+     {
+      "code": "5-783.0v",
+      "name": "Spongiosaentnahme Metatarsale"
+     },
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosatransplantation Metatarsale"
+     }
+    ],
+    "hinweise": [
+     "warn: Sehnentransfer 5-854.2c, Sehnenverkürzun",
+     "info: Akin (5-788.56) ist fester Bestandteil d",
+     "warn: Häufiger Planungsfehler: Lapidus ambulan"
+    ]
+   },
+   "C": {
+    "hdrg": "I20M",
+    "drg": "I20D",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20D",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20M. Wird stationär zusätzlich Spongiosa MT I (5-783.0v + 5-784.0v) durchgeführt, gruppiert der Fall nach I20D.",
+    "warnungen": [
+     "Sehnentransfer Mittelfuß/Zehen (5-854.2c) wirkt in I20M nicht als Kontextprozedur, Fall bleibt Hybrid."
+    ],
+    "regel": "I20M",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "Kodeliste enthaelt 5-854.2c immer; ohne Sehnentransfer gehoert er nicht in den Fall.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 2,
+   "zweig": "\"Lapidus\"",
+   "stellung": "Lapidus + Akin",
+   "keys": [
+    "lapidus"
+   ],
+   "codes": [
+    "5-808.a4",
+    "5-788.40",
+    "5-93b.0",
+    "5-93b.e",
+    "5-783.0v",
+    "5-784.0u",
+    "5-854.2c",
+    "5-788.56"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20M",
+    "drg": "I20D",
+    "empf": "both",
+    "hdrgTrigger": [
+     {
+      "code": "5-788.56",
+      "name": "Akin-Osteotomie"
+     },
+     {
+      "code": "5-788.5e",
+      "name": "Reverdin-Osteotomie"
+     },
+     {
+      "code": "5-788.60",
+      "name": "Arthroplastik MTP I"
+     },
+     {
+      "code": "5-788.5c",
+      "name": "distale OT MT I"
+     },
+     {
+      "code": "5-788.40",
+      "name": "Arthroplastik MT-Basis"
+     }
+    ],
+    "hebel": "5-783.0v + 5-784.0v",
+    "hebelName": "Spongiosa MT I",
+    "kontext": [
+     {
+      "code": "5-783.0v",
+      "name": "Spongiosaentnahme Metatarsale"
+     },
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosatransplantation Metatarsale"
+     }
+    ],
+    "hinweise": [
+     "warn: Sehnentransfer 5-854.2c, Sehnenverkürzun",
+     "info: Akin (5-788.56) ist fester Bestandteil d",
+     "warn: Häufiger Planungsfehler: Lapidus ambulan"
+    ]
+   },
+   "C": {
+    "hdrg": "I20M",
+    "drg": "I20D",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20D",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20M. Wird stationär zusätzlich Spongiosa MT I (5-783.0v + 5-784.0v) durchgeführt, gruppiert der Fall nach I20D.",
+    "warnungen": [
+     "Sehnentransfer Mittelfuß/Zehen (5-854.2c) wirkt in I20M nicht als Kontextprozedur, Fall bleibt Hybrid."
+    ],
+    "regel": "I20M",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [
+    "a",
+    "f"
+   ],
+   "anmerkung": "C1/C3: Zweig zeigt H-DRG '—', Daten und Auswertung I20M.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 3,
+   "zweig": "\"Lapidus\"",
+   "stellung": "Lapidus + Akin + 3× DMMO",
+   "keys": [
+    "lapidus"
+   ],
+   "codes": [
+    "5-808.a4",
+    "5-788.40",
+    "5-93b.0",
+    "5-93b.e",
+    "5-783.0v",
+    "5-784.0u",
+    "5-854.2c",
+    "5-788.56",
+    "5-788.54",
+    "5-86a.12"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20M",
+    "drg": "I20D",
+    "empf": "both",
+    "hdrgTrigger": [
+     {
+      "code": "5-788.56",
+      "name": "Akin-Osteotomie"
+     },
+     {
+      "code": "5-788.5e",
+      "name": "Reverdin-Osteotomie"
+     },
+     {
+      "code": "5-788.60",
+      "name": "Arthroplastik MTP I"
+     },
+     {
+      "code": "5-788.5c",
+      "name": "distale OT MT I"
+     },
+     {
+      "code": "5-788.40",
+      "name": "Arthroplastik MT-Basis"
+     }
+    ],
+    "hebel": "5-783.0v + 5-784.0v",
+    "hebelName": "Spongiosa MT I",
+    "kontext": [
+     {
+      "code": "5-783.0v",
+      "name": "Spongiosaentnahme Metatarsale"
+     },
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosatransplantation Metatarsale"
+     }
+    ],
+    "hinweise": [
+     "warn: Sehnentransfer 5-854.2c, Sehnenverkürzun",
+     "info: Akin (5-788.56) ist fester Bestandteil d",
+     "warn: Häufiger Planungsfehler: Lapidus ambulan"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20D",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20D",
+     "ambulant": "nein"
+    },
+    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20M, sondern stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u, 5-788.56, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20M",
+    "kontext": [
+     "5-788.54"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "toggle",
+   "grund": "A = C; B traegt den statischen Grundwert",
+   "betrifft": [
+    "a"
+   ],
+   "anmerkung": "C2: Zweigtitel bleibt 'Lapidus', die DMMO-Zahl aendert nichts.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 4,
+   "zweig": "\"Lapidus\"",
+   "stellung": "Lapidus + Spongiosa Metatarsale (Soll 5-784.0v)",
+   "keys": [
+    "lapidus"
+   ],
+   "codes": [
+    "5-808.a4",
+    "5-788.40",
+    "5-93b.0",
+    "5-93b.e",
+    "5-783.0v",
+    "5-784.0v",
+    "5-854.2c",
+    "5-788.56"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20M",
+    "drg": "I20D",
+    "empf": "both",
+    "hdrgTrigger": [
+     {
+      "code": "5-788.56",
+      "name": "Akin-Osteotomie"
+     },
+     {
+      "code": "5-788.5e",
+      "name": "Reverdin-Osteotomie"
+     },
+     {
+      "code": "5-788.60",
+      "name": "Arthroplastik MTP I"
+     },
+     {
+      "code": "5-788.5c",
+      "name": "distale OT MT I"
+     },
+     {
+      "code": "5-788.40",
+      "name": "Arthroplastik MT-Basis"
+     }
+    ],
+    "hebel": "5-783.0v + 5-784.0v",
+    "hebelName": "Spongiosa MT I",
+    "kontext": [
+     {
+      "code": "5-783.0v",
+      "name": "Spongiosaentnahme Metatarsale"
+     },
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosatransplantation Metatarsale"
+     }
+    ],
+    "hinweise": [
+     "warn: Sehnentransfer 5-854.2c, Sehnenverkürzun",
+     "info: Akin (5-788.56) ist fester Bestandteil d",
+     "warn: Häufiger Planungsfehler: Lapidus ambulan"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20D",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20D",
+     "ambulant": "nein"
+    },
+    "satz": "Spongiosatransplantation Metatarsale (5-784.0v) gruppiert den Fall nicht mehr in I20M, sondern stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0v, 5-788.56 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20M",
+    "kontext": [
+     "5-784.0v"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "toggle",
+   "grund": "A = C; B traegt den statischen Grundwert",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "Kodeblock schiebt 5-784.0u (Tarsale); der Hebel in den Daten ist 5-784.0v (Metatarsale).",
+   "entscheidung": ""
+  },
+  {
+   "nr": 5,
+   "zweig": "\"MTP-I-Arthrodese\"",
+   "stellung": "MTP-I allein",
+   "keys": [
+    "mtp1_arthrodese"
+   ],
+   "codes": [
+    "5-808.b0",
+    "5-93b.0",
+    "5-93b.e"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-784.0v",
+    "hebelName": "Spongiosa MTP I",
+    "kontext": [
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosa MTP I"
+     }
+    ],
+    "hinweise": [
+     "erloes: {'__fx': '3× DMMO MT II–V (5-788.54) füh",
+     "info: MTP-I-Arthrodese zusammen mit Lapidus (5"
+    ]
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20E",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20N. Wird stationär zusätzlich Spongiosa MTP I (5-784.0v) durchgeführt, gruppiert der Fall nach I20E.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 6,
+   "zweig": "\"MTP-I-Arthrodese\"",
+   "stellung": "MTP-I + Akin",
+   "keys": [
+    "mtp1_arthrodese"
+   ],
+   "codes": [
+    "5-808.b0",
+    "5-93b.0",
+    "5-93b.e",
+    "5-788.56"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-784.0v",
+    "hebelName": "Spongiosa MTP I",
+    "kontext": [
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosa MTP I"
+     }
+    ],
+    "hinweise": [
+     "erloes: {'__fx': '3× DMMO MT II–V (5-788.54) füh",
+     "info: MTP-I-Arthrodese zusammen mit Lapidus (5"
+    ]
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20E",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20N. Wird stationär zusätzlich Spongiosa MTP I (5-784.0v) durchgeführt, gruppiert der Fall nach I20E.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 7,
+   "zweig": "\"MTP-I-Arthrodese\"",
+   "stellung": "MTP-I nach Hoffmann/Tillmann (4× Arthroplastik)",
+   "keys": [
+    "mtp1_arthrodese"
+   ],
+   "codes": [
+    "5-808.b0",
+    "5-93b.0",
+    "5-93b.e",
+    "5-788.60",
+    "5-808.b2"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-784.0v",
+    "hebelName": "Spongiosa MTP I",
+    "kontext": [
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosa MTP I"
+     }
+    ],
+    "hinweise": [
+     "erloes: {'__fx': '3× DMMO MT II–V (5-788.54) füh",
+     "info: MTP-I-Arthrodese zusammen mit Lapidus (5"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "Arthroplastik MTP I (5-788.60) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20E. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.60, 5-808.b2 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-788.60"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "a"
+   ],
+   "anmerkung": "5-788.60 steht in V70 minus V66: nichtKontext bei I20M, Kontext bei I20O/I20N.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 8,
+   "zweig": "\"MTP-I-Arthrodese + DMMO\"",
+   "stellung": "MTP-I + 1× DMMO",
+   "keys": [
+    "mtp1_arthrodese"
+   ],
+   "codes": [
+    "5-808.b0",
+    "5-93b.0",
+    "5-93b.e",
+    "5-788.52",
+    "5-86a.10"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-784.0v",
+    "hebelName": "Spongiosa MTP I",
+    "kontext": [
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosa MTP I"
+     }
+    ],
+    "hinweise": [
+     "erloes: {'__fx': '3× DMMO MT II–V (5-788.54) füh",
+     "info: MTP-I-Arthrodese zusammen mit Lapidus (5"
+    ]
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20E",
+     "ambulant": "hybrid"
+    },
+    "satz": "1× distale Osteotomie MT II–V (5-788.52) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-788.52"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 9,
+   "zweig": "\"MTP-I-Arthrodese + DMMO\"",
+   "stellung": "MTP-I + 2× DMMO",
+   "keys": [
+    "mtp1_arthrodese"
+   ],
+   "codes": [
+    "5-808.b0",
+    "5-93b.0",
+    "5-93b.e",
+    "5-788.53",
+    "5-86a.11"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-784.0v",
+    "hebelName": "Spongiosa MTP I",
+    "kontext": [
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosa MTP I"
+     }
+    ],
+    "hinweise": [
+     "erloes: {'__fx': '3× DMMO MT II–V (5-788.54) füh",
+     "info: MTP-I-Arthrodese zusammen mit Lapidus (5"
+    ]
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20E",
+     "ambulant": "hybrid"
+    },
+    "satz": "2× distale Osteotomie MT II–V (5-788.53) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-788.53"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 10,
+   "zweig": "\"MTP-I-Arthrodese + ≥3 DMMO\"",
+   "stellung": "MTP-I + 3× DMMO",
+   "keys": [
+    "mtp1_arthrodese"
+   ],
+   "codes": [
+    "5-808.b0",
+    "5-93b.0",
+    "5-93b.e",
+    "5-788.54",
+    "5-86a.12"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-784.0v",
+    "hebelName": "Spongiosa MTP I",
+    "kontext": [
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosa MTP I"
+     }
+    ],
+    "hinweise": [
+     "erloes: {'__fx': '3× DMMO MT II–V (5-788.54) füh",
+     "info: MTP-I-Arthrodese zusammen mit Lapidus (5"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20D",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20D",
+     "ambulant": "nein"
+    },
+    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20D. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-788.54"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "toggle",
+   "grund": "A = C; B traegt den statischen Grundwert",
+   "betrifft": [],
+   "anmerkung": "Sechster Teil Punkt 2: C liefert I20D aus der Kontextregel, ohne festen Wert im Zweig.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 11,
+   "zweig": "\"MTP-I-Arthrodese + ≥3 DMMO\"",
+   "stellung": "MTP-I + 4× DMMO",
+   "keys": [
+    "mtp1_arthrodese"
+   ],
+   "codes": [
+    "5-808.b0",
+    "5-93b.0",
+    "5-93b.e",
+    "5-788.55",
+    "5-86a.13"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-784.0v",
+    "hebelName": "Spongiosa MTP I",
+    "kontext": [
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosa MTP I"
+     }
+    ],
+    "hinweise": [
+     "erloes: {'__fx': '3× DMMO MT II–V (5-788.54) füh",
+     "info: MTP-I-Arthrodese zusammen mit Lapidus (5"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20C",
+     "ambulant": "nein"
+    },
+    "satz": "4× distale Osteotomie MT II–V (5-788.55) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20C. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.55, 5-86a.13 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-788.55"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [],
+   "anmerkung": "C liefert I20C (Regel I20N → I20C), der Zweig zeigt I20D.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 12,
+   "zweig": "\"MTP-I-Arthrodese\"",
+   "stellung": "MTP-I + PIP 3 Zehen",
+   "keys": [
+    "mtp1_arthrodese"
+   ],
+   "codes": [
+    "5-808.b0",
+    "5-93b.0",
+    "5-93b.e",
+    "5-808.bf",
+    "5-86a.12"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-784.0v",
+    "hebelName": "Spongiosa MTP I",
+    "kontext": [
+     {
+      "code": "5-784.0v",
+      "name": "Spongiosa MTP I"
+     }
+    ],
+    "hinweise": [
+     "erloes: {'__fx': '3× DMMO MT II–V (5-788.54) füh",
+     "info: MTP-I-Arthrodese zusammen mit Lapidus (5"
+    ]
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20E",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20E",
+     "ambulant": "hybrid"
+    },
+    "satz": "3× Arthrodese IP Dig II–V (5-808.bf) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-808.bf"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "PIP wertet auf I20N auf; MTP-I steht schon bei I20N, kein I20M.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 13,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Chevron ohne Zusatz",
+   "keys": [
+    "chevron"
+   ],
+   "codes": [
+    "5-788.5c",
+    "5-788.40",
+    "5-93b.0",
+    "5-854.2c"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-854.2c"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "Kodeliste enthaelt 5-854.2c immer, obwohl der Zweigtext ihn als Entscheidung beschreibt.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 14,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Chevron + Akin",
+   "keys": [
+    "chevron_akin"
+   ],
+   "codes": [
+    "5-788.5c",
+    "5-788.40",
+    "5-93b.0",
+    "5-854.2c",
+    "5-788.56"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.56 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-854.2c"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 15,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Chevron + 1× DMMO",
+   "keys": [
+    "chevron"
+   ],
+   "codes": [
+    "5-788.5c",
+    "5-788.40",
+    "5-93b.0",
+    "5-854.2c",
+    "5-788.52",
+    "5-86a.10"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.52, 5-86a.10 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-854.2c"
+    ],
+    "aufwertung": [
+     "5-788.52"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 16,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Chevron + 2× DMMO",
+   "keys": [
+    "chevron"
+   ],
+   "codes": [
+    "5-788.5c",
+    "5-788.40",
+    "5-93b.0",
+    "5-854.2c",
+    "5-788.53",
+    "5-86a.11"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.53, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-854.2c"
+    ],
+    "aufwertung": [
+     "5-788.53"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 17,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Chevron + 3× DMMO",
+   "keys": [
+    "chevron"
+   ],
+   "codes": [
+    "5-788.5c",
+    "5-788.40",
+    "5-93b.0",
+    "5-854.2c",
+    "5-788.54",
+    "5-86a.12"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "3× distale Osteotomie MT II–V (5-788.54) und Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-788.54",
+     "5-854.2c"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "a"
+   ],
+   "anmerkung": "C2: Zweig zeigt weiter I20O, Auswertung fuehrt nach I20E.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 18,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Chevron + 4× DMMO",
+   "keys": [
+    "chevron"
+   ],
+   "codes": [
+    "5-788.5c",
+    "5-788.40",
+    "5-93b.0",
+    "5-854.2c",
+    "5-788.55",
+    "5-86a.13"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "4× distale Osteotomie MT II–V (5-788.55) und Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.55, 5-86a.13 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-788.55",
+     "5-854.2c"
+    ],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "a"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 19,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Chevron + PIP 2 Zehen",
+   "keys": [
+    "chevron"
+   ],
+   "codes": [
+    "5-788.5c",
+    "5-788.40",
+    "5-93b.0",
+    "5-854.2c",
+    "5-808.be",
+    "5-86a.11"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-808.be, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-854.2c"
+    ],
+    "aufwertung": [
+     "5-808.be"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 20,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Scarf ohne Zusatz",
+   "keys": [
+    "scarf"
+   ],
+   "codes": [
+    "5-788.5e"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20E",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20O. Wird stationär zusätzlich Sehnentransfer (5-854.2c) durchgeführt, gruppiert der Fall nach I20E.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 21,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Youngswick (Chip zeigt Scarf-Zweig)",
+   "keys": [
+    "youngswick"
+   ],
+   "codes": [
+    "5-788.5e"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "empf": "both",
+    "hebel": "5-854.2c",
+    "hebelName": "Sehnentransfer",
+    "kontext": [
+     {
+      "code": "5-854.2c",
+      "name": "Sehnentransfer"
+     }
+    ],
+    "aufwertung": {
+     "ziel": {
+      "__fx": "I20N (2.085 €)"
+     },
+     "delta": "+1.078 €",
+     "triggers": [
+      {
+       "code": "5-788.52/53",
+       "name": "1–2× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.68",
+       "name": "3× Arthroplastik IP Kleinzehen"
+      },
+      {
+       "code": "5-808.be/bf/bg",
+       "name": "2–4× Arthrodese IP Kleinzehen"
+      }
+     ]
+    },
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54/55",
+       "name": "3–4× DMMO MT II–V"
+      },
+      {
+       "code": "5-788.60",
+       "name": "Arthroplastik MTP I"
+      },
+      {
+       "code": "5-788.59/5a/5b",
+       "name": "3–5× Osteotomie Dig II–V"
+      },
+      {
+       "code": "5-788.62/63/64",
+       "name": "2–4× Arthroplastik MTP II–V"
+      },
+      {
+       "code": "5-788.69/6a",
+       "name": "4–5× Arthroplastik IP, II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": "I20O",
+    "drg": "I20E",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20E",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20O. Wird stationär zusätzlich Sehnentransfer (5-854.2c) durchgeführt, gruppiert der Fall nach I20E.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "Kein eigener Kodepfad: der Chip laeuft ueber gz='scarf'.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 22,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Cheilektomie",
+   "keys": [
+    "cheilektomie"
+   ],
+   "codes": [
+    "5-788.00"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both",
+    "implantatfrei": true
+   },
+   "C": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 23,
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Exostosenabtragung",
+   "keys": [
+    "exostose"
+   ],
+   "codes": [
+    "5-788.00"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both",
+    "implantatfrei": true
+   },
+   "C": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 24,
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "1× DMMO allein",
+   "keys": [
+    "dmmo"
+   ],
+   "codes": [
+    "5-788.52",
+    "5-93b.0"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both",
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54",
+       "name": "3× distale Osteotomie MT II–V"
+      },
+      {
+       "code": "5-788.55",
+       "name": "4× distale Osteotomie MT II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "1× distale Osteotomie MT II–V (5-788.52) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-788.52"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "A zeigt I20O, Daten und Auswertung I20N (Aufwertung 5-788.52).",
+   "entscheidung": ""
+  },
+  {
+   "nr": 25,
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "2× DMMO allein",
+   "keys": [
+    "dmmo"
+   ],
+   "codes": [
+    "5-788.53",
+    "5-93b.0",
+    "5-86a.10"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both",
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54",
+       "name": "3× distale Osteotomie MT II–V"
+      },
+      {
+       "code": "5-788.55",
+       "name": "4× distale Osteotomie MT II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "2× distale Osteotomie MT II–V (5-788.53) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-788.53"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 26,
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "1–2× Weil",
+   "keys": [
+    "weil"
+   ],
+   "codes": [
+    "5-788.53",
+    "5-93b.0",
+    "5-86a.10"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both",
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54",
+       "name": "3× distale Osteotomie MT II–V"
+      },
+      {
+       "code": "5-788.55",
+       "name": "4× distale Osteotomie MT II–V"
+      }
+     ]
+    },
+    "hinweise": [
+     "info: Je versorgtem Strahl zusätzlich 5-93b.0 "
+    ]
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "2× distale Osteotomie MT II–V (5-788.53) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-788.53"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 27,
+   "zweig": "(weil.length&&!dmmo.length",
+   "stellung": "3× DMMO allein",
+   "keys": [
+    "dmmo"
+   ],
+   "codes": [
+    "5-788.54",
+    "5-93b.0",
+    "5-86a.11"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both",
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54",
+       "name": "3× distale Osteotomie MT II–V"
+      },
+      {
+       "code": "5-788.55",
+       "name": "4× distale Osteotomie MT II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.54, 5-93b.0, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-788.54"
+    ],
+    "aufwertung": [],
+    "beidseits": "bleibt"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 28,
+   "zweig": "(weil.length&&!dmmo.length",
+   "stellung": "4× DMMO allein",
+   "keys": [
+    "dmmo"
+   ],
+   "codes": [
+    "5-788.55",
+    "5-93b.0",
+    "5-86a.12"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both",
+    "ausschluss": {
+     "ziel": "keine Hybrid-DRG: stationär I20E/I20F; 5-788.54/55 stehen nicht im AOP-Katalog, für Kliniken ambulant daher Hybrid empfohlen",
+     "triggers": [
+      {
+       "code": "5-788.54",
+       "name": "3× distale Osteotomie MT II–V"
+      },
+      {
+       "code": "5-788.55",
+       "name": "4× distale Osteotomie MT II–V"
+      }
+     ]
+    }
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "4× distale Osteotomie MT II–V (5-788.55) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.55, 5-93b.0, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-788.55"
+    ],
+    "aufwertung": [],
+    "beidseits": "bleibt"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 29,
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "PIP 1 Zehe",
+   "keys": [
+    "kleinzehen_pip"
+   ],
+   "codes": [
+    "5-808.bd"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both"
+   },
+   "C": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 30,
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "PIP 2 Zehen",
+   "keys": [
+    "kleinzehen_pip"
+   ],
+   "codes": [
+    "5-808.be",
+    "5-86a.10"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both"
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "2× Arthrodese IP Dig II–V (5-808.be) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-808.be"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 31,
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "PIP 3 Zehen",
+   "keys": [
+    "kleinzehen_pip"
+   ],
+   "codes": [
+    "5-808.bf",
+    "5-86a.11"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both"
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "3× Arthrodese IP Dig II–V (5-808.bf) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-808.bf"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "Zweigtext traegt noch die 2024er Regel '>2 keine H-DRG'.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 32,
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "PIP 4 Zehen",
+   "keys": [
+    "kleinzehen_pip"
+   ],
+   "codes": [
+    "5-808.bg",
+    "5-86a.12"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both"
+   },
+   "C": {
+    "hdrg": "I20N",
+    "drg": "I20F",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I20F",
+     "ambulant": "hybrid"
+    },
+    "satz": "4× Arthrodese IP Dig II–V (5-808.bg) wertet auf I20N auf.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [
+     "5-808.bg"
+    ],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 33,
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "PIP 5 Gelenke (5-808.bh)",
+   "keys": [
+    "kleinzehen_pip"
+   ],
+   "codes": [
+    "5-808.bh"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I20F",
+    "empf": "both"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "setting": {
+     "hybrid": false,
+     "stationaer": "I20E",
+     "ambulant": "nein"
+    },
+    "satz": "≥5× Arthrodesen IP Dig II–V (5-808.bh) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-808.bh steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [
+     "5-808.bh"
+    ],
+    "aufwertung": [],
+    "beidseits": "bleibt"
+   },
+   "bewertung": "abweichend",
+   "grund": "A, B und C unterscheiden sich",
+   "betrifft": [],
+   "anmerkung": "Kein App-Fall: der Kodeblock deckelt bei vier Zehen (bd–bg).",
+   "entscheidung": ""
+  },
+  {
+   "nr": 34,
+   "zweig": "\"OSG-TEP primär (\"",
+   "stellung": "TEP primaer",
+   "keys": [
+    "tep_infinity",
+    "tep_vantage",
+    "tep_inbone"
+   ],
+   "codes": [
+    "5-826.00"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I05B",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I05B",
+    "empf": "stat",
+    "modifikatoren": [
+     "Wechseloperation"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I05B",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 35,
+   "zweig": "\"OSG-TEP Wechsel (\"",
+   "stellung": "TEP Wechsel",
+   "keys": [],
+   "codes": [
+    "5-827.10"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I43B",
+    "im_zweig_belegt": true
+   },
+   "B": null,
+   "C": null,
+   "bewertung": "kein Eintrag",
+   "grund": "kein OP_STEUERUNG-Schluessel",
+   "betrifft": [],
+   "anmerkung": "Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag (Modifikator Wechsel an tep_*).",
+   "entscheidung": ""
+  },
+  {
+   "nr": 36,
+   "zweig": "\"Arthrodesenagel (TTC-Arthrodese)\"",
+   "stellung": "TTC-Arthrodesenagel",
+   "keys": [
+    "arthrodesenagel_retro"
+   ],
+   "codes": [
+    "5-808.71",
+    "5-93b.6"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20A",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20A",
+    "empf": "stat",
+    "hinweise": [
+     "alert: UGVD = 2 Tage, volle DRG erst ab 3 Beleg",
+     "warn: Mindestens 3 Übernachtungen einplanen."
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20A",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 37,
+   "zweig": "\"OSG-Arthrodese\"",
+   "stellung": "OSG-Arthrodese ohne Spongiosa",
+   "keys": [
+    "arthrodese_osg"
+   ],
+   "codes": [
+    "5-808.70",
+    "5-93b.0"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13D",
+    "empf": "stat",
+    "hebel": "5-783.0d + 5-784.0n",
+    "hebelName": "Spongiosa Beckenkamm → Tibia",
+    "modifikatoren": [
+     "ohne Spongiosa"
+    ],
+    "hinweise": [
+     "info: Mit Spongiosaplastik (5-783.0d Entnahme ",
+     "warn: Die DRG I13D setzt eine durchgeführte Sp",
+     "alert: {'__fx': 'Ohne Spongiosaplastik gruppier"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 38,
+   "zweig": "\"OSG-Arthrodese\"",
+   "stellung": "OSG-Arthrodese + Spongiosa",
+   "keys": [
+    "arthrodese_osg"
+   ],
+   "codes": [
+    "5-808.70",
+    "5-93b.0",
+    "5-93b.e",
+    "5-784.0n",
+    "5-783.0d"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13D",
+    "empf": "stat",
+    "hebel": "5-783.0d + 5-784.0n",
+    "hebelName": "Spongiosa Beckenkamm → Tibia",
+    "modifikatoren": [
+     "ohne Spongiosa"
+    ],
+    "hinweise": [
+     "info: Mit Spongiosaplastik (5-783.0d Entnahme ",
+     "warn: Die DRG I13D setzt eine durchgeführte Sp",
+     "alert: {'__fx': 'Ohne Spongiosaplastik gruppier"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 39,
+   "zweig": "amicIKO?",
+   "stellung": "AMIC offen",
+   "keys": [
+    "amic"
+   ],
+   "codes": [
+    "5-801.nk",
+    "5-783.0",
+    "5-784.0s"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13G",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13G",
+    "empf": "stat",
+    "modifikatoren": [
+     "+ Innenknöchelosteotomie"
+    ],
+    "hinweise": [
+     "erloes: {'__fx': 'Bei zusätzlicher Innenknöchelo"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13G",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "c"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 40,
+   "zweig": "amicIKO?",
+   "stellung": "AMIC + Innenknoechelosteotomie",
+   "keys": [
+    "amic"
+   ],
+   "codes": [
+    "5-801.nk",
+    "5-783.0",
+    "5-784.0s",
+    "5-781.an",
+    "5-93b.0"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13G",
+    "empf": "stat",
+    "modifikatoren": [
+     "+ Innenknöchelosteotomie"
+    ],
+    "hinweise": [
+     "erloes: {'__fx': 'Bei zusätzlicher Innenknöchelo"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13G",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [
+    "c"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 41,
+   "zweig": "\"Brostrom-Gould\"",
+   "stellung": "Brostrom ohne Internal Brace",
+   "keys": [
+    "brostrom_gould"
+   ],
+   "codes": [
+    "5-806.5",
+    "5-869.2",
+    "5-782.1r"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I59Z",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I59Z",
+    "empf": "stat",
+    "ambStatus": "ebm"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I59Z",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "c"
+   ],
+   "anmerkung": "Kodeblock schiebt 5-806.5, der Kodiertext nennt 5-806.4h.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 42,
+   "zweig": "\"Brostrom-Gould\"",
+   "stellung": "Brostrom + Internal Brace",
+   "keys": [
+    "brostrom_int_brace"
+   ],
+   "codes": [
+    "5-806.5",
+    "5-869.2",
+    "5-782.1r",
+    "5-806.6"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I59Z",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I59Z",
+    "empf": "stat",
+    "ambStatus": "ebm"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I59Z",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "c"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 43,
+   "zweig": "\"Arthrorise\"",
+   "stellung": "Arthrorise, Alter < 18",
+   "keys": [
+    "arthrorise"
+   ],
+   "codes": [
+    "5-809.1m",
+    "5-93b.0"
+   ],
+   "alter": "<18",
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "variabel",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "empf": "amb",
+    "hinweise": [
+     "alert: Patientenalter <18 Jahre → Altersausschl"
+    ]
+   },
+   "C": {
+    "hdrg": "I20O",
+    "drg": null,
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": null,
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "sperre"
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [
+    "b"
+   ],
+   "anmerkung": "Alter ist heute nur Text; die Auswertung kennt kein Alterskriterium.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 44,
+   "zweig": "\"Achillessehnennaht (offen)\"",
+   "stellung": "Achillessehnennaht offen",
+   "keys": [
+    "as_naht"
+   ],
+   "codes": [
+    "5-855.19",
+    "5-855.39"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27E",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-855.19",
+      "name": "Sehnennaht primär (Hauptcode)"
+     },
+     {
+      "code": "5-855.39",
+      "name": "Naht der Sehnenscheide (gehört zum Eingriff)"
+     }
+    ],
+    "ambStatus": "ebm",
+    "implantatfrei": true,
+    "hinweise": [
+     "alert: Mit Naht der Sehnenscheide/des Paratenon",
+     "info: Wird die Naht der Sehnenscheide bzw. des"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "d"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 45,
+   "zweig": "\"FHL-Transfer\"",
+   "stellung": "FHL-Transfer",
+   "keys": [
+    "fhl_transfer"
+   ],
+   "codes": [
+    "5-854.49",
+    "5-869.2",
+    "5-855.39",
+    "5-855.19"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27D",
+    "empf": "stat",
+    "hinweise": [
+     "info: Im OP-Bericht dokumentieren: Entnahme de"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "a",
+    "d",
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 46,
+   "zweig": "rfLabel",
+   "stellung": "Subtalare Arthrodese",
+   "keys": [
+    "subtalar_arthrodese"
+   ],
+   "codes": [
+    "5-808.80",
+    "5-93b.0"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13E",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 47,
+   "zweig": "rfLabel",
+   "stellung": "TN-Arthrodese",
+   "keys": [
+    "tn_arthrodese"
+   ],
+   "codes": [
+    "5-808.80",
+    "5-93b.0",
+    "5-784.0s",
+    "5-783.0d"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13E",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 48,
+   "zweig": "rfLabel",
+   "stellung": "Double-Arthrodese",
+   "keys": [
+    "double_arthrodese"
+   ],
+   "codes": [
+    "5-808.81",
+    "5-93b.0",
+    "5-784.1t",
+    "5-783.2d"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13E",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 49,
+   "zweig": "rfLabel",
+   "stellung": "Triple-Arthrodese",
+   "keys": [
+    "triple_arthrodese"
+   ],
+   "codes": [
+    "5-808.82",
+    "5-93b.0",
+    "5-784.1t",
+    "5-783.2d"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20B",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20B",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20B",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 50,
+   "zweig": "rfLabel",
+   "stellung": "Lambrinudi",
+   "keys": [
+    "hohlfuss_lambrinudi"
+   ],
+   "codes": [
+    "5-808.82",
+    "5-93b.0"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20B",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20B",
+    "empf": "stat",
+    "hinweise": [
+     "info: Triple-Arthrodese nach Lambrinudi — kodi"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20B",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 51,
+   "zweig": "\"Calcaneus-OT\"",
+   "stellung": "MDO (minimalinvasiv oder offen)",
+   "keys": [
+    "mdo_mini",
+    "mdo_offen"
+   ],
+   "codes": [
+    "5-781.1t",
+    "5-93b.0"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 52,
+   "zweig": "\"Calcaneus-OT\"",
+   "stellung": "MDO + Cotton allogen",
+   "keys": [
+    "mdo_mini",
+    "mdo_offen"
+   ],
+   "codes": [
+    "5-781.1t",
+    "5-93b.0",
+    "5-781.4u",
+    "5-784.7u"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "Zweigtitel bleibt 'Calcaneus-OT'; der Cotton-Anteil erscheint nur in der Kodeliste.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 53,
+   "zweig": "\"Calcaneus-OT\"",
+   "stellung": "LCOT (verlaengernde Calcaneus-OT)",
+   "keys": [
+    "lcot"
+   ],
+   "codes": [
+    "5-781.8t",
+    "5-93b.e"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat",
+    "hinweise": [
+     "info: In Kombination mit Calcaneus-OT sinnvoll"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 54,
+   "zweig": "\"Calcaneoplastie\"",
+   "stellung": "Calcaneoplastie (Haglund mini)",
+   "keys": [
+    "haglund_mini"
+   ],
+   "codes": [
+    "5-782.at",
+    "5-855.39",
+    "5-859.19"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I20O",
+    "drg": "I27E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "hdrg": "I20O",
+    "drg": "I27E",
+    "empf": "both",
+    "hebel": "5-859.19",
+    "hebelName": "Bursektomie Unterschenkel",
+    "beidseitsHybridBleibt": true,
+    "implantatfrei": true,
+    "hinweise": [
+     "info: Zuordnung (Autor 13./14.09.2026): Werden"
+    ]
+   },
+   "C": {
+    "hdrg": "I20O",
+    "drg": "I27E",
+    "hybrid": true,
+    "setting": {
+     "hybrid": true,
+     "stationaer": "I27E",
+     "ambulant": "hybrid"
+    },
+    "satz": "Ambulant gruppiert der Fall nach I20O. Wird stationär zusätzlich Bursektomie Unterschenkel (5-859.19) durchgeführt, gruppiert der Fall nach I27E.",
+    "warnungen": [],
+    "regel": "I20O/I20N",
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "bleibt"
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "a",
+    "b",
+    "c"
+   ],
+   "anmerkung": "kpAmbZusatz/hebelStat 5-859.19 stehen nur im Zweig, nicht in den Daten.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 55,
+   "zweig": "\"Haglund + AS-Split/Refix\"",
+   "stellung": "Haglund + AS-Split/Refix",
+   "keys": [
+    "haglund_as_split"
+   ],
+   "codes": [
+    "5-782.at",
+    "5-855.39",
+    "5-855.19",
+    "5-854.29",
+    "5-859.19"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27D",
+    "empf": "stat",
+    "hebel": "5-854.29",
+    "hebelName": "Sehnentransposition Unterschenkel",
+    "hinweise": [
+     "info: Mit Sehnentransposition am Unterschenkel",
+     "info: Zuordnung (Webgrouper des Autors 13.09.2"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "a",
+    "d"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 56,
+   "zweig": "\"Os Tib Ext\"",
+   "stellung": "Os Tib Ext ohne MDO",
+   "keys": [
+    "os_tib_ext"
+   ],
+   "codes": [
+    "5-854.2b",
+    "5-782.1u",
+    "5-869.2"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I59Z",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I59Z",
+    "empf": "stat",
+    "hebel": "5-781.1t",
+    "hebelName": "MDO (Calcaneusosteotomie)",
+    "hinweise": [
+     "erloes: {'__fx': 'In Kombination mit einer media"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I59Z",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 57,
+   "zweig": "\"Os Tib Ext\"",
+   "stellung": "Os Tib Ext + MDO",
+   "keys": [
+    "os_tib_ext"
+   ],
+   "codes": [
+    "5-854.2b",
+    "5-782.1u",
+    "5-869.2",
+    "5-781.1t",
+    "5-93b.0"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I59Z",
+    "empf": "stat",
+    "hebel": "5-781.1t",
+    "hebelName": "MDO (Calcaneusosteotomie)",
+    "hinweise": [
+     "erloes: {'__fx': 'In Kombination mit einer media"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I59Z",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [
+    "a"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 58,
+   "zweig": "\"Peronealsehnenluxation\"",
+   "stellung": "Luxation ohne Zusatz",
+   "keys": [
+    "peroneal_lux"
+   ],
+   "codes": [
+    "5-806.7",
+    "5-850.b9"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I59Z",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13G",
+    "empf": "stat",
+    "hebel": "5-781.ar",
+    "hebelName": "Rinnenvertiefung",
+    "implantatfrei": true,
+    "modifikatoren": [
+     "nur Naht, ohne Rinnenvertiefung",
+     "weder Naht noch Rinnenvertiefung"
+    ],
+    "hinweise": [
+     "info: Grundfall ist die Stabilisierung mit Rin"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13G",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 59,
+   "zweig": "\"Peronealsehnenluxation\"",
+   "stellung": "Luxation + Rinnenvertiefung",
+   "keys": [
+    "peroneal_lux"
+   ],
+   "codes": [
+    "5-806.7",
+    "5-850.b9",
+    "5-781.ar"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13G",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13G",
+    "empf": "stat",
+    "hebel": "5-781.ar",
+    "hebelName": "Rinnenvertiefung",
+    "implantatfrei": true,
+    "modifikatoren": [
+     "nur Naht, ohne Rinnenvertiefung",
+     "weder Naht noch Rinnenvertiefung"
+    ],
+    "hinweise": [
+     "info: Grundfall ist die Stabilisierung mit Rin"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13G",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 60,
+   "zweig": "\"Peronealsehnenluxation\"",
+   "stellung": "Luxation + Naht",
+   "keys": [
+    "peroneal_lux"
+   ],
+   "codes": [
+    "5-806.7",
+    "5-850.b9",
+    "5-855.19",
+    "5-855.39"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13G",
+    "empf": "stat",
+    "hebel": "5-781.ar",
+    "hebelName": "Rinnenvertiefung",
+    "implantatfrei": true,
+    "modifikatoren": [
+     "nur Naht, ohne Rinnenvertiefung",
+     "weder Naht noch Rinnenvertiefung"
+    ],
+    "hinweise": [
+     "info: Grundfall ist die Stabilisierung mit Rin"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13G",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [
+    "d"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 61,
+   "zweig": "\"Peronealsehnen \"",
+   "stellung": "Peronealsehnennaht",
+   "keys": [
+    "peroneal_naht"
+   ],
+   "codes": [
+    "5-855.29",
+    "5-855.39",
+    "5-852.29"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27E",
+    "empf": "stat",
+    "implantatfrei": true
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 62,
+   "zweig": "\"Peronealsehnen \"",
+   "stellung": "Peroneal-Tenodese",
+   "keys": [
+    "peroneal_rek"
+   ],
+   "codes": [
+    "5-855.29",
+    "5-855.39",
+    "5-852.29",
+    "5-855.89"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27E",
+    "empf": "stat",
+    "implantatfrei": true
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 63,
+   "zweig": "\"Coalitio \"",
+   "stellung": "Coalitio TC ohne LCOT",
+   "keys": [
+    "coalition_tc"
+   ],
+   "codes": [
+    "5-781.at",
+    "5-856.4a",
+    "5-852.g9"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27D",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-781.at",
+      "name": "Resektion der Koalition (Hauptcode)"
+     },
+     {
+      "code": "5-856.4a",
+      "name": "offene Synovektomie Fußwurzel (mit Faszien-Fett-Lappen)"
+     },
+     {
+      "code": "5-852.g9",
+      "name": "Entnahme des Faszien-Fett-Lappens am Unterschenkel"
+     }
+    ],
+    "implantatfrei": true,
+    "modifikatoren": [
+     "ohne Faszien-Fett-Lappen",
+     "+ LCOT",
+     "+ LCOT, Alter unter 12 Jahren",
+     "+ MDO",
+     "+ MDO, Alter unter 12 Jahren"
+    ],
+    "hinweise": [
+     "erloes: {'__fx': 'Mit LCOT (5-781.4t) oder MDO ("
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 64,
+   "zweig": "\"Coalitio \"",
+   "stellung": "Coalitio CN ohne LCOT",
+   "keys": [
+    "coalition_cn"
+   ],
+   "codes": [
+    "5-781.at",
+    "5-856.4a",
+    "5-852.g9"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27D",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-781.at",
+      "name": "Resektion der Koalition (Hauptcode)"
+     },
+     {
+      "code": "5-856.4a",
+      "name": "offene Synovektomie Fußwurzel (mit Faszien-Fett-Lappen)"
+     },
+     {
+      "code": "5-852.g9",
+      "name": "Entnahme des Faszien-Fett-Lappens am Unterschenkel"
+     }
+    ],
+    "implantatfrei": true,
+    "modifikatoren": [
+     "ohne Faszien-Fett-Lappen",
+     "+ LCOT",
+     "+ LCOT, Alter unter 12 Jahren",
+     "+ MDO",
+     "+ MDO, Alter unter 12 Jahren"
+    ],
+    "hinweise": [
+     "erloes: {'__fx': 'Mit LCOT (5-781.4t) oder MDO ("
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 65,
+   "zweig": "\"Coalitio \"",
+   "stellung": "Coalitio + LCOT",
+   "keys": [
+    "coalition_tc"
+   ],
+   "codes": [
+    "5-781.at",
+    "5-856.4a",
+    "5-852.g9",
+    "5-781.4t",
+    "5-784.7t"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27D",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-781.at",
+      "name": "Resektion der Koalition (Hauptcode)"
+     },
+     {
+      "code": "5-856.4a",
+      "name": "offene Synovektomie Fußwurzel (mit Faszien-Fett-Lappen)"
+     },
+     {
+      "code": "5-852.g9",
+      "name": "Entnahme des Faszien-Fett-Lappens am Unterschenkel"
+     }
+    ],
+    "implantatfrei": true,
+    "modifikatoren": [
+     "ohne Faszien-Fett-Lappen",
+     "+ LCOT",
+     "+ LCOT, Alter unter 12 Jahren",
+     "+ MDO",
+     "+ MDO, Alter unter 12 Jahren"
+    ],
+    "hinweise": [
+     "erloes: {'__fx': 'Mit LCOT (5-781.4t) oder MDO ("
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 66,
+   "zweig": "\"Coalitio \"",
+   "stellung": "Coalitio + LCOT, Alter < 12",
+   "keys": [
+    "coalition_tc"
+   ],
+   "codes": [
+    "5-781.at",
+    "5-856.4a",
+    "5-852.g9",
+    "5-781.4t",
+    "5-784.7t"
+   ],
+   "alter": "<12",
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20B",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I27D",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-781.at",
+      "name": "Resektion der Koalition (Hauptcode)"
+     },
+     {
+      "code": "5-856.4a",
+      "name": "offene Synovektomie Fußwurzel (mit Faszien-Fett-Lappen)"
+     },
+     {
+      "code": "5-852.g9",
+      "name": "Entnahme des Faszien-Fett-Lappens am Unterschenkel"
+     }
+    ],
+    "implantatfrei": true,
+    "modifikatoren": [
+     "ohne Faszien-Fett-Lappen",
+     "+ LCOT",
+     "+ LCOT, Alter unter 12 Jahren",
+     "+ MDO",
+     "+ MDO, Alter unter 12 Jahren"
+    ],
+    "hinweise": [
+     "erloes: {'__fx': 'Mit LCOT (5-781.4t) oder MDO ("
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "abweichend",
+   "grund": "A weicht von B und C ab",
+   "betrifft": [],
+   "anmerkung": "Alter steht nur im Zweigtext; weder Daten noch Auswertung kennen es.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 67,
+   "zweig": "\"Cotton-Osteotomie\"",
+   "stellung": "Cotton autolog",
+   "keys": [
+    "cotton"
+   ],
+   "codes": [
+    "5-781.4u",
+    "5-784.0u"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "Kodiertext nennt nur die allogene Fassung (5-784.7u).",
+   "entscheidung": ""
+  },
+  {
+   "nr": 68,
+   "zweig": "\"Cotton-Osteotomie\"",
+   "stellung": "Cotton allogen",
+   "keys": [
+    "cotton"
+   ],
+   "codes": [
+    "5-781.4u",
+    "5-784.7u"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "implantatfrei seit 34475c9; Materialsatz nur Knochen.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 69,
+   "zweig": "\"TMT-Arthrodese\"",
+   "stellung": "TMT 1 (1 Gelenk)",
+   "keys": [
+    "arthrodese_tmt1"
+   ],
+   "codes": [
+    "5-808.a4",
+    "5-93b.e",
+    "5-93b.0",
+    "5-784.0u"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20D",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-808.a4",
+      "name": "Arthrodese Fußwurzel/Mittelfuß, ein Gelenkfach"
+     }
+    ],
+    "hinweise": [
+     "warn: {'__fx': '801D-Falle bei der Fußwurzel-/"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 70,
+   "zweig": "\"TMT-Arthrodese\"",
+   "stellung": "TMT 2 (1 Gelenk, Beckenkammspan)",
+   "keys": [
+    "arthrodese_tmt1"
+   ],
+   "codes": [
+    "5-808.a4",
+    "5-93b.e",
+    "5-784.0u",
+    "5-784.1u",
+    "5-783.2d"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20D",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-808.a4",
+      "name": "Arthrodese Fußwurzel/Mittelfuß, ein Gelenkfach"
+     }
+    ],
+    "hinweise": [
+     "warn: {'__fx': '801D-Falle bei der Fußwurzel-/"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 71,
+   "zweig": "\"TMT-Arthrodese\"",
+   "stellung": "TMT 2–3 (2 Gelenke)",
+   "keys": [
+    "arthrodese_tmt"
+   ],
+   "codes": [
+    "5-808.a5",
+    "5-93b.e",
+    "5-784.0u"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20D",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20D",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-808.a5",
+      "name": "Arthrodese Fußwurzel/Mittelfuß, zwei Gelenkfächer"
+     }
+    ],
+    "hinweise": [
+     "warn: {'__fx': '801D-Falle bei der Fußwurzel-/"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20D",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 72,
+   "zweig": "\"TMT-Arthrodese 1–3\"",
+   "stellung": "TMT 1–3 (3 Gelenke)",
+   "keys": [
+    "arthrodese_tmt13"
+   ],
+   "codes": [
+    "5-808.a6",
+    "5-93b.e",
+    "5-93b.0",
+    "5-784.0u"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-808.a6",
+      "name": "Arthrodese Fußwurzel/Mittelfuß, drei Gelenkfächer"
+     }
+    ],
+    "modifikatoren": [
+     "4–5 Gelenke"
+    ],
+    "hinweise": [
+     "warn: {'__fx': '801D-Falle bei der Fußwurzel-/"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 73,
+   "zweig": "\"TMT-Arthrodese 1–3\"",
+   "stellung": "TMT 1–3 + TMT 2 (4 Gelenke)",
+   "keys": [
+    "arthrodese_tmt13"
+   ],
+   "codes": [
+    "5-808.a7",
+    "5-93b.e",
+    "5-93b.0",
+    "5-784.0u",
+    "5-784.1u",
+    "5-783.2d"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat",
+    "opsCodes": [
+     {
+      "code": "5-808.a6",
+      "name": "Arthrodese Fußwurzel/Mittelfuß, drei Gelenkfächer"
+     }
+    ],
+    "modifikatoren": [
+     "4–5 Gelenke"
+    ],
+    "hinweise": [
+     "warn: {'__fx': '801D-Falle bei der Fußwurzel-/"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "f"
+   ],
+   "anmerkung": "Modifikator '4–5 Gelenke' (5-808.a7) liegt an arthrodese_tmt13.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 74,
+   "zweig": "\"Supramalleolare OT\"",
+   "stellung": "Supramalleolare OT valgisierend",
+   "keys": [
+    "supramal_valgus"
+   ],
+   "codes": [
+    "5-781.0n",
+    "5-93b.e"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13E",
+    "empf": "stat",
+    "hinweise": [
+     "info: Gleiche DRG für Dome, Open Wedge und Clo"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 75,
+   "zweig": "\"Supramalleolare OT\"",
+   "stellung": "Supramalleolare OT varisierend",
+   "keys": [
+    "supramal_varus"
+   ],
+   "codes": [
+    "5-781.1n",
+    "5-93b.e"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13E",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I13E",
+    "empf": "stat",
+    "hinweise": [
+     "info: Gleiche DRG für Dome, Open Wedge und Clo"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 76,
+   "zweig": "fxLabel",
+   "stellung": "Weber B einfach",
+   "keys": [],
+   "codes": [
+    "5-793.3r",
+    "5-793.kr"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I13N",
+    "drg": "I13G",
+    "im_zweig_belegt": true
+   },
+   "B": null,
+   "C": null,
+   "bewertung": "kein Eintrag",
+   "grund": "kein OP_STEUERUNG-Schluessel",
+   "betrifft": [],
+   "anmerkung": "Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 77,
+   "zweig": "fxLabel+\" + Syndesmose\"",
+   "stellung": "Weber B/C + Syndesmose",
+   "keys": [],
+   "codes": [
+    "5-794.2r",
+    "5-794.kr",
+    "5-795.kr"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "I13N",
+    "drg": "I13E",
+    "im_zweig_belegt": true
+   },
+   "B": null,
+   "C": null,
+   "bewertung": "kein Eintrag",
+   "grund": "kein OP_STEUERUNG-Schluessel",
+   "betrifft": [],
+   "anmerkung": "Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 78,
+   "zweig": "\"Dwyer-Osteotomie\"",
+   "stellung": "Dwyer ohne Zusatz",
+   "keys": [
+    "hohlfuss_dwyer"
+   ],
+   "codes": [
+    "5-781.1t",
+    "5-93b.0"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 79,
+   "zweig": "\"Dwyer-Osteotomie\"",
+   "stellung": "Dwyer + Peronealtransfer",
+   "keys": [
+    "hohlfuss_dwyer"
+   ],
+   "codes": [
+    "5-781.1t",
+    "5-93b.0",
+    "5-854.29"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I20C",
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "I20C",
+    "empf": "stat"
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I20C",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "",
+   "betrifft": [
+    "d",
+    "f"
+   ],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 80,
+   "zweig": "\"Metallentfernung (generisch)\"",
+   "stellung": "Metallentfernung",
+   "keys": [
+    "metallentfernung"
+   ],
+   "codes": [
+    "5-787.6t"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": null,
+    "drg": null,
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "empf": "amb",
+    "implantatfrei": true,
+    "hinweise": [
+     "info: {'__fx': 'Die Metallentfernung allein fü",
+     "info: Keine automatische Kodierung, manuell se",
+     "info: Revision oder Wechsel der Osteosynthese ",
+     "info: Zusatzeingriffe derselben Region aus dem"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": null,
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "betrifft": [],
+   "anmerkung": "umgezogen: Werte kommen aus steuerAnzeige().",
+   "entscheidung": ""
+  },
+  {
+   "nr": 81,
+   "zweig": "\"Diabetischer Fuß — \"",
+   "stellung": "Diabetischer Fuss, Debridement",
+   "keys": [
+    "df_debridement"
+   ],
+   "codes": [
+    "5-893.1d"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": null,
+    "drg": null,
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "F27B",
+    "empf": "stat",
+    "hebel": "5-896.2g",
+    "hebelName": "Debridement mit Medikamententräger",
+    "implantatfrei": true,
+    "hinweise": [
+     "warn: {'__fx': 'Die F27B (8.102 €) setzt das g",
+     "info: {'__fx': 'Amputationshöhe bestimmt die D",
+     "info: {'__fx': 'Mit äußerst schweren CC (PCCL ",
+     "warn: {'__fx': '801D-Falle bei der Fußwurzel-/",
+     "info: Grundlage: Webgrouper-Durchläufe G-DRG 2"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "F27B",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "betrifft": [
+    "e"
+   ],
+   "anmerkung": "umgezogen: Werte kommen aus steuerAnzeige().",
+   "entscheidung": ""
+  },
+  {
+   "nr": 82,
+   "zweig": "\"Diabetischer Fuß — \"",
+   "stellung": "Diabetischer Fuss, Amputation",
+   "keys": [
+    "df_amputation"
+   ],
+   "codes": [
+    "5-865.1"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": null,
+    "drg": null,
+    "im_zweig_belegt": true
+   },
+   "B": {
+    "drg": "F13B",
+    "empf": "stat",
+    "implantatfrei": true,
+    "hinweise": [
+     "warn: {'__fx': 'Die F13B (12.130 €) setzt äuße",
+     "warn: {'__fx': 'Beim zweizeitigen Vorgehen (z.",
+     "info: Grundlage: Webgrouper-Durchläufe G-DRG 2"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "F13B",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "betrifft": [
+    "e"
+   ],
+   "anmerkung": "umgezogen: Werte kommen aus steuerAnzeige().",
+   "entscheidung": ""
+  },
+  {
+   "nr": 83,
+   "zweig": null,
+   "stellung": "Achillessehnen-Tendoskopie",
+   "keys": [
+    "as_tendoskopie"
+   ],
+   "codes": [
+    "5-852.29"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": null,
+    "drg": null,
+    "im_zweig_belegt": false
+   },
+   "B": {
+    "drg": "I27E",
+    "empf": "stat",
+    "ambStatus": "ebm",
+    "implantatfrei": true,
+    "hinweise": [
+     "info: Kodierung: 5-852.29 (partielle Exzision ",
+     "info: Grundlage: Webgrouper-Durchlauf G-DRG 20"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "betrifft": [
+    "a"
+   ],
+   "anmerkung": "umgezogen; Rang 129 < 135 (Haglund) und < 119 (MTP-I): Ergaenzung a.",
+   "entscheidung": ""
+  },
+  {
+   "nr": 84,
+   "zweig": null,
+   "stellung": "AS-Debridement bei Tendinose",
+   "keys": [
+    "as_debridement"
+   ],
+   "codes": [
+    "5-852.29"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": null,
+    "drg": null,
+    "im_zweig_belegt": false
+   },
+   "B": {
+    "drg": "I27E",
+    "empf": "stat",
+    "implantatfrei": true,
+    "hinweise": [
+     "info: Kodierung: 5-850.c9 (Debridement einer S",
+     "info: {'__fx': 'Erfolgt zusätzlich ein FHL-Tra",
+     "info: Grundlage: Webgrouper-Durchlauf G-DRG 20"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I27E",
+    "hybrid": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "betrifft": [
+    "a"
+   ],
+   "anmerkung": "umgezogen: Werte kommen aus steuerAnzeige().",
+   "entscheidung": ""
+  }
+ ],
+ "ziel_feld": [
+  {
+   "zweig": "\"Lapidus\"",
+   "stellung": "Lapidus ohne Akin",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 267,
+   "hinweise_in_daten": 3,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"MTP-I-Arthrodese\"",
+   "stellung": "MTP-I allein",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 169,
+   "hinweise_in_daten": 2,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"MTP-I-Arthrodese + DMMO\"",
+   "stellung": "MTP-I + 1× DMMO",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 169,
+   "hinweise_in_daten": 2,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"MTP-I-Arthrodese + ≥3 DMMO\"",
+   "stellung": "MTP-I + 3× DMMO",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 267,
+   "hinweise_in_daten": 2,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "lbl+(mitAkin",
+   "stellung": "Chevron ohne Zusatz",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 142,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"Kleinzehen/DMMO\"",
+   "stellung": "1× DMMO allein",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 173,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "(weil.length&&!dmmo.length",
+   "stellung": "3× DMMO allein",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 47,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"OSG-TEP primär (\"",
+   "stellung": "TEP primaer",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 112,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"OSG-TEP Wechsel (\"",
+   "stellung": "TEP Wechsel",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 125,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"Arthrodesenagel (TTC-Arthrodese)\"",
+   "stellung": "TTC-Arthrodesenagel",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 125,
+   "hinweise_in_daten": 2,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"OSG-Arthrodese\"",
+   "stellung": "OSG-Arthrodese ohne Spongiosa",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 366,
+   "hinweise_in_daten": 3,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "amicIKO?",
+   "stellung": "AMIC offen",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 306,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Brostrom-Gould\"",
+   "stellung": "Brostrom ohne Internal Brace",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 208,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"Arthrorise\"",
+   "stellung": "Arthrorise, Alter < 18",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 144,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Achillessehnennaht (offen)\"",
+   "stellung": "Achillessehnennaht offen",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 152,
+   "hinweise_in_daten": 2,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"FHL-Transfer\"",
+   "stellung": "FHL-Transfer",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 96,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "rfLabel",
+   "stellung": "Subtalare Arthrodese",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 208,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"Calcaneus-OT\"",
+   "stellung": "MDO (minimalinvasiv oder offen)",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 208,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"Calcaneoplastie\"",
+   "stellung": "Calcaneoplastie (Haglund mini)",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 116,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Haglund + AS-Split/Refix\"",
+   "stellung": "Haglund + AS-Split/Refix",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 98,
+   "hinweise_in_daten": 2,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Os Tib Ext\"",
+   "stellung": "Os Tib Ext ohne MDO",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 98,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Peronealsehnenluxation\"",
+   "stellung": "Luxation ohne Zusatz",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 124,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Peronealsehnen \"",
+   "stellung": "Peronealsehnennaht",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 124,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"Coalitio \"",
+   "stellung": "Coalitio TC ohne LCOT",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 70,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Cotton-Osteotomie\"",
+   "stellung": "Cotton autolog",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 221,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"TMT-Arthrodese\"",
+   "stellung": "TMT 1 (1 Gelenk)",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 95,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"TMT-Arthrodese 1–3\"",
+   "stellung": "TMT 1–3 (3 Gelenke)",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 95,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Supramalleolare OT\"",
+   "stellung": "Supramalleolare OT valgisierend",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 63,
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "fxLabel",
+   "stellung": "Weber B einfach",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 129,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "fxLabel+\" + Syndesmose\"",
+   "stellung": "Weber B/C + Syndesmose",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 129,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"Dwyer-Osteotomie\"",
+   "stellung": "Dwyer ohne Zusatz",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 186,
+   "hinweise_in_daten": 0,
+   "status": "nur im Zweig"
+  },
+  {
+   "zweig": "\"Metallentfernung (generisch)\"",
+   "stellung": "Metallentfernung",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 71,
+   "hinweise_in_daten": 4,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "\"Diabetischer Fuß — \"",
+   "stellung": "Diabetischer Fuss, Debridement",
+   "ziel_vorhanden": true,
+   "ziel_laenge": 4,
+   "hinweise_in_daten": 5,
+   "status": "in beiden"
+  },
+  {
+   "zweig": "(ohne Anker)",
+   "stellung": "Achillessehnen-Tendoskopie",
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
+   "hinweise_in_daten": 2,
+   "status": "nur in den Daten"
+  }
+ ]
+}
