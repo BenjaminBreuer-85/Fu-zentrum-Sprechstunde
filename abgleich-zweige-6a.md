@@ -1,13 +1,13 @@
 # Abgleich der OP-Bericht-Zweige gegen OP_STEUERUNG und Regelsatz (Schritt 6a)
 
-Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html sha256 d3f63960249c…, 34 Zweige im Memo, 84 Zeilen. Nur Befund, keine Bewertung „richtig/falsch"; die Spalte Entscheidung ist leer und gehört dem Autor (A, B, C oder ein neuer Wert).
+Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html sha256 e87c5933ec86…, 34 Zweige im Memo, 84 Zeilen. Nur Befund, keine Bewertung „richtig/falsch"; die Spalte Entscheidung ist leer und gehört dem Autor (A, B, C oder ein neuer Wert).
 
 **Spalten.** A = was der Zweig heute anzeigt. B = der Eintrag in `opsteuerung.json`. C = was `hdrgAuswertung()` aus denselben Kodes macht (H-DRG / stationäre DRG / ambulanter Weg). betrifft = Ergänzungen a–f aus dem Umsetzungsplan.
 
 | Nr | Zweig · Schalterstellung | Schlüssel | Kodes | A (hdrg/drg) | B (hdrg/drg) | C (hdrg/drg/ambulant) | Bewertung | betrifft | Anmerkung | Entscheidung |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | Lapidus ohne Akin | lapidus | 5-808.a4 5-788.40 5-93b.0 5-93b.e 5-783.0v 5-784.0u 5-854.2c | — / I20D | I20M / I20D | I20M / I20D / hybrid | abweichend (A weicht von B und C ab) | f | Kodeliste enthaelt 5-854.2c immer; ohne Sehnentransfer gehoert er nicht in den Fall. | |
-| 2 | Lapidus + Akin | lapidus | 5-808.a4 5-788.40 5-93b.0 5-93b.e 5-783.0v 5-784.0u 5-854.2c 5-788.56 | — / I20D | I20M / I20D | I20M / I20D / hybrid | abweichend (A weicht von B und C ab) | a, f | C1/C3: Zweig zeigt H-DRG '—', Daten und Auswertung I20M. | |
+| 1 | Lapidus ohne Akin | lapidus | 5-808.a4 5-788.40 5-93b.0 5-93b.e 5-783.0v 5-784.0u 5-854.2c | — / I20D | I20M / I20D | — / I20D / nein | toggle (A = C; B traegt den statischen Grundwert) | f | Kodeliste enthaelt 5-854.2c immer; ohne Sehnentransfer gehoert er nicht in den Fall. | |
+| 2 | Lapidus + Akin | lapidus | 5-808.a4 5-788.40 5-93b.0 5-93b.e 5-783.0v 5-784.0u 5-854.2c 5-788.56 | — / I20D | I20M / I20D | — / I20D / nein | toggle (A = C; B traegt den statischen Grundwert) | a, f | C1/C3: Zweig zeigt H-DRG '—', Daten und Auswertung I20M. | |
 | 3 | Lapidus + Akin + 3× DMMO | lapidus | 5-808.a4 5-788.40 5-93b.0 5-93b.e 5-783.0v 5-784.0u 5-854.2c 5-788.56 5-788.54 5-86a.12 | — / I20D | I20M / I20D | — / I20D / nein | toggle (A = C; B traegt den statischen Grundwert) | a | C2: Zweigtitel bleibt 'Lapidus', die DMMO-Zahl aendert nichts. | |
 | 4 | Lapidus + Spongiosa Metatarsale (Soll 5-784.0v) | lapidus | 5-808.a4 5-788.40 5-93b.0 5-93b.e 5-783.0v 5-784.0v 5-854.2c 5-788.56 | — / I20D | I20M / I20D | — / I20D / nein | toggle (A = C; B traegt den statischen Grundwert) | f | Kodeblock schiebt 5-784.0u (Tarsale); der Hebel in den Daten ist 5-784.0v (Metatarsale). | |
 | 5 | MTP-I allein | mtp1_arthrodese | 5-808.b0 5-93b.0 5-93b.e | I20N / I20E | I20N / I20E | I20N / I20E / hybrid | gleich | b |  | |
@@ -29,16 +29,16 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 21 | Youngswick (Chip zeigt Scarf-Zweig) | youngswick | 5-788.5e | I20O / I20E | I20O / I20E | I20O / I20E / hybrid | gleich | — | Kein eigener Kodepfad: der Chip laeuft ueber gz='scarf'. | |
 | 22 | Cheilektomie | cheilektomie | 5-788.00 | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b |  | |
 | 23 | Exostosenabtragung | exostose | 5-788.00 | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b |  | |
-| 24 | 1× DMMO allein | dmmo | 5-788.52 5-93b.0 | I20O / I20F | I20O / I20F | I20N / I20F / hybrid | abweichend (A, B und C unterscheiden sich) | b | A zeigt I20O, Daten und Auswertung I20N (Aufwertung 5-788.52). | |
-| 25 | 2× DMMO allein | dmmo | 5-788.53 5-93b.0 5-86a.10 | I20O / I20F | I20O / I20F | I20N / I20F / hybrid | abweichend (A, B und C unterscheiden sich) | b |  | |
-| 26 | 1–2× Weil | weil | 5-788.53 5-93b.0 5-86a.10 | I20O / I20F | I20O / I20F | I20N / I20F / hybrid | abweichend (A, B und C unterscheiden sich) | b |  | |
-| 27 | 3× DMMO allein | dmmo | 5-788.54 5-93b.0 5-86a.11 | — / I20F | I20O / I20F | — / I20E / nein | abweichend (A, B und C unterscheiden sich) | — |  | |
-| 28 | 4× DMMO allein | dmmo | 5-788.55 5-93b.0 5-86a.12 | — / I20F | I20O / I20F | — / I20E / nein | abweichend (A, B und C unterscheiden sich) | — |  | |
+| 24 | 1× DMMO allein | dmmo | 5-788.52 5-93b.0 | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b | A zeigt I20O, Daten und Auswertung I20N (Aufwertung 5-788.52). | |
+| 25 | 2× DMMO allein | dmmo | 5-788.53 5-93b.0 5-86a.10 | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b |  | |
+| 26 | 1–2× Weil | weil | 5-788.53 5-93b.0 5-86a.10 | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b |  | |
+| 27 | 3× DMMO allein | dmmo | 5-788.54 5-93b.0 5-86a.11 | — / I20F | I20O / I20F | — / I20F / nein | toggle (A = C; B traegt den statischen Grundwert) | — |  | |
+| 28 | 4× DMMO allein | dmmo | 5-788.55 5-93b.0 5-86a.12 | — / I20F | I20O / I20F | — / I20F / nein | toggle (A = C; B traegt den statischen Grundwert) | — |  | |
 | 29 | PIP 1 Zehe | kleinzehen_pip | 5-808.bd | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b |  | |
-| 30 | PIP 2 Zehen | kleinzehen_pip | 5-808.be 5-86a.10 | I20O / I20F | I20O / I20F | I20N / I20F / hybrid | abweichend (A, B und C unterscheiden sich) | b |  | |
-| 31 | PIP 3 Zehen | kleinzehen_pip | 5-808.bf 5-86a.11 | I20O / I20F | I20O / I20F | I20N / I20F / hybrid | abweichend (A, B und C unterscheiden sich) | b | Zweigtext traegt noch die 2024er Regel '>2 keine H-DRG'. | |
-| 32 | PIP 4 Zehen | kleinzehen_pip | 5-808.bg 5-86a.12 | I20O / I20F | I20O / I20F | I20N / I20F / hybrid | abweichend (A, B und C unterscheiden sich) | b |  | |
-| 33 | PIP 5 Gelenke (5-808.bh) | kleinzehen_pip | 5-808.bh | I20O / I20F | I20O / I20F | — / I20E / nein | abweichend (A, B und C unterscheiden sich) | — | Kein App-Fall: der Kodeblock deckelt bei vier Zehen (bd–bg). | |
+| 30 | PIP 2 Zehen | kleinzehen_pip | 5-808.be 5-86a.10 | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b |  | |
+| 31 | PIP 3 Zehen | kleinzehen_pip | 5-808.bf 5-86a.11 | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b | Zweigtext traegt noch die 2024er Regel '>2 keine H-DRG'. | |
+| 32 | PIP 4 Zehen | kleinzehen_pip | 5-808.bg 5-86a.12 | I20O / I20F | I20O / I20F | I20O / I20F / hybrid | gleich | b |  | |
+| 33 | PIP 5 Gelenke (5-808.bh) | kleinzehen_pip | 5-808.bh | I20O / I20F | I20O / I20F | — / I20F / nein | abweichend (A, B und C unterscheiden sich) | — | Kein App-Fall: der Kodeblock deckelt bei vier Zehen (bd–bg). | |
 | 34 | TEP primaer | tep_infinity, tep_vantage, tep_inbone | 5-826.00 | — / I05B | — / I05B | — / I05B / — | gleich | — |  | |
 | 35 | TEP Wechsel | — | 5-827.10 | — / I43B | — | — | kein Eintrag (kein OP_STEUERUNG-Schluessel) | — | Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag (Modifikator Wechsel an tep_*). | |
 | 36 | TTC-Arthrodesenagel | arthrodesenagel_retro | 5-808.71 5-93b.6 | — / I20A | — / I20A | — / I20A / — | gleich | f |  | |
@@ -48,7 +48,7 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 40 | AMIC + Innenknoechelosteotomie | amic | 5-801.nk 5-783.0 5-784.0s 5-781.an 5-93b.0 | — / I13E | — / I13G | — / I13G / — | abweichend (A weicht von B und C ab) | c |  | |
 | 41 | Brostrom ohne Internal Brace | brostrom_gould | 5-806.5 5-869.2 5-782.1r | — / I59Z | — / I59Z | — / I59Z / — | gleich | c | Kodeblock schiebt 5-806.5, der Kodiertext nennt 5-806.4h. | |
 | 42 | Brostrom + Internal Brace | brostrom_int_brace | 5-806.5 5-869.2 5-782.1r 5-806.6 | — / I59Z | — / I59Z | — / I59Z / — | gleich | c |  | |
-| 43 | Arthrorise, Alter < 18 | arthrorise | 5-809.1m 5-93b.0 | — / variabel | I20O / — | I20O / — / hybrid | abweichend (A weicht von B und C ab) | b | Alter ist heute nur Text; die Auswertung kennt kein Alterskriterium. | |
+| 43 | Arthrorise, Alter < 18 | arthrorise | 5-809.1m 5-93b.0 | — / variabel | — / I20E | — / I20E / — | gleich | b | Alter ist heute nur Text; die Auswertung kennt kein Alterskriterium. | |
 | 44 | Achillessehnennaht offen | as_naht | 5-855.19 5-855.39 | — / I27E | — / I27E | — / I27E / — | gleich | d |  | |
 | 45 | FHL-Transfer | fhl_transfer | 5-854.49 5-869.2 5-855.39 5-855.19 | — / I27D | — / I27D | — / I27D / — | gleich | a, d, f |  | |
 | 46 | Subtalare Arthrodese | subtalar_arthrodese | 5-808.80 5-93b.0 | — / I13E | — / I13E | — / I13E / — | gleich | — |  | |
@@ -91,7 +91,7 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 83 | Achillessehnen-Tendoskopie | as_tendoskopie | 5-852.29 | — / — | — / I27E | — / I27E / — | gleich (umgezogen — Anzeige kommt aus steuerAnzeige()) | a | umgezogen; Rang 129 < 135 (Haglund) und < 119 (MTP-I): Ergaenzung a. | |
 | 84 | AS-Debridement bei Tendinose | as_debridement | 5-852.29 | — / — | — / I27E | — / I27E / — | gleich (umgezogen — Anzeige kommt aus steuerAnzeige()) | a | umgezogen: Werte kommen aus steuerAnzeige(). | |
 
-**Zählung.** gleich 50 · toggle 3 · abweichend 28 · kein Eintrag 3.
+**Zählung.** gleich 57 · toggle 7 · abweichend 17 · kein Eintrag 3.
 
 ## Sollwerte aus hybrid-systematik.md Abschnitt 5
 
@@ -104,8 +104,8 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 5 | Hallux valgus + 2–4× PIP | 5-788.5c 5-808.be | I20N / — | I20N / I20E | gleich | MU S. 22–23 (V4) |
 | 6 | Hallux valgus + 1–2× Weil/DMMO | 5-788.5c 5-788.53 | I20N / — | I20N / I20E | gleich | MU S. 23; V70 |
 | 7 | Hallux valgus + 3× DMMO 5-788.54 (2026) | 5-788.5c 5-788.54 | — / I20E | — / I20E | gleich | FR; DH S. 1081 |
-| 8 | 3× DMMO allein, 1 Tag | 5-788.54 | — / I20F | — / I20E | abweichend | FR S. 15 |
-| 9 | Metatarsalgie 1–2× Weil/DMMO | 5-788.53 | I20N / — | I20N / I20F | gleich | MU S. 22 |
+| 8 | 3× DMMO allein, 1 Tag | 5-788.54 | — / I20F | — / I20F | gleich | FR S. 15 |
+| 9 | Metatarsalgie 1–2× Weil/DMMO | 5-788.53 | I20O / — | I20O / I20F | gleich | MU S. 22 |
 | 10 | ASK OSG mit Hybrid-Kodes | 5-812.ek 5-811.2k | I20O / — | I20O / I20F | gleich | MU S. 22 |
 | 11 | Haglundabtragung 5-782.at | 5-782.at | I20O / — | I20O / I27E | gleich | MU S. 22; V68 |
 | 12 | Haglund + Bursektomie Unterschenkel 5-859.19, > 15 J. | 5-782.at 5-859.19 | — / I27E | I20O / I27E | abweichend | SCH S. 24; H-03 |
@@ -118,15 +118,15 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 19 | Lapidus + Akin | 5-808.a4 5-788.56 | I20M / — | I20M / I20D | gleich | MU S. 24; V40 + V68 |
 | 20 | Lapidus + Akin + 5-854.2c | 5-808.a4 5-788.56 5-854.2c | I20M / — | I20M / I20D | gleich | V70\V66; WG 07.09.2026 |
 | 21 | Lapidus + Spongiosa 5-783.0v + 5-784.0v | 5-808.a4 5-788.56 5-783.0v 5-784.0v | — / I20D | — / I20D | gleich | V66 |
-| 22 | Arthrorise 5-809.1m, Patient < 18 | 5-809.1m | — / — | I20O / — | abweichend | DH S. 1042 |
-| 23 | Arthrorise beidseits, Kind | 5-809.1m | — / — | I20O / — | abweichend | FR; DH |
+| 22 | Arthrorise 5-809.1m, Patient < 18 | 5-809.1m | — / I20E | — / I20E | gleich | DH S. 1042 |
+| 23 | Arthrorise beidseits, Kind | 5-809.1m | — / I20E | — / I20E | gleich | FR; DH |
 | 24 | Rueckfuss-Arthrodesen, Achskorrekturen Rueckfuss | 5-808.82 | — / I20B | — / I20B | gleich | MU S. 24 |
 | 25 | Rezidiv MTP-I 5-808.b7 + 5-783.2d + 5-784.1v | 5-808.b7 5-783.2d 5-784.1v | — / I20E | — / I20E | kein App-Fall | WE |
 | 26 | Achillessehnennaht 5-855.19 (2026 Kontextprozedur) | 5-855.19 5-855.39 | — / I27E | — / I27E | gleich | FR; SCH; DH |
 | 27 | Tendoskopie 5-852.29 allein | 5-852.29 | — / I27E | — / I27E | gleich | WG 30.08.2026 |
 | 28 | Tendoskopie + Calcaneoplastie 5-782.at, HD Haglund | 5-782.at 5-852.29 | — / I27E | I20O / I27E | abweichend | WG 13.09.2026 |
 | 29 | Tendoskopie + MTP-I-Arthrodese, HD M20.2 | 5-808.b0 5-852.29 | I20N / — | I20N / I20E | gleich | WG 13.09.2026 |
-| 30 | FHL-Transfer 5-854.29 + Lapidus 5-808.a4 + Akin 5-788.56 | 5-808.a4 5-788.56 5-854.29 | — / I20D | I20M / I20D | abweichend | WG 13.09.2026 |
+| 30 | FHL-Transfer 5-854.29 + Lapidus 5-808.a4 + Akin 5-788.56 | 5-808.a4 5-788.56 5-854.29 | — / I20D | — / I20D | gleich | WG 13.09.2026 |
 
 ## Feld `ziel` je Zweig (Punkt 10: geht beim Umzug etwas verloren?)
 
@@ -137,19 +137,19 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | "MTP-I-Arthrodese + DMMO" | MTP-I + 1× DMMO | ja (169 Zeichen) | 2 | in beiden |
 | "MTP-I-Arthrodese + ≥3 DMMO" | MTP-I + 3× DMMO | ja (267 Zeichen) | 2 | in beiden |
 | lbl+(mitAkin | Chevron ohne Zusatz | ja (142 Zeichen) | 0 | nur im Zweig |
-| "Kleinzehen/DMMO" | 1× DMMO allein | ja (173 Zeichen) | 0 | nur im Zweig |
-| (weil.length&&!dmmo.length | 3× DMMO allein | ja (47 Zeichen) | 0 | nur im Zweig |
-| "OSG-TEP primär (" | TEP primaer | ja (112 Zeichen) | 0 | nur im Zweig |
+| "Kleinzehen/DMMO" | 1× DMMO allein | ja (173 Zeichen) | 1 | in beiden |
+| (weil.length&&!dmmo.length | 3× DMMO allein | ja (47 Zeichen) | 1 | in beiden |
+| "OSG-TEP primär (" | TEP primaer | ja (112 Zeichen) | 3 | in beiden |
 | "OSG-TEP Wechsel (" | TEP Wechsel | ja (125 Zeichen) | 0 | nur im Zweig |
 | "Arthrodesenagel (TTC-Arthrodese)" | TTC-Arthrodesenagel | ja (125 Zeichen) | 2 | in beiden |
 | "OSG-Arthrodese" | OSG-Arthrodese ohne Spongiosa | ja (366 Zeichen) | 3 | in beiden |
 | amicIKO? | AMIC offen | ja (306 Zeichen) | 1 | in beiden |
-| "Brostrom-Gould" | Brostrom ohne Internal Brace | ja (208 Zeichen) | 0 | nur im Zweig |
+| "Brostrom-Gould" | Brostrom ohne Internal Brace | ja (208 Zeichen) | 1 | in beiden |
 | "Arthrorise" | Arthrorise, Alter < 18 | ja (144 Zeichen) | 1 | in beiden |
 | "Achillessehnennaht (offen)" | Achillessehnennaht offen | ja (152 Zeichen) | 2 | in beiden |
 | "FHL-Transfer" | FHL-Transfer | ja (96 Zeichen) | 1 | in beiden |
-| rfLabel | Subtalare Arthrodese | ja (208 Zeichen) | 0 | nur im Zweig |
-| "Calcaneus-OT" | MDO (minimalinvasiv oder offen) | ja (208 Zeichen) | 0 | nur im Zweig |
+| rfLabel | Subtalare Arthrodese | ja (208 Zeichen) | 1 | in beiden |
+| "Calcaneus-OT" | MDO (minimalinvasiv oder offen) | ja (208 Zeichen) | 2 | in beiden |
 | "Calcaneoplastie" | Calcaneoplastie (Haglund mini) | ja (116 Zeichen) | 1 | in beiden |
 | "Haglund + AS-Split/Refix" | Haglund + AS-Split/Refix | ja (98 Zeichen) | 2 | in beiden |
 | "Os Tib Ext" | Os Tib Ext ohne MDO | ja (98 Zeichen) | 1 | in beiden |

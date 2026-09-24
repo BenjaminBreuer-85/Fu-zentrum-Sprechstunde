@@ -1361,6 +1361,9 @@ const OP_STEUERUNG = window._DATA.opsteuerung.OP_STEUERUNG;
 const HDRG_REGELN = window._DATA.opsteuerung.HDRG_REGELN || null;
 const HDRG_RAHMEN = window._DATA.opsteuerung.HDRG_RAHMEN || null;
 const HDRG_FALLREGELN = window._DATA.opsteuerung.HDRG_FALLREGELN || null;
+// Grosszehen-Tabelle: Aufwertung nach I20N und die Ziel-DRG I20E gelten nur
+// zusammen mit einem Partnerkode (Definition I20E, Band 2 S. 1037 f.).
+const HDRG_KOMBI = window._DATA.opsteuerung.HDRG_KOMBI || null;
 
 // Rangfolge der Voll-DRGs, hoechstwertig zuerst; und der Hybrid-DRGs.
 var DRG_RANG  = ["I20B","I20C","I20D","I20E","I20F"];
@@ -1397,10 +1400,25 @@ function imAopKatalog(code){
   }
   return ((_AOP_IDX[code]||0)&1)===1;
 }
+// Partnerbedingung: mindestens ein Kode des Falls steht in der
+// Grosszehen-Tabelle, oder der Eintrag selbst bringt einen solchen Kode mit
+// (partnerEintraege; im Sprechstundenbrief fehlen die Hauptkodes in fallCodes).
+// Ein Kode ist nicht sein eigener Partner: der geprueften Kode selbst zaehlt
+// nicht mit.
+function partnerErfuellt(codes, bestKey, ohne){
+  if (!HDRG_KOMBI) return true;   // ohne Tabelle bleibt alles wie bisher
+  var liste = HDRG_KOMBI.partner || [];
+  var eintraege = HDRG_KOMBI.partnerEintraege || [];
+  if (bestKey && eintraege.indexOf(bestKey) >= 0) return true;
+  return (codes || []).some(function(c){ return c !== ohne && liste.indexOf(c) >= 0; });
+}
 // Ziel-DRG einer Kontextprozedur: fester String, Objekt je Hybrid-DRG der
-// Haupt-OP, oder fehlend — dann gilt die drg der OP-Methode.
-function hdrgZielDrg(k, hdrg, drgOp){
-  if (!k || !k.drg) return drgOp;
+// Haupt-OP, oder fehlend — dann gilt die drg der OP-Methode. Ohne Partnerkode
+// gilt drgOhnePartner, wo die Regel eine eigene Fassung dafuer fuehrt.
+function hdrgZielDrg(k, hdrg, drgOp, partner){
+  if (!k) return drgOp;
+  if (partner === false && k.drgOhnePartner && k.drgOhnePartner[hdrg]) return k.drgOhnePartner[hdrg];
+  if (!k.drg) return drgOp;
   if (typeof k.drg === "string") return k.drg;
   return k.drg[hdrg] || drgOp;
 }
@@ -1493,9 +1511,47 @@ function hdrgAuswertung(opts){
   var best = opts.best || {}, codes = opts.codes || [], hdrgStart = opts.hdrg || null;
   var drgOp = opts.drg || best.drg || null;
   var regel = hdrgRegelsatz(hdrgStart);
+  // Partner: vom Aufrufer vorgegeben, sonst aus Kodes und Eintrag gerechnet.
+  var partner = (opts.partner !== undefined) ? !!opts.partner
+              : partnerErfuellt(codes, opts.bestKey);
   var erg = { hdrg: hdrgStart, drg: drgOp, hybrid: !!hdrgStart, warnungen: [],
               listen: { kontext: [], aufwertung: [], nichtKontext: [] },
-              treffer: { kontext: [], aufwertung: [] }, satz: "", regel: regel };
+              treffer: { kontext: [], aufwertung: [] }, satz: "", regel: regel,
+              partner: partner, sperre: null };
+  // Ambulanter Weg: EBM nur, wenn wirklich alle Kodes im AOP-Katalog stehen.
+  var alleImAop = function(){ return codes.every(function(c){ return imAopKatalog(c); }); };
+  var ambSatzBau = function(){
+    var ausserhalb = codes.filter(function(c){ return !imAopKatalog(c); });
+    return ausserhalb.length
+      ? "Ambulant: " + ausserhalb.join(", ") + (ausserhalb.length > 1 ? " stehen" : " steht")
+        + " nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen."
+      : "Ambulant EBM.";
+  };
+  // Alter (Kontextfaktor H-02) steht vor allem anderen: unter 18 Jahren gibt es
+  // keine Fuss-Hybrid-DRG, unabhaengig von den Kodes.
+  if (opts.alter === "u18" && hdrgStart) {
+    erg.hybrid = false; erg.hdrg = null; erg.sperre = "alter"; erg.drg = drgOp;
+    erg.satz = "Bei Patienten unter 18 Jahren ist keine Hybrid-DRG möglich (Kontextfaktor Alter); "
+             + "stationär " + (erg.drg || "—") + ", ambulant nach EBM, soweit die Kodes im AOP-Katalog stehen.";
+    erg.setting = { hybrid: false, stationaer: erg.drg, ambulant: alleImAop() ? "ebm" : "nein" };
+    return erg;
+  }
+  // Fallsperre AKF08 (Band 4, Ausschluss Kontextfaktoren MDC 08) vor der
+  // Kontextpruefung: ein Kode daraus schliesst jede Hybrid-DRG aus.
+  var akf = (HDRG_FALLREGELN && HDRG_FALLREGELN.akf08 && HDRG_FALLREGELN.akf08.prozeduren) || [];
+  var akfTreffer = akf.filter(function(a){ return codes.indexOf(a.code) >= 0; });
+  if (akfTreffer.length && hdrgStart) {
+    var kZiele = regel ? (regel.kontext || []).filter(function(k){ return codes.indexOf(k.code) >= 0; })
+                          .map(function(k){ return hdrgZielDrg(k, hdrgStart, drgOp, partner); }) : [];
+    erg.hybrid = false; erg.hdrg = null; erg.sperre = "akf08";
+    erg.drg = hoechste(kZiele.concat([drgOp]), DRG_RANG) || drgOp;
+    erg.satz = akfTreffer.map(function(a){ return a.name + " (" + a.code + ")"; }).join(" und ")
+      + (akfTreffer.length > 1 ? " sind Kontextfaktoren" : " ist ein Kontextfaktor")
+      + " nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach "
+      + (erg.drg || "—") + ". " + ambSatzBau();
+    erg.setting = { hybrid: false, stationaer: erg.drg, ambulant: alleImAop() ? "ebm" : "nein" };
+    return erg;
+  }
   if (!regel) return erg;   // ohne Regelsatz bleibt die bisherige Darstellung
 
   erg.listen.kontext      = regel.kontext || [];
@@ -1504,7 +1560,10 @@ function hdrgAuswertung(opts){
 
   var hat = function(c){ return codes.indexOf(c) >= 0; };
   var kTreffer = (regel.kontext || []).filter(function(k){ return hat(k.code); });
-  var aTreffer = (regel.aufwertung || []).filter(function(a){ return hat(a.code); });
+  var aTreffer = (regel.aufwertung || []).filter(function(a){
+    // mit: "partner" — die Aufwertung gilt nur zusammen mit einem Partnerkode.
+    return hat(a.code) && (a.mit !== "partner" || partnerErfuellt(codes, opts.bestKey, a.code));
+  });
   var nTreffer = (regel.nichtKontext || []).filter(function(n){ return hat(n.code); });
   var pTreffer = (regel.positiv || []).filter(function(c){ return hat(c); });
   erg.treffer.kontext = kTreffer; erg.treffer.aufwertung = aTreffer;
@@ -1515,15 +1574,13 @@ function hdrgAuswertung(opts){
     // (Objekt) — 5-788.54 fuehrt beim Chevron nach I20E, bei der
     // MTP-I-Arthrodese nach I20D. Fehlt die Angabe, gilt die drg der OP.
     erg.hybrid = false; erg.hdrg = null;
-    erg.drg = hoechste(kTreffer.map(function(k){ return hdrgZielDrg(k, hdrgStart, drgOp); }), DRG_RANG) || drgOp;
+    erg.drg = hoechste(kTreffer.map(function(k){
+      return hdrgZielDrg(k, hdrgStart, drgOp, partnerErfuellt(codes, opts.bestKey, k.code));
+    }), DRG_RANG) || drgOp;
     // Sprachregel des Autors (09.09.2026): Der AOP-Katalog bindet nur Kliniken,
     // niedergelassene Operateure rechnen ambulant ueber den EBM ab. Deshalb nie
     // "unvergütet" oder "nicht abrechenbar", sondern Sachverhalt und Empfehlung.
-    var ausserhalb = codes.filter(function(c){ return !imAopKatalog(c); });
-    var ambSatz = ausserhalb.length
-      ? "Ambulant: " + ausserhalb.join(", ") + (ausserhalb.length > 1 ? " stehen" : " steht")
-        + " nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen."
-      : "Ambulant EBM.";
+    var ambSatz = ambSatzBau();
     erg.satz = kTreffer.map(function(k){ return k.name + " (" + k.code + ")"; }).join(" und ")
       + " gruppiert den Fall nicht mehr in " + hdrgStart + ", sondern stationär nach " + erg.drg + ". " + ambSatz;
   } else if (aTreffer.length) {
@@ -1555,11 +1612,10 @@ function hdrgAuswertung(opts){
   }
   // Ambulant als EBM setzt voraus, dass wirklich alle Kodes im AOP-Katalog
   // stehen — sonst ist der ambulante Weg keine Option, sondern unverguetet.
-  var alleImAop = codes.every(function(c){ return imAopKatalog(c); });
   erg.setting = { hybrid: erg.hybrid, stationaer: erg.drg,
                   ambulant: pTreffer.length ? "hybrid"
                           : erg.hybrid ? "hybrid"
-                          : (alleImAop ? "ebm" : "nein") };
+                          : (alleImAop() ? "ebm" : "nein") };
   return erg;
 }
 // Hydration (Single Source): Zahl-Literale in OP_STEUERUNG werden aus dem Erlösdaten-Block überschrieben,
@@ -3496,8 +3552,10 @@ var _s = useState, _m = useMemo;
               // Overrides (3x DMMO und Verwandte) sind die JS-Zwillinge der
               // Regeln, die jetzt in HDRG_REGELN stehen. Wo ein Regelsatz
               // greift, gilt seine Rechnung.
+              // Der Brief kennt kein Alter; Partner kommt aus Kodes und Eintrag.
               var hAus=hdrgAuswertung({best:best, bestKey:bestKey, hdrg:best.hdrg, drg:best.drg,
-                        codes:fallCodes, ambulant:ambStatus!=="nichtmoeglich"});
+                        codes:fallCodes, ambulant:ambStatus!=="nichtmoeglich",
+                        partner:partnerErfuellt(fallCodes, bestKey), alter:null});
               if(hAus.regel){
                 hdrg  = hAus.hdrg;
                 // Hybrid-Pauschalen stehen in _HDRG, nicht in _DRG.

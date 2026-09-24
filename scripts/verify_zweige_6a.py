@@ -265,8 +265,8 @@ SOLL = [
  dict(nr=8, konstellation="3× DMMO allein, 1 Tag",
       key="dmmo", codes=["5-788.54"], soll=dict(hdrg=None, drg="I20F"), quelle="FR S. 15"),
  dict(nr=9, konstellation="Metatarsalgie 1–2× Weil/DMMO",
-      key="dmmo", codes=["5-788.53"], soll=dict(hdrg="I20N", drg=None), quelle="MU S. 22",
-      hinweis="MU nennt I20O; die Aufwertungsliste 2026 fuehrt 5-788.52/53 nach I20N."),
+      key="dmmo", codes=["5-788.53"], soll=dict(hdrg="I20O", drg=None), quelle="MU S. 22",
+      hinweis="Block 2 (24.09.2026): ohne Partnerkode bleibt es bei I20O."),
  dict(nr=10, konstellation="ASK OSG mit Hybrid-Kodes",
       key="ask_osg", codes=["5-812.ek","5-811.2k"], soll=dict(hdrg="I20O", drg=None), quelle="MU S. 22"),
  dict(nr=11, konstellation="Haglundabtragung 5-782.at",
@@ -292,10 +292,10 @@ SOLL = [
  dict(nr=21, konstellation="Lapidus + Spongiosa 5-783.0v + 5-784.0v",
       key="lapidus", codes=["5-808.a4","5-788.56","5-783.0v","5-784.0v"], soll=dict(hdrg=None, drg="I20D"), quelle="V66"),
  dict(nr=22, konstellation="Arthrorise 5-809.1m, Patient < 18",
-      key="arthrorise", codes=["5-809.1m"], soll=dict(hdrg=None, drg=None), quelle="DH S. 1042",
-      hinweis="Alterskriterium; die Auswertung kennt kein Alter."),
+      key="arthrorise", codes=["5-809.1m"], alter="u18", soll=dict(hdrg=None, drg="I20E"), quelle="DH S. 1042",
+      hinweis="Alter unter 18 (H-02): keine Hybrid."),
  dict(nr=23, konstellation="Arthrorise beidseits, Kind",
-      key="arthrorise", codes=["5-809.1m"], seite="bds", soll=dict(hdrg=None, drg=None), quelle="FR; DH",
+      key="arthrorise", codes=["5-809.1m"], seite="bds", alter="u18", soll=dict(hdrg=None, drg="I20E"), quelle="FR; DH",
       hinweis="Alter und Beidseitigkeit; beidseitsSperre wird mitgerechnet."),
  dict(nr=24, konstellation="Rueckfuss-Arthrodesen, Achskorrekturen Rueckfuss",
       key="triple_arthrodese", codes=["5-808.82"], soll=dict(hdrg=None, drg="I20B"), quelle="MU S. 24"),
@@ -346,12 +346,17 @@ var window = { _fx: function(s){ return s; }, _HD: _KAT._HD, _DRG: {}, _HDRG: {}
 var OP_STEUERUNG = _DATEN.OP_STEUERUNG;
 var HDRG_REGELN = _DATEN.HDRG_REGELN || null;
 var HDRG_FALLREGELN = _DATEN.HDRG_FALLREGELN || null;
+var HDRG_KOMBI = _DATEN.HDRG_KOMBI || null;
 %s
-function auswerten(key, codes, seite){
+function auswerten(key, codes, seite, alter){
   var best = OP_STEUERUNG[key] || {};
   var erg = hdrgAuswertung({ best: best, bestKey: key, hdrg: best.hdrg, drg: best.drg,
-                             codes: codes, ambulant: true });
-  return { hdrg: erg.hdrg, drg: erg.drg, hybrid: erg.hybrid,
+                             codes: codes, ambulant: true,
+                             partner: (typeof partnerErfuellt === "function")
+                                        ? partnerErfuellt(codes, key) : undefined,
+                             alter: alter || null });
+  return { hdrg: erg.hdrg, drg: erg.drg, hybrid: erg.hybrid, sperre: erg.sperre || null,
+           partner: erg.partner,
            setting: erg.setting, satz: erg.satz, warnungen: erg.warnungen,
            regel: erg.regel ? (erg.regel.hdrg || []).join("/") : null,
            kontext: (erg.treffer.kontext || []).map(function(k){ return k.code; }),
@@ -365,7 +370,7 @@ _FAELLE.forEach(function(f){
   raus.faelle.push(zeile);
 });
 _SOLL.forEach(function(s){
-  raus.soll.push(OP_STEUERUNG[s.key] ? auswerten(s.key, s.codes, s.seite || "") : null);
+  raus.soll.push(OP_STEUERUNG[s.key] ? auswerten(s.key, s.codes, s.seite || "", s.alter || null) : null);
 });
 _aus(JSON.stringify(raus));
 """ % (json.dumps(daten, ensure_ascii=False), json.dumps(katalog, ensure_ascii=False),
@@ -522,6 +527,7 @@ def main():
         testfaelle.append({
             "nr": s["nr"], "konstellation": s["konstellation"], "codes": s["codes"],
             "alter": s.get("alter"), "seite": s.get("seite"),
+            "sperre": (c or {}).get("sperre"), "partner": (c or {}).get("partner"),
             "soll": s["soll"], "ist": ist, "quelle": s["quelle"],
             "status": status, "hinweis": s.get("hinweis", ""),
             "beidseits": (c or {}).get("beidseits", ""),

@@ -1,14 +1,14 @@
 {
  "stand": {
-  "app_html_sha256": "d3f63960249c866cfed4dc4a4697fcb9ccd89936927359bad54751e505cb02f0",
+  "app_html_sha256": "e87c5933ec860dfeb76170b8868a9456d6bb1cb48e508955899f633e1bbff89c",
   "runtime": "jsc",
   "zweige_im_memo": 34,
   "zeilen": 84
  },
  "zaehlung": {
-  "gleich": 50,
-  "toggle": 3,
-  "abweichend": 28,
+  "gleich": 57,
+  "toggle": 7,
+  "abweichend": 17,
   "kein Eintrag": 3
  },
  "warnungen": [],
@@ -62,16 +62,13 @@
       "name": "Arthroplastik MT-Basis"
      }
     ],
-    "hebel": "5-783.0v + 5-784.0v",
-    "hebelName": "Spongiosa MT I",
+    "hebel": "5-783.0v + 5-784.0u",
+    "hebelName": "Spongiosa (Entnahme MT I, Transplantation Tarsale)",
     "kontext": [
      {
-      "code": "5-783.0v",
-      "name": "Spongiosaentnahme Metatarsale"
-     },
-     {
-      "code": "5-784.0v",
-      "name": "Spongiosatransplantation Metatarsale"
+      "code": "5-784.0u",
+      "name": "Spongiosatransplantation Tarsale",
+      "sperre": "AKF08-V6"
      }
     ],
     "hinweise": [
@@ -81,25 +78,25 @@
     ]
    },
    "C": {
-    "hdrg": "I20M",
+    "hdrg": null,
     "drg": "I20D",
-    "hybrid": true,
+    "hybrid": false,
+    "sperre": "akf08",
+    "partner": false,
     "setting": {
-     "hybrid": true,
+     "hybrid": false,
      "stationaer": "I20D",
-     "ambulant": "hybrid"
+     "ambulant": "nein"
     },
-    "satz": "Ambulant gruppiert der Fall nach I20M. Wird stationär zusätzlich Spongiosa MT I (5-783.0v + 5-784.0v) durchgeführt, gruppiert der Fall nach I20D.",
-    "warnungen": [
-     "Sehnentransfer Mittelfuß/Zehen (5-854.2c) wirkt in I20M nicht als Kontextprozedur, Fall bleibt Hybrid."
-    ],
+    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
     "regel": "I20M",
     "kontext": [],
     "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
+   "bewertung": "toggle",
+   "grund": "A = C; B traegt den statischen Grundwert",
    "betrifft": [
     "f"
    ],
@@ -156,16 +153,13 @@
       "name": "Arthroplastik MT-Basis"
      }
     ],
-    "hebel": "5-783.0v + 5-784.0v",
-    "hebelName": "Spongiosa MT I",
+    "hebel": "5-783.0v + 5-784.0u",
+    "hebelName": "Spongiosa (Entnahme MT I, Transplantation Tarsale)",
     "kontext": [
      {
-      "code": "5-783.0v",
-      "name": "Spongiosaentnahme Metatarsale"
-     },
-     {
-      "code": "5-784.0v",
-      "name": "Spongiosatransplantation Metatarsale"
+      "code": "5-784.0u",
+      "name": "Spongiosatransplantation Tarsale",
+      "sperre": "AKF08-V6"
      }
     ],
     "hinweise": [
@@ -175,25 +169,25 @@
     ]
    },
    "C": {
-    "hdrg": "I20M",
+    "hdrg": null,
     "drg": "I20D",
-    "hybrid": true,
+    "hybrid": false,
+    "sperre": "akf08",
+    "partner": true,
     "setting": {
-     "hybrid": true,
+     "hybrid": false,
      "stationaer": "I20D",
-     "ambulant": "hybrid"
+     "ambulant": "nein"
     },
-    "satz": "Ambulant gruppiert der Fall nach I20M. Wird stationär zusätzlich Spongiosa MT I (5-783.0v + 5-784.0v) durchgeführt, gruppiert der Fall nach I20D.",
-    "warnungen": [
-     "Sehnentransfer Mittelfuß/Zehen (5-854.2c) wirkt in I20M nicht als Kontextprozedur, Fall bleibt Hybrid."
-    ],
+    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u, 5-788.56 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "warnungen": [],
     "regel": "I20M",
     "kontext": [],
     "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
+   "bewertung": "toggle",
+   "grund": "A = C; B traegt den statischen Grundwert",
    "betrifft": [
     "a",
     "f"
@@ -253,16 +247,13 @@
       "name": "Arthroplastik MT-Basis"
      }
     ],
-    "hebel": "5-783.0v + 5-784.0v",
-    "hebelName": "Spongiosa MT I",
+    "hebel": "5-783.0v + 5-784.0u",
+    "hebelName": "Spongiosa (Entnahme MT I, Transplantation Tarsale)",
     "kontext": [
      {
-      "code": "5-783.0v",
-      "name": "Spongiosaentnahme Metatarsale"
-     },
-     {
-      "code": "5-784.0v",
-      "name": "Spongiosatransplantation Metatarsale"
+      "code": "5-784.0u",
+      "name": "Spongiosatransplantation Tarsale",
+      "sperre": "AKF08-V6"
      }
     ],
     "hinweise": [
@@ -275,17 +266,17 @@
     "hdrg": null,
     "drg": "I20D",
     "hybrid": false,
+    "sperre": "akf08",
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20D",
      "ambulant": "nein"
     },
-    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20M, sondern stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u, 5-788.56, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u, 5-788.56, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
     "warnungen": [],
     "regel": "I20M",
-    "kontext": [
-     "5-788.54"
-    ],
+    "kontext": [],
     "aufwertung": [],
     "beidseits": "sperre"
    },
@@ -347,16 +338,13 @@
       "name": "Arthroplastik MT-Basis"
      }
     ],
-    "hebel": "5-783.0v + 5-784.0v",
-    "hebelName": "Spongiosa MT I",
+    "hebel": "5-783.0v + 5-784.0u",
+    "hebelName": "Spongiosa (Entnahme MT I, Transplantation Tarsale)",
     "kontext": [
      {
-      "code": "5-783.0v",
-      "name": "Spongiosaentnahme Metatarsale"
-     },
-     {
-      "code": "5-784.0v",
-      "name": "Spongiosatransplantation Metatarsale"
+      "code": "5-784.0u",
+      "name": "Spongiosatransplantation Tarsale",
+      "sperre": "AKF08-V6"
      }
     ],
     "hinweise": [
@@ -369,6 +357,8 @@
     "hdrg": null,
     "drg": "I20D",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20D",
@@ -431,6 +421,8 @@
     "hdrg": "I20N",
     "drg": "I20E",
     "hybrid": true,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": true,
      "stationaer": "I20E",
@@ -492,6 +484,8 @@
     "hdrg": "I20N",
     "drg": "I20E",
     "hybrid": true,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": true,
      "stationaer": "I20E",
@@ -554,6 +548,8 @@
     "hdrg": null,
     "drg": "I20E",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20E",
@@ -618,6 +614,8 @@
     "hdrg": "I20N",
     "drg": "I20E",
     "hybrid": true,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": true,
      "stationaer": "I20E",
@@ -682,6 +680,8 @@
     "hdrg": "I20N",
     "drg": "I20E",
     "hybrid": true,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": true,
      "stationaer": "I20E",
@@ -746,6 +746,8 @@
     "hdrg": null,
     "drg": "I20D",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20D",
@@ -808,6 +810,8 @@
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20C",
@@ -870,6 +874,8 @@
     "hdrg": "I20N",
     "drg": "I20E",
     "hybrid": true,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": true,
      "stationaer": "I20E",
@@ -974,6 +980,8 @@
     "hdrg": null,
     "drg": "I20E",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20E",
@@ -1079,6 +1087,8 @@
     "hdrg": null,
     "drg": "I20E",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20E",
@@ -1185,6 +1195,8 @@
     "hdrg": null,
     "drg": "I20E",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20E",
@@ -1293,6 +1305,8 @@
     "hdrg": null,
     "drg": "I20E",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20E",
@@ -1401,6 +1415,8 @@
     "hdrg": null,
     "drg": "I20E",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20E",
@@ -1508,6 +1524,8 @@
     "hdrg": null,
     "drg": "I20E",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20E",
@@ -1615,6 +1633,8 @@
     "hdrg": null,
     "drg": "I20E",
     "hybrid": false,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20E",
@@ -1718,6 +1738,8 @@
     "hdrg": "I20O",
     "drg": "I20E",
     "hybrid": true,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": true,
      "stationaer": "I20E",
@@ -1817,6 +1839,8 @@
     "hdrg": "I20O",
     "drg": "I20E",
     "hybrid": true,
+    "sperre": null,
+    "partner": true,
     "setting": {
      "hybrid": true,
      "stationaer": "I20E",
@@ -1862,6 +1886,8 @@
     "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
@@ -1909,6 +1935,8 @@
     "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
@@ -1963,28 +1991,31 @@
        "name": "4× distale Osteotomie MT II–V"
       }
      ]
-    }
+    },
+    "hinweise": [
+     "info: Ab drei Mittelfußknochen (5-788.54/55) s"
+    ]
    },
    "C": {
-    "hdrg": "I20N",
+    "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
      "ambulant": "hybrid"
     },
-    "satz": "1× distale Osteotomie MT II–V (5-788.52) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
-    "aufwertung": [
-     "5-788.52"
-    ],
+    "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "gleich",
+   "grund": "",
    "betrifft": [
     "b"
    ],
@@ -2026,28 +2057,31 @@
        "name": "4× distale Osteotomie MT II–V"
       }
      ]
-    }
+    },
+    "hinweise": [
+     "info: Ab drei Mittelfußknochen (5-788.54/55) s"
+    ]
    },
    "C": {
-    "hdrg": "I20N",
+    "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
      "ambulant": "hybrid"
     },
-    "satz": "2× distale Osteotomie MT II–V (5-788.53) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
-    "aufwertung": [
-     "5-788.53"
-    ],
+    "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "gleich",
+   "grund": "",
    "betrifft": [
     "b"
    ],
@@ -2091,29 +2125,30 @@
      ]
     },
     "hinweise": [
-     "info: Je versorgtem Strahl zusätzlich 5-93b.0 "
+     "info: Je versorgtem Strahl zusätzlich 5-93b.0 ",
+     "info: Ab drei Mittelfußknochen (5-788.54/55) s"
     ]
    },
    "C": {
-    "hdrg": "I20N",
+    "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
      "ambulant": "hybrid"
     },
-    "satz": "2× distale Osteotomie MT II–V (5-788.53) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
-    "aufwertung": [
-     "5-788.53"
-    ],
+    "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "gleich",
+   "grund": "",
    "betrifft": [
     "b"
    ],
@@ -2155,18 +2190,23 @@
        "name": "4× distale Osteotomie MT II–V"
       }
      ]
-    }
+    },
+    "hinweise": [
+     "info: Ab drei Mittelfußknochen (5-788.54/55) s"
+    ]
    },
    "C": {
     "hdrg": null,
-    "drg": "I20E",
+    "drg": "I20F",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": false,
-     "stationaer": "I20E",
+     "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.54, 5-93b.0, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20F. Ambulant: 5-788.54, 5-93b.0, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -2175,8 +2215,8 @@
     "aufwertung": [],
     "beidseits": "bleibt"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A = C; B traegt den statischen Grundwert",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -2216,18 +2256,23 @@
        "name": "4× distale Osteotomie MT II–V"
       }
      ]
-    }
+    },
+    "hinweise": [
+     "info: Ab drei Mittelfußknochen (5-788.54/55) s"
+    ]
    },
    "C": {
     "hdrg": null,
-    "drg": "I20E",
+    "drg": "I20F",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": false,
-     "stationaer": "I20E",
+     "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "4× distale Osteotomie MT II–V (5-788.55) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.55, 5-93b.0, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "4× distale Osteotomie MT II–V (5-788.55) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20F. Ambulant: 5-788.55, 5-93b.0, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -2236,8 +2281,8 @@
     "aufwertung": [],
     "beidseits": "bleibt"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A = C; B traegt den statischen Grundwert",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -2268,6 +2313,8 @@
     "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
@@ -2312,25 +2359,25 @@
     "empf": "both"
    },
    "C": {
-    "hdrg": "I20N",
+    "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
      "ambulant": "hybrid"
     },
-    "satz": "2× Arthrodese IP Dig II–V (5-808.be) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
-    "aufwertung": [
-     "5-808.be"
-    ],
+    "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "gleich",
+   "grund": "",
    "betrifft": [
     "b"
    ],
@@ -2361,25 +2408,25 @@
     "empf": "both"
    },
    "C": {
-    "hdrg": "I20N",
+    "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
      "ambulant": "hybrid"
     },
-    "satz": "3× Arthrodese IP Dig II–V (5-808.bf) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
-    "aufwertung": [
-     "5-808.bf"
-    ],
+    "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "gleich",
+   "grund": "",
    "betrifft": [
     "b"
    ],
@@ -2410,25 +2457,25 @@
     "empf": "both"
    },
    "C": {
-    "hdrg": "I20N",
+    "hdrg": "I20O",
     "drg": "I20F",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I20F",
      "ambulant": "hybrid"
     },
-    "satz": "4× Arthrodese IP Dig II–V (5-808.bg) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
-    "aufwertung": [
-     "5-808.bg"
-    ],
+    "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "gleich",
+   "grund": "",
    "betrifft": [
     "b"
    ],
@@ -2459,14 +2506,16 @@
    },
    "C": {
     "hdrg": null,
-    "drg": "I20E",
+    "drg": "I20F",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": false,
-     "stationaer": "I20E",
+     "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "≥5× Arthrodesen IP Dig II–V (5-808.bh) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-808.bh steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "≥5× Arthrodesen IP Dig II–V (5-808.bh) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20F. Ambulant: 5-808.bh steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -2505,12 +2554,17 @@
     "empf": "stat",
     "modifikatoren": [
      "Wechseloperation"
+    ],
+    "hinweise": [
+     "info: 5-826.00 steht weder im AOP-Katalog noch"
     ]
    },
    "C": {
     "hdrg": null,
     "drg": "I05B",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -2577,6 +2631,8 @@
     "hdrg": null,
     "drg": "I20A",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -2628,6 +2684,8 @@
     "hdrg": null,
     "drg": "I13D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -2680,6 +2738,8 @@
     "hdrg": null,
     "drg": "I13D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -2728,6 +2788,8 @@
     "hdrg": null,
     "drg": "I13G",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -2778,6 +2840,8 @@
     "hdrg": null,
     "drg": "I13G",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -2815,12 +2879,17 @@
    "B": {
     "drg": "I59Z",
     "empf": "stat",
-    "ambStatus": "ebm"
+    "ambStatus": "ebm",
+    "hinweise": [
+     "info: Keine Hybrid-DRG, auch nicht in Kombinat"
+    ]
    },
    "C": {
     "hdrg": null,
     "drg": "I59Z",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -2859,12 +2928,17 @@
    "B": {
     "drg": "I59Z",
     "empf": "stat",
-    "ambStatus": "ebm"
+    "ambStatus": "ebm",
+    "hinweise": [
+     "info: Keine Hybrid-DRG, auch nicht in Kombinat"
+    ]
    },
    "C": {
     "hdrg": null,
     "drg": "I59Z",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -2899,30 +2973,28 @@
     "im_zweig_belegt": true
    },
    "B": {
-    "hdrg": "I20O",
+    "drg": "I20E",
     "empf": "amb",
+    "ambStatus": "ebm",
     "hinweise": [
-     "alert: Patientenalter <18 Jahre → Altersausschl"
+     "info: Hybrid-DRG nur bei Patienten ab 18 Jahre"
     ]
    },
    "C": {
-    "hdrg": "I20O",
-    "drg": null,
-    "hybrid": true,
-    "setting": {
-     "hybrid": true,
-     "stationaer": null,
-     "ambulant": "hybrid"
-    },
-    "satz": "Ambulant gruppiert der Fall nach I20O. Kein erlösrelevanter Zusatzeingriff hinterlegt.",
+    "hdrg": null,
+    "drg": "I20E",
+    "hybrid": false,
+    "sperre": null,
+    "partner": false,
+    "satz": "",
     "warnungen": [],
-    "regel": "I20O/I20N",
+    "regel": null,
     "kontext": [],
     "aufwertung": [],
-    "beidseits": "sperre"
+    "beidseits": ""
    },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
+   "bewertung": "gleich",
+   "grund": "",
    "betrifft": [
     "b"
    ],
@@ -2971,6 +3043,8 @@
     "hdrg": null,
     "drg": "I27E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3017,6 +3091,8 @@
     "hdrg": null,
     "drg": "I27D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3054,12 +3130,17 @@
    },
    "B": {
     "drg": "I13E",
-    "empf": "stat"
+    "empf": "stat",
+    "hinweise": [
+     "info: Subtalare und talonavikulare Arthrodese "
+    ]
    },
    "C": {
     "hdrg": null,
     "drg": "I13E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3095,12 +3176,17 @@
    },
    "B": {
     "drg": "I13E",
-    "empf": "stat"
+    "empf": "stat",
+    "hinweise": [
+     "info: Subtalare und talonavikulare Arthrodese "
+    ]
    },
    "C": {
     "hdrg": null,
     "drg": "I13E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3136,12 +3222,17 @@
    },
    "B": {
     "drg": "I13E",
-    "empf": "stat"
+    "empf": "stat",
+    "hinweise": [
+     "info: Subtalare und talonavikulare Arthrodese "
+    ]
    },
    "C": {
     "hdrg": null,
     "drg": "I13E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3179,12 +3270,17 @@
    },
    "B": {
     "drg": "I20B",
-    "empf": "stat"
+    "empf": "stat",
+    "hinweise": [
+     "info: Subtalare und talonavikulare Arthrodese "
+    ]
    },
    "C": {
     "hdrg": null,
     "drg": "I20B",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3229,6 +3325,8 @@
     "hdrg": null,
     "drg": "I20B",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3263,12 +3361,17 @@
    },
    "B": {
     "drg": "I20C",
-    "empf": "stat"
+    "empf": "stat",
+    "hinweise": [
+     "info: Keine Hybrid-DRG; stationär I20C. MDO, L"
+    ]
    },
    "C": {
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3305,12 +3408,17 @@
    },
    "B": {
     "drg": "I20C",
-    "empf": "stat"
+    "empf": "stat",
+    "hinweise": [
+     "info: Keine Hybrid-DRG; stationär I20C. MDO, L"
+    ]
    },
    "C": {
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3353,6 +3461,8 @@
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3401,6 +3511,8 @@
     "hdrg": "I20O",
     "drg": "I27E",
     "hybrid": true,
+    "sperre": null,
+    "partner": false,
     "setting": {
      "hybrid": true,
      "stationaer": "I27E",
@@ -3458,6 +3570,8 @@
     "hdrg": null,
     "drg": "I27D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3506,6 +3620,8 @@
     "hdrg": null,
     "drg": "I59Z",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3553,6 +3669,8 @@
     "hdrg": null,
     "drg": "I59Z",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3604,6 +3722,8 @@
     "hdrg": null,
     "drg": "I13G",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3654,6 +3774,8 @@
     "hdrg": null,
     "drg": "I13G",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3705,6 +3827,8 @@
     "hdrg": null,
     "drg": "I13G",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3748,6 +3872,8 @@
     "hdrg": null,
     "drg": "I27E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3790,6 +3916,8 @@
     "hdrg": null,
     "drg": "I27E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3855,6 +3983,8 @@
     "hdrg": null,
     "drg": "I27D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3922,6 +4052,8 @@
     "hdrg": null,
     "drg": "I27D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -3991,6 +4123,8 @@
     "hdrg": null,
     "drg": "I27D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4058,6 +4192,8 @@
     "hdrg": null,
     "drg": "I27D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4097,6 +4233,8 @@
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4136,6 +4274,8 @@
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4186,6 +4326,8 @@
     "hdrg": null,
     "drg": "I20D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4237,6 +4379,8 @@
     "hdrg": null,
     "drg": "I20D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4288,6 +4432,8 @@
     "hdrg": null,
     "drg": "I20D",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4341,6 +4487,8 @@
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4396,6 +4544,8 @@
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4440,6 +4590,8 @@
     "hdrg": null,
     "drg": "I13E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4482,6 +4634,8 @@
     "hdrg": null,
     "drg": "I13E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4570,6 +4724,8 @@
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4610,6 +4766,8 @@
     "hdrg": null,
     "drg": "I20C",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4657,6 +4815,8 @@
     "hdrg": null,
     "drg": null,
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4705,6 +4865,8 @@
     "hdrg": null,
     "drg": "F27B",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4751,6 +4913,8 @@
     "hdrg": null,
     "drg": "F13B",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4797,6 +4961,8 @@
     "hdrg": null,
     "drg": "I27E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4843,6 +5009,8 @@
     "hdrg": null,
     "drg": "I27E",
     "hybrid": false,
+    "sperre": null,
+    "partner": false,
     "satz": "",
     "warnungen": [],
     "regel": null,
@@ -4905,24 +5073,24 @@
    "stellung": "1× DMMO allein",
    "ziel_vorhanden": true,
    "ziel_laenge": 173,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
   },
   {
    "zweig": "(weil.length&&!dmmo.length",
    "stellung": "3× DMMO allein",
    "ziel_vorhanden": true,
    "ziel_laenge": 47,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
   },
   {
    "zweig": "\"OSG-TEP primär (\"",
    "stellung": "TEP primaer",
    "ziel_vorhanden": true,
    "ziel_laenge": 112,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "hinweise_in_daten": 3,
+   "status": "in beiden"
   },
   {
    "zweig": "\"OSG-TEP Wechsel (\"",
@@ -4961,8 +5129,8 @@
    "stellung": "Brostrom ohne Internal Brace",
    "ziel_vorhanden": true,
    "ziel_laenge": 208,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
   },
   {
    "zweig": "\"Arthrorise\"",
@@ -4993,16 +5161,16 @@
    "stellung": "Subtalare Arthrodese",
    "ziel_vorhanden": true,
    "ziel_laenge": 208,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "hinweise_in_daten": 1,
+   "status": "in beiden"
   },
   {
    "zweig": "\"Calcaneus-OT\"",
    "stellung": "MDO (minimalinvasiv oder offen)",
    "ziel_vorhanden": true,
    "ziel_laenge": 208,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "hinweise_in_daten": 2,
+   "status": "in beiden"
   },
   {
    "zweig": "\"Calcaneoplastie\"",

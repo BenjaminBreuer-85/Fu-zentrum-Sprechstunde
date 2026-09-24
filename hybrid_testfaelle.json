@@ -3,8 +3,7 @@
   "Entwurf 23.09.2026 (Schritt 6a). Sollwerte aus hybrid-systematik.md Abschnitt 5,",
   "Ist-Werte aus hdrgAuswertung() mit den genannten Kodes. Alter und Seite wirken",
   "in der Auswertung noch nicht; 'kein App-Fall' = der Sollwert braucht einen Kode,",
-  "den keine Kodeliste der App erzeugt.",
-  "24.09.2026 (Cowork): Fall 9 Soll auf I20O berichtigt (war I20N, Abschreibfehler gegen hybrid-systematik.md Abschnitt 5)."
+  "den keine Kodeliste der App erzeugt."
  ],
  "faelle": [
   {
@@ -15,6 +14,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20O",
     "drg": null
@@ -37,6 +38,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20F"
@@ -59,6 +62,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20O",
     "drg": null
@@ -81,6 +86,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20O",
     "drg": null
@@ -103,6 +110,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20N",
     "drg": null
@@ -125,6 +134,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20N",
     "drg": null
@@ -147,6 +158,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20E"
@@ -168,16 +181,18 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
     "drg": "I20F"
    },
    "ist": {
     "hdrg": null,
-    "drg": "I20E"
+    "drg": "I20F"
    },
    "quelle": "FR S. 15",
-   "status": "abweichend",
+   "status": "gleich",
    "hinweis": "",
    "beidseits": ""
   },
@@ -189,17 +204,19 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": "I20O",
     "drg": null
    },
    "ist": {
-    "hdrg": "I20N",
+    "hdrg": "I20O",
     "drg": "I20F"
    },
    "quelle": "MU S. 22",
-   "status": "abweichend",
-   "hinweis": "Soll nach MU S. 22 und DH I20E-Definition (V61 ohne V62-Partner): I20O. Ist I20N = Fehler der unbedingten Aufwertung (6a Block 2), Berichtigung mit Schritt 6b.",
+   "status": "gleich",
+   "hinweis": "Block 2 (24.09.2026): ohne Partnerkode bleibt es bei I20O.",
    "beidseits": ""
   },
   {
@@ -211,6 +228,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": "I20O",
     "drg": null
@@ -232,6 +251,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": "I20O",
     "drg": null
@@ -254,6 +275,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
     "drg": "I27E"
@@ -275,6 +298,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20N",
     "drg": null
@@ -297,6 +322,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20N",
     "drg": null
@@ -319,6 +346,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20M",
     "drg": null
@@ -341,6 +370,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20D"
@@ -363,6 +394,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20C"
@@ -384,6 +417,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
     "drg": "I20D"
@@ -406,6 +441,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20M",
     "drg": null
@@ -429,6 +466,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20M",
     "drg": null
@@ -453,6 +492,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20D"
@@ -472,19 +513,21 @@
    "codes": [
     "5-809.1m"
    ],
-   "alter": null,
+   "alter": "u18",
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
-    "drg": null
+    "drg": "I20E"
    },
    "ist": {
-    "hdrg": "I20O",
-    "drg": null
+    "hdrg": null,
+    "drg": "I20E"
    },
    "quelle": "DH S. 1042",
-   "status": "abweichend",
-   "hinweis": "Alterskriterium; die Auswertung kennt kein Alter.",
+   "status": "gleich",
+   "hinweis": "Alter unter 18 (H-02): keine Hybrid.",
    "beidseits": ""
   },
   {
@@ -493,20 +536,22 @@
    "codes": [
     "5-809.1m"
    ],
-   "alter": null,
+   "alter": "u18",
    "seite": "bds",
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
-    "drg": null
+    "drg": "I20E"
    },
    "ist": {
-    "hdrg": "I20O",
-    "drg": null
+    "hdrg": null,
+    "drg": "I20E"
    },
    "quelle": "FR; DH",
-   "status": "abweichend",
+   "status": "gleich",
    "hinweis": "Alter und Beidseitigkeit; beidseitsSperre wird mitgerechnet.",
-   "beidseits": "sperre"
+   "beidseits": ""
   },
   {
    "nr": 24,
@@ -516,6 +561,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
     "drg": "I20B"
@@ -539,6 +586,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20E"
@@ -561,6 +610,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
     "drg": "I27E"
@@ -582,6 +633,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
     "drg": "I27E"
@@ -604,6 +657,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": false,
    "soll": {
     "hdrg": null,
     "drg": "I27E"
@@ -626,6 +681,8 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": null,
+   "partner": true,
    "soll": {
     "hdrg": "I20N",
     "drg": null
@@ -649,16 +706,18 @@
    ],
    "alter": null,
    "seite": null,
+   "sperre": "akf08",
+   "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20D"
    },
    "ist": {
-    "hdrg": "I20M",
+    "hdrg": null,
     "drg": "I20D"
    },
    "quelle": "WG 13.09.2026",
-   "status": "abweichend",
+   "status": "gleich",
    "hinweis": "Sperre folgt aus AKF08-V6; HDRG_FALLREGELN liest app.html noch nicht.",
    "beidseits": ""
   }
