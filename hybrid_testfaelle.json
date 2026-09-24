@@ -3,7 +3,8 @@
   "Entwurf 23.09.2026 (Schritt 6a). Sollwerte aus hybrid-systematik.md Abschnitt 5,",
   "Ist-Werte aus hdrgAuswertung() mit den genannten Kodes. Alter und Seite wirken",
   "in der Auswertung noch nicht; 'kein App-Fall' = der Sollwert braucht einen Kode,",
-  "den keine Kodeliste der App erzeugt."
+  "den keine Kodeliste der App erzeugt.",
+  "24.09.2026 (Cowork): Fall 9 Soll auf I20O berichtigt (war I20N, Abschreibfehler gegen hybrid-systematik.md Abschnitt 5)."
  ],
  "faelle": [
   {
@@ -189,7 +190,7 @@
    "alter": null,
    "seite": null,
    "soll": {
-    "hdrg": "I20N",
+    "hdrg": "I20O",
     "drg": null
    },
    "ist": {
@@ -197,8 +198,8 @@
     "drg": "I20F"
    },
    "quelle": "MU S. 22",
-   "status": "gleich",
-   "hinweis": "MU nennt I20O; die Aufwertungsliste 2026 fuehrt 5-788.52/53 nach I20N.",
+   "status": "abweichend",
+   "hinweis": "Soll nach MU S. 22 und DH I20E-Definition (V61 ohne V62-Partner): I20O. Ist I20N = Fehler der unbedingten Aufwertung (6a Block 2), Berichtigung mit Schritt 6b.",
    "beidseits": ""
   },
   {
