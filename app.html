@@ -958,9 +958,15 @@ function MATPOS(eingriffId, variante, faktor){
 // Platzhalter in OP-Texten aufloesen:
 //   {IMPL:<id>}  → Bezeichnung aus der Nutzerliste, sonst generische Bezeichnung
 //   {MATERIAL}   → komplette Materialliste des Eingriffs; ohne Materialsatz ersatzlos entfernt
-function textPlatzhalter(text, eingriffId, variante, faktor){
+//   {ZUSATZ:<baustein>} → Baustein aus T, wenn der zugehoerige Chip gesetzt ist,
+//                    sonst ersatzlos; zusaetze ist die Liste der gesetzten Chips.
+function textPlatzhalter(text, eingriffId, variante, faktor, zusaetze){
   if (typeof text !== "string" || text.indexOf("{") < 0) return text;
-  var out = text.replace(/\{IMPL:([a-z0-9_]+)\}/g, function(_m, id){
+  var aktiv = zusaetze || [];
+  var out = text.replace(/\{ZUSATZ:([a-z0-9_]+)\}/g, function(_m, id){
+    return (aktiv.indexOf(id) >= 0 && typeof T !== "undefined" && T[id]) ? T[id] : "";
+  });
+  out = out.replace(/\{IMPL:([a-z0-9_]+)\}/g, function(_m, id){
     return implantatBezeichnung(id);
   });
   if (out.indexOf("{MATERIAL}") >= 0) {
@@ -1694,7 +1700,134 @@ var OP_ZUSATZWAHL = {
 // OPS-Kode der DMMO nach Zahl der Strahlen (Fallsteuerung und Statuszeile).
 var DMMO_CODE = {"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
 // OPS-Kode der PIP-Arthrodese nach Zahl der Zehen (Regelsatz 2026 bewertet ihn).
-var PIP_CODE = {1:"5-808.bd", 2:"5-808.be", 3:"5-808.bf", 4:"5-808.bg"};
+var PIP_CODE = {1:"5-808.bd", 2:"5-808.be", 3:"5-808.bf", 4:"5-808.bg", 5:"5-808.bh"};
+// ============================================================
+// Zuordnung der OP-Bericht-Chips auf die Abrechnungs-Eintraege (Schritt 6b).
+// OB_SCHLUESSEL listet jeden Schluessel samt der Modifikator-IDs, die die
+// Zuordnung setzen kann — der Selbsttest prueft beides gegen opsteuerung.json.
+// obEintraege(z) liefert aus dem Chip-Zustand die beteiligten Eintraege als
+// [{key, mods, codes}]; codes sind Kodes, die erst die Anzahl-Chips ergeben.
+// ============================================================
+var OB_SCHLUESSEL = {
+  chevron: [], chevron_akin: [], scarf: [], youngswick: [], cheilektomie: [], exostose: [],
+  lapidus: [], mtp1_arthrodese: [], morton_neurom: [],
+  dmmo: [], weil: [], kleinzehen_pip: [], kleinzehen_weichteil: [],
+  tep_infinity: ["wechsel"], tep_vantage: ["wechsel"], tep_inbone: ["wechsel"],
+  arthrodesenagel_retro: [], arthrodese_osg: ["ohne_spongiosa"], amic: ["iko"],
+  brostrom_gould: [], brostrom_int_brace: [], arthrorise: [], ask_osg: [],
+  supramal_valgus: [], supramal_varus: [],
+  as_naht: [], as_tendoskopie: [], as_debridement: [], fhl_transfer: [],
+  subtalar_arthrodese: [], tn_arthrodese: [], double_arthrodese: [], triple_arthrodese: [],
+  hohlfuss_lambrinudi: [], hohlfuss_dwyer: [], mdo_mini: [], mdo_offen: [], lcot: [],
+  cotton: [], haglund_mini: [], haglund_as_split: [], os_tib_ext: [],
+  peroneal_naht: [], peroneal_rek: [], peroneal_lux: ["nur_naht", "ohne_naht"],
+  coalition_tc: ["ohne_lappen", "lcot", "lcot_u12"], coalition_cn: ["ohne_lappen", "lcot", "lcot_u12"],
+  arthrodese_tmt1: [], arthrodese_tmt: [], arthrodese_tmt13: ["vier_fuenf"],
+  fraktur_fibula_einfach: ["syndesmose"], fraktur_fibula_mehrfragment: ["syndesmose"],
+  metallentfernung: [], df_debridement: [], df_amputation: []
+};
+function obEintraege(z){
+  var e = [], add = function(key, mods, codes){ if (key) e.push({ key: key, mods: mods || [], codes: codes || [] }); };
+  // --- Vorfuss
+  var vf = { chevron: z.mitAkin ? "chevron_akin" : "chevron", lapidus: "lapidus",
+             mtp1art: "mtp1_arthrodese", cheilek: "cheilektomie", exostose: "exostose",
+             scarf: "scarf", morton: "morton_neurom" }[z.gz];
+  if (vf) add(vf);
+  if (z.mtStrahlen && z.mtStrahlen.length && z.dmmo && z.dmmo.length)
+    add("dmmo", [], [DMMO_CODE[({1:"1",2:"2-3",3:"2-4",4:"2-5"})[Math.min(z.mtStrahlen.length,4)]]].filter(Boolean));
+  if (z.weil && z.weil.length) add("weil");
+  if (z.pipZahl > 0) add("kleinzehen_pip", [], [PIP_CODE[Math.min(z.pipZahl, 5)] || "5-808.bh"]);
+  if (z.zeheWeichteil) add("kleinzehen_weichteil");
+  // --- OSG
+  if (z.tepType) {
+    var tk = z.tepType.indexOf("inbone") >= 0 ? "tep_inbone"
+           : z.tepType.indexOf("vantage") >= 0 ? "tep_vantage" : "tep_infinity";
+    add(tk, z.tepType.indexOf("wechsel") === 0 ? ["wechsel"] : []);
+  }
+  (z.osgOp || []).forEach(function(op){
+    if (op === "arthrodesenagel_retro") add("arthrodesenagel_retro");
+    if (op === "arthrodese_osg") add("arthrodese_osg", z.osgArtSpongiosa ? [] : ["ohne_spongiosa"]);
+    if (op === "amic") add("amic", z.amicIKO ? ["iko"] : []);
+    if (op === "brostrom") add(z.brostromIB ? "brostrom_int_brace" : "brostrom_gould");
+    if (op === "arthrorise") add("arthrorise");
+    if (op === "ask" || op === "ask_nano") add("ask_osg");
+  });
+  // --- Rueckfuss
+  (z.rfOp || []).forEach(function(op){
+    if (op === "supramal_ot") add(z.supramalTyp === "closed" ? "supramal_varus" : "supramal_valgus");
+    if (op === "as_naht") add("as_naht");
+    if (op === "as_tendoskopie") add("as_tendoskopie");
+    if (op === "as_debridement") add("as_debridement");
+    if (op === "fhl_transfer") add("fhl_transfer");
+    if (op === "subtalar") add("subtalar_arthrodese");
+    if (op === "tn_arthrodese") add("tn_arthrodese");
+    if (op === "double_arthrodese") add("double_arthrodese");
+    if (op === "triple_arthrodese") add("triple_arthrodese");
+    if (op === "lambrinudi") add("hohlfuss_lambrinudi");
+    if (op === "dwyer") add("hohlfuss_dwyer");
+    if (op === "mdo_mini") add("mdo_mini");
+    if (op === "mdo_offen") add("mdo_offen");
+    if (op === "calc_ot_verl") add("lcot");
+    if (op === "haglund_mini") add("haglund_mini");
+    if (op === "haglund") add("haglund_as_split");
+    if (op === "os_tib_ext") add("os_tib_ext");
+    if (op === "peroneal") {
+      if (z.peronealTyp === "naht") add("peroneal_naht");
+      else if (z.peronealTyp === "tenodese") add("peroneal_rek");
+      else if (z.peronealTyp === "luxation")
+        add("peroneal_lux", z.luxRinne ? [] : (z.luxNaht ? ["nur_naht"] : ["ohne_naht"]));
+    }
+  });
+  if (z.mdoCotton) add("cotton");
+  if (z.coalTyp) {
+    var cm = [];
+    if (!z.coalFascie) cm.push("ohne_lappen");
+    if (z.coalLCOT) cm.push(z.coalU12 ? "lcot_u12" : "lcot");
+    add(z.coalTyp === "tc" ? "coalition_tc" : "coalition_cn", cm);
+  }
+  // --- Mittelfuss
+  if (z.tmtGelenke > 0) {
+    if (z.tmtGelenke === 1) add("arthrodese_tmt1");
+    else if (z.tmtGelenke === 2) add("arthrodese_tmt");
+    else add("arthrodese_tmt13", z.tmtGelenke >= 4 ? ["vier_fuenf"] : []);
+  }
+  if (z.mfCotton) add("cotton");
+  // --- Frakturen
+  (z.fxOp || []).forEach(function(op){
+    if (op === "fibula_einf") add("fraktur_fibula_einfach", z.fxSyndes ? ["syndesmose"] : []);
+    if (op === "fibula_mehr") add("fraktur_fibula_mehrfragment", z.fxSyndes ? ["syndesmose"] : []);
+  });
+  // --- Uebrige
+  if (z.hasME) add("metallentfernung");
+  if (z.dfOp) add("df_debridement");
+  if (z.dfAmp) add("df_amputation");
+  // Doppelte Schluessel (Cotton ueber zwei Wege) zusammenfassen.
+  var gesehen = {};
+  return e.filter(function(x){ if (gesehen[x.key]) return false; gesehen[x.key] = 1; return true; });
+}
+// Eintrag mit angewandten Modifikatoren: hdrg/drg/ops/hinweise des Modifikators
+// stechen den Grundeintrag, wie im Sprechstundenbrief (opSteuerungEff).
+function obEintragEff(key, mods){
+  var e = OP_STEUERUNG[key];
+  if (!e) return null;
+  // opsCodes stehen in den Daten als {code,name}, Modifikator-Kodes als String.
+  var nurCode = function(c){ return (c && typeof c === "object") ? c.code : c; };
+  var r = Object.assign({}, e), ops = (e.opsCodes || []).map(nurCode), weg = {};
+  (mods || []).forEach(function(id){
+    var m = (e.modifikatoren || []).filter(function(x){ return x.id === id; })[0];
+    if (!m) return;
+    if (m.hdrg !== undefined) r.hdrg = m.hdrg;
+    if (m.drg !== undefined && m.drg !== null) r.drg = m.drg;
+    if (m.empf) r.empf = m.empf;
+    (m.ops || []).forEach(function(c){ ops.push(c); });
+    (m.opsWeg || []).forEach(function(c){ weg[c] = 1; });
+    if (m.hinweise) r.hinweise = (r.hinweise || []).concat(m.hinweise);
+    if (m.label) r._modLabels = (r._modLabels || []).concat([m.label]);
+  });
+  r.opsCodes = ops.filter(function(c){ return !weg[c]; });
+  r._opsWeg = Object.keys(weg);
+  return r;
+}
 // Zahl der Gelenkfaecher aus den TMT-Chips; Materialsatz und OPS-Kode rechnen
 // mit derselben Zahl.
 function tmtGelenkzahl(chips){
@@ -4697,6 +4830,11 @@ function OPBerichtApp(){
   const [mitAkin,setMitAkin]=useState(false);
   const [hoffTill,setHoffTill]=useState(false);
   const [mitSubcap,setMitSubcap]=useState(false);
+  // Sehnentransfer (5-854.2c) und Spongiosaplastik stehen seit 6b am Chip,
+  // nicht mehr fest in Kodeliste und Text.
+  const [vfSehnentransfer,setVfSehnentransfer]=useState(false);
+  const [vfSpongiosa,setVfSpongiosa]=useState(false);
+  const [coalU12,setCoalU12]=useState(false);
   // Kleinzehen
   const [zc,setZc]=useState({2:[],3:[],4:[],5:[]});
   const [dmmo,setDmmo]=useState([]);
@@ -5052,20 +5190,20 @@ function OPBerichtApp(){
     // Collected OPS codes
   const [allOPS,erloesData]=useMemo(()=>{
     const o=[];
-    if(gz==="chevron"){o.push("5-788.5c","5-788.40","5-93b.0","5-854.2c");if(mitAkin)o.push("5-788.56");}
-    if(gz==="lapidus"){o.push("5-808.a4","5-788.40","5-93b.0","5-93b.e","5-783.0v","5-784.0u");if(mitSubcap)o.push("5-788.5c");o.push("5-854.2c");if(mitAkin)o.push("5-788.56");}
+    if(gz==="chevron"){o.push("5-788.5c","5-788.40","5-93b.0");if(vfSehnentransfer)o.push("5-854.2c");if(mitAkin)o.push("5-788.56");}
+    if(gz==="lapidus"){o.push("5-808.a4","5-788.40","5-93b.0","5-93b.e");if(vfSpongiosa)o.push("5-783.0v","5-784.0u");if(mitSubcap)o.push("5-788.5c");if(vfSehnentransfer)o.push("5-854.2c");if(mitAkin)o.push("5-788.56");}
     if(gz==="mtp1art"){if(hoffTill){o.push("5-808.b0","5-93b.0","5-93b.e","5-788.60","5-788.60","5-788.60","5-788.60","5-808.b2","5-808.b2","5-808.b2","5-808.b2");}else{o.push("5-808.b0","5-93b.0","5-93b.e");if(mitAkin)o.push("5-788.56");}}
     if(gz==="cheilek")o.push("5-788.00");
     if(gz==="morton")o.push("5-846.7");
     if(gz==="exostose")o.push("5-788.00");
-    if(gz==="scarf")o.push("5-788.5e");
-    const pipMap={1:"d",2:"e",3:"f",4:"g"};
+    if(gz==="scarf"){o.push("5-788.5e");if(vfSehnentransfer)o.push("5-854.2c");}
+    // PIP-Kode nach Zahl der Zehen (PIP_CODE, ab 5 Gelenken 5-808.bh).
     // Zehen-Eingriffe: nur EINMAL pro Eingriffstyp pushen (unabhängig von Anzahl der Zehen)
     const zeheOpsSet = new Set();
     [2,3,4,5].forEach(z=>{(zc[z]||[]).forEach(op=>zeheOpsSet.add(op));});
     // PIP-Anzahl: kodiert die Zehen-Anzahl im Suffix (5-808.bd/be/bf/bg)
-    const pipZehenCnt = Math.min([2,3,4,5].filter(z=>(zc[z]||[]).includes("pip")).length, 4);
-    if(pipZehenCnt > 0) o.push("5-808.b" + (pipMap[pipZehenCnt] || "d"));
+    const pipZehenCnt = [2,3,4,5].filter(z=>(zc[z]||[]).includes("pip")).length;
+    if(pipZehenCnt > 0) o.push(PIP_CODE[Math.min(pipZehenCnt,5)] || "5-808.bh");
     // Andere Zehen-Eingriffe: jeweils einmal
     const zeheCodes = new Set();
     if(zeheOpsSet.has("ext_verl")) zeheCodes.add("5-854.0c");
@@ -5471,7 +5609,7 @@ function OPBerichtApp(){
         ziel:asS.ziel,kodier:asS.kodier,hinweise:asS.hinweise}];
     }
 
-    return [o,null];},[hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfCottonKnochen,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    return [o,null];},[vfSehnentransfer,vfSpongiosa,coalU12,alter,hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfCottonKnochen,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // ICD-Codes als Textblock
   const icdText=useMemo(()=>{
@@ -5995,11 +6133,15 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(!((dfOp||dfAmp)&&!hasVF&&!hasOSG&&!hasTEP&&!hasRF&&!hasMF&&!hasME&&!hasUM&&!hasFX&&coalTyp===""))
       p.push("\n\n"+buildVerband(hasVF,bs,r));
     if(entlassGespr)p.push("\n\nPostoperativ erfolgt ein ausführliches Entlassgespräch über den Eingriff und die Nachbehandlung. Aufklärung über Zeichen von Infekt, Thrombose oder andere postoperative Komplikationen mit Verhaltensmaßgaben. Kontrolltermine werden besprochen und abgestimmt. Häusliche Versorgung und Betreuung am OP-Tag ist anamnestisch gewährleistet. Recap der Zehen ist intakt, Belastungsvorgaben können umgesetzt werden, Verband ist trocken.");
-    return textPlatzhalter(p.join(""));
+    // Chip-gebundene Textbausteine ({ZUSATZ:…}).
+    var zusaetze=[];
+    if(vfSehnentransfer)zusaetze.push("ahl_transfer");
+    if(vfSpongiosa)zusaetze.push("lapidus_spongiosa");
+    return textPlatzhalter(p.join(""), null, null, null, zusaetze);
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[vfSehnentransfer,vfSpongiosa,gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -6103,13 +6245,14 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={cat}>Großzehe (1. Strahl)</div>
         <div style={row}>
           {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"],["morton","Morton-Neurom"]].map(([k,l])=>
-            <div key={k} style={chip(gz===k)} onClick={()=>{setGz(gz===k?"":k);setMitAkin(false);setHoffTill(false);setMitSubcap(false);}}>{l}</div>
+            <div key={k} style={chip(gz===k)} onClick={()=>{setGz(gz===k?"":k);setMitAkin(false);setHoffTill(false);setMitSubcap(false);setVfSehnentransfer(false);setVfSpongiosa(false);}}>{l}</div>
           )}
         </div>
-        {gz==="chevron"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-788.5c, 5-788.40, 5-93b.0, 5-854.2c{mitAkin?", 5-788.56":""}</div></div>}
-        {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-93b.0, 5-93b.e{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
+        {gz==="chevron"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>+ Sehnentransfer</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-788.5c, 5-788.40, 5-93b.0, 5-854.2c{mitAkin?", 5-788.56":""}</div></div>}
+        {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>+ Sehnentransfer</div><div style={tog(vfSpongiosa)} onClick={()=>setVfSpongiosa(!vfSpongiosa)}>+ Spongiosaplastik</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-93b.0, 5-93b.e{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
         {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(hoffTill)} onClick={()=>setHoffTill(!hoffTill)}>Hoffmann-Tillmann</div><div style={{fontSize:10,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · stationär mit Spongiosaplastik 5-784.0v → I20E · ambulant ohne Spongiosaplastik → I20N</div></div>}
         {gz==="cheilek"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-788.00 (Exostosenabtragung MT I) · Amb: H-DRG I20O · Stat: 5-854.2c/0c bei tatsächlich erbrachter Leistung → I20E</div></div>}
+        {gz==="scarf"&&<div style={sub}><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>+ Sehnentransfer</div><div style={{fontSize:10,color:"#718096",marginTop:3}}>OPS: 5-788.5e{vfSehnentransfer?", 5-854.2c":""}</div></div>}
         {gz==="morton"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-846.7 · ICD: G57.6 (zu bestätigen) · Intermetatarsalraum im Text anpassen</div></div>}
 
         <div style={cat}>Kleinzehen D2–D5</div>
@@ -6341,6 +6484,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           <div style={{display:"flex",gap:4}}>
             <div style={tog(coalFascie)} onClick={()=>setCoalFascie(!coalFascie)}>+ Fascienflap Unterschenkel</div>
             <div style={tog(coalLCOT)} onClick={()=>setCoalLCOT(!coalLCOT)}>+ LCOT (Calcaneus-OT)</div>
+            {coalLCOT&&<div style={tog(coalU12)} onClick={()=>setCoalU12(!coalU12)}>&lt; 12 J.</div>}
           </div>
           <div style={{fontSize:10,color:"#718096",marginTop:4}}>Coalitio {coalTyp==="tc"?"Talocalcaneare":"Calcaneo-Naviculare"} · OPS: 5-781.at{coalFascie?", 5-852.g9, 5-856.4a":""}{coalLCOT?", 5-781.4t, 5-784.7t (Lateralisierende Calcaneusosteotomie)":""}</div>
         </div>}
@@ -9753,6 +9897,20 @@ function selbsttestPruefen(D){
     if (f.length) p12.push(id+": "+f.join(", "));
   });
   p.push({nr:"12", art:"Fehler", titel:"sono.json: Struktur ohne normal/auffaellig/gruppe oder Gruppe nicht in GRUPPEN", treffer:p12});
+
+  // 13/14 (Schritt 6b): Die Zuordnung der OP-Bericht-Chips darf nur auf
+  // Schluessel und Modifikator-IDs zeigen, die es in opsteuerung.json gibt.
+  var p13 = [], p14 = [];
+  Object.keys(OB_SCHLUESSEL).forEach(function(k){
+    var e = OS[k];
+    if (!e) { p13.push(k); return; }
+    (OB_SCHLUESSEL[k] || []).forEach(function(id){
+      var da = (e.modifikatoren || []).some(function(m){ return m.id === id; });
+      if (!da) p14.push(k + "." + id);
+    });
+  });
+  p.push({nr:"13", art:"Fehler", titel:"OP-Bericht-Zuordnung: Schlüssel ohne Eintrag in OP_STEUERUNG", treffer:p13});
+  p.push({nr:"14", art:"Fehler", titel:"OP-Bericht-Zuordnung: Modifikator-ID ohne Eintrag", treffer:p14});
   return p;
 }
 function selbsttestNachLadezeit(pr){ return parseInt(pr.nr, 10) > 10;
