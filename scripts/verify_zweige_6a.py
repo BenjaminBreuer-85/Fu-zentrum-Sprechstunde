@@ -31,6 +31,7 @@ OUT = os.path.join(REPO, "out")
 JS_MARKER = [
     ("var DRG_RANG  =", "// Gruppen des Aufklappers"),
     ("function steuerAnzeige(key){", "// Hydration (Single Source)"),
+    ("function obEintragEff(key, mods){", "// Zahl der Gelenkfaecher"),
 ]
 
 # ---------------------------------------------------------------- Faelle
@@ -126,9 +127,9 @@ FAELLE = [
    anmerkung="Kein App-Fall: der Kodeblock deckelt bei vier Zehen (bd–bg)."),
  F(zweig='"OSG-TEP primär ("', stellung="TEP primaer", keys=["tep_infinity","tep_vantage","tep_inbone"],
    codes=["5-826.00"], a_hdrg="—", a_drg="I05B", betrifft=[]),
- F(zweig='"OSG-TEP Wechsel ("', stellung="TEP Wechsel", keys=[],
+ F(zweig='"OSG-TEP Wechsel ("', stellung="TEP Wechsel", keys=["tep_infinity"], mods=["wechsel"],
    codes=["5-827.10"], a_hdrg="—", a_drg="I43B", betrifft=[],
-   anmerkung="Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag (Modifikator Wechsel an tep_*)."),
+   anmerkung="Seit 6b ueber den Modifikator wechsel an tep_*."),
  F(zweig='"Arthrodesenagel (TTC-Arthrodese)"', stellung="TTC-Arthrodesenagel", keys=["arthrodesenagel_retro"],
    codes=["5-808.71","5-93b.6"], a_hdrg="—", a_drg="I20A", betrifft=["f"]),
  F(zweig='"OSG-Arthrodese"', stellung="OSG-Arthrodese ohne Spongiosa", keys=["arthrodese_osg"],
@@ -217,12 +218,12 @@ FAELLE = [
    codes=["5-781.0n","5-93b.e"], a_hdrg="—", a_drg="I13E", betrifft=[]),
  F(zweig='"Supramalleolare OT"', stellung="Supramalleolare OT varisierend", keys=["supramal_varus"],
    codes=["5-781.1n","5-93b.e"], a_hdrg="—", a_drg="I13E", betrifft=[]),
- F(zweig='fxLabel', stellung="Weber B einfach", keys=[],
+ F(zweig='fxLabel', stellung="Weber B einfach", keys=["fraktur_fibula_einfach"],
    codes=["5-793.3r","5-793.kr"], a_hdrg="I13N", a_drg="I13G", betrifft=[],
-   anmerkung="Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag."),
- F(zweig='fxLabel+" + Syndesmose"', stellung="Weber B/C + Syndesmose", keys=[],
+   anmerkung="Seit 6b eigener Eintrag (3ac)."),
+ F(zweig='fxLabel+" + Syndesmose"', stellung="Weber B/C + Syndesmose", keys=["fraktur_fibula_mehrfragment"], mods=["syndesmose"],
    codes=["5-794.2r","5-794.kr","5-795.kr"], a_hdrg="I13N", a_drg="I13E", betrifft=[],
-   anmerkung="Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag."),
+   anmerkung="Seit 6b eigener Eintrag mit Modifikator syndesmose (3ac)."),
  F(zweig='"Dwyer-Osteotomie"', stellung="Dwyer ohne Zusatz", keys=["hohlfuss_dwyer"],
    codes=["5-781.1t","5-93b.0"], a_hdrg="—", a_drg="I20C", betrifft=[]),
  F(zweig='"Dwyer-Osteotomie"', stellung="Dwyer + Peronealtransfer", keys=["hohlfuss_dwyer"],
@@ -366,7 +367,22 @@ function auswerten(key, codes, seite, alter){
 var raus = { faelle: [], soll: [] };
 _FAELLE.forEach(function(f){
   var zeile = { keys: {} };
-  (f.keys || []).forEach(function(k){ zeile.keys[k] = OP_STEUERUNG[k] ? auswerten(k, f.codes, "bds") : null; });
+  (f.keys || []).forEach(function(k){
+    var best = OP_STEUERUNG[k];
+    if (!best) { zeile.keys[k] = null; return; }
+    var eff = (typeof obEintragEff === "function" && (f.mods || []).length) ? obEintragEff(k, f.mods) : best;
+    var erg = hdrgAuswertung({ best: eff, bestKey: k, hdrg: eff.hdrg, drg: eff.drg, codes: f.codes,
+                               ambulant: true,
+                               partner: (typeof partnerErfuellt === "function") ? partnerErfuellt(f.codes, k) : undefined,
+                               alter: f.alter || null });
+    zeile.keys[k] = { hdrg: erg.hdrg, drg: erg.drg, hybrid: erg.hybrid, sperre: erg.sperre || null,
+                      partner: erg.partner, setting: erg.setting, satz: erg.satz,
+                      warnungen: erg.warnungen,
+                      regel: erg.regel ? (erg.regel.hdrg || []).join("/") : null,
+                      kontext: (erg.treffer.kontext || []).map(function(x){ return x.code; }),
+                      aufwertung: (erg.treffer.aufwertung || []).map(function(x){ return x.code; }),
+                      beidseits: beidseitsSperre("bds", !!eff.hdrg, f.codes, k) };
+  });
   raus.faelle.push(zeile);
 });
 _SOLL.forEach(function(s){
@@ -389,7 +405,7 @@ _aus(JSON.stringify(raus));
 
 def memo_zweige(app):
     i = app.index("const [allOPS,erloesData]=useMemo")
-    j = app.index("return [o,null];},[hasAny", i)
+    j = app.index("return [o,null];},[", i)
     zs = app[i:j].split("\n")
     starts = [n for n, z in enumerate(zs) if "return [o,{" in z]
     out = []
@@ -402,7 +418,9 @@ def memo_zweige(app):
 
 
 def block_fuer(zweige, anker):
-    if anker is None:
+    # Seit Schritt 6b gibt es keine Literal-Zweige mehr: Spalte A entfaellt,
+    # die Liste vergleicht dann nur noch B gegen C.
+    if anker is None or not zweige:
         return ""
     for label, block in zweige:
         if anker in label:
@@ -454,7 +472,17 @@ def b_spalte(eintrag):
     return b
 
 
-def bewerte(fall, a, b, c):
+def bewerte(fall, a, b, c, ohne_a=False):
+    if ohne_a:
+        if not fall["keys"]:
+            return "kein Eintrag", "kein OP_STEUERUNG-Schluessel"
+        if not c:
+            return "kein Eintrag", "Schluessel fehlt in opsteuerung.json"
+        b_h = (b or {}).get("hdrg") or "—"; b_d = (b or {}).get("drg") or "—"
+        c_h = c.get("hdrg") or "—"; c_d = c.get("drg") or "—"
+        if b_h == c_h and b_d == c_d:
+            return "gleich", "A entfaellt (Zweige abgeloest)"
+        return "toggle", "A entfaellt; C rechnet aus den Kodes"
     if fall.get("umgezogen"):
         return "gleich", "umgezogen — Anzeige kommt aus steuerAnzeige()"
     if not fall["keys"]:
@@ -483,7 +511,9 @@ def main():
     daten = json.load(open(DATEN, encoding="utf-8"))
     katalog = json.load(open(KATALOG, encoding="utf-8"))
     st = daten["OP_STEUERUNG"]
-    zweige = memo_zweige(app)
+    # Ab Schritt 6b rechnet der OP-Bericht aus den Daten; Literal-Zweige und
+    # damit Spalte A gibt es dann nicht mehr.
+    zweige = [] if "FALLSTEUERUNG AUS DEN DATEN" in app else memo_zweige(app)
 
     c_roh, runtime = rechne_c(app, daten, katalog, FAELLE, SOLL)
 
@@ -491,17 +521,17 @@ def main():
     warnungen = []
     for nr, (fall, c_zeile) in enumerate(zip(FAELLE, c_roh["faelle"]), start=1):
         block = block_fuer(zweige, fall["zweig"])
-        if fall["zweig"] and not block:
+        if zweige and fall["zweig"] and not block:
             warnungen.append(f"Zeile {nr}: Zweig-Anker {fall['zweig']!r} nicht gefunden")
         a = {"hdrg": fall.get("a_hdrg"), "drg": fall.get("a_drg"),
              "im_zweig_belegt": bool(block) and all(
                  (w in block) for w in [fall.get("a_drg")] if w and w not in ("—", "variabel"))}
-        if block and fall.get("a_drg") and not a["im_zweig_belegt"]:
+        if zweige and block and fall.get("a_drg") and not a["im_zweig_belegt"]:
             warnungen.append(f"Zeile {nr}: '{fall['a_drg']}' steht nicht im Zweigtext — Wert pruefen")
         key = fall["keys"][0] if fall["keys"] else None
         b = b_spalte(st.get(key)) if key else None
         c = c_zeile["keys"].get(key) if key else None
-        note, grund = bewerte(fall, a, b, c)
+        note, grund = bewerte(fall, a, b, c, ohne_a=not zweige)
         zaehlung[note] += 1
         zeilen.append({
             "nr": nr, "zweig": fall["zweig"], "stellung": fall["stellung"],

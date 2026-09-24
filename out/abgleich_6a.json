@@ -1,15 +1,15 @@
 {
  "stand": {
-  "app_html_sha256": "e87c5933ec860dfeb76170b8868a9456d6bb1cb48e508955899f633e1bbff89c",
+  "app_html_sha256": "54073d203fc85ce37aabbbf4470d15a1584fd77ad56d870d5eb6beeed734f5c6",
   "runtime": "jsc",
-  "zweige_im_memo": 34,
+  "zweige_im_memo": 0,
   "zeilen": 84
  },
  "zaehlung": {
-  "gleich": 57,
-  "toggle": 7,
-  "abweichend": 17,
-  "kein Eintrag": 3
+  "gleich": 66,
+  "toggle": 18,
+  "abweichend": 0,
+  "kein Eintrag": 0
  },
  "warnungen": [],
  "zeilen": [
@@ -34,7 +34,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20M",
@@ -82,7 +82,7 @@
     "drg": "I20D",
     "hybrid": false,
     "sperre": "akf08",
-    "partner": false,
+    "partner": true,
     "setting": {
      "hybrid": false,
      "stationaer": "I20D",
@@ -96,7 +96,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "toggle",
-   "grund": "A = C; B traegt den statischen Grundwert",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "f"
    ],
@@ -125,7 +125,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20M",
@@ -187,7 +187,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "toggle",
-   "grund": "A = C; B traegt den statischen Grundwert",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "a",
     "f"
@@ -219,7 +219,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20M",
@@ -281,7 +281,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "toggle",
-   "grund": "A = C; B traegt den statischen Grundwert",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "a"
    ],
@@ -310,7 +310,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20M",
@@ -374,7 +374,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "toggle",
-   "grund": "A = C; B traegt den statischen Grundwert",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "f"
    ],
@@ -398,7 +398,7 @@
    "A": {
     "hdrg": "I20N",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20N",
@@ -436,7 +436,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -461,7 +461,7 @@
    "A": {
     "hdrg": "I20N",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20N",
@@ -499,7 +499,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -525,7 +525,7 @@
    "A": {
     "hdrg": "I20N",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20N",
@@ -564,8 +564,8 @@
     "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "a"
    ],
@@ -591,7 +591,7 @@
    "A": {
     "hdrg": "I20N",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20N",
@@ -631,7 +631,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -657,7 +657,7 @@
    "A": {
     "hdrg": "I20N",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20N",
@@ -697,7 +697,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -723,7 +723,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20N",
@@ -763,7 +763,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "toggle",
-   "grund": "A = C; B traegt den statischen Grundwert",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [],
    "anmerkung": "Sechster Teil Punkt 2: C liefert I20D aus der Kontextregel, ohne festen Wert im Zweig.",
    "entscheidung": ""
@@ -787,7 +787,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20N",
@@ -826,8 +826,8 @@
     "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [],
    "anmerkung": "C liefert I20C (Regel I20N → I20C), der Zweig zeigt I20D.",
    "entscheidung": ""
@@ -851,7 +851,7 @@
    "A": {
     "hdrg": "I20N",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20N",
@@ -891,7 +891,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -916,7 +916,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -996,8 +996,8 @@
     "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "b"
    ],
@@ -1023,7 +1023,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1103,8 +1103,8 @@
     "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "b"
    ],
@@ -1131,7 +1131,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1213,8 +1213,8 @@
     ],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "b"
    ],
@@ -1241,7 +1241,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1323,8 +1323,8 @@
     ],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "b"
    ],
@@ -1351,7 +1351,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1432,8 +1432,8 @@
     "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "a"
    ],
@@ -1460,7 +1460,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1541,8 +1541,8 @@
     "aufwertung": [],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "a"
    ],
@@ -1569,7 +1569,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1651,8 +1651,8 @@
     ],
     "beidseits": "sperre"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "b"
    ],
@@ -1674,7 +1674,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1753,7 +1753,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -1775,7 +1775,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1854,7 +1854,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "Kein eigener Kodepfad: der Chip laeuft ueber gz='scarf'.",
    "entscheidung": ""
@@ -1874,7 +1874,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1901,7 +1901,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -1923,7 +1923,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -1950,7 +1950,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -1973,7 +1973,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2015,7 +2015,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -2039,7 +2039,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2081,7 +2081,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -2105,7 +2105,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2148,7 +2148,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -2172,7 +2172,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2216,7 +2216,7 @@
     "beidseits": "bleibt"
    },
    "bewertung": "toggle",
-   "grund": "A = C; B traegt den statischen Grundwert",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -2238,7 +2238,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2282,7 +2282,7 @@
     "beidseits": "bleibt"
    },
    "bewertung": "toggle",
-   "grund": "A = C; B traegt den statischen Grundwert",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -2302,7 +2302,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2328,7 +2328,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -2351,7 +2351,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2377,7 +2377,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -2400,7 +2400,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2426,7 +2426,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -2449,7 +2449,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2475,7 +2475,7 @@
     "beidseits": "sperre"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -2497,7 +2497,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I20F",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -2524,8 +2524,8 @@
     "aufwertung": [],
     "beidseits": "bleibt"
    },
-   "bewertung": "abweichend",
-   "grund": "A, B und C unterscheiden sich",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [],
    "anmerkung": "Kein App-Fall: der Kodeblock deckelt bei vier Zehen (bd–bg).",
    "entscheidung": ""
@@ -2547,7 +2547,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I05B",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I05B",
@@ -2573,7 +2573,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -2582,7 +2582,9 @@
    "nr": 35,
    "zweig": "\"OSG-TEP Wechsel (\"",
    "stellung": "TEP Wechsel",
-   "keys": [],
+   "keys": [
+    "tep_infinity"
+   ],
    "codes": [
     "5-827.10"
    ],
@@ -2591,14 +2593,35 @@
    "A": {
     "hdrg": "—",
     "drg": "I43B",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
-   "B": null,
-   "C": null,
-   "bewertung": "kein Eintrag",
-   "grund": "kein OP_STEUERUNG-Schluessel",
+   "B": {
+    "drg": "I05B",
+    "empf": "stat",
+    "modifikatoren": [
+     "Wechseloperation"
+    ],
+    "hinweise": [
+     "info: 5-826.00 steht weder im AOP-Katalog noch"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I43B",
+    "hybrid": false,
+    "sperre": null,
+    "partner": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [],
-   "anmerkung": "Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag (Modifikator Wechsel an tep_*).",
+   "anmerkung": "Seit 6b ueber den Modifikator wechsel an tep_*.",
    "entscheidung": ""
   },
   {
@@ -2617,7 +2640,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20A",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20A",
@@ -2641,7 +2664,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "f"
    ],
@@ -2664,61 +2687,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I13E",
-    "im_zweig_belegt": true
-   },
-   "B": {
-    "drg": "I13D",
-    "empf": "stat",
-    "hebel": "5-783.0d + 5-784.0n",
-    "hebelName": "Spongiosa Beckenkamm → Tibia",
-    "modifikatoren": [
-     "ohne Spongiosa"
-    ],
-    "hinweise": [
-     "info: Mit Spongiosaplastik (5-783.0d Entnahme ",
-     "warn: Die DRG I13D setzt eine durchgeführte Sp",
-     "alert: {'__fx': 'Ohne Spongiosaplastik gruppier"
-    ]
-   },
-   "C": {
-    "hdrg": null,
-    "drg": "I13D",
-    "hybrid": false,
-    "sperre": null,
-    "partner": false,
-    "satz": "",
-    "warnungen": [],
-    "regel": null,
-    "kontext": [],
-    "aufwertung": [],
-    "beidseits": ""
-   },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
-   "betrifft": [],
-   "anmerkung": "",
-   "entscheidung": ""
-  },
-  {
-   "nr": 38,
-   "zweig": "\"OSG-Arthrodese\"",
-   "stellung": "OSG-Arthrodese + Spongiosa",
-   "keys": [
-    "arthrodese_osg"
-   ],
-   "codes": [
-    "5-808.70",
-    "5-93b.0",
-    "5-93b.e",
-    "5-784.0n",
-    "5-783.0d"
-   ],
-   "alter": null,
-   "seite": null,
-   "A": {
-    "hdrg": "—",
-    "drg": "I13D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13D",
@@ -2748,7 +2717,61 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 38,
+   "zweig": "\"OSG-Arthrodese\"",
+   "stellung": "OSG-Arthrodese + Spongiosa",
+   "keys": [
+    "arthrodese_osg"
+   ],
+   "codes": [
+    "5-808.70",
+    "5-93b.0",
+    "5-93b.e",
+    "5-784.0n",
+    "5-783.0d"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I13D",
+    "im_zweig_belegt": false
+   },
+   "B": {
+    "drg": "I13D",
+    "empf": "stat",
+    "hebel": "5-783.0d + 5-784.0n",
+    "hebelName": "Spongiosa Beckenkamm → Tibia",
+    "modifikatoren": [
+     "ohne Spongiosa"
+    ],
+    "hinweise": [
+     "info: Mit Spongiosaplastik (5-783.0d Entnahme ",
+     "warn: Die DRG I13D setzt eine durchgeführte Sp",
+     "alert: {'__fx': 'Ohne Spongiosaplastik gruppier"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13D",
+    "hybrid": false,
+    "sperre": null,
+    "partner": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "f"
    ],
@@ -2772,7 +2795,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I13G",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13G",
@@ -2798,7 +2821,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "c"
    ],
@@ -2824,7 +2847,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I13E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13G",
@@ -2849,8 +2872,8 @@
     "aufwertung": [],
     "beidseits": ""
    },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "c"
    ],
@@ -2874,7 +2897,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I59Z",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I59Z",
@@ -2898,7 +2921,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "c"
    ],
@@ -2923,7 +2946,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I59Z",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I59Z",
@@ -2947,7 +2970,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "c"
    ],
@@ -2970,7 +2993,7 @@
    "A": {
     "hdrg": "—",
     "drg": "variabel",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20E",
@@ -2994,7 +3017,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "b"
    ],
@@ -3017,7 +3040,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I27E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27E",
@@ -3053,7 +3076,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "d"
    ],
@@ -3078,7 +3101,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I27D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27D",
@@ -3101,7 +3124,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "a",
     "d",
@@ -3126,7 +3149,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I13E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13E",
@@ -3149,7 +3172,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -3172,7 +3195,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I13E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13E",
@@ -3195,7 +3218,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -3218,7 +3241,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I13E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13E",
@@ -3241,7 +3264,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "f"
    ],
@@ -3266,7 +3289,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20B",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20B",
@@ -3289,7 +3312,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "f"
    ],
@@ -3312,7 +3335,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20B",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20B",
@@ -3335,7 +3358,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -3357,7 +3380,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -3380,7 +3403,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -3404,7 +3427,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -3427,7 +3450,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "Zweigtitel bleibt 'Calcaneus-OT'; der Cotton-Anteil erscheint nur in der Kodeliste.",
    "entscheidung": ""
@@ -3448,7 +3471,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -3471,7 +3494,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -3493,7 +3516,7 @@
    "A": {
     "hdrg": "I20O",
     "drg": "I27E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "hdrg": "I20O",
@@ -3526,7 +3549,7 @@
     "beidseits": "bleibt"
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "a",
     "b",
@@ -3554,7 +3577,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I27D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27D",
@@ -3580,7 +3603,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "a",
     "d"
@@ -3605,7 +3628,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I59Z",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I59Z",
@@ -3630,7 +3653,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -3654,7 +3677,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I59Z",
@@ -3678,8 +3701,8 @@
     "aufwertung": [],
     "beidseits": ""
    },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "a"
    ],
@@ -3702,59 +3725,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I59Z",
-    "im_zweig_belegt": true
-   },
-   "B": {
-    "drg": "I13G",
-    "empf": "stat",
-    "hebel": "5-781.ar",
-    "hebelName": "Rinnenvertiefung",
-    "implantatfrei": true,
-    "modifikatoren": [
-     "nur Naht, ohne Rinnenvertiefung",
-     "weder Naht noch Rinnenvertiefung"
-    ],
-    "hinweise": [
-     "info: Grundfall ist die Stabilisierung mit Rin"
-    ]
-   },
-   "C": {
-    "hdrg": null,
-    "drg": "I13G",
-    "hybrid": false,
-    "sperre": null,
-    "partner": false,
-    "satz": "",
-    "warnungen": [],
-    "regel": null,
-    "kontext": [],
-    "aufwertung": [],
-    "beidseits": ""
-   },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
-   "betrifft": [],
-   "anmerkung": "",
-   "entscheidung": ""
-  },
-  {
-   "nr": 59,
-   "zweig": "\"Peronealsehnenluxation\"",
-   "stellung": "Luxation + Rinnenvertiefung",
-   "keys": [
-    "peroneal_lux"
-   ],
-   "codes": [
-    "5-806.7",
-    "5-850.b9",
-    "5-781.ar"
-   ],
-   "alter": null,
-   "seite": null,
-   "A": {
-    "hdrg": "—",
-    "drg": "I13G",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13G",
@@ -3784,30 +3755,29 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
   },
   {
-   "nr": 60,
+   "nr": 59,
    "zweig": "\"Peronealsehnenluxation\"",
-   "stellung": "Luxation + Naht",
+   "stellung": "Luxation + Rinnenvertiefung",
    "keys": [
     "peroneal_lux"
    ],
    "codes": [
     "5-806.7",
     "5-850.b9",
-    "5-855.19",
-    "5-855.39"
+    "5-781.ar"
    ],
    "alter": null,
    "seite": null,
    "A": {
     "hdrg": "—",
-    "drg": "I27E",
-    "im_zweig_belegt": true
+    "drg": "I13G",
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13G",
@@ -3836,8 +3806,61 @@
     "aufwertung": [],
     "beidseits": ""
    },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
+   "betrifft": [],
+   "anmerkung": "",
+   "entscheidung": ""
+  },
+  {
+   "nr": 60,
+   "zweig": "\"Peronealsehnenluxation\"",
+   "stellung": "Luxation + Naht",
+   "keys": [
+    "peroneal_lux"
+   ],
+   "codes": [
+    "5-806.7",
+    "5-850.b9",
+    "5-855.19",
+    "5-855.39"
+   ],
+   "alter": null,
+   "seite": null,
+   "A": {
+    "hdrg": "—",
+    "drg": "I27E",
+    "im_zweig_belegt": false
+   },
+   "B": {
+    "drg": "I13G",
+    "empf": "stat",
+    "hebel": "5-781.ar",
+    "hebelName": "Rinnenvertiefung",
+    "implantatfrei": true,
+    "modifikatoren": [
+     "nur Naht, ohne Rinnenvertiefung",
+     "weder Naht noch Rinnenvertiefung"
+    ],
+    "hinweise": [
+     "info: Grundfall ist die Stabilisierung mit Rin"
+    ]
+   },
+   "C": {
+    "hdrg": null,
+    "drg": "I13G",
+    "hybrid": false,
+    "sperre": null,
+    "partner": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": ""
+   },
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "d"
    ],
@@ -3861,7 +3884,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I27E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27E",
@@ -3882,7 +3905,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -3905,7 +3928,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I27E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27E",
@@ -3926,7 +3949,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -3948,7 +3971,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I27D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27D",
@@ -3993,7 +4016,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "f"
    ],
@@ -4017,7 +4040,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I27D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27D",
@@ -4062,7 +4085,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "f"
    ],
@@ -4088,7 +4111,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27D",
@@ -4132,8 +4155,8 @@
     "aufwertung": [],
     "beidseits": ""
    },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -4157,7 +4180,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20B",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I27D",
@@ -4201,8 +4224,8 @@
     "aufwertung": [],
     "beidseits": ""
    },
-   "bewertung": "abweichend",
-   "grund": "A weicht von B und C ab",
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "Alter steht nur im Zweigtext; weder Daten noch Auswertung kennen es.",
    "entscheidung": ""
@@ -4223,7 +4246,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -4243,7 +4266,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "Kodiertext nennt nur die allogene Fassung (5-784.7u).",
    "entscheidung": ""
@@ -4264,7 +4287,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -4284,7 +4307,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "implantatfrei seit 34475c9; Materialsatz nur Knochen.",
    "entscheidung": ""
@@ -4307,7 +4330,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20D",
@@ -4336,7 +4359,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -4360,7 +4383,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20D",
@@ -4389,7 +4412,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "f"
    ],
@@ -4413,7 +4436,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20D",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20D",
@@ -4442,7 +4465,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -4465,7 +4488,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -4497,7 +4520,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -4522,7 +4545,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -4554,7 +4577,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "f"
    ],
@@ -4577,7 +4600,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I13E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13E",
@@ -4600,7 +4623,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -4621,7 +4644,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I13E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I13E",
@@ -4644,7 +4667,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -4653,7 +4676,9 @@
    "nr": 76,
    "zweig": "fxLabel",
    "stellung": "Weber B einfach",
-   "keys": [],
+   "keys": [
+    "fraktur_fibula_einfach"
+   ],
    "codes": [
     "5-793.3r",
     "5-793.kr"
@@ -4663,21 +4688,58 @@
    "A": {
     "hdrg": "I13N",
     "drg": "I13G",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
-   "B": null,
-   "C": null,
-   "bewertung": "kein Eintrag",
-   "grund": "kein OP_STEUERUNG-Schluessel",
+   "B": {
+    "hdrg": "I13N",
+    "drg": "I13G",
+    "empf": "amb",
+    "opsCodes": [
+     {
+      "code": "5-793.3r",
+      "name": "Offene Reposition einfache Fraktur, Platte, Fibula distal"
+     },
+     {
+      "code": "5-793.kr",
+      "name": "Offene Reposition einfache Fraktur, winkelstabile Platte, Fibula distal"
+     }
+    ],
+    "hebel": "5-784.0r",
+    "hebelName": "Spongiosa Fibula",
+    "modifikatoren": [
+     "+ Stellschraube Syndesmose"
+    ],
+    "hinweise": [
+     "info: Ambulant oder bei einem Belegungstag ohn",
+     "info: Einfache Fraktur: Platte 5-793.3r oder w"
+    ]
+   },
+   "C": {
+    "hdrg": "I13N",
+    "drg": "I13G",
+    "hybrid": true,
+    "sperre": null,
+    "partner": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "bleibt"
+   },
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
-   "anmerkung": "Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag.",
+   "anmerkung": "Seit 6b eigener Eintrag (3ac).",
    "entscheidung": ""
   },
   {
    "nr": 77,
    "zweig": "fxLabel+\" + Syndesmose\"",
    "stellung": "Weber B/C + Syndesmose",
-   "keys": [],
+   "keys": [
+    "fraktur_fibula_mehrfragment"
+   ],
    "codes": [
     "5-794.2r",
     "5-794.kr",
@@ -4688,14 +4750,49 @@
    "A": {
     "hdrg": "I13N",
     "drg": "I13E",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
-   "B": null,
-   "C": null,
-   "bewertung": "kein Eintrag",
-   "grund": "kein OP_STEUERUNG-Schluessel",
+   "B": {
+    "hdrg": "I13N",
+    "drg": "I13E",
+    "empf": "amb",
+    "opsCodes": [
+     {
+      "code": "5-794.2r",
+      "name": "Offene Reposition Mehrfragmentfraktur, Platte, Fibula distal"
+     },
+     {
+      "code": "5-794.kr",
+      "name": "Offene Reposition Mehrfragmentfraktur, winkelstabile Platte, Fibula distal"
+     }
+    ],
+    "hebel": "5-784.0r",
+    "hebelName": "Spongiosa Fibula",
+    "modifikatoren": [
+     "+ Stellschraube Syndesmose"
+    ],
+    "hinweise": [
+     "info: Ambulant oder bei einem Belegungstag ohn",
+     "info: Einfache Fraktur: Platte 5-793.3r oder w"
+    ]
+   },
+   "C": {
+    "hdrg": "I13N",
+    "drg": "I13E",
+    "hybrid": true,
+    "sperre": null,
+    "partner": false,
+    "satz": "",
+    "warnungen": [],
+    "regel": null,
+    "kontext": [],
+    "aufwertung": [],
+    "beidseits": "bleibt"
+   },
+   "bewertung": "gleich",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
-   "anmerkung": "Kein Steuerungseintrag; Vorlage fuer den neuen Eintrag.",
+   "anmerkung": "Seit 6b eigener Eintrag mit Modifikator syndesmose (3ac).",
    "entscheidung": ""
   },
   {
@@ -4714,7 +4811,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -4734,7 +4831,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "",
    "entscheidung": ""
@@ -4756,7 +4853,7 @@
    "A": {
     "hdrg": "—",
     "drg": "I20C",
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "I20C",
@@ -4776,7 +4873,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "d",
     "f"
@@ -4799,7 +4896,7 @@
    "A": {
     "hdrg": null,
     "drg": null,
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "empf": "amb",
@@ -4825,7 +4922,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [],
    "anmerkung": "umgezogen: Werte kommen aus steuerAnzeige().",
    "entscheidung": ""
@@ -4845,7 +4942,7 @@
    "A": {
     "hdrg": null,
     "drg": null,
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "F27B",
@@ -4875,7 +4972,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "e"
    ],
@@ -4897,7 +4994,7 @@
    "A": {
     "hdrg": null,
     "drg": null,
-    "im_zweig_belegt": true
+    "im_zweig_belegt": false
    },
    "B": {
     "drg": "F13B",
@@ -4923,7 +5020,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "e"
    ],
@@ -4971,7 +5068,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "a"
    ],
@@ -5019,7 +5116,7 @@
     "beidseits": ""
    },
    "bewertung": "gleich",
-   "grund": "umgezogen — Anzeige kommt aus steuerAnzeige()",
+   "grund": "A entfaellt (Zweige abgeloest)",
    "betrifft": [
     "a"
    ],
@@ -5031,266 +5128,266 @@
   {
    "zweig": "\"Lapidus\"",
    "stellung": "Lapidus ohne Akin",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 267,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 3,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"MTP-I-Arthrodese\"",
    "stellung": "MTP-I allein",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 169,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 2,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"MTP-I-Arthrodese + DMMO\"",
    "stellung": "MTP-I + 1× DMMO",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 169,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 2,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"MTP-I-Arthrodese + ≥3 DMMO\"",
    "stellung": "MTP-I + 3× DMMO",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 267,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 2,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "lbl+(mitAkin",
    "stellung": "Chevron ohne Zusatz",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 142,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "status": "keins von beidem"
   },
   {
    "zweig": "\"Kleinzehen/DMMO\"",
    "stellung": "1× DMMO allein",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 173,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "(weil.length&&!dmmo.length",
    "stellung": "3× DMMO allein",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 47,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"OSG-TEP primär (\"",
    "stellung": "TEP primaer",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 112,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 3,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"OSG-TEP Wechsel (\"",
    "stellung": "TEP Wechsel",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 125,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
+   "hinweise_in_daten": 1,
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Arthrodesenagel (TTC-Arthrodese)\"",
    "stellung": "TTC-Arthrodesenagel",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 125,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 2,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"OSG-Arthrodese\"",
    "stellung": "OSG-Arthrodese ohne Spongiosa",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 366,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 3,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "amicIKO?",
    "stellung": "AMIC offen",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 306,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Brostrom-Gould\"",
    "stellung": "Brostrom ohne Internal Brace",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 208,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Arthrorise\"",
    "stellung": "Arthrorise, Alter < 18",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 144,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Achillessehnennaht (offen)\"",
    "stellung": "Achillessehnennaht offen",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 152,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 2,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"FHL-Transfer\"",
    "stellung": "FHL-Transfer",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 96,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "rfLabel",
    "stellung": "Subtalare Arthrodese",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 208,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Calcaneus-OT\"",
    "stellung": "MDO (minimalinvasiv oder offen)",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 208,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 2,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Calcaneoplastie\"",
    "stellung": "Calcaneoplastie (Haglund mini)",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 116,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Haglund + AS-Split/Refix\"",
    "stellung": "Haglund + AS-Split/Refix",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 98,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 2,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Os Tib Ext\"",
    "stellung": "Os Tib Ext ohne MDO",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 98,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Peronealsehnenluxation\"",
    "stellung": "Luxation ohne Zusatz",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 124,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Peronealsehnen \"",
    "stellung": "Peronealsehnennaht",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 124,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "status": "keins von beidem"
   },
   {
    "zweig": "\"Coalitio \"",
    "stellung": "Coalitio TC ohne LCOT",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 70,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Cotton-Osteotomie\"",
    "stellung": "Cotton autolog",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 221,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "status": "keins von beidem"
   },
   {
    "zweig": "\"TMT-Arthrodese\"",
    "stellung": "TMT 1 (1 Gelenk)",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 95,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"TMT-Arthrodese 1–3\"",
    "stellung": "TMT 1–3 (3 Gelenke)",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 95,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Supramalleolare OT\"",
    "stellung": "Supramalleolare OT valgisierend",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 63,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 1,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "fxLabel",
    "stellung": "Weber B einfach",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 129,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
+   "hinweise_in_daten": 2,
+   "status": "nur in den Daten"
   },
   {
    "zweig": "fxLabel+\" + Syndesmose\"",
    "stellung": "Weber B/C + Syndesmose",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 129,
-   "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
+   "hinweise_in_daten": 2,
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Dwyer-Osteotomie\"",
    "stellung": "Dwyer ohne Zusatz",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 186,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 0,
-   "status": "nur im Zweig"
+   "status": "keins von beidem"
   },
   {
    "zweig": "\"Metallentfernung (generisch)\"",
    "stellung": "Metallentfernung",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 71,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 4,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "\"Diabetischer Fuß — \"",
    "stellung": "Diabetischer Fuss, Debridement",
-   "ziel_vorhanden": true,
-   "ziel_laenge": 4,
+   "ziel_vorhanden": false,
+   "ziel_laenge": 0,
    "hinweise_in_daten": 5,
-   "status": "in beiden"
+   "status": "nur in den Daten"
   },
   {
    "zweig": "(ohne Anker)",

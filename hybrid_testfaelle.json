@@ -418,7 +418,7 @@
    "alter": null,
    "seite": null,
    "sperre": null,
-   "partner": false,
+   "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20D"
