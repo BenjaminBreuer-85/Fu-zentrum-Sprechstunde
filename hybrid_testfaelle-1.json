@@ -1,0 +1,666 @@
+{
+ "_kommentar": [
+  "Entwurf 23.09.2026 (Schritt 6a). Sollwerte aus hybrid-systematik.md Abschnitt 5,",
+  "Ist-Werte aus hdrgAuswertung() mit den genannten Kodes. Alter und Seite wirken",
+  "in der Auswertung noch nicht; 'kein App-Fall' = der Sollwert braucht einen Kode,",
+  "den keine Kodeliste der App erzeugt.",
+  "24.09.2026 (Cowork): Fall 9 Soll auf I20O berichtigt (war I20N, Abschreibfehler gegen hybrid-systematik.md Abschnitt 5)."
+ ],
+ "faelle": [
+  {
+   "nr": 1,
+   "konstellation": "Hallux valgus subkapital 5-788.5e allein oder mit Akin",
+   "codes": [
+    "5-788.5e"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20O",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": "I20E"
+   },
+   "quelle": "MU S. 22",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 2,
+   "konstellation": "Hallux valgus + Arthroplastik 5-788.60",
+   "codes": [
+    "5-788.5c",
+    "5-788.60"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20F"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I20F"
+   },
+   "quelle": "MU S. 22; V70",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 3,
+   "konstellation": "Hallux valgus + 1× Hohmann (5-788.08, 1 Knochen)",
+   "codes": [
+    "5-788.5c",
+    "5-788.06"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20O",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": "I20E"
+   },
+   "quelle": "MU S. 22 (V6)",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 4,
+   "konstellation": "Hallux valgus + 1× PIP",
+   "codes": [
+    "5-788.5c",
+    "5-808.bd"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20O",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": "I20E"
+   },
+   "quelle": "MU S. 22–23 (V4)",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 5,
+   "konstellation": "Hallux valgus + 2–4× PIP",
+   "codes": [
+    "5-788.5c",
+    "5-808.be"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20N",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20N",
+    "drg": "I20E"
+   },
+   "quelle": "MU S. 22–23 (V4)",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 6,
+   "konstellation": "Hallux valgus + 1–2× Weil/DMMO",
+   "codes": [
+    "5-788.5c",
+    "5-788.53"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20N",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20N",
+    "drg": "I20E"
+   },
+   "quelle": "MU S. 23; V70",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 7,
+   "konstellation": "Hallux valgus + 3× DMMO 5-788.54 (2026)",
+   "codes": [
+    "5-788.5c",
+    "5-788.54"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20E"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I20E"
+   },
+   "quelle": "FR; DH S. 1081",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 8,
+   "konstellation": "3× DMMO allein, 1 Tag",
+   "codes": [
+    "5-788.54"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20F"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I20E"
+   },
+   "quelle": "FR S. 15",
+   "status": "abweichend",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 9,
+   "konstellation": "Metatarsalgie 1–2× Weil/DMMO",
+   "codes": [
+    "5-788.53"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20O",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20N",
+    "drg": "I20F"
+   },
+   "quelle": "MU S. 22",
+   "status": "abweichend",
+   "hinweis": "Soll nach MU S. 22 und DH I20E-Definition (V61 ohne V62-Partner): I20O. Ist I20N = Fehler der unbedingten Aufwertung (6a Block 2), Berichtigung mit Schritt 6b.",
+   "beidseits": ""
+  },
+  {
+   "nr": 10,
+   "konstellation": "ASK OSG mit Hybrid-Kodes",
+   "codes": [
+    "5-812.ek",
+    "5-811.2k"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20O",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": "I20F"
+   },
+   "quelle": "MU S. 22",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 11,
+   "konstellation": "Haglundabtragung 5-782.at",
+   "codes": [
+    "5-782.at"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20O",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": "I27E"
+   },
+   "quelle": "MU S. 22; V68",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 12,
+   "konstellation": "Haglund + Bursektomie Unterschenkel 5-859.19, > 15 J.",
+   "codes": [
+    "5-782.at",
+    "5-859.19"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I27E"
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": "I27E"
+   },
+   "quelle": "SCH S. 24; H-03",
+   "status": "abweichend",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 13,
+   "konstellation": "MTP-I-Arthrodese 5-808.b0 allein",
+   "codes": [
+    "5-808.b0"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20N",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20N",
+    "drg": "I20E"
+   },
+   "quelle": "MU S. 23",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 14,
+   "konstellation": "MTP-I + 1–4× PIP",
+   "codes": [
+    "5-808.b0",
+    "5-808.bf"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20N",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20N",
+    "drg": "I20E"
+   },
+   "quelle": "MU S. 23",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 15,
+   "konstellation": "MTP-I + Exostosen MT II–V 3 Knochen 5-788.08",
+   "codes": [
+    "5-808.b0",
+    "5-788.08"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20M",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20N",
+    "drg": "I20E"
+   },
+   "quelle": "MU S. 24; V36",
+   "status": "abweichend",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 16,
+   "konstellation": "MTP-I + 3× DMMO",
+   "codes": [
+    "5-808.b0",
+    "5-788.54"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20D"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I20D"
+   },
+   "quelle": "WE",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 17,
+   "konstellation": "MTP-I + 4× DMMO",
+   "codes": [
+    "5-808.b0",
+    "5-788.55"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20C"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I20C"
+   },
+   "quelle": "WE",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 18,
+   "konstellation": "Lapidus allein",
+   "codes": [
+    "5-808.a4"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20D"
+   },
+   "ist": {
+    "hdrg": "I20M",
+    "drg": "I20D"
+   },
+   "quelle": "MU S. 24; V68",
+   "status": "abweichend",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 19,
+   "konstellation": "Lapidus + Akin",
+   "codes": [
+    "5-808.a4",
+    "5-788.56"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20M",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20M",
+    "drg": "I20D"
+   },
+   "quelle": "MU S. 24; V40 + V68",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 20,
+   "konstellation": "Lapidus + Akin + 5-854.2c",
+   "codes": [
+    "5-808.a4",
+    "5-788.56",
+    "5-854.2c"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20M",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20M",
+    "drg": "I20D"
+   },
+   "quelle": "V70\\V66; WG 07.09.2026",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 21,
+   "konstellation": "Lapidus + Spongiosa 5-783.0v + 5-784.0v",
+   "codes": [
+    "5-808.a4",
+    "5-788.56",
+    "5-783.0v",
+    "5-784.0v"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20D"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I20D"
+   },
+   "quelle": "V66",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 22,
+   "konstellation": "Arthrorise 5-809.1m, Patient < 18",
+   "codes": [
+    "5-809.1m"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": null
+   },
+   "quelle": "DH S. 1042",
+   "status": "abweichend",
+   "hinweis": "Alterskriterium; die Auswertung kennt kein Alter.",
+   "beidseits": ""
+  },
+  {
+   "nr": 23,
+   "konstellation": "Arthrorise beidseits, Kind",
+   "codes": [
+    "5-809.1m"
+   ],
+   "alter": null,
+   "seite": "bds",
+   "soll": {
+    "hdrg": null,
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": null
+   },
+   "quelle": "FR; DH",
+   "status": "abweichend",
+   "hinweis": "Alter und Beidseitigkeit; beidseitsSperre wird mitgerechnet.",
+   "beidseits": "sperre"
+  },
+  {
+   "nr": 24,
+   "konstellation": "Rueckfuss-Arthrodesen, Achskorrekturen Rueckfuss",
+   "codes": [
+    "5-808.82"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20B"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I20B"
+   },
+   "quelle": "MU S. 24",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 25,
+   "konstellation": "Rezidiv MTP-I 5-808.b7 + 5-783.2d + 5-784.1v",
+   "codes": [
+    "5-808.b7",
+    "5-783.2d",
+    "5-784.1v"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20E"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I20E"
+   },
+   "quelle": "WE",
+   "status": "kein App-Fall",
+   "hinweis": "5-808.b7 kommt in keiner Kodeliste der App vor.",
+   "beidseits": ""
+  },
+  {
+   "nr": 26,
+   "konstellation": "Achillessehnennaht 5-855.19 (2026 Kontextprozedur)",
+   "codes": [
+    "5-855.19",
+    "5-855.39"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I27E"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I27E"
+   },
+   "quelle": "FR; SCH; DH",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 27,
+   "konstellation": "Tendoskopie 5-852.29 allein",
+   "codes": [
+    "5-852.29"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I27E"
+   },
+   "ist": {
+    "hdrg": null,
+    "drg": "I27E"
+   },
+   "quelle": "WG 30.08.2026",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 28,
+   "konstellation": "Tendoskopie + Calcaneoplastie 5-782.at, HD Haglund",
+   "codes": [
+    "5-782.at",
+    "5-852.29"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I27E"
+   },
+   "ist": {
+    "hdrg": "I20O",
+    "drg": "I27E"
+   },
+   "quelle": "WG 13.09.2026",
+   "status": "abweichend",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 29,
+   "konstellation": "Tendoskopie + MTP-I-Arthrodese, HD M20.2",
+   "codes": [
+    "5-808.b0",
+    "5-852.29"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": "I20N",
+    "drg": null
+   },
+   "ist": {
+    "hdrg": "I20N",
+    "drg": "I20E"
+   },
+   "quelle": "WG 13.09.2026",
+   "status": "gleich",
+   "hinweis": "",
+   "beidseits": ""
+  },
+  {
+   "nr": 30,
+   "konstellation": "FHL-Transfer 5-854.29 + Lapidus 5-808.a4 + Akin 5-788.56",
+   "codes": [
+    "5-808.a4",
+    "5-788.56",
+    "5-854.29"
+   ],
+   "alter": null,
+   "seite": null,
+   "soll": {
+    "hdrg": null,
+    "drg": "I20D"
+   },
+   "ist": {
+    "hdrg": "I20M",
+    "drg": "I20D"
+   },
+   "quelle": "WG 13.09.2026",
+   "status": "abweichend",
+   "hinweis": "Sperre folgt aus AKF08-V6; HDRG_FALLREGELN liest app.html noch nicht.",
+   "beidseits": ""
+  }
+ ]
+}
