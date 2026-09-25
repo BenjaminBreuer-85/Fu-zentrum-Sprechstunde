@@ -1,13 +1,13 @@
 {
  "stand": {
-  "app_html_sha256": "54073d203fc85ce37aabbbf4470d15a1584fd77ad56d870d5eb6beeed734f5c6",
+  "app_html_sha256": "8a7be0ccc155083a83063fad57cebadb7750b430fbacf43ba7dd986c15af5e77",
   "runtime": "jsc",
   "zweige_im_memo": 0,
   "zeilen": 84
  },
  "zaehlung": {
-  "gleich": 66,
-  "toggle": 18,
+  "gleich": 65,
+  "toggle": 19,
   "abweichend": 0,
   "kein Eintrag": 0
  },
@@ -2199,19 +2199,17 @@
     "hdrg": null,
     "drg": "I20F",
     "hybrid": false,
-    "sperre": null,
+    "sperre": "positivliste",
     "partner": false,
     "setting": {
      "hybrid": false,
      "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20F. Ambulant: 5-788.54, 5-93b.0, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-788.54, 5-93b.0, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
     "warnungen": [],
     "regel": "I20O/I20N",
-    "kontext": [
-     "5-788.54"
-    ],
+    "kontext": [],
     "aufwertung": [],
     "beidseits": "bleibt"
    },
@@ -2265,19 +2263,17 @@
     "hdrg": null,
     "drg": "I20F",
     "hybrid": false,
-    "sperre": null,
+    "sperre": "positivliste",
     "partner": false,
     "setting": {
      "hybrid": false,
      "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "4× distale Osteotomie MT II–V (5-788.55) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20F. Ambulant: 5-788.55, 5-93b.0, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-788.55, 5-93b.0, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
     "warnungen": [],
     "regel": "I20O/I20N",
-    "kontext": [
-     "5-788.55"
-    ],
+    "kontext": [],
     "aufwertung": [],
     "beidseits": "bleibt"
    },
@@ -2508,19 +2504,17 @@
     "hdrg": null,
     "drg": "I20F",
     "hybrid": false,
-    "sperre": null,
+    "sperre": "positivliste",
     "partner": false,
     "setting": {
      "hybrid": false,
      "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "≥5× Arthrodesen IP Dig II–V (5-808.bh) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20F. Ambulant: 5-808.bh steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-808.bh steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
     "warnungen": [],
     "regel": "I20O/I20N",
-    "kontext": [
-     "5-808.bh"
-    ],
+    "kontext": [],
     "aufwertung": [],
     "beidseits": "bleibt"
    },
@@ -3531,25 +3525,25 @@
     ]
    },
    "C": {
-    "hdrg": "I20O",
+    "hdrg": null,
     "drg": "I27E",
-    "hybrid": true,
-    "sperre": null,
+    "hybrid": false,
+    "sperre": "rang",
     "partner": false,
     "setting": {
-     "hybrid": true,
+     "hybrid": false,
      "stationaer": "I27E",
-     "ambulant": "hybrid"
+     "ambulant": "nein"
     },
-    "satz": "Ambulant gruppiert der Fall nach I20O. Wird stationär zusätzlich Bursektomie Unterschenkel (5-859.19) durchgeführt, gruppiert der Fall nach I27E.",
+    "satz": "Bursektomie Unterschenkel (5-859.19) gruppiert den Fall nach I27E (Rang vor I20F); keine Hybrid-DRG. Ambulant: 5-782.at steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
     "aufwertung": [],
     "beidseits": "bleibt"
    },
-   "bewertung": "gleich",
-   "grund": "A entfaellt (Zweige abgeloest)",
+   "bewertung": "toggle",
+   "grund": "A entfaellt; C rechnet aus den Kodes",
    "betrifft": [
     "a",
     "b",

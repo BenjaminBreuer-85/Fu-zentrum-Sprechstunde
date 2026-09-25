@@ -1,6 +1,6 @@
 # Abgleich der OP-Bericht-Zweige gegen OP_STEUERUNG und Regelsatz (Schritt 6a)
 
-Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html sha256 54073d203fc8…, 0 Zweige im Memo, 84 Zeilen. Nur Befund, keine Bewertung „richtig/falsch"; die Spalte Entscheidung ist leer und gehört dem Autor (A, B, C oder ein neuer Wert).
+Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html sha256 8a7be0ccc155…, 0 Zweige im Memo, 84 Zeilen. Nur Befund, keine Bewertung „richtig/falsch"; die Spalte Entscheidung ist leer und gehört dem Autor (A, B, C oder ein neuer Wert).
 
 **Spalten.** A = was der Zweig heute anzeigt. B = der Eintrag in `opsteuerung.json`. C = was `hdrgAuswertung()` aus denselben Kodes macht (H-DRG / stationäre DRG / ambulanter Weg). betrifft = Ergänzungen a–f aus dem Umsetzungsplan.
 
@@ -59,7 +59,7 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 51 | MDO (minimalinvasiv oder offen) | mdo_mini, mdo_offen | 5-781.1t 5-93b.0 | — / I20C | — / I20C | — / I20C / — | gleich (A entfaellt (Zweige abgeloest)) | — |  | |
 | 52 | MDO + Cotton allogen | mdo_mini, mdo_offen | 5-781.1t 5-93b.0 5-781.4u 5-784.7u | — / I20C | — / I20C | — / I20C / — | gleich (A entfaellt (Zweige abgeloest)) | — | Zweigtitel bleibt 'Calcaneus-OT'; der Cotton-Anteil erscheint nur in der Kodeliste. | |
 | 53 | LCOT (verlaengernde Calcaneus-OT) | lcot | 5-781.8t 5-93b.e | — / I20C | — / I20C | — / I20C / — | gleich (A entfaellt (Zweige abgeloest)) | — |  | |
-| 54 | Calcaneoplastie (Haglund mini) | haglund_mini | 5-782.at 5-855.39 5-859.19 | I20O / I27E | I20O / I27E | I20O / I27E / hybrid | gleich (A entfaellt (Zweige abgeloest)) | a, b, c | kpAmbZusatz/hebelStat 5-859.19 stehen nur im Zweig, nicht in den Daten. | |
+| 54 | Calcaneoplastie (Haglund mini) | haglund_mini | 5-782.at 5-855.39 5-859.19 | I20O / I27E | I20O / I27E | — / I27E / nein | toggle (A entfaellt; C rechnet aus den Kodes) | a, b, c | kpAmbZusatz/hebelStat 5-859.19 stehen nur im Zweig, nicht in den Daten. | |
 | 55 | Haglund + AS-Split/Refix | haglund_as_split | 5-782.at 5-855.39 5-855.19 5-854.29 5-859.19 | — / I27D | — / I27D | — / I27D / — | gleich (A entfaellt (Zweige abgeloest)) | a, d |  | |
 | 56 | Os Tib Ext ohne MDO | os_tib_ext | 5-854.2b 5-782.1u 5-869.2 | — / I59Z | — / I59Z | — / I59Z / — | gleich (A entfaellt (Zweige abgeloest)) | — |  | |
 | 57 | Os Tib Ext + MDO | os_tib_ext | 5-854.2b 5-782.1u 5-869.2 5-781.1t 5-93b.0 | — / I20C | — / I59Z | — / I59Z / — | gleich (A entfaellt (Zweige abgeloest)) | a |  | |
@@ -91,7 +91,7 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 83 | Achillessehnen-Tendoskopie | as_tendoskopie | 5-852.29 | — / — | — / I27E | — / I27E / — | gleich (A entfaellt (Zweige abgeloest)) | a | umgezogen; Rang 129 < 135 (Haglund) und < 119 (MTP-I): Ergaenzung a. | |
 | 84 | AS-Debridement bei Tendinose | as_debridement | 5-852.29 | — / — | — / I27E | — / I27E / — | gleich (A entfaellt (Zweige abgeloest)) | a | umgezogen: Werte kommen aus steuerAnzeige(). | |
 
-**Zählung.** gleich 66 · toggle 18 · abweichend 0 · kein Eintrag 0.
+**Zählung.** gleich 65 · toggle 19 · abweichend 0 · kein Eintrag 0.
 
 ## Sollwerte aus hybrid-systematik.md Abschnitt 5
 
@@ -108,13 +108,13 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 9 | Metatarsalgie 1–2× Weil/DMMO | 5-788.53 | I20O / — | I20O / I20F | gleich | MU S. 22 |
 | 10 | ASK OSG mit Hybrid-Kodes | 5-812.ek 5-811.2k | I20O / — | I20O / I20F | gleich | MU S. 22 |
 | 11 | Haglundabtragung 5-782.at | 5-782.at | I20O / — | I20O / I27E | gleich | MU S. 22; V68 |
-| 12 | Haglund + Bursektomie Unterschenkel 5-859.19, > 15 J. | 5-782.at 5-859.19 | — / I27E | I20O / I27E | abweichend | SCH S. 24; H-03 |
+| 12 | Haglund + Bursektomie Unterschenkel 5-859.19, > 15 J. | 5-782.at 5-859.19 | — / I27E | — / I27E | gleich | SCH S. 24; H-03 |
 | 13 | MTP-I-Arthrodese 5-808.b0 allein | 5-808.b0 | I20N / — | I20N / I20E | gleich | MU S. 23 |
 | 14 | MTP-I + 1–4× PIP | 5-808.b0 5-808.bf | I20N / — | I20N / I20E | gleich | MU S. 23 |
 | 15 | MTP-I + Exostosen MT II–V 3 Knochen 5-788.08 | 5-808.b0 5-788.08 | I20M / — | I20N / I20E | abweichend | MU S. 24; V36 |
 | 16 | MTP-I + 3× DMMO | 5-808.b0 5-788.54 | — / I20D | — / I20D | gleich | WE |
 | 17 | MTP-I + 4× DMMO | 5-808.b0 5-788.55 | — / I20C | — / I20C | gleich | WE |
-| 18 | Lapidus allein | 5-808.a4 | — / I20D | I20M / I20D | abweichend | MU S. 24; V68 |
+| 18 | Lapidus allein | 5-808.a4 | — / I20D | — / I20D | gleich | MU S. 24; V68 |
 | 19 | Lapidus + Akin | 5-808.a4 5-788.56 | I20M / — | I20M / I20D | gleich | MU S. 24; V40 + V68 |
 | 20 | Lapidus + Akin + 5-854.2c | 5-808.a4 5-788.56 5-854.2c | I20M / — | I20M / I20D | gleich | V70\V66; WG 07.09.2026 |
 | 21 | Lapidus + Spongiosa 5-783.0v + 5-784.0v | 5-808.a4 5-788.56 5-783.0v 5-784.0v | — / I20D | — / I20D | gleich | V66 |

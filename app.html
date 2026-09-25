@@ -1408,16 +1408,31 @@ function imAopKatalog(code){
   }
   return ((_AOP_IDX[code]||0)&1)===1;
 }
+// Positivliste I20-V68 (Katalogflag, Bit 2): ohne einen solchen Kode gibt es
+// keine Fuss-Hybrid-DRG (H-04).
+function inPositivliste(code){
+  if(!_AOP_IDX){
+    _AOP_IDX={};
+    (window._HD||[]).forEach(function(e){ _AOP_IDX[e[0]]=e[2]; });
+  }
+  return ((_AOP_IDX[code]||0)&2)===2;
+}
+// Basis-DRG der Hybrid-Stufe: dorthin faellt der Fall ohne Hybrid.
+var HYBRID_BASIS = { I20O: "I20F", I20N: "I20E", I20M: "I20D" };
 // Partnerbedingung: mindestens ein Kode des Falls steht in der
 // Grosszehen-Tabelle, oder der Eintrag selbst bringt einen solchen Kode mit
 // (partnerEintraege; im Sprechstundenbrief fehlen die Hauptkodes in fallCodes).
 // Ein Kode ist nicht sein eigener Partner: der geprueften Kode selbst zaehlt
 // nicht mit.
-function partnerErfuellt(codes, bestKey, ohne){
+// keys ist ein Schluessel oder eine Liste: im Brief alle gewaehlten
+// Eingriffe, im OP-Bericht alle beteiligten Eintraege — der Partnerkode kann
+// an einem anderen Eingriff haengen als der fuehrende (Chevron + PIP).
+function partnerErfuellt(codes, keys, ohne){
   if (!HDRG_KOMBI) return true;   // ohne Tabelle bleibt alles wie bisher
   var liste = HDRG_KOMBI.partner || [];
   var eintraege = HDRG_KOMBI.partnerEintraege || [];
-  if (bestKey && eintraege.indexOf(bestKey) >= 0) return true;
+  var kl = (keys == null) ? [] : (Array.isArray(keys) ? keys : [keys]);
+  if (kl.some(function(k){ return eintraege.indexOf(k) >= 0; })) return true;
   return (codes || []).some(function(c){ return c !== ohne && liste.indexOf(c) >= 0; });
 }
 // Ziel-DRG einer Kontextprozedur: fester String, Objekt je Hybrid-DRG der
@@ -1520,8 +1535,9 @@ function hdrgAuswertung(opts){
   var drgOp = opts.drg || best.drg || null;
   var regel = hdrgRegelsatz(hdrgStart);
   // Partner: vom Aufrufer vorgegeben, sonst aus Kodes und Eintrag gerechnet.
+  var partnerKeys = opts.partnerKeys || opts.bestKey;
   var partner = (opts.partner !== undefined) ? !!opts.partner
-              : partnerErfuellt(codes, opts.bestKey);
+              : partnerErfuellt(codes, partnerKeys);
   var erg = { hdrg: hdrgStart, drg: drgOp, hybrid: !!hdrgStart, warnungen: [],
               listen: { kontext: [], aufwertung: [], nichtKontext: [] },
               treffer: { kontext: [], aufwertung: [] }, satz: "", regel: regel,
@@ -1560,6 +1576,17 @@ function hdrgAuswertung(opts){
     erg.setting = { hybrid: false, stationaer: erg.drg, ambulant: alleImAop() ? "ebm" : "nein" };
     return erg;
   }
+  // Positivliste (H-04): Nur mit einem Kode aus I20-V68 ist eine Fuss-Hybrid
+  // moeglich. Geprueft wird das nur, wo die Kodeliste vollstaendig ist — im
+  // Sprechstundenbrief fehlen die Hauptkodes der Eintraege.
+  if (opts.kodesVollstaendig && hdrgStart && codes.length
+      && !codes.some(function(c){ return inPositivliste(c); })) {
+    erg.hybrid = false; erg.hdrg = null; erg.sperre = "positivliste"; erg.drg = drgOp;
+    erg.satz = "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach "
+             + (erg.drg || "—") + ". " + ambSatzBau();
+    erg.setting = { hybrid: false, stationaer: erg.drg, ambulant: alleImAop() ? "ebm" : "nein" };
+    return erg;
+  }
   if (!regel) return erg;   // ohne Regelsatz bleibt die bisherige Darstellung
 
   erg.listen.kontext      = regel.kontext || [];
@@ -1570,7 +1597,7 @@ function hdrgAuswertung(opts){
   var kTreffer = (regel.kontext || []).filter(function(k){ return hat(k.code); });
   var aTreffer = (regel.aufwertung || []).filter(function(a){
     // mit: "partner" — die Aufwertung gilt nur zusammen mit einem Partnerkode.
-    return hat(a.code) && (a.mit !== "partner" || partnerErfuellt(codes, opts.bestKey, a.code));
+    return hat(a.code) && (a.mit !== "partner" || partnerErfuellt(codes, partnerKeys, a.code));
   });
   var nTreffer = (regel.nichtKontext || []).filter(function(n){ return hat(n.code); });
   var pTreffer = (regel.positiv || []).filter(function(c){ return hat(c); });
@@ -1583,7 +1610,7 @@ function hdrgAuswertung(opts){
     // MTP-I-Arthrodese nach I20D. Fehlt die Angabe, gilt die drg der OP.
     erg.hybrid = false; erg.hdrg = null;
     erg.drg = hoechste(kTreffer.map(function(k){
-      return hdrgZielDrg(k, hdrgStart, drgOp, partnerErfuellt(codes, opts.bestKey, k.code));
+      return hdrgZielDrg(k, hdrgStart, drgOp, partnerErfuellt(codes, partnerKeys, k.code));
     }), DRG_RANG) || drgOp;
     // Sprachregel des Autors (09.09.2026): Der AOP-Katalog bindet nur Kliniken,
     // niedergelassene Operateure rechnen ambulant ueber den EBM ab. Deshalb nie
@@ -1600,6 +1627,22 @@ function hdrgAuswertung(opts){
     if (best.hebel) erg.satz += " Wird stationär zusätzlich " + (best.hebelName || "Kontextprozedur")
       + " (" + best.hebel + ") durchgeführt, gruppiert der Fall nach " + (best.drg || drgOp) + ".";
     else erg.satz += " Kein erlösrelevanter Zusatzeingriff hinterlegt.";
+  }
+
+  // Rang ueber den Hebel-Kode: Wird der Hebel des Eintrags tatsaechlich
+  // kodiert und steht seine DRG in der Zuteilungsfunktion vor der Basis-DRG
+  // der Hybrid-Stufe, gruppiert der Fall dorthin — ohne Hybrid.
+  if (erg.hybrid && best.hebel && DRG_RANG_LG) {
+    var hebelCodes = String(best.hebel).split("+").map(function(x){ return x.trim(); }).filter(Boolean);
+    var hebelDa = hebelCodes.length && hebelCodes.every(function(c){ return hat(c); });
+    var basis = HYBRID_BASIS[hdrgStart];
+    var rangHebel = best.drg ? DRG_RANG_LG[best.drg] : undefined;
+    var rangBasis = basis ? DRG_RANG_LG[basis] : undefined;
+    if (hebelDa && typeof rangHebel === "number" && typeof rangBasis === "number" && rangHebel < rangBasis) {
+      erg.hybrid = false; erg.hdrg = null; erg.sperre = "rang"; erg.drg = best.drg;
+      erg.satz = (best.hebelName || "Kontextprozedur") + " (" + hebelCodes.join(", ") + ") gruppiert den Fall nach "
+               + best.drg + " (Rang vor " + basis + "); keine Hybrid-DRG. " + ambSatzBau();
+    }
   }
 
   // Warnungen
@@ -3750,10 +3793,14 @@ var _s = useState, _m = useMemo;
               // Overrides (3x DMMO und Verwandte) sind die JS-Zwillinge der
               // Regeln, die jetzt in HDRG_REGELN stehen. Wo ein Regelsatz
               // greift, gilt seine Rechnung.
-              // Der Brief kennt kein Alter; Partner kommt aus Kodes und Eintrag.
+              // Der Brief kennt kein Alter; der Partnerkode kann an einem
+              // anderen gewaehlten Eingriff haengen (Chevron + PIP), deshalb
+              // alle Schluessel. kodesVollstaendig ist false: fallCodes traegt
+              // die Hauptkodes der Eintraege nicht.
               var hAus=hdrgAuswertung({best:best, bestKey:bestKey, hdrg:best.hdrg, drg:best.drg,
                         codes:fallCodes, ambulant:ambStatus!=="nichtmoeglich",
-                        partner:partnerErfuellt(fallCodes, bestKey), alter:null});
+                        partner:partnerErfuellt(fallCodes, opMethode), alter:null,
+                        kodesVollstaendig:false});
               if(hAus.regel){
                 hdrg  = hAus.hdrg;
                 // Hybrid-Pauschalen stehen in _HDRG, nicht in _DRG.
@@ -5449,9 +5496,12 @@ function OPBerichtApp(){
     });
     if(!obBest) return [o,null];
     var obKey=obBest.x.key, obEff=obBestEff;
-    var obAus=hdrgAuswertung({best:obEff, bestKey:obKey, hdrg:obEff.hdrg, drg:obEff.drg,
-      codes:o, ambulant:true, partner:partnerErfuellt(o,obKey),
-      alter:alter==="kind"?"u18":(alter==="erw"?"ab18":null)});
+    var obKeys=obListe.map(function(x){ return x.key; });
+    var obAus=hdrgAuswertung({best:obEff, bestKey:obKey, partnerKeys:obKeys,
+      codes:o, hdrg:obEff.hdrg, drg:obEff.drg, ambulant:true,
+      partner:partnerErfuellt(o,obKeys),
+      alter:alter==="kind"?"u18":(alter==="erw"?"ab18":null),
+      kodesVollstaendig:true});
     var obAnz=steuerAnzeige(obKey)||{};
     var eur=function(code){ var e=code?window._E(code):null; return e!=null?(code+" "+e.toLocaleString("de-DE")+" €"):(code||"—"); };
     var hdrgTxt=obAus.hdrg
@@ -5463,7 +5513,7 @@ function OPBerichtApp(){
       +(((obEff._modLabels)||[]).length?" "+obEff._modLabels.join(" "):"")
       +(obListe.length>1?" (führend)":"");
     return [o,{label:label, ops:o, key:obKey, mods:obBest.x.mods,
-      eintraege:obListe.map(function(x){ return x.key; }),
+      eintraege:obKeys,
       hdrg:hdrgTxt, hdrg_n1:hdrgTxt,
       ebm:(obAus.setting&&obAus.setting.ambulant==="ebm")?"EBM":"—",
       kurz:kurzBetrag?(drgCode+" ~"+kurzBetrag.toLocaleString("de-DE")+" €"):(drgCode||"—"),
@@ -6000,7 +6050,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(entlassGespr)p.push("\n\nPostoperativ erfolgt ein ausführliches Entlassgespräch über den Eingriff und die Nachbehandlung. Aufklärung über Zeichen von Infekt, Thrombose oder andere postoperative Komplikationen mit Verhaltensmaßgaben. Kontrolltermine werden besprochen und abgestimmt. Häusliche Versorgung und Betreuung am OP-Tag ist anamnestisch gewährleistet. Recap der Zehen ist intakt, Belastungsvorgaben können umgesetzt werden, Verband ist trocken.");
     // Chip-gebundene Textbausteine ({ZUSATZ:…}).
     var zusaetze=[];
-    if(vfSehnentransfer)zusaetze.push("ahl_transfer");
+    if(vfSehnentransfer)zusaetze.push("ahl_transfer","ahl_transfer_ende");
     if(vfSpongiosa)zusaetze.push("lapidus_spongiosa");
     return textPlatzhalter(p.join(""), null, null, null, zusaetze);
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
@@ -6110,14 +6160,18 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={cat}>Großzehe (1. Strahl)</div>
         <div style={row}>
           {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"],["morton","Morton-Neurom"]].map(([k,l])=>
-            <div key={k} style={chip(gz===k)} onClick={()=>{setGz(gz===k?"":k);setMitAkin(false);setHoffTill(false);setMitSubcap(false);setVfSehnentransfer(false);setVfSpongiosa(false);}}>{l}</div>
+            <div key={k} style={chip(gz===k)} onClick={()=>{var nk=gz===k?"":k;setGz(nk);setMitAkin(false);setHoffTill(false);setMitSubcap(false);
+              // AHL-Transfer und Spongiosa gehoeren zur Standardtechnik; die
+              // Chips dienen dem Abwaehlen (Entscheidung 24.09.2026).
+              setVfSehnentransfer(nk==="chevron"||nk==="scarf"||nk==="lapidus");
+              setVfSpongiosa(nk==="lapidus");}}>{l}</div>
           )}
         </div>
-        {gz==="chevron"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>+ Sehnentransfer</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-788.5c, 5-788.40, 5-93b.0, 5-854.2c{mitAkin?", 5-788.56":""}</div></div>}
-        {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>+ Sehnentransfer</div><div style={tog(vfSpongiosa)} onClick={()=>setVfSpongiosa(!vfSpongiosa)}>+ Spongiosaplastik</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-93b.0, 5-93b.e{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
+        {gz==="chevron"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>AHL-Transfer</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-788.5c, 5-788.40, 5-93b.0, 5-854.2c{mitAkin?", 5-788.56":""}</div></div>}
+        {gz==="lapidus"&&<div style={sub}><div style={{...row,gap:4}}><div style={tog(mitSubcap)} onClick={()=>setMitSubcap(!mitSubcap)}>+ Subcap.</div><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>AHL-Transfer</div><div style={tog(vfSpongiosa)} onClick={()=>setVfSpongiosa(!vfSpongiosa)}>Spongiosaplastik</div></div><div style={{fontSize:10,color:"#718096",marginTop:3}}>Rebalancing auto · OPS: 5-808.a4, 5-93b.0, 5-93b.e{mitSubcap?", 5-788.5c":""}{mitAkin?", 5-788.56":""}</div></div>}
         {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(hoffTill)} onClick={()=>setHoffTill(!hoffTill)}>Hoffmann-Tillmann</div><div style={{fontSize:10,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · stationär mit Spongiosaplastik 5-784.0v → I20E · ambulant ohne Spongiosaplastik → I20N</div></div>}
         {gz==="cheilek"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-788.00 (Exostosenabtragung MT I) · Amb: H-DRG I20O · Stat: 5-854.2c/0c bei tatsächlich erbrachter Leistung → I20E</div></div>}
-        {gz==="scarf"&&<div style={sub}><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>+ Sehnentransfer</div><div style={{fontSize:10,color:"#718096",marginTop:3}}>OPS: 5-788.5e{vfSehnentransfer?", 5-854.2c":""}</div></div>}
+        {gz==="scarf"&&<div style={sub}><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>AHL-Transfer</div><div style={{fontSize:10,color:"#718096",marginTop:3}}>OPS: 5-788.5e{vfSehnentransfer?", 5-854.2c":""}</div></div>}
         {gz==="morton"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-846.7 · ICD: G57.6 (zu bestätigen) · Intermetatarsalraum im Text anpassen</div></div>}
 
         <div style={cat}>Kleinzehen D2–D5</div>

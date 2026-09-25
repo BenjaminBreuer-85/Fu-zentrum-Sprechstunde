@@ -348,11 +348,12 @@ var OP_STEUERUNG = _DATEN.OP_STEUERUNG;
 var HDRG_REGELN = _DATEN.HDRG_REGELN || null;
 var HDRG_FALLREGELN = _DATEN.HDRG_FALLREGELN || null;
 var HDRG_KOMBI = _DATEN.HDRG_KOMBI || null;
+var DRG_RANG_LG = _DATEN.DRG_RANG_LG || null;
 %s
 function auswerten(key, codes, seite, alter){
   var best = OP_STEUERUNG[key] || {};
   var erg = hdrgAuswertung({ best: best, bestKey: key, hdrg: best.hdrg, drg: best.drg,
-                             codes: codes, ambulant: true,
+                             codes: codes, ambulant: true, kodesVollstaendig: true,
                              partner: (typeof partnerErfuellt === "function")
                                         ? partnerErfuellt(codes, key) : undefined,
                              alter: alter || null });
@@ -372,8 +373,8 @@ _FAELLE.forEach(function(f){
     if (!best) { zeile.keys[k] = null; return; }
     var eff = (typeof obEintragEff === "function" && (f.mods || []).length) ? obEintragEff(k, f.mods) : best;
     var erg = hdrgAuswertung({ best: eff, bestKey: k, hdrg: eff.hdrg, drg: eff.drg, codes: f.codes,
-                               ambulant: true,
-                               partner: (typeof partnerErfuellt === "function") ? partnerErfuellt(f.codes, k) : undefined,
+                               ambulant: true, kodesVollstaendig: true,
+                               partner: (typeof partnerErfuellt === "function") ? partnerErfuellt(f.codes, f.keys || k) : undefined,
                                alter: f.alter || null });
     zeile.keys[k] = { hdrg: erg.hdrg, drg: erg.drg, hybrid: erg.hybrid, sperre: erg.sperre || null,
                       partner: erg.partner, setting: erg.setting, satz: erg.satz,

@@ -181,7 +181,7 @@
    ],
    "alter": null,
    "seite": null,
-   "sperre": null,
+   "sperre": "positivliste",
    "partner": false,
    "soll": {
     "hdrg": null,
@@ -275,18 +275,18 @@
    ],
    "alter": null,
    "seite": null,
-   "sperre": null,
+   "sperre": "rang",
    "partner": false,
    "soll": {
     "hdrg": null,
     "drg": "I27E"
    },
    "ist": {
-    "hdrg": "I20O",
+    "hdrg": null,
     "drg": "I27E"
    },
    "quelle": "SCH S. 24; H-03",
-   "status": "abweichend",
+   "status": "gleich",
    "hinweis": "",
    "beidseits": ""
   },
@@ -417,18 +417,18 @@
    ],
    "alter": null,
    "seite": null,
-   "sperre": null,
+   "sperre": "positivliste",
    "partner": true,
    "soll": {
     "hdrg": null,
     "drg": "I20D"
    },
    "ist": {
-    "hdrg": "I20M",
+    "hdrg": null,
     "drg": "I20D"
    },
    "quelle": "MU S. 24; V68",
-   "status": "abweichend",
+   "status": "gleich",
    "hinweis": "",
    "beidseits": ""
   },
@@ -586,7 +586,7 @@
    ],
    "alter": null,
    "seite": null,
-   "sperre": null,
+   "sperre": "positivliste",
    "partner": true,
    "soll": {
     "hdrg": null,
