@@ -1563,7 +1563,7 @@ function hdrgAuswertung(opts){
   if (opts.alter === "u18" && hdrgStart) {
     erg.hybrid = false; erg.hdrg = null; erg.sperre = "alter"; erg.drg = drgOp;
     erg.satz = "Bei Patienten unter 18 Jahren ist keine Hybrid-DRG möglich (Kontextfaktor Alter); "
-             + "stationär " + (erg.drg || "—") + ", ambulant nach EBM, soweit die Kodes im AOP-Katalog stehen.";
+             + "der Fall gruppiert stationär nach " + (erg.drg || "—") + ". " + ambSatzBau(true);
     erg.setting = { hybrid: false, stationaer: erg.drg, ambulant: alleImAop() ? "ebm" : "nein" };
     return erg;
   }
@@ -2391,6 +2391,18 @@ var _s = useState, _m = useMemo;
     Object.keys(sonoState).forEach(function(id) { if (sonoState[id]) drin[id] = true; });
     return Object.keys(SONO.STRUKTUREN).filter(function(id) { return SONO.STRUKTUREN[id].immer || drin[id]; });
   }, [pfad, diagnosen, sonoExtra, sonoState]);
+  // Reihenfolge im Abschnitt ⑤ (nur Anzeige, der Briefabsatz bleibt Option C):
+  // erst die immer gezeigten Strukturen, dann die der gewaehlten Diagnosen in
+  // deren eigener Reihenfolge, dann die dazugenommenen, zuletzt der Rest.
+  var sonoAnzeige = _m(function() {
+    var out = [], drin = {};
+    var nimm = function(id) { if (availSono.indexOf(id) >= 0 && !drin[id]) { drin[id] = true; out.push(id); } };
+    Object.keys(SONO.STRUKTUREN).forEach(function(id) { if (SONO.STRUKTUREN[id].immer) nimm(id); });
+    diagnosen.forEach(function(d) { var diag = DIAG[d]; ((diag && diag.sono) || []).forEach(nimm); });
+    sonoExtra.forEach(nimm);
+    availSono.forEach(nimm);
+    return out;
+  }, [availSono, diagnosen, sonoExtra]);
   // Diagnosewechsel: dazugenommene Strukturen ohne Befund fallen weg (mit Befund haelt
   // sie sonoState); nur „Diffuse Beschwerden" oeffnet den Katalog von selbst.
   useEffect(function() {
@@ -4209,9 +4221,9 @@ var _s = useState, _m = useMemo;
             <div style={{ flex: "0 0 120px" }}><div style={{ fontSize: 10, color: "#718096", marginBottom: 2 }}>Datum</div><input value={sonoDatum === "heute" ? "" : sonoDatum} onChange={function(e) { setSonoDatum(e.target.value); }} placeholder="TT.MM.JJJJ" /></div>
             <div style={{ display: "flex", alignItems: "flex-end" }}><div style={CB(sonoDatum === "heute")} onClick={function() { setSonoDatum(sonoDatum === "heute" ? "" : "heute"); }}>heute (in Sprechstunde)</div></div>
           </div>
-          {availSono.filter(function(id) { return SONO.STRUKTUREN[id].immer; }).map(sonoZeile)}
-          {availSono.some(function(id) { return !SONO.STRUKTUREN[id].immer; }) && <div style={cat}>Gelenke, Sehnen, Bänder, Weichteile</div>}
-          {availSono.filter(function(id) { return !SONO.STRUKTUREN[id].immer; }).map(sonoZeile)}
+          {sonoAnzeige.filter(function(id) { return SONO.STRUKTUREN[id].immer; }).map(sonoZeile)}
+          {sonoAnzeige.some(function(id) { return !SONO.STRUKTUREN[id].immer; }) && <div style={cat}>Gelenke, Sehnen, Bänder, Weichteile</div>}
+          {sonoAnzeige.filter(function(id) { return !SONO.STRUKTUREN[id].immer; }).map(sonoZeile)}
           <div style={{ marginTop: 8 }}><div style={CB(false)} onClick={function() { setSonoKatalogOffen(!sonoKatalogOffen); }}>Weitere Strukturen {sonoKatalogOffen ? "▴" : "▾"}</div></div>
           {sonoKatalogOffen && <div data-sono-katalog="1">
             {SONO.GRUPPEN.filter(function(g) { return g.id !== "gefaesse"; }).map(function(g) {

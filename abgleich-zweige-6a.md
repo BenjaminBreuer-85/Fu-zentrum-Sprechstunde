@@ -1,6 +1,6 @@
 # Abgleich der OP-Bericht-Zweige gegen OP_STEUERUNG und Regelsatz (Schritt 6a)
 
-Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html sha256 ae123e3dd9fb…, 0 Zweige im Memo, 84 Zeilen. Nur Befund, keine Bewertung „richtig/falsch"; die Spalte Entscheidung ist leer und gehört dem Autor (A, B, C oder ein neuer Wert).
+Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html sha256 0e93bbece901…, 0 Zweige im Memo, 84 Zeilen. Nur Befund, keine Bewertung „richtig/falsch"; die Spalte Entscheidung ist leer und gehört dem Autor (A, B, C oder ein neuer Wert).
 
 **Spalten.** A = was der Zweig heute anzeigt. B = der Eintrag in `opsteuerung.json`. C = was `hdrgAuswertung()` aus denselben Kodes macht (H-DRG / stationäre DRG / ambulanter Weg). betrifft = Ergänzungen a–f aus dem Umsetzungsplan.
 
