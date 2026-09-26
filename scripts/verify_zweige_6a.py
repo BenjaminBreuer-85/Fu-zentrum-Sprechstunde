@@ -543,10 +543,24 @@ def main():
             "entscheidung": "",
         })
 
+    # Faelle, die der Autor bewusst nicht abbildet, behalten ihren Status aus
+    # hybrid_testfaelle.json und zaehlen als eigene Kategorie.
+    bewusst = {}
+    tf_pfad = os.path.join(REPO, "hybrid_testfaelle.json")
+    if os.path.exists(tf_pfad):
+        try:
+            for f in json.load(open(tf_pfad, encoding="utf-8")).get("faelle", []):
+                if f.get("status") == "bewusst nicht abgebildet":
+                    bewusst[f["nr"]] = f.get("hinweis", "")
+        except Exception:
+            pass
+
     testfaelle = []
     for s, c in zip(SOLL, c_roh["soll"]):
         ist = {"hdrg": (c or {}).get("hdrg"), "drg": (c or {}).get("drg")}
-        if s.get("hinweis", "").startswith("5-808.b7") or "kommt in keiner Kodeliste" in s.get("hinweis", ""):
+        if s["nr"] in bewusst:
+            status = "bewusst nicht abgebildet"
+        elif s.get("hinweis", "").startswith("5-808.b7") or "kommt in keiner Kodeliste" in s.get("hinweis", ""):
             status = "kein App-Fall"
         elif not c:
             status = "kein App-Fall"
@@ -560,7 +574,8 @@ def main():
             "alter": s.get("alter"), "seite": s.get("seite"),
             "sperre": (c or {}).get("sperre"), "partner": (c or {}).get("partner"),
             "soll": s["soll"], "ist": ist, "quelle": s["quelle"],
-            "status": status, "hinweis": s.get("hinweis", ""),
+            "status": status,
+            "hinweis": bewusst.get(s["nr"]) or s.get("hinweis", ""),
             "beidseits": (c or {}).get("beidseits", ""),
         })
 

@@ -1,6 +1,6 @@
 # Abgleich der OP-Bericht-Zweige gegen OP_STEUERUNG und Regelsatz (Schritt 6a)
 
-Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html sha256 8a7be0ccc155…, 0 Zweige im Memo, 84 Zeilen. Nur Befund, keine Bewertung „richtig/falsch"; die Spalte Entscheidung ist leer und gehört dem Autor (A, B, C oder ein neuer Wert).
+Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html sha256 ae123e3dd9fb…, 0 Zweige im Memo, 84 Zeilen. Nur Befund, keine Bewertung „richtig/falsch"; die Spalte Entscheidung ist leer und gehört dem Autor (A, B, C oder ein neuer Wert).
 
 **Spalten.** A = was der Zweig heute anzeigt. B = der Eintrag in `opsteuerung.json`. C = was `hdrgAuswertung()` aus denselben Kodes macht (H-DRG / stationäre DRG / ambulanter Weg). betrifft = Ergänzungen a–f aus dem Umsetzungsplan.
 
@@ -111,7 +111,7 @@ Erzeugt von `scripts/verify_zweige_6a.py` (Spalte C gerechnet mit jsc), app.html
 | 12 | Haglund + Bursektomie Unterschenkel 5-859.19, > 15 J. | 5-782.at 5-859.19 | — / I27E | — / I27E | gleich | SCH S. 24; H-03 |
 | 13 | MTP-I-Arthrodese 5-808.b0 allein | 5-808.b0 | I20N / — | I20N / I20E | gleich | MU S. 23 |
 | 14 | MTP-I + 1–4× PIP | 5-808.b0 5-808.bf | I20N / — | I20N / I20E | gleich | MU S. 23 |
-| 15 | MTP-I + Exostosen MT II–V 3 Knochen 5-788.08 | 5-808.b0 5-788.08 | I20M / — | I20N / I20E | abweichend | MU S. 24; V36 |
+| 15 | MTP-I + Exostosen MT II–V 3 Knochen 5-788.08 | 5-808.b0 5-788.08 | I20M / — | I20N / I20E | bewusst nicht abgebildet | MU S. 24; V36 |
 | 16 | MTP-I + 3× DMMO | 5-808.b0 5-788.54 | — / I20D | — / I20D | gleich | WE |
 | 17 | MTP-I + 4× DMMO | 5-808.b0 5-788.55 | — / I20C | — / I20C | gleich | WE |
 | 18 | Lapidus allein | 5-808.a4 | — / I20D | — / I20D | gleich | MU S. 24; V68 |

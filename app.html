@@ -1546,12 +1546,17 @@ function hdrgAuswertung(opts){
               partner: partner, sperre: null };
   // Ambulanter Weg: EBM nur, wenn wirklich alle Kodes im AOP-Katalog stehen.
   var alleImAop = function(){ return codes.every(function(c){ return imAopKatalog(c); }); };
-  var ambSatzBau = function(){
+  // ohneHybrid: In den Sperrfaellen gibt es keine Hybrid-DRG mehr, der
+  // Nachsatz darf sie dann nicht empfehlen (Autor 26.09.2026).
+  var ambSatzBau = function(ohneHybrid){
     var ausserhalb = codes.filter(function(c){ return !imAopKatalog(c); });
-    return ausserhalb.length
-      ? "Ambulant: " + ausserhalb.join(", ") + (ausserhalb.length > 1 ? " stehen" : " steht")
-        + " nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen."
-      : "Ambulant EBM.";
+    if (!ausserhalb.length) return "Ambulant EBM.";
+    var mehr = ausserhalb.length > 1;
+    return ohneHybrid
+      ? "Ambulant: " + ausserhalb.join(", ") + (mehr ? " stehen" : " steht")
+        + " nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar."
+      : "Ambulant: " + ausserhalb.join(", ") + (mehr ? " stehen" : " steht")
+        + " nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.";
   };
   // Alter (Kontextfaktor H-02) steht vor allem anderen: unter 18 Jahren gibt es
   // keine Fuss-Hybrid-DRG, unabhaengig von den Kodes.
@@ -1574,7 +1579,7 @@ function hdrgAuswertung(opts){
     erg.satz = akfTreffer.map(function(a){ return a.name + " (" + a.code + ")"; }).join(" und ")
       + (akfTreffer.length > 1 ? " sind Kontextfaktoren" : " ist ein Kontextfaktor")
       + " nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach "
-      + (erg.drg || "—") + ". " + ambSatzBau();
+      + (erg.drg || "—") + ". " + ambSatzBau(true);
     erg.setting = { hybrid: false, stationaer: erg.drg, ambulant: alleImAop() ? "ebm" : "nein" };
     return erg;
   }
@@ -1585,7 +1590,7 @@ function hdrgAuswertung(opts){
       && !codes.some(function(c){ return inPositivliste(c); })) {
     erg.hybrid = false; erg.hdrg = null; erg.sperre = "positivliste"; erg.drg = drgOp;
     erg.satz = "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach "
-             + (erg.drg || "—") + ". " + ambSatzBau();
+             + (erg.drg || "—") + ". " + ambSatzBau(true);
     erg.setting = { hybrid: false, stationaer: erg.drg, ambulant: alleImAop() ? "ebm" : "nein" };
     return erg;
   }
@@ -1617,13 +1622,16 @@ function hdrgAuswertung(opts){
     // Sprachregel des Autors (09.09.2026): Der AOP-Katalog bindet nur Kliniken,
     // niedergelassene Operateure rechnen ambulant ueber den EBM ab. Deshalb nie
     // "unvergütet" oder "nicht abrechenbar", sondern Sachverhalt und Empfehlung.
-    var ambSatz = ambSatzBau();
+    var ambSatz = ambSatzBau(true);
     erg.satz = kTreffer.map(function(k){ return k.name + " (" + k.code + ")"; }).join(" und ")
       + " gruppiert den Fall nicht mehr in " + hdrgStart + ", sondern stationär nach " + erg.drg + ". " + ambSatz;
   } else if (aTreffer.length) {
     erg.hdrg = hoechste(aTreffer.map(function(a){ return a.hdrg; }), HDRG_RANG) || hdrgStart;
-    erg.satz = aTreffer.map(function(a){ return a.name + " (" + a.code + ")"; }).join(" und ")
-      + " wertet auf " + erg.hdrg + " auf.";
+    var aNamen = aTreffer.map(function(a){ return a.name + " (" + a.code + ")"; }).join(" und ");
+    // Steht der Fall schon in dieser Stufe, wertet nichts auf.
+    erg.satz = (erg.hdrg === hdrgStart)
+      ? "Ambulant gruppiert der Fall nach " + hdrgStart + "; " + aNamen + " liegt in derselben Stufe."
+      : aNamen + " wertet auf " + erg.hdrg + " auf.";
   } else {
     erg.satz = "Ambulant gruppiert der Fall nach " + hdrgStart + ".";
     if (best.hebel) erg.satz += " Wird stationär zusätzlich " + (best.hebelName || "Kontextprozedur")
@@ -1643,7 +1651,7 @@ function hdrgAuswertung(opts){
     if (hebelDa && typeof rangHebel === "number" && typeof rangBasis === "number" && rangHebel < rangBasis) {
       erg.hybrid = false; erg.hdrg = null; erg.sperre = "rang"; erg.drg = best.drg;
       erg.satz = (best.hebelName || "Kontextprozedur") + " (" + hebelCodes.join(", ") + ") gruppiert den Fall nach "
-               + best.drg + " (Rang vor " + basis + "); keine Hybrid-DRG. " + ambSatzBau();
+               + best.drg + " (Rang vor " + basis + "); keine Hybrid-DRG. " + ambSatzBau(true);
     }
   }
 
@@ -4951,6 +4959,9 @@ function OPBerichtApp(props){
   // nicht mehr fest in Kodeliste und Text.
   const [vfSehnentransfer,setVfSehnentransfer]=useState(false);
   const [vfSpongiosa,setVfSpongiosa]=useState(false);
+  // Bursektomie gehoert zur Standardtechnik der Calcaneoplastie; der Chip
+  // dient dem Abwaehlen (Autor 26.09.2026).
+  const [rfBursektomie,setRfBursektomie]=useState(false);
   const [coalU12,setCoalU12]=useState(false);
   // Kleinzehen
   const [zc,setZc]=useState({2:[],3:[],4:[],5:[]});
@@ -5362,7 +5373,7 @@ function OPBerichtApp(props){
       if(op==="mdo_mini"||op==="mdo_offen")o.push("5-781.1t","5-93b.0");
       if(op==="arthrodesenagel_retro"){o.push("5-808.71","5-93b.6");if(arthroNagelBecken)o.push("5-784.0n","5-783.0d");}  // OSG+USG-Arthrodese + Marknagel + ggf. Beckenkamm
       if(op==="arthrorise")o.push("5-809.1m","5-93b.0");
-      if(op==="haglund_mini")o.push("5-782.at","5-855.39","5-859.19");
+      if(op==="haglund_mini"){o.push("5-782.at","5-855.39");if(rfBursektomie)o.push("5-859.19");}
       if(op==="haglund")o.push("5-782.at","5-855.39","5-855.19","5-854.29","5-859.19");
       if(op==="subtalar")o.push("5-808.80","5-93b.0");
       if(op==="tn_arthrodese")o.push("5-808.80","5-93b.0","5-784.0s","5-783.0d");
@@ -5526,7 +5537,7 @@ function OPBerichtApp(props){
       empf:obAus.hybrid?"amb":(obAnz.empf==="amb"?"amb":"n2"),
       hinweise:obEff.hinweise||obAnz.hinweise||null,
       auswertung:obAus, sperre:obAus.sperre||null}];
-    return [o,null];},[vfSehnentransfer,vfSpongiosa,coalU12,alter,fxOp,fxSyndes,luxRinne,luxNaht,hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfCottonKnochen,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    return [o,null];},[vfSehnentransfer,vfSpongiosa,rfBursektomie,coalU12,alter,fxOp,fxSyndes,luxRinne,luxNaht,hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfCottonKnochen,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // ICD-Codes als Textblock
   const icdText=useMemo(()=>{
@@ -6057,11 +6068,12 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     var zusaetze=[];
     if(vfSehnentransfer)zusaetze.push("ahl_transfer","ahl_transfer_ende");
     if(vfSpongiosa)zusaetze.push("lapidus_spongiosa");
+    if(rfBursektomie)zusaetze.push("haglund_bursektomie");
     return textPlatzhalter(p.join(""), null, null, null, zusaetze);
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[vfSehnentransfer,vfSpongiosa,gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[vfSehnentransfer,vfSpongiosa,rfBursektomie,gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -6144,6 +6156,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     setWsOp(""); setWsHoehen([]); setWsSeiten({});
     setRuhig("keine"); setEntlassGespr(false); setShowPv(false);
     setFallMaterial(null);
+    setRfBursektomie(false);
     showToast("Zurückgesetzt");
   }
   // Der Reset-Knopf sitzt in der Kopfleiste (App); sie bekommt die Funktion hier.
@@ -6380,9 +6393,15 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       <OBSec title="Rückfuß" open={sec.rf} anzahl={rfOp.length} onToggle={()=>togSec("rf")} active={hasRF} onReset={()=>{setRfOp([]);setPeronealTyp("");setPeronealLongus(false);setLuxNaht(false);setLuxRinne(false);setLuxQuartus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setOsTibMDO(false);setSupramalTyp("");setSupramalFibula(false);setSupramalStabi(false);setSupramalBrostrom(false);setFdlTransfer(false);setMdoCotton("");}}>
         <div style={row}>
           {[["haglund_mini","Calcaneoplastie"],["haglund","Haglund + AS-Split/Refix"],["mdo_mini","MDO minimalinvasiv"],["mdo_offen","MDO offen"],["arthrorise","Arthrorise"],["subtalar","Arthrodese Subtalar"],["tn_arthrodese","TN-Arthrodese"],["double_arthrodese","Double-Arthrodese"],["triple_arthrodese","Triple-Arthrodese"],["lambrinudi","Lambrinudi-Arthrodese"],["calc_ot_verl","LCOT (Verlängerung)"],["dwyer","Dwyer-Osteotomie"],["os_tib_ext","Resektion Os Tib Ext"],["peroneal","Peronealsehnen"],["fhl_transfer","FHL-Transfer"],["as_naht","Achillessehnennaht (offen)"],["as_tendoskopie","AS-Tendoskopie"],["as_debridement","AS-Débridement (Tendinose)"],["supramal_ot","Supramalleolare OT"]].map(([k,l])=>
-            <div key={k} style={chip(rfOp.includes(k))} onClick={()=>togArr(rfOp,setRfOp,k)}>{l}</div>
+            <div key={k} style={chip(rfOp.includes(k))} onClick={()=>{if(k==="haglund_mini")setRfBursektomie(rfOp.indexOf(k)<0);togArr(rfOp,setRfOp,k);}}>{l}</div>
           )}
         </div>
+        {rfOp.includes("haglund_mini")&&<div style={{marginTop:4,marginBottom:4}}>
+          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+            <div style={tog(rfBursektomie)} onClick={()=>setRfBursektomie(!rfBursektomie)}>Bursektomie</div>
+          </div>
+          <div style={{fontSize:10,color:"#718096",marginTop:3}}>Mit Bursektomie (5-859.19) gruppiert der Fall nach I27E, keine Hybrid-DRG · ohne Bursektomie Hybrid I20O möglich</div>
+        </div>}
         {rfOp.includes("dwyer")&&<div style={{marginTop:4,marginBottom:4}}>
           <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
             <div style={tog(dwyerSteindler)} onClick={()=>setDwyerSteindler(!dwyerSteindler)}>+ Steindler</div>
@@ -7617,7 +7636,7 @@ function OPManuale(){
         </div>}
       </LMGruppe>;
     })}
-    <div style={{marginTop:16,fontSize:10,color:"#A0AEC0",textAlign:"center"}}>PDFs werden direkt von GitHub/Google Drive geladen · Klick öffnet in neuem Tab</div>
+    <div style={{marginTop:16,fontSize:10,color:"#A0AEC0",textAlign:"center"}}>PDFs werden direkt von GitHub/Google Drive geladen · Klick öffnet in eigenem Fenster</div>
   </div>;
 }
 

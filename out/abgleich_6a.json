@@ -1,6 +1,6 @@
 {
  "stand": {
-  "app_html_sha256": "8a7be0ccc155083a83063fad57cebadb7750b430fbacf43ba7dd986c15af5e77",
+  "app_html_sha256": "ae123e3dd9fbd06a9dd32b340f031bf2a3c18f07bcf0ffca5818cfa6bfc7c117",
   "runtime": "jsc",
   "zweige_im_memo": 0,
   "zeilen": 84
@@ -88,7 +88,7 @@
      "stationaer": "I20D",
      "ambulant": "nein"
     },
-    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20M",
     "kontext": [],
@@ -179,7 +179,7 @@
      "stationaer": "I20D",
      "ambulant": "nein"
     },
-    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u, 5-788.56 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u, 5-788.56 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20M",
     "kontext": [],
@@ -273,7 +273,7 @@
      "stationaer": "I20D",
      "ambulant": "nein"
     },
-    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u, 5-788.56, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Tx von Spongiosa, autogen off chir, Tarsale (5-784.0u) ist ein Kontextfaktor nach Band 4 (Ausschluss Kontextfaktoren MDC 08); der Fall gruppiert stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0u, 5-788.56, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20M",
     "kontext": [],
@@ -364,7 +364,7 @@
      "stationaer": "I20D",
      "ambulant": "nein"
     },
-    "satz": "Spongiosatransplantation Metatarsale (5-784.0v) gruppiert den Fall nicht mehr in I20M, sondern stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0v, 5-788.56 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Spongiosatransplantation Metatarsale (5-784.0v) gruppiert den Fall nicht mehr in I20M, sondern stationär nach I20D. Ambulant: 5-808.a4, 5-788.40, 5-93b.0, 5-93b.e, 5-784.0v, 5-788.56 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20M",
     "kontext": [
@@ -555,7 +555,7 @@
      "stationaer": "I20E",
      "ambulant": "nein"
     },
-    "satz": "Arthroplastik MTP I (5-788.60) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20E. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.60, 5-808.b2 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Arthroplastik MTP I (5-788.60) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20E. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.60, 5-808.b2 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -621,7 +621,7 @@
      "stationaer": "I20E",
      "ambulant": "hybrid"
     },
-    "satz": "1× distale Osteotomie MT II–V (5-788.52) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20N; 1× distale Osteotomie MT II–V (5-788.52) liegt in derselben Stufe.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
@@ -687,7 +687,7 @@
      "stationaer": "I20E",
      "ambulant": "hybrid"
     },
-    "satz": "2× distale Osteotomie MT II–V (5-788.53) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20N; 2× distale Osteotomie MT II–V (5-788.53) liegt in derselben Stufe.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
@@ -753,7 +753,7 @@
      "stationaer": "I20D",
      "ambulant": "nein"
     },
-    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20D. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "3× distale Osteotomie MT II–V (5-788.54) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20D. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -817,7 +817,7 @@
      "stationaer": "I20C",
      "ambulant": "nein"
     },
-    "satz": "4× distale Osteotomie MT II–V (5-788.55) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20C. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.55, 5-86a.13 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "4× distale Osteotomie MT II–V (5-788.55) gruppiert den Fall nicht mehr in I20N, sondern stationär nach I20C. Ambulant: 5-808.b0, 5-93b.0, 5-93b.e, 5-788.55, 5-86a.13 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -881,7 +881,7 @@
      "stationaer": "I20E",
      "ambulant": "hybrid"
     },
-    "satz": "3× Arthrodese IP Dig II–V (5-808.bf) wertet auf I20N auf.",
+    "satz": "Ambulant gruppiert der Fall nach I20N; 3× Arthrodese IP Dig II–V (5-808.bf) liegt in derselben Stufe.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
@@ -987,7 +987,7 @@
      "stationaer": "I20E",
      "ambulant": "nein"
     },
-    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -1094,7 +1094,7 @@
      "stationaer": "I20E",
      "ambulant": "nein"
     },
-    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.56 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.56 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -1202,7 +1202,7 @@
      "stationaer": "I20E",
      "ambulant": "nein"
     },
-    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.52, 5-86a.10 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.52, 5-86a.10 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -1312,7 +1312,7 @@
      "stationaer": "I20E",
      "ambulant": "nein"
     },
-    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.53, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.53, 5-86a.11 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -1422,7 +1422,7 @@
      "stationaer": "I20E",
      "ambulant": "nein"
     },
-    "satz": "3× distale Osteotomie MT II–V (5-788.54) und Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "3× distale Osteotomie MT II–V (5-788.54) und Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.54, 5-86a.12 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -1531,7 +1531,7 @@
      "stationaer": "I20E",
      "ambulant": "nein"
     },
-    "satz": "4× distale Osteotomie MT II–V (5-788.55) und Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.55, 5-86a.13 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "4× distale Osteotomie MT II–V (5-788.55) und Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-788.55, 5-86a.13 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -1640,7 +1640,7 @@
      "stationaer": "I20E",
      "ambulant": "nein"
     },
-    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-808.be, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Sehnentransposition Mittelfuß/Zehen (FDL/Sehnentransfer) (5-854.2c) gruppiert den Fall nicht mehr in I20O, sondern stationär nach I20E. Ambulant: 5-788.5c, 5-788.40, 5-93b.0, 5-808.be, 5-86a.11 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [
@@ -2206,7 +2206,7 @@
      "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-788.54, 5-93b.0, 5-86a.11 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-788.54, 5-93b.0, 5-86a.11 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
@@ -2270,7 +2270,7 @@
      "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-788.55, 5-93b.0, 5-86a.12 stehen nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-788.55, 5-93b.0, 5-86a.12 stehen nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
@@ -2511,7 +2511,7 @@
      "stationaer": "I20F",
      "ambulant": "nein"
     },
-    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-808.bh steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Kein Kode des Falls steht in der Positivliste (I20-V68); der Fall gruppiert stationär nach I20F. Ambulant: 5-808.bh steht nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
@@ -3535,7 +3535,7 @@
      "stationaer": "I27E",
      "ambulant": "nein"
     },
-    "satz": "Bursektomie Unterschenkel (5-859.19) gruppiert den Fall nach I27E (Rang vor I20F); keine Hybrid-DRG. Ambulant: 5-782.at steht nicht im AOP-Katalog, für Kliniken daher Hybrid empfohlen.",
+    "satz": "Bursektomie Unterschenkel (5-859.19) gruppiert den Fall nach I27E (Rang vor I20F); keine Hybrid-DRG. Ambulant: 5-782.at steht nicht im AOP-Katalog; ohne Hybrid-DRG für Kliniken nur stationär führbar.",
     "warnungen": [],
     "regel": "I20O/I20N",
     "kontext": [],
