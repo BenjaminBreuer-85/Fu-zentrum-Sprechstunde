@@ -752,6 +752,8 @@ function ToolKopfleiste(props){
     {/* onZurueck ersetzt den Weg ins Menue (etwa zurueck zum Brief); der ⌂-Knopf bleibt. */}
     <div onClick={props.onZurueck || props.onHome} style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:11,fontWeight:600,whiteSpace:"nowrap",boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>{props.onZurueck ? (props.zurueckText || "← Zurück") : "← Menü"}</div>
     <div style={{fontSize:12,fontWeight:700,color:"#006B6F",textAlign:"center",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{props.titel}</div>
+    {props.onReset && <div onClick={props.onReset} title="Alle Felder zurücksetzen"
+      style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:11,fontWeight:600,whiteSpace:"nowrap",boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>↺ Neu</div>}
     <div onClick={props.onHome} title="Zum Menü" style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:12,fontWeight:600,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>⌂</div>
     {props.onEinstellungen && <div onClick={props.onEinstellungen} title="Einstellungen"
       style={{cursor:"pointer",padding:"5px 10px",borderRadius:6,border:"1px solid rgba(0,0,0,.12)",background:"#fff",color:"#006B6F",fontSize:13,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>⚙</div>}
@@ -3252,18 +3254,15 @@ var _s = useState, _m = useMemo;
     return [{ url: qr.url, alt: "QR-Code Fuss-Track", marker: QR_LABEL }];
   }
   function copy() {
-    // Wenn ein QR-Code aktiv ist: versuche Rich-Text mit eingebetteten Bildern (für Word/Outlook).
-    // Fallback: Plain Text (für Software ohne Bild-Support).
-    if (qrListe().length > 0) {
-      copyWithQr();
-    } else {
-      fallbackCopy(fullText);
-    }
+    // Immer derselbe Weg: HTML mit der Schrift der Briefvorlage, dazu Plain
+    // Text als zweiter Typ. QR-Bilder kommen nur dazu, wenn ein Code aktiv ist.
+    copyWithQr();
   }
   function copyWithQr() {
     try {
       var queue = qrListe().map(function(q) { return { data: getQrDataUrl(q.url, 300), alt: q.alt, marker: q.marker }; });
-      if (!queue.length || queue.filter(function(q) { return !q.data; }).length) { fallbackCopy(fullText); return; }
+      // Nur wenn QR-Codes erwartet werden, muessen sie auch erzeugt worden sein.
+      if (queue.length && queue.filter(function(q) { return !q.data; }).length) { fallbackCopy(fullText); return; }
       // HTML-Version: Brieftext mit QR-Bild direkt unter dem jeweiligen Code-Feld
       var lines = fullText.split("\n");
       var htmlBody = lines.map(function(line) {
@@ -3276,8 +3275,8 @@ var _s = useState, _m = useMemo;
         }
         return safe + "<br>";
       }).join("\n");
-      // Ohne font-family: Word uebernimmt die Schrift der Briefvorlage; 10pt wie deren Text.
-      var html = "<div style='font-size:10pt'>" + htmlBody + "</div>";
+      // Schrift der Briefvorlage (Autor 26.09.2026): Trebuchet MS 10.
+      var html = "<div style=\"font-family:'Trebuchet MS',sans-serif;font-size:10pt\">" + htmlBody + "</div>";
       // Plain-Text-Variante als Fallback
       var plain = fullText;
       // ClipboardItem API (Chrome, Edge, neuere Safari/Firefox)
@@ -3286,7 +3285,8 @@ var _s = useState, _m = useMemo;
         var blobText = new Blob([plain], { type: "text/plain" });
         var item = new ClipboardItem({ "text/html": blobHtml, "text/plain": blobText });
         navigator.clipboard.write([item]).then(function() {
-          showToast(queue.length > 1 ? "📋 Brief mit beiden QR-Codes kopiert!" : "📋 Brief mit QR-Code kopiert!");
+          showToast(!queue.length ? "📋 Brief kopiert!"
+                    : queue.length > 1 ? "📋 Brief mit beiden QR-Codes kopiert!" : "📋 Brief mit QR-Code kopiert!");
         }).catch(function(e) {
           // Fallback: nur Plain Text
           fallbackCopy(plain);
@@ -3373,8 +3373,14 @@ var _s = useState, _m = useMemo;
     setEndoErlOpen(false); setEndoPccl("03"); setEndoImpl("");
     setWd({}); setWdNeuroFrage(""); setWdMrtRegion(""); setWdCtRegion("");
     setAlter("erw");
+    // Seit 26.09.2026 vollstaendig: diese neun blieben bisher stehen.
+    setAufVariante("einfach"); setFreitextAnam(""); setKv2Anlass(""); setKv2Feld({});
+    setKv2OpDatum(""); setKv2Sel(kv2StandardAllgemein); setLapidusRezidiv(false);
+    setQrAktiv(true); setZeAktiv({});
     showToast("🔄 Alle Felder zurückgesetzt!");
   }
+  // Der Reset-Knopf sitzt in der Kopfleiste (App); sie bekommt die Funktion hier.
+  useEffect(function(){ if (props && props.onResetRegistrieren) props.onResetRegistrieren(function(){ resetAll(); }); }, []);
 
   var C = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #00897B" : "1px solid rgba(0,0,0,.1)", background: s ? "rgba(46,204,113,.15)" : "rgba(255,255,255,1)", color: s ? "#006B6F" : "#4A5568", display: "inline-block", margin: 2, userSelect: "none" }; };
   var CB = function(s) { return { padding: "6px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", border: s ? "1px solid #006B6F" : "1px solid rgba(0,0,0,.1)", background: s ? "rgba(0,107,111,.15)" : "rgba(255,255,255,1)", color: s ? "#006B6F" : "#4A5568", display: "inline-block", margin: 2, userSelect: "none" }; };
@@ -3392,7 +3398,6 @@ var _s = useState, _m = useMemo;
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, maxWidth: 1120, margin: "0 auto 12px" }}>
         <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#006B6F,#006B6F)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
         <div><div style={{ fontSize: 15, fontWeight: 700, color: "#006B6F" }}>Sprechstundenbrief Generator</div><div style={{ fontSize: 10, color: "#718096" }}>Fußchirurgie · {APP_VERSION} · {APP_STAND}</div></div>
-        <div style={{ marginLeft: "auto", padding: "6px 14px", border: "1px solid rgba(231,76,60,.3)", borderRadius: 6, background: "rgba(231,76,60,.08)", color: "#C62828", fontWeight: 600, fontSize: 11, cursor: "pointer" }} onClick={resetAll}>🔄 Reset</div>
       </div>
 
       <div className="sb-split" style={{ maxWidth: 1120, margin: "0 auto" }}>
@@ -4904,7 +4909,7 @@ var WS_AKTIV=false;
 // ============================================================
 // COMPONENT
 // ============================================================
-function OPBerichtApp(){
+function OPBerichtApp(props){
   const [gender,setGender]=useState("");
   const [alter,setAlter]=useState("erw");
   const [side,setSide]=useState("");
@@ -6096,6 +6101,53 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
 
   const zehenOpts=[{id:"pip",l:"PIP-Arthrodese"},{id:"fdl",l:"FDL-Tenotomie"},{id:"ext_teno",l:"Strecksehnen-Tenotomie"},{id:"ext_verl",l:"Strecksehnen-Verlängerung"},{id:"beuge_trans",l:"Beugesehnentransfer"},{id:"kapsulo",l:"Dorsale Kapsulotomie"}];
 
+  // Gesamt-Reset: alle Zustaende der Komponente auf ihren Anfangswert,
+  // ausgenommen Toast und die Sektionsklappen (sec/ucSec).
+  function resetAll(){
+    setGender(""); setAlter("erw"); setSide("");
+    setSektion("fuss"); setPraeType("standard"); setRisk(false);
+    setRiskTxt(""); setFprae(""); setBs(true);
+    setSs(true); setAna("narkose"); setDfOp(false);
+    setDfAmp(false); setDfTeilampHoehe("teilres_2"); setDfTeilamp(false);
+    setDfKnochen(""); setDfOsteo(false); setDfLavanox(false);
+    setDfVanco(false); setDfLasche(false); setDfVac(false);
+    setGz(""); setMitAkin(false); setHoffTill(false);
+    setMitSubcap(false); setVfSehnentransfer(false); setVfSpongiosa(false);
+    setCoalU12(false); setZc({2:[],3:[],4:[],5:[]}); setDmmo([]);
+    setWeil([]); setOsgOp([]); setBrostromIB(false);
+    setAskOsteo(false); setAmicIKO(false); setAmicZyste(false);
+    setAskVorher(false); setNanoSeite("medial"); setCoalTyp("");
+    setMdoTyp(""); setFdlTransfer(false); setMdoCotton("");
+    setT2Length("200"); setT2Width("11"); setT2Becken(false);
+    setArthroBds(true); setOsgArtSchraube(true); setOsgArtPlatte(true);
+    setOsgArtSpongiosa(false); setCoalFascie(true); setCoalLCOT(false);
+    setTepType(""); setTepProphecy(false); setTepTibSz("");
+    setTepTibLong(false); setTepTalSz(""); setTepTalCut("chamfer");
+    setTepInlaySz(""); setTepInlayMM(""); setIbTopStem("");
+    setIbMidStem1(""); setIbMidStem2(""); setIbBaseStem("");
+    setIbTalarStem(""); setRfOp([]); setMfCotton(false);
+    setMfCottonKnochen(""); setMfTmt([]); setMeOp([]);
+    setMeRegion(""); setMeImpl(""); setMeZusatz("");
+    setUmOp([]); setFxSyndes(false); setOsTibMDO(false);
+    setSupramalTyp(""); setLage("ruecken"); setSupramalFibula(false);
+    setSupramalStabi(false); setSupramalBrostrom(false); setPeronealTyp("");
+    setPeronealLongus(false); setLuxNaht(false); setLuxRinne(false);
+    setLuxQuartus(false); setDwyerSteindler(false); setDwyerElevMT1(false);
+    setDwyerJones(false); setDwyerPeroneal(false); setDkShell("");
+    setDkShaft(""); setDkHead(""); setTfnaAngle("130");
+    setTfnaLength("235"); setTfnaDiam(""); setTfnaBlade("");
+    setFxOp([]); setUcOp(""); setUcMe(false);
+    setUcMeRegion(""); setUcMeImpl(""); setUcMeZusatz("");
+    setUcDuokopfImpl("duokopf_zem"); setUcHdrg({}); setOlekOSE("wsp");
+    setHumerusImpl(""); setRadiusImpl("aptus_11l"); setEndoOp("");
+    setEndoOpSystem(""); setEndoObPccl("03"); setEndoImplWahl("");
+    setWsOp(""); setWsHoehen([]); setWsSeiten({});
+    setRuhig("keine"); setEntlassGespr(false); setShowPv(false);
+    setFallMaterial(null);
+    showToast("Zurückgesetzt");
+  }
+  // Der Reset-Knopf sitzt in der Kopfleiste (App); sie bekommt die Funktion hier.
+  useEffect(function(){ if (props && props.onResetRegistrieren) props.onResetRegistrieren(function(){ resetAll(); }); }, []);
   return (
     <div style={{fontFamily:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",background:"#F5F7FA",minHeight:"100vh",color:"#1A2A3A",padding:"14px 16px"}}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}input,textarea{width:100%;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:7px 10px;color:#2D3748;font-size:12px;font-family:inherit;resize:vertical}input:focus,textarea:focus{outline:0;border-color:rgba(93,173,236,.4)}@media (max-width:480px){input,textarea,select{font-size:16px}}
@@ -6702,7 +6754,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
           <div style={h3s}>Vorschau & Export</div>
           <div style={{display:"flex",gap:4}}>
-            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setOsgOp([]);setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");setRfOp([]);setMfCotton(false);setMfCottonKnochen("");setMfTmt([]);setMeOp([]);setUmOp([]);setFxOp([]);setFxSyndes(false);setDkShell("");setDkShaft("");setDkHead("");setTfnaAngle("130");setTfnaLength("235");setTfnaDiam("");setTfnaBlade("");setRuhig("keine");setEntlassGespr(false);setCoalTyp("");setCoalFascie(false);setCoalLCOT(false);setMdoTyp("");setFdlTransfer(false);setMdoCotton("");setT2Length("200");setT2Width("11");setT2Becken(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setArthroBds(true);setOsTibMDO(false);setLage("ruecken");setSupramalTyp("");setSupramalFibula(false);setSupramalBrostrom(false);setSupramalStabi(false);setPeronealTyp("");setPeronealLongus(false);setPeronealTyp("");setPeronealLongus(false);setDwyerSteindler(false);setDwyerElevMT1(false);setDwyerJones(false);setDwyerPeroneal(false);setAmicIKO(false);setAmicZyste(false);setAskVorher(false);}}>Reset</div>
+            <div style={{padding:"6px 14px",border:"1px solid rgba(0,0,0,.12)",borderRadius:6,color:"#718096",fontSize:11,cursor:"pointer"}} onClick={resetAll}>Reset</div>
             <div style={{padding:"6px 14px",border:"none",borderRadius:6,background:"#006B6F",color:"#F5F7FA",fontWeight:600,fontSize:11,cursor:"pointer"}} onClick={copy}>📋</div>
           </div>
         </div>
@@ -9792,6 +9844,30 @@ function selbsttestPruefen(D){
       if (!da) p14.push(k + "." + id);
     });
   });
+  // 15: Deckt der Gesamt-Reset jeder Komponente alle ihre Zustaende ab?
+  // Gelesen wird die eigene Quelle; Anzeige-Zustaende stehen in AUSNAHMEN.
+  var p15 = [];
+  [["SprechstundenbriefApp", /var\s+\w+\s*=\s*_s\([\s\S]*?,\s*(set\w+)\s*=/g, ["setToast","setDiagOffen","setSec"]],
+   ["OPBerichtApp", /const\s*\[\s*\w+\s*,\s*(set\w+)\s*\]\s*=\s*useState/g, ["setToast","setSec","setUcSec"]]
+  ].forEach(function(eintrag){
+    var name = eintrag[0], rx = eintrag[1], aus = eintrag[2];
+    var i = quelltext.indexOf("function " + name);
+    if (i < 0) { p15.push(name + ": Komponente nicht gefunden"); return; }
+    var j = quelltext.indexOf("\nfunction ", i + 10);
+    var teil = quelltext.slice(i, j > 0 ? j : undefined);
+    var r = teil.indexOf("function resetAll()");
+    if (r < 0) { p15.push(name + ": kein resetAll()"); return; }
+    var rEnde = teil.indexOf("\n  }", r);
+    var reset = teil.slice(r, rEnde > 0 ? rEnde : undefined);
+    var setter = {}, mm;
+    while ((mm = rx.exec(teil))) setter[mm[1]] = true;
+    Object.keys(setter).sort().forEach(function(st){
+      if (aus.indexOf(st) >= 0) return;
+      if (reset.indexOf(st + "(") < 0) p15.push(name + "." + st);
+    });
+  });
+  p.push({nr:"15", art:"Hinweis", titel:"Reset unvollständig: Zustand ohne Eintrag in resetAll()", treffer:p15});
+
   p.push({nr:"13", art:"Fehler", titel:"OP-Bericht-Zuordnung: Schlüssel ohne Eintrag in OP_STEUERUNG", treffer:p13});
   p.push({nr:"14", art:"Fehler", titel:"OP-Bericht-Zuordnung: Modifikator-ID ohne Eintrag", treffer:p14});
   return p;
@@ -10228,6 +10304,10 @@ function App() {
   // gewechselt wird — sonst waere er beim Ruecksprung leer.
   const [briefHinterPreisen, setBriefHinterPreisen] = React.useState(false);
   function wechselTool(t){ if (t !== "preise" && t !== "sb") setBriefHinterPreisen(false); setTool(t); }
+  // Die Generatoren melden ihren Gesamt-Reset hier an; die Kopfleiste ruft ihn.
+  const resetRef = React.useRef(null);
+  function resetRegistrieren(fn){ resetRef.current = fn; }
+  function resetJetzt(){ if (resetRef.current) resetRef.current(); }
 
   function zurEinstellung(){ setTool("einstellungen"); }
   // Aus den Einstellungen heraus: Funktion öffnen und dort den Rundgang starten
@@ -10245,9 +10325,10 @@ function App() {
   if (tool === "sb" || (tool === "preise" && briefHinterPreisen)) return (
     <>
       <div style={{display: tool === "sb" ? "block" : "none"}}>
-        <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
+        <ToolKopfleiste titel="Sprechstundenbrief" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung} onReset={resetJetzt}/>
         <MitRundgang schritte={RUNDGANG_SB} merker={RUNDGANG_SB_MERKER} anstoss={tourWunsch.sb} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.sb=0; return n; })}>
-          <SprechstundenbriefApp onWerkzeug={function(t){ if (t === "preise") setBriefHinterPreisen(true); setTool(t); }} />
+          <SprechstundenbriefApp onWerkzeug={function(t){ if (t === "preise") setBriefHinterPreisen(true); setTool(t); }}
+                                 onResetRegistrieren={resetRegistrieren} />
         </MitRundgang>
       </div>
       {tool === "preise" && preiseAnsicht()}
@@ -10256,9 +10337,9 @@ function App() {
   
   if (tool === "ob") return (
     <div>
-      <ToolKopfleiste titel="OP-Bericht Generator" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung}/>
+      <ToolKopfleiste titel="OP-Bericht Generator" onHome={()=>wechselTool(null)} onEinstellungen={zurEinstellung} onReset={resetJetzt}/>
       <MitRundgang schritte={RUNDGANG_OB} merker={RUNDGANG_OB_MERKER} anstoss={tourWunsch.ob} onVerbraucht={()=>setTourWunsch(function(w){ var n=Object.assign({},w); n.ob=0; return n; })}>
-        <OPBerichtApp />
+        <OPBerichtApp onResetRegistrieren={resetRegistrieren} />
       </MitRundgang>
     </div>
   );
