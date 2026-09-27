@@ -1545,12 +1545,18 @@ function hdrgAuswertung(opts){
               treffer: { kontext: [], aufwertung: [] }, satz: "", regel: regel,
               partner: partner, sperre: null };
   // Ambulanter Weg: EBM nur, wenn wirklich alle Kodes im AOP-Katalog stehen.
-  var alleImAop = function(){ return codes.every(function(c){ return imAopKatalog(c); }); };
+  // 5-93… sind Zusatzinformationen zu Osteosynthese und Implantat und stehen
+  // in keinem der beiden Kataloge; sie entscheiden nicht ueber den Weg.
+  var aopRelevant = function(){ return codes.filter(function(c){ return String(c).indexOf("5-93") !== 0; }); };
+  var alleImAop = function(){ return aopRelevant().every(function(c){ return imAopKatalog(c); }); };
   // ohneHybrid: In den Sperrfaellen gibt es keine Hybrid-DRG mehr, der
   // Nachsatz darf sie dann nicht empfehlen (Autor 26.09.2026).
   var ambSatzBau = function(ohneHybrid){
-    var ausserhalb = codes.filter(function(c){ return !imAopKatalog(c); });
-    if (!ausserhalb.length) return "Ambulant EBM.";
+    var ausserhalb = aopRelevant().filter(function(c){ return !imAopKatalog(c); });
+    if (!ausserhalb.length) {
+      return ohneHybrid ? "Ambulant: alle Kodes stehen im AOP-Katalog, Erbringung nach EBM möglich."
+                        : "Ambulant EBM.";
+    }
     var mehr = ausserhalb.length > 1;
     return ohneHybrid
       ? "Ambulant: " + ausserhalb.join(", ") + (mehr ? " stehen" : " steht")
@@ -7599,7 +7605,7 @@ function HDRGSearch(){
     </div>}
     <div style={{marginTop:16,fontSize:10,color:"#A0AEC0",textAlign:"center",lineHeight:1.6}}>
       Quellen ({META.jahr}): Hybrid-DRG: {META.hybrid} ({nf(COUNTS.hybrid)} OPS) · AOP: {META.aop} ({nf(COUNTS.aop)} OPS) · {META.kontext} ({nf(COUNTS.kontext)} OPS)<br/>
-      {nf(COUNTS.gesamt)} eindeutige Codes · Regel: Hybrid-Vorrang vor AOP
+      {nf(COUNTS.gesamt)} eindeutige Codes · Regel: Hybrid-Vorrang; Kodes in beiden Katalogen tragen beide Marken
     </div>
   </div>;
 }
