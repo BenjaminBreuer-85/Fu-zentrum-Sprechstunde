@@ -1545,9 +1545,11 @@ function hdrgAuswertung(opts){
               treffer: { kontext: [], aufwertung: [] }, satz: "", regel: regel,
               partner: partner, sperre: null };
   // Ambulanter Weg: EBM nur, wenn wirklich alle Kodes im AOP-Katalog stehen.
-  // 5-93… sind Zusatzinformationen zu Osteosynthese und Implantat und stehen
-  // in keinem der beiden Kataloge; sie entscheiden nicht ueber den Weg.
-  var aopRelevant = function(){ return codes.filter(function(c){ return String(c).indexOf("5-93") !== 0; }); };
+  // 5-93… (Osteosynthese und Implantat) und 5-86a… (Anzahl der Strahlen
+  // beziehungsweise Segmente) sind Zusatzinformationen und stehen in keinem
+  // der beiden Kataloge; sie entscheiden nicht ueber den Weg.
+  var aopRelevant = function(){ return codes.filter(function(c){
+    var x = String(c); return x.indexOf("5-93") !== 0 && x.indexOf("5-86a") !== 0; }); };
   var alleImAop = function(){ return aopRelevant().every(function(c){ return imAopKatalog(c); }); };
   // ohneHybrid: In den Sperrfaellen gibt es keine Hybrid-DRG mehr, der
   // Nachsatz darf sie dann nicht empfehlen (Autor 26.09.2026).
