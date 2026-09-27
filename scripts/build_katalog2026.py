@@ -8,7 +8,8 @@ Aufruf:  python3 scripts/build_katalog2026.py [--master PFAD] [--out PFAD] [--ch
 
 Blätter der Excel:
   Katalog    OPS-Code | Bezeichnung | AOP | Hybrid | Kontextprozedur | Hinweis   ("ja" oder leer). Bitmaske f: 1=AOP, 2=Hybrid, 4=Kontext.
-             Hybrid-Vorrang (Regel B. Breuer 02.07.2026): steht AOP und Hybrid auf "ja", zaehlt nur Hybrid.
+             AOP und Hybrid zusammen ergeben 3 (seit 3ah, 27.09.2026); der Hybrid-Vorrang (Regel B. Breuer 02.07.2026)
+             gilt in der App als Anzeigeregel. Blatt Konflikte_AOP_und_Hybrid: jeder Kode dort muss im Blatt Katalog AOP=ja tragen (Pruefung).
              Zeilen ohne jedes Flag werden nicht in die JSON uebernommen.
   KX         OPS-Code | Hybrid-DRG   Ausnahmen: Kode ist bei dieser Hybrid-DRG KEINE Kontextprozedur (_KX).
   Kommentar  eine Zeile je _kommentar-Eintrag (Spalte A), Reihenfolge wie im Blatt.
@@ -43,11 +44,17 @@ def lies_master(pfad):
         gesehen.add(code)
         text = "" if r[1] is None else str(r[1]).strip()
         f = (1 if ja(r[2]) else 0) | (2 if ja(r[3]) else 0) | (4 if ja(r[4]) else 0)
-        if f & 1 and f & 2:
-            f &= ~1  # Hybrid-Vorrang
+        # Seit 3ah (27.09.2026) kein Maskieren mehr: AOP und Hybrid zusammen ergeben 3.
+        # Der Hybrid-Vorrang ist eine Anzeigeregel der App (app.html), keine Datenregel.
         if f == 0:
             continue
         hd.append([code, text, f])
+    if "Konflikte_AOP_und_Hybrid" in wb.sheetnames:
+        hdmap = {z[0]: z[2] for z in hd}
+        fehl = [str(r[0]).strip() for i, r in enumerate(wb["Konflikte_AOP_und_Hybrid"].iter_rows(values_only=True))
+                if i > 0 and r and r[0] is not None and (hdmap.get(str(r[0]).strip(), 0) & 3) != 3]
+        if fehl:
+            sys.exit(f"Konflikt-Kodes ohne AOP+Hybrid (Bitmaske 3): {fehl[:10]}{' ...' if len(fehl) > 10 else ''}")
     kx = {}
     for i, r in enumerate(wb["KX"].iter_rows(values_only=True)):
         if i == 0 or not r or r[0] is None:
