@@ -1891,6 +1891,7 @@ function obEintragEff(key, mods){
     (m.ops || []).forEach(function(c){ ops.push(c); r._modOps = (r._modOps || []).concat([c]); });
     (m.opsWeg || []).forEach(function(c){ weg[c] = 1; });
     if (m.hinweise) r.hinweise = (r.hinweise || []).concat(m.hinweise);
+    if (m.hinweis) r.hinweise = (r.hinweise || []).concat([m.hinweis]);
     if (m.label) r._modLabels = (r._modLabels || []).concat([m.label]);
   });
   r.opsCodes = ops.filter(function(c){ return !weg[c]; });
@@ -5218,6 +5219,8 @@ function OPBerichtApp(props){
     if(tepType==="primaer_infinity"||tepType==="wechsel_infinity")PZ("primaer_infinity");
     if(tepType==="primaer_vantage"||tepType==="wechsel_vantage")PZ("primaer_vantage",tepTalCut==="flat"?"Flat Cut":"kurviert");
     if(tepType==="primaer_inbone"||tepType==="wechsel_inbone")PZ("primaer_inbone");
+    // Bandstabilisierung zur TEP: Satz des Broström (zwei Fadenanker).
+    if(tepType&&tepStabi)PZ("brostrom_gould","Standard");
     // RÜCKFUSS
     rfOp.forEach(op=>{
       if(op==="subtalar")PZ("subtalar");
@@ -5257,7 +5260,7 @@ function OPBerichtApp(props){
     });
     if(fxSyndes)PZ("fibula_syndesmose","mit Syndesmose");
     return items;
-  },[gz,mitSubcap,zc,dmmo,weil,osgOp,brostromIB,osgArtPlatte,tepType,tepTalCut,rfOp,peronealTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,fdlTransfer,mdoCotton]);
+  },[gz,mitSubcap,zc,dmmo,weil,osgOp,brostromIB,osgArtPlatte,tepType,tepStabi,tepTalCut,rfOp,peronealTyp,coalLCOT,mfCotton,mfCottonKnochen,mfTmt,fxOp,fxSyndes,supramalTyp,supramalBrostrom,fdlTransfer,mdoCotton]);
 
     // ============================================================
   // ICD-10 CODES – automatisch pro Eingriff
