@@ -1778,7 +1778,8 @@ var OB_SCHLUESSEL = {
   chevron: [], chevron_akin: [], scarf: [], youngswick: [], cheilektomie: [], exostose: [],
   lapidus: [], mtp1_arthrodese: [], morton_neurom: [],
   dmmo: [], weil: [], kleinzehen_pip: [], kleinzehen_weichteil: [],
-  tep_infinity: ["wechsel"], tep_vantage: ["wechsel"], tep_inbone: ["wechsel"],
+  tep_infinity: ["wechsel","stabilisierung"], tep_vantage: ["wechsel","stabilisierung"],
+  tep_inbone: ["wechsel","stabilisierung"],
   arthrodesenagel_retro: [], arthrodese_osg: ["ohne_spongiosa"], amic: ["iko"],
   brostrom_gould: [], brostrom_int_brace: [], arthrorise: [], ask_osg: [],
   supramal_valgus: [], supramal_varus: [],
@@ -1808,7 +1809,9 @@ function obEintraege(z){
   if (z.tepType) {
     var tk = z.tepType.indexOf("inbone") >= 0 ? "tep_inbone"
            : z.tepType.indexOf("vantage") >= 0 ? "tep_vantage" : "tep_infinity";
-    add(tk, z.tepType.indexOf("wechsel") === 0 ? ["wechsel"] : []);
+    var tm = z.tepType.indexOf("wechsel") === 0 ? ["wechsel"] : [];
+    if (z.tepStabi) tm.push("stabilisierung");
+    add(tk, tm);
   }
   (z.osgOp || []).forEach(function(op){
     if (op === "arthrodesenagel_retro") add("arthrodesenagel_retro");
@@ -4982,6 +4985,9 @@ function OPBerichtApp(props){
   // Bursektomie gehoert zur Standardtechnik der Calcaneoplastie; der Chip
   // dient dem Abwaehlen (Autor 26.09.2026).
   const [rfBursektomie,setRfBursektomie]=useState(false);
+  // Laterale Bandstabilisierung zur OSG-TEP (Autor 29.09.2026): Chip aus,
+  // bleibt beim Modellwechsel erhalten, faellt mit der TEP weg.
+  const [tepStabi,setTepStabi]=useState(false);
   const [coalU12,setCoalU12]=useState(false);
   // Kleinzehen
   const [zc,setZc]=useState({2:[],3:[],4:[],5:[]});
@@ -5287,6 +5293,7 @@ function OPBerichtApp(props){
     });
     // TEP
     if(tepType)codes.push({hd:true,code:"M19.07"+s,desc:"Primäre Arthrose OSG"});
+    if(tepType&&tepStabi)codes.push({hd:false,code:"M24.27"+s,desc:"Chronische Bandinstabilität OSG"});
     // RÜCKFUSS
     rfOp.forEach(op=>{
       if(op==="haglund_mini"||op==="haglund")codes.push({hd:codes.length===0,code:"M76.6"+s,desc:"Achillessehnenenthesiopathie (Haglund)"});
@@ -5333,7 +5340,7 @@ function OPBerichtApp(props){
       if(ucOp==="humerus_schaft_targon")codes.push({hd:true,code:"S42.3"+s,desc:"Fraktur des Humerusschaftes"});
     }
     return codes;
-  },[gz,mitAkin,hoffTill,zc,dmmo,weil,osgOp,tepType,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side,dfOp,dfAmp,dfOsteo,dfKnochen]);
+  },[gz,mitAkin,hoffTill,zc,dmmo,weil,osgOp,tepType,tepStabi,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side,dfOp,dfAmp,dfOsteo,dfKnochen]);
 
     // Collected OPS codes
   const [allOPS,erloesData]=useMemo(()=>{
@@ -5389,6 +5396,8 @@ function OPBerichtApp(props){
     // TEP
     if(tepType&&tepType.startsWith("primaer"))o.push("5-826.00");
     if(tepType&&tepType.startsWith("wechsel")){o.push("5-827.10");if(tepType.includes("inbone"))o.push("5-829.k2");}
+    // Laterale Bandstabilisierung wie beim isolierten Broström, ohne Internal Brace.
+    if(tepType&&tepStabi)o.push("5-806.5","5-869.2","5-782.1r");
     rfOp.forEach(op=>{
       if(op==="mdo_mini"||op==="mdo_offen")o.push("5-781.1t","5-93b.0");
       if(op==="arthrodesenagel_retro"){o.push("5-808.71","5-93b.6");if(arthroNagelBecken)o.push("5-784.0n","5-783.0d");}  // OSG+USG-Arthrodese + Marknagel + ggf. Beckenkamm
@@ -5500,7 +5509,7 @@ function OPBerichtApp(props){
     var obZustand = {
       gz:gz, mitAkin:mitAkin, mtStrahlen:mtStrahlen, dmmo:dmmo, weil:weil,
       pipZahl:pipZehenCnt, zeheWeichteil:zeheOpsSet.has("weichteil"),
-      tepType:tepType, osgOp:osgOp, osgArtSpongiosa:osgArtSpongiosa, amicIKO:amicIKO,
+      tepType:tepType, tepStabi:tepStabi, osgOp:osgOp, osgArtSpongiosa:osgArtSpongiosa, amicIKO:amicIKO,
       brostromIB:brostromIB, supramalTyp:supramalTyp,
       rfOp:rfOp, peronealTyp:peronealTyp, luxRinne:luxRinne, luxNaht:luxNaht,
       mdoCotton:mdoCotton, coalTyp:coalTyp, coalFascie:coalFascie, coalLCOT:coalLCOT, coalU12:coalU12,
@@ -5557,7 +5566,7 @@ function OPBerichtApp(props){
       empf:obAus.hybrid?"amb":(obAnz.empf==="amb"?"amb":"n2"),
       hinweise:obEff.hinweise||obAnz.hinweise||null,
       auswertung:obAus, sperre:obAus.sperre||null}];
-    return [o,null];},[vfSehnentransfer,vfSpongiosa,rfBursektomie,coalU12,alter,fxOp,fxSyndes,luxRinne,luxNaht,hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfCottonKnochen,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    return [o,null];},[vfSehnentransfer,vfSpongiosa,rfBursektomie,tepStabi,coalU12,alter,fxOp,fxSyndes,luxRinne,luxNaht,hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfCottonKnochen,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // ICD-Codes als Textblock
   const icdText=useMemo(()=>{
@@ -6089,11 +6098,12 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(vfSehnentransfer)zusaetze.push("ahl_transfer","ahl_transfer_ende");
     if(vfSpongiosa)zusaetze.push("lapidus_spongiosa");
     if(rfBursektomie)zusaetze.push("haglund_bursektomie");
+    if(tepStabi)zusaetze.push("tep_brostrom");
     return textPlatzhalter(p.join(""), null, null, null, zusaetze);
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[vfSehnentransfer,vfSpongiosa,rfBursektomie,gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[vfSehnentransfer,vfSpongiosa,rfBursektomie,tepStabi,gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -6153,7 +6163,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     setT2Length("200"); setT2Width("11"); setT2Becken(false);
     setArthroBds(true); setOsgArtSchraube(true); setOsgArtPlatte(true);
     setOsgArtSpongiosa(false); setCoalFascie(true); setCoalLCOT(false);
-    setTepType(""); setTepProphecy(false); setTepTibSz("");
+    setTepType(""); setTepStabi(false); setTepProphecy(false); setTepTibSz("");
     setTepTibLong(false); setTepTalSz(""); setTepTalCut("chamfer");
     setTepInlaySz(""); setTepInlayMM(""); setIbTopStem("");
     setIbMidStem1(""); setIbMidStem2(""); setIbBaseStem("");
@@ -6321,25 +6331,26 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       </OBSec>
 
       {/* OSG-TEP (EIGENE SEKTION) */}
-      <OBSec title="OSG-Totalendoprothese" open={sec.tep} onToggle={()=>togSec("tep")} active={hasTEP} onReset={()=>{setTepType("");setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");}}>
+      <OBSec title="OSG-Totalendoprothese" open={sec.tep} onToggle={()=>togSec("tep")} active={hasTEP} onReset={()=>{setTepType("");setTepStabi(false);setTepProphecy(false);setTepTibSz("");setTepTibLong(false);setTepTalSz("");setTepTalCut("chamfer");setTepInlaySz("");setTepInlayMM("");setIbTopStem("");setIbMidStem1("");setIbMidStem2("");setIbBaseStem("");setIbTalarStem("");}}>
         <div style={cat}>Primär-TEP — Low Profile</div>
         <div style={row}>
-          <div style={chip(tepType==="primaer_infinity")} onClick={()=>{setTepType(tepType==="primaer_infinity"?"":"primaer_infinity");setTepTalCut("chamfer");setTepProphecy(false);}}>Infinity</div>
-          <div style={chip(tepType==="primaer_vantage")} onClick={()=>{setTepType(tepType==="primaer_vantage"?"":"primaer_vantage");setTepTalCut("chamfer");setTepProphecy(false);setTepTibLong(false);}}>Vantage (Advita)</div>
+          <div style={chip(tepType==="primaer_infinity")} onClick={()=>{var nv=tepType==="primaer_infinity"?"":"primaer_infinity";setTepType(nv);if(!nv)setTepStabi(false);setTepTalCut("chamfer");setTepProphecy(false);}}>Infinity</div>
+          <div style={chip(tepType==="primaer_vantage")} onClick={()=>{var nv=tepType==="primaer_vantage"?"":"primaer_vantage";setTepType(nv);if(!nv)setTepStabi(false);setTepTalCut("chamfer");setTepProphecy(false);setTepTibLong(false);}}>Vantage (Advita)</div>
         </div>
         <div style={{...cat,marginTop:8}}>Primär-TEP — Achsgeführt</div>
         <div style={row}>
-          <div style={chip(tepType==="primaer_inbone")} onClick={()=>{setTepType(tepType==="primaer_inbone"?"":"primaer_inbone");setTepTalCut("flat");setTepProphecy(false);}}>Inbone II</div>
+          <div style={chip(tepType==="primaer_inbone")} onClick={()=>{var nv=tepType==="primaer_inbone"?"":"primaer_inbone";setTepType(nv);if(!nv)setTepStabi(false);setTepTalCut("flat");setTepProphecy(false);}}>Inbone II</div>
         </div>
         <div style={{...cat,marginTop:8}}>Wechsel-TEP</div>
         <div style={row}>
-          <div style={chip(tepType==="wechsel_inbone")} onClick={()=>{setTepType(tepType==="wechsel_inbone"?"":"wechsel_inbone");setTepTalCut("flat");setTepProphecy(false);}}>Wechsel auf Inbone</div>
-          <div style={chip(tepType==="wechsel_infinity")} onClick={()=>{setTepType(tepType==="wechsel_infinity"?"":"wechsel_infinity");setTepTalCut("chamfer");setTepProphecy(false);}}>Wechsel auf Infinity</div>
-          <div style={chip(tepType==="wechsel_vantage")} onClick={()=>{setTepType(tepType==="wechsel_vantage"?"":"wechsel_vantage");setTepTalCut("chamfer");setTepProphecy(false);setTepTibLong(false);}}>Wechsel auf Vantage</div>
+          <div style={chip(tepType==="wechsel_inbone")} onClick={()=>{var nv=tepType==="wechsel_inbone"?"":"wechsel_inbone";setTepType(nv);if(!nv)setTepStabi(false);setTepTalCut("flat");setTepProphecy(false);}}>Wechsel auf Inbone</div>
+          <div style={chip(tepType==="wechsel_infinity")} onClick={()=>{var nv=tepType==="wechsel_infinity"?"":"wechsel_infinity";setTepType(nv);if(!nv)setTepStabi(false);setTepTalCut("chamfer");setTepProphecy(false);}}>Wechsel auf Infinity</div>
+          <div style={chip(tepType==="wechsel_vantage")} onClick={()=>{var nv=tepType==="wechsel_vantage"?"":"wechsel_vantage";setTepType(nv);if(!nv)setTepStabi(false);setTepTalCut("chamfer");setTepProphecy(false);setTepTibLong(false);}}>Wechsel auf Vantage</div>
         </div>
 
         {tepType&&<div style={{...sub,marginTop:10}}>
           {tepType.includes("infinity")&&<div style={tog(tepProphecy)} onClick={()=>setTepProphecy(!tepProphecy)}>+ Prophecy (CT-basiert)</div>}
+          <div style={tog(tepStabi)} onClick={()=>setTepStabi(!tepStabi)}>+ Stabilisierung (Broström)</div>
 
           {/* TIBIA */}
           <div style={{...cat,marginTop:10}}>Tibiale Komponente</div>
@@ -6405,7 +6416,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
             </div>
           </div>}
 
-          <div style={{fontSize:10,color:"#718096",marginTop:8}}>OPS: {tepType.startsWith("wechsel")?"5-827.10":"5-826.00"} · Stationär{tepType.startsWith("wechsel")?" · Wechseloperation":""}</div>
+          <div style={{fontSize:10,color:"#718096",marginTop:8}}>OPS: {tepType.startsWith("wechsel")?"5-827.10":"5-826.00"}{tepStabi?", 5-806.5, 5-869.2, 5-782.1r":""} · Stationär{tepType.startsWith("wechsel")?" · Wechseloperation":""}{tepStabi?" · mit Bandstabilisierung":""}</div>
         </div>}
       </OBSec>
 
