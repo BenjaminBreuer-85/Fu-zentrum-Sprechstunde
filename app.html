@@ -3216,14 +3216,18 @@ var _s = useState, _m = useMemo;
       : "Es erfolgte die Aufklärung über die konservativen Optionen und den möglichen Eingriff.");
     if (konservOptionen.length > 0) ab += " Es bestehen konservative Alternativen: " + konservOptionen.join(", ") + ".";
     if (ops.length > 0) {
-      var opBeschr = ops.map(function(m) {
-        if (m === "amic" && amicSpongiosa) return "eine Kürettage der OCL/Zyste, Spongiosaaugmentation autolog, Nanofrakturierung und Deckung mit azellulärer Kollagenmembran/AMIC";
-        if (m === "amic") return "eine Kürettage der OCL, Nanofrakturierung und Deckung mit azellulärer Kollagenmembran/AMIC";
-        return OPS[m].b;
-      });
       var allRisiken = [];
       ops.forEach(function(m) { OPS[m].r.split(", ").forEach(function(r) { if (allRisiken.indexOf(r) < 0) allRisiken.push(r); }); });
-      ab += "\n\nOperativ kann " + opBeschr.join(" sowie ") + " vorgenommen werden. Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: " + allRisiken.join(", ") + ").";
+      // Das Verfahren steht schon oben im Brief ("Elektive operative Option: …").
+      // Hier nur noch, ob es angeboten wird (Schalter "OP empfohlen") oder
+      // lediglich in Betracht kommt; Mehrzahl ab zwei Eingriffen.
+      var mehrere = ops.length > 1;
+      var opSatz = (opEmpfohlen && !nurDiagnostik)
+        ? (mehrere ? "Operativ bieten wir die o. g. Verfahren an und erläutern diese sowie die operativen Alternativen."
+                   : "Operativ bieten wir das o. g. Verfahren an und erläutern dieses sowie die operativen Alternativen.")
+        : (mehrere ? "Operativ kämen die o. g. Verfahren in Betracht; diese sowie die operativen Alternativen wurden erläutert."
+                   : "Operativ käme das o. g. Verfahren in Betracht; dieses sowie die operativen Alternativen wurden erläutert.");
+      ab += "\n\n" + opSatz + " Es bestehen bei operativem Vorgehen gewisse Risiken (unter anderem: " + allRisiken.join(", ") + ").";
       if (ops.some(function(o) { return o.indexOf("tep") >= 0; })) {
         ab += " In der OP muss befundbezogen über die Notwendigkeit weiterer Maßnahmen zum Erreichen eines achsgerecht stehenden und stabilen Gelenkes entschieden werden, bspw. Bandstabilisierungen oder Korrekturosteotomien am Fersenbein oder Innenknöchel, ggf. auch über separate Inzisionen. Intraoperativ muss ebenfalls situativ über die Art der Implantationstechnik und das gewählte Prothesenmodell entschieden werden.";
       }
