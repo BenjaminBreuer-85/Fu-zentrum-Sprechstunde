@@ -256,6 +256,7 @@ window.TOOLBOX_AUTH = {
     // Nutzerdaten (Preise/Materialsätze) — werden nach dem Login aus Supabase gefüllt
     if(!window._PREISE)  window._PREISE  = {};
     if(!window._MATSATZ) window._MATSATZ = {};
+    window._KURZLINKS=(D.kurzlinks&&D.kurzlinks.ZIELE)||null;
     window._DATA=D;
     domReady.then(function(){
       var s=document.getElementById("app-src");
@@ -268,6 +269,14 @@ window.TOOLBOX_AUTH = {
 
   // Standard-Materialsatz laden: erst aus dem Repo, ersatzweise aus dem Bucket
   // (Übergangslösung, solange die Datei bei manchen Ständen noch im Bucket liegt).
+  // Kurzlinks: Titel der Artikel in der Patienten-App. Liegt im Repo und wird
+  // mit gepusht; fehlt sie, bleibt der Brief beim bisherigen Wortlaut.
+  function ladeKurzlinks(){
+    return fetch("kurzlinks.json?v="+Date.now()).then(function(r){
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      return r.json();
+    }).catch(function(){ return null; });
+  }
   function ladeZuordnung(client){
     return fetch(ZUORDNUNG_PFAD+"?v="+Date.now()).then(function(r){
       if(!r.ok) throw new Error("HTTP "+r.status);
@@ -289,9 +298,10 @@ window.TOOLBOX_AUTH = {
         if(!r.ok) throw datenFehler("data/"+dn+".json", "repo", "HTTP "+r.status);
         return r.json();
       });
-    }).concat([ladeZuordnung(null)])).then(function(res){
+    }).concat([ladeZuordnung(null), ladeKurzlinks()])).then(function(res){
       var D={}; GROUPS.forEach(function(g,i){D[g]=res[i];});
       D.zuordnung=res[GROUPS.length];
+      D.kurzlinks=res[GROUPS.length+1];
       start(D);
     }).catch(fail);
   }
@@ -648,13 +658,14 @@ window.TOOLBOX_AUTH = {
         if(r.error) throw speicherFehler(dn+".json", r.error);
         return r.data.text().then(function(t){ return JSON.parse(t); });
       });
-    }).concat([ladeZuordnung(client)])).then(function(res){
+    }).concat([ladeZuordnung(client), ladeKurzlinks()])).then(function(res){
       removeLogin();
       addLogoutLink(client);
       sitzungUeberwachen(client);
       ladePreise(client);
       var D={}; GROUPS.forEach(function(g,i){D[g]=res[i];});
       D.zuordnung=res[GROUPS.length];
+      D.kurzlinks=res[GROUPS.length+1];
       start(D);
     }).catch(function(e){
       if(loginBtn){loginBtn.disabled=false;loginBtn.textContent="Anmelden";}
@@ -2300,6 +2311,13 @@ var _s = useState, _m = useMemo;
   function kurzlinkId(ziel){
     return String(ziel).replace(/_/g, "-").replace(/-kb$/, "");
   }
+  // Titel des Artikels in der Patienten-App (kurzlinks.json); null, wenn die
+  // Datei fehlt oder das Ziel dort keinen Eintrag hat.
+  function kurzlinkTitel(ziel){
+    var Z = window._KURZLINKS;
+    var e = Z && Z[kurzlinkId(ziel)];
+    return (e && e.titel) || null;
+  }
 
   // Weicht der Brief auf konservativ aus, faellt der OP-Weg weg — auch wenn
   // eine OP-Methode angeklickt ist. Dieselbe Bedingung wie der Satz
@@ -3265,8 +3283,11 @@ var _s = useState, _m = useMemo;
     // EIN Code. Welche Diagnose und welcher Eingriff gemeint sind, steht bereits
     // weiter oben im Brief und wird hier nicht wiederholt.
     if (qrShow) {
+      // Der Artikel beschreibt ein Verfahren, nicht den individuell geplanten
+      // Eingriff — deshalb der Bezug auf das Thema des Artikels.
+      var qrTitel = qr.art === "eingriff" ? kurzlinkTitel(qr.ziel) : null;
       var qrWas = qr.art === "eingriff"
-        ? "Zum geplanten Eingriff"
+        ? (qrTitel ? "Zum Thema \u201E" + qrTitel + "\u201C" : "Zum geplanten Eingriff")
         : "Zu Ihrer Diagnose";
       ab += "\n\nWeitere Informationen Online:" +
         "\n\n" + qrWas + " liegen in der Fuss-Track-App weitere Informationen für Sie bereit. " +
