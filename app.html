@@ -1775,6 +1775,11 @@ var OP_ZUSATZWAHL = {
 var DMMO_CODE = {"1":"5-788.52","2-3":"5-788.53","2-4":"5-788.54","2-5":"5-788.55"};
 // OPS-Kode der PIP-Arthrodese nach Zahl der Zehen (Regelsatz 2026 bewertet ihn).
 var PIP_CODE = {1:"5-808.bd", 2:"5-808.be", 3:"5-808.bf", 4:"5-808.bg", 5:"5-808.bh"};
+// OPS-Kode der Zehenosteotomie (Kleinzehen D2-D5) nach Zahl der Zehen.
+// Der OPS zaehlt Phalangen, nicht Zehen; abgebildet ist eine Osteotomie je
+// Zehe, daher am einen Fuss hoechstens vier (5-788.5b waere nur erreichbar,
+// wenn an einer Zehe zwei Phalangen osteotomiert werden).
+var ZEHEN_OT_CODE = {1:"5-788.57", 2:"5-788.58", 3:"5-788.59", 4:"5-788.5a", 5:"5-788.5b"};
 // ============================================================
 // Zuordnung der OP-Bericht-Chips auf die Abrechnungs-Eintraege (Schritt 6b).
 // OB_SCHLUESSEL listet jeden Schluessel samt der Modifikator-IDs, die die
@@ -1788,7 +1793,7 @@ var OB_LABEL = { fraktur_fibula_einfach: "Weber B einfach", metallentfernung: "M
 var OB_SCHLUESSEL = {
   chevron: [], chevron_akin: [], scarf: [], youngswick: [], cheilektomie: [], exostose: [],
   lapidus: [], mtp1_arthrodese: [], morton_neurom: [],
-  dmmo: [], weil: [], kleinzehen_pip: [], kleinzehen_weichteil: [],
+  dmmo: [], weil: [], kleinzehen_pip: [], kleinzehen_osteotomie: [], kleinzehen_weichteil: [],
   tep_infinity: ["wechsel","stabilisierung"], tep_vantage: ["wechsel","stabilisierung"],
   tep_inbone: ["wechsel","stabilisierung"],
   arthrodesenagel_retro: [], arthrodese_osg: ["ohne_spongiosa"], amic: ["iko"],
@@ -1815,6 +1820,7 @@ function obEintraege(z){
     add("dmmo", [], [DMMO_CODE[({1:"1",2:"2-3",3:"2-4",4:"2-5"})[Math.min(z.mtStrahlen.length,4)]]].filter(Boolean));
   if (z.weil && z.weil.length) add("weil");
   if (z.pipZahl > 0) add("kleinzehen_pip", [], [PIP_CODE[Math.min(z.pipZahl, 5)] || "5-808.bh"]);
+  if (z.otZahl > 0) add("kleinzehen_osteotomie", [], [ZEHEN_OT_CODE[Math.min(z.otZahl, 5)]]);
   if (z.zeheWeichteil) add("kleinzehen_weichteil");
   // --- OSG
   if (z.tepType) {
@@ -4546,14 +4552,103 @@ const T = window._DATA.optexte.T;
 
 function buildDMMO(mts){const main=mts.filter(m=>m<=3),extra=mts.filter(m=>m>=4);let t="Zuwendung zum Mittelfuß. Es zeigt sich radiologisch und palpatorisch ein Misalignment der Metatarsale, plantare Mehrbeschwielung. Stichinzision subkapital des MT "+main.join(" und ")+", Umfahren subkapital mit minimalinvasiven Klemmchen, jeweils Schrägosteotomie mit der perkutanen Fräse unter fortlaufender Wasserspülung unter BV-Kontrolle.";if(extra.length>0)t+=" Es zeigt sich hier noch eine relative Überlänge des MT "+extra.join(" und ")+", sodass dort in gleicher Weise eine perkutane Verkürzungsosteotomie im DMMO Stil erfolgt.";t+=" Spülung aller Zugänge.\nInsgesamt zeigt sich nun in der radiologischen Kontrolle eine sehr zufriedenstellende Korrektur des Alignements, palpatorisch gute Verbesserung der Druckverteilung.";return t;}
 
-function buildZehe(z,eingriffe,isFirst){const parts=[];eingriffe.forEach((e,i)=>{const first=isFirst&&i===0;
-if(e==="pip"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Krallenzehe D${z}, die passiv nicht redressierbar ist. Längsinzision dorsal des PIP Gelenkes, vorsichtige Präparation, Release der Strecksehne und der Seitenbänder, korrigierende Resektion des geschädigten Gelenkes unter Beachtung der korrekten Längeneinstellung in Referenz zu den umgebenden Zehen, Einstellung in orthograder Position und Kompression sowie Arthrodese über 1,4mm K-Draht, der gut liegt, Korrekte Ausrichtung der Zehe, das MTP Gelenk ist frei beweglich, Umknicken und Abknipsen des Drahtendes.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls rigide Krallenzehe, passiv nicht redressierbar. PIP-Arthrodese an D${z} in gleicher Weise, korrekte Längeneinstellung, K-Draht-Arthrodese, gute Ausrichtung.`);}
-if(e==="fdl"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Kontraktur der Beugesehnen an D${z}, daher Entscheidung zur Beugesehnentenotomie. Stichinzision auf Höhe des distalen Mittelgliedes, Durchtrennung der langen Beugesehne als auch der plantaren Kapsel. Es zeigt sich hier ein deutliches Release.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls deutliche Kontraktur der Beugesehnen. Beugesehnentenotomie an D${z} in gleicher Weise mit deutlichem Release.`);}
-if(e==="ext_teno"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Strecksehnenkontraktur der langen Strecksehne an D${z}, Lokalisierung der Sehne, oberflächliche Inzision, stumpfes Spreizen und Darstellen der Sehne, Tenotomie, deutliches Release.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls Strecksehnenkontraktur. Strecksehnentenotomie an D${z} in gleicher Weise mit deutlichem Release.`);}
-if(e==="ext_verl"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Strecksehnenkontraktur an D${z}, Lokalisierung der Sehne, oberflächliche Inzision Mini-Open, stumpfes Spreizen und Darstellen der Sehne, Z-förmige Verlängerung, Naht mittels Vicryl 2-0 in Verlängerung, deutliches Release, nun physiologische Vorspannung und Länge.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls Strecksehnenkontraktur. Strecksehnenverlängerung an D${z} in gleicher Weise, physiologische Vorspannung und Länge.`);}
-if(e==="beuge_trans"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine flexible Krallenzehe D${z} mit Hyperextension im MTP-Gelenk. Stichinzision plantar distal des PIP-Gelenkes, Identifizierung der Flexor digitorum longus Sehne, Tenotomie der langen Beugesehne, Hervorluxieren der Sehne, Spaltung der Sehne in zwei Zügel. Dorsale Inzision über dem Grundglied, Durchführung der beiden Sehnenzügel um das Grundglied nach dorsal, Vernähen der beiden Zügel unter Einstellung der Zehe in physiologischer Position mittels Vicryl 2-0.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls flexible Krallenzehe. Beugesehnentransfer an D${z} in gleicher Weise.`);}
-if(e==="kapsulo"){if(first)parts.push(`Zuwendung zu D${z}. Es zeigt sich eine Hyperextensionsstellung im MTP-Gelenk D${z}. Dorsale Inzision über dem MTP-Gelenk, Darstellung der Gelenkkapsel, dorsale Kapsulotomie mittels Längs- und Querinzision. Release der Kollateralbänder, manuelle Reposition der Zehe. Überprüfung der Beweglichkeit, freie Flexion im MTP-Gelenk. Temporäre K-Draht-Transfixation des MTP-Gelenkes in Plantarflexionsstellung.`);else parts.push(`Zuwendung zu D${z}, hier ebenfalls Hyperextension im MTP-Gelenk. Dorsale Kapsulotomie MTP D${z} in gleicher Weise mit K-Draht-Transfixation.`);}
-});return parts.join("\n\n");}
+// ============================================================
+// Kleinzehen-Block D2-D5 (03.10.2026). Frueher baute buildZehe(z,eingriffe,
+// isFirst) jede Zehe fuer sich und kannte nur "erster Eingriff der ersten
+// Zehe" gegen "alles andere". buildZehen(zc) baut jetzt den ganzen Block:
+// eine Zuwendung je Zehe, Befundsatz aus den Fragmenten der gewaehlten
+// Eingriffe, feste Reihenfolge Weichteile vor Knochen, Volltext beim ersten
+// Vorkommen eines Eingriffstyps im Bericht, Kurztext bei jeder Wiederholung,
+// Uebergangssatz zwischen Weichteil und Knochen, Abschlusssatz nach der
+// letzten Zehe. Die Texte sind die bisherigen, zerlegt in befund/voll/kurz.
+// ============================================================
+// Feste Reihenfolge je Zehe, unabhaengig von der Klickreihenfolge.
+var ZEHEN_FOLGE = ["ext_teno","ext_verl","kapsulo","fdl","beuge_trans","pip","osteot"];
+var ZEHEN_TEXT = {
+  ext_teno: { knochen:false, befund:"eine Kontraktur der langen Strecksehne",
+    voll:function(z){return "Lokalisierung der Sehne, oberflächliche Inzision, stumpfes Spreizen und Darstellen der Sehne, Tenotomie, deutliches Release.";},
+    kurz:function(z){return "Strecksehnentenotomie an D"+z+" in gleicher Weise mit deutlichem Release.";} },
+  ext_verl: { knochen:false, befund:"eine Strecksehnenkontraktur",
+    voll:function(z){return "Lokalisierung der Sehne, oberflächliche Inzision Mini-Open, stumpfes Spreizen und Darstellen der Sehne, Z-förmige Verlängerung, Naht mittels Vicryl 2-0 in Verlängerung, deutliches Release, nun physiologische Vorspannung und Länge.";},
+    kurz:function(z){return "Strecksehnenverlängerung an D"+z+" in gleicher Weise, physiologische Vorspannung und Länge.";} },
+  kapsulo: { knochen:false, befund:"eine Hyperextensionsstellung im MTP-Gelenk",
+    voll:function(z){return "Dorsale Inzision über dem MTP-Gelenk, Darstellung der Gelenkkapsel, dorsale Kapsulotomie mittels Längs- und Querinzision. Release der Kollateralbänder, manuelle Reposition der Zehe. Überprüfung der Beweglichkeit, freie Flexion im MTP-Gelenk. Temporäre K-Draht-Transfixation des MTP-Gelenkes in Plantarflexionsstellung.";},
+    kurz:function(z){return "Dorsale Kapsulotomie MTP D"+z+" in gleicher Weise mit K-Draht-Transfixation.";} },
+  fdl: { knochen:false, befund:"eine Kontraktur der Beugesehnen",
+    voll:function(z){return "Entscheidung zur Beugesehnentenotomie. Stichinzision auf Höhe des distalen Mittelgliedes, Durchtrennung der langen Beugesehne als auch der plantaren Kapsel. Es zeigt sich hier ein deutliches Release.";},
+    kurz:function(z){return "Beugesehnentenotomie an D"+z+" in gleicher Weise mit deutlichem Release.";} },
+  beuge_trans: { knochen:false, befund:"eine flexible Krallenzehe mit Hyperextension im MTP-Gelenk",
+    voll:function(z){return "Stichinzision plantar distal des PIP-Gelenkes, Identifizierung der Flexor digitorum longus Sehne, Tenotomie der langen Beugesehne, Hervorluxieren der Sehne, Spaltung der Sehne in zwei Zügel. Dorsale Inzision über dem Grundglied, Durchführung der beiden Sehnenzügel um das Grundglied nach dorsal, Vernähen der beiden Zügel unter Einstellung der Zehe in physiologischer Position mittels Vicryl 2-0.";},
+    kurz:function(z){return "Beugesehnentransfer an D"+z+" in gleicher Weise.";} },
+  pip: { knochen:true, befund:"eine rigide Krallenzehe, passiv nicht redressierbar",
+    voll:function(z){return "Längsinzision dorsal des PIP Gelenkes, vorsichtige Präparation, Release der Strecksehne und der Seitenbänder, korrigierende Resektion des geschädigten Gelenkes unter Beachtung der korrekten Längeneinstellung in Referenz zu den umgebenden Zehen, Einstellung in orthograder Position und Kompression sowie Arthrodese über 1,4mm K-Draht, der gut liegt, Korrekte Ausrichtung der Zehe, das MTP Gelenk ist frei beweglich, Umknicken und Abknipsen des Drahtendes.";},
+    kurz:function(z){return "PIP-Arthrodese an D"+z+" in gleicher Weise, korrekte Längeneinstellung, K-Draht-Arthrodese, gute Ausrichtung.";} },
+  osteot: { knochen:true, befund:"eine Achsabweichung der Zehe im Grundglied",
+    voll:function(z){return "Stichinzision dorsomedial über dem Grundglied D"+z+", Einbringen der Shannon-Fräse 2×13. Osteotomie des Grundgliedes unter dauerhafter Spülung und BV-Kontrolle in korrigierender Form entsprechend der Fehlstellung. Nun sehr gute Stellung der Zehe, orthograd und in korrekter Länge zu den Nachbarzehen.";},
+    kurz:function(z){return "Zehenosteotomie am Grundglied D"+z+" mit der Shannon-Fräse in gleicher Weise, sehr gute Stellung.";} }
+};
+// Nach einem Konnektor wird nur ein einleitendes Adjektiv klein geschrieben;
+// Substantive am Textanfang bleiben gross.
+var ZEHEN_KLEIN = { "Dorsale":"dorsale" };
+function zehenKonnektor(k,t){
+  var i=t.indexOf(" "), w=i<0?t:t.slice(0,i);
+  return k+" "+(ZEHEN_KLEIN[w]?ZEHEN_KLEIN[w]+t.slice(i):t);
+}
+function zehenAufzaehlung(a){
+  if(a.length<=1) return a.join("");
+  return a.slice(0,-1).join(", ")+" und "+a[a.length-1];
+}
+function buildZehen(zc){
+  var beschrieben={}, gesehen={}, bloecke=[], zehen=[], kdraht=false;
+  [2,3,4,5].forEach(function(z){
+    var sel=zc[z]||[]; if(!sel.length) return;
+    var eing=ZEHEN_FOLGE.filter(function(e){return sel.indexOf(e)>=0&&ZEHEN_TEXT[e];});
+    if(!eing.length) return;
+    zehen.push(z);
+    if(eing.indexOf("pip")>=0||eing.indexOf("kapsulo")>=0) kdraht=true;
+    // Befundsatz. "rigide" (pip) und "flexibel" (beuge_trans) widersprechen
+    // sich an derselben Zehe — dann nur das PIP-Fragment.
+    var frag=eing.filter(function(e){return !(e==="beuge_trans"&&eing.indexOf("pip")>=0);})
+      .map(function(e){ var f=ZEHEN_TEXT[e].befund, alt=!!gesehen[f]; gesehen[f]=true; return {t:f,alt:alt}; });
+    var alleAlt=frag.every(function(x){return x.alt;});
+    var liste=alleAlt
+      ? "ebenfalls "+zehenAufzaehlung(frag.map(function(x){return x.t;}))
+      : zehenAufzaehlung(frag.map(function(x){return x.alt?"ebenfalls "+x.t:x.t;}));
+    var teile=[(zehen.length===1?"":"Nun ")+"Zuwendung zu D"+z+".",
+               "Unter Narkosemobilisierung zeigt sich "+liste+"."];
+    var text=function(e){ var t=beschrieben[e]?ZEHEN_TEXT[e].kurz(z):ZEHEN_TEXT[e].voll(z); beschrieben[e]=true; return t; };
+    var weich=eing.filter(function(e){return !ZEHEN_TEXT[e].knochen;});
+    var knoch=eing.filter(function(e){return ZEHEN_TEXT[e].knochen;});
+    weich.forEach(function(e,i){
+      var t=text(e);
+      teile.push(i===0?t:zehenKonnektor(i===1?"Anschließend":"Zusätzlich",t));
+    });
+    if(weich.length&&knoch.length)
+      teile.push("Die Korrektur ist nach den Weichteilmaßnahmen noch unzureichend, die Zehe steht weiterhin fehl.");
+    knoch.forEach(function(e){ teile.push(text(e)); });
+    bloecke.push(teile.join(" "));
+  });
+  if(!zehen.length) return "";
+  bloecke.push("BV-Kontrolle: regelrechte Stellung der korrigierten "
+    +(zehen.length===1?"Zehe ":"Zehen ")+zehenAufzaehlung(zehen.map(function(z){return "D"+z;}))
+    +(kdraht?", K-Drähte korrekt platziert":"")+".");
+  return bloecke.join("\n\n");
+}
+
+// ============================================================
+// OSG-Arthroskopie (03.10.2026). Bis dahin stand vor dem Text des Autors ein
+// generischer Arthroskopie-Absatz, Portale und Stabilitaetspruefung standen
+// damit zweimal im Bericht. Jetzt ein Baustein mit zwei Schaltern:
+// osteophyten (Chip "Osteophyten") und nano (Chip "ASK + Nanofrakturierung").
+// ============================================================
+function buildAskOsg(seiteGen,nanoSeite,osteophyten,nano){
+  return "Auffüllen des "+seiteGen+" OSG mit 15ml Kochsalzlösung. Anlage des medialen Portales nach Palpation und Markierung des Ext. Dig. longus Sehne, der Tib. Ant. Sehne und des Nerv peroneus superficialis. Dafür Hautinzision oberflächlich medial der Tib. Ant. Sehne, dann stumpfes Eingehen mit Klemmchen in die Kapsel und Dehnen dieser. Eingehen mit Trokar und Optik bei maximaler Dorsalextension des OSG in das Gelenk."
+    +"\nEs zeigen sich hier deutliche Verwachsungen und Bridenbildung, nun unter Sicht Anlage des antero-lateralen Portales. Eingehen mit dem Shaver und Entfernung der Vernarbungen"
+    +(osteophyten?", Abtragung der ventralen Osteophyten an Tibiavorderkante und Talushals mit der arthroskopischen Fräse":"")
+    +", dann Eingehen mit dem Tasthaken. Stabilitätstestung, die Syndesmose ist stabil, keine vermehrte laterale Aufklappbarkeit."
+    +(nano?"\nIn Plantarflexion und unter Distraktion kommt ein deutlicher "+nanoSeite+"r IV° Knorpelschaden der Talusschulter zur Darstellung. Hier lokalisiert deutlich avitaler delaminierter Knorpel, keine Zyste. Kürretage des nekrotischen Gewebes, die subchondrale Lamelle ist intakt, Nanofrakturierung, deutliche Fettaugen und Austritt von Blut in den Defekt. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.":" Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.")
+    ;
+}
 
 // ============================================================
 // COLLAPSIBLE SECTION
@@ -5303,6 +5398,8 @@ function OPBerichtApp(props){
     if(mitAkin&&!codes.find(c=>c.code.startsWith("M20.5")))codes.push({hd:false,code:"M20.5"+s,desc:"Sonstige Deformität der Zehe (Hallux interphalangeus)"});
     // Kleinzehen
     if(Object.values(zc).some(a=>a.includes("pip")))codes.push({hd:codes.length===0,code:"M20.4"+s,desc:"Hammerzehe(n)"});
+    // Zehenosteotomie ohne PIP-Arthrodese: M20.5. Mit PIP bleibt M20.4 fuehrend.
+    if(Object.values(zc).some(a=>a.includes("osteot"))&&!Object.values(zc).some(a=>a.includes("pip"))&&!codes.find(c=>c.code.startsWith("M20.5")))codes.push({hd:codes.length===0,code:"M20.5"+s,desc:"Sonstige Deformitäten der Zehe(n) (erworben)"});
     // Diabetischer Fuß. Die ICD-Ziffern sind noch nicht abgenommen und stehen
     // deshalb als ___ — sichtbare Luecke statt geratener Abrechnungsdaten.
     if(dfOp||dfAmp)codes.push({hd:codes.length===0,code:"___",desc:"Diabetisches Fußsyndrom mit Ulzeration"});
@@ -5387,6 +5484,11 @@ function OPBerichtApp(props){
     // PIP-Anzahl: kodiert die Zehen-Anzahl im Suffix (5-808.bd/be/bf/bg)
     const pipZehenCnt = [2,3,4,5].filter(z=>(zc[z]||[]).includes("pip")).length;
     if(pipZehenCnt > 0) o.push(PIP_CODE[Math.min(pipZehenCnt,5)] || "5-808.bh");
+    // Zehenosteotomie: Mengenkode nach Zahl der Zehen (ZEHEN_OT_CODE). Keine
+    // Doppelzaehlung mit dem Metatarsale-Mengenkode 5-788.5x weiter unten, der
+    // die Ossa metatarsalia zaehlt.
+    const otZehenCnt = [2,3,4,5].filter(z=>(zc[z]||[]).includes("osteot")).length;
+    if(otZehenCnt > 0) o.push(ZEHEN_OT_CODE[Math.min(otZehenCnt,5)]);
     // Andere Zehen-Eingriffe: jeweils einmal
     const zeheCodes = new Set();
     if(zeheOpsSet.has("ext_verl")) zeheCodes.add("5-854.0c");
@@ -5536,7 +5638,10 @@ function OPBerichtApp(props){
     // ============================================================
     var obZustand = {
       gz:gz, mitAkin:mitAkin, mtStrahlen:mtStrahlen, dmmo:dmmo, weil:weil,
-      pipZahl:pipZehenCnt, zeheWeichteil:zeheOpsSet.has("weichteil"),
+      pipZahl:pipZehenCnt, otZahl:otZehenCnt,
+      // Weichteileingriffe an den Kleinzehen: die Abfrage hing bis 03.10.2026
+      // an einer Option "weichteil", die es in zehenOpts nie gab.
+      zeheWeichteil:["fdl","ext_teno","ext_verl","beuge_trans","kapsulo"].some(function(x){return zeheOpsSet.has(x);}),
       tepType:tepType, tepStabi:tepStabi, osgOp:osgOp, osgArtSpongiosa:osgArtSpongiosa, amicIKO:amicIKO,
       brostromIB:brostromIB, supramalTyp:supramalTyp,
       rfOp:rfOp, peronealTyp:peronealTyp, luxRinne:luxRinne, luxNaht:luxNaht,
@@ -5803,7 +5908,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(gz==="morton")p.push("\n\n"+T.morton_neurom);
     if(gz==="exostose")p.push("\n\n"+T.exostose);
     if(gz==="scarf"){p.push("\n\n"+T.scarf);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
-    let isFirstZ=true;[2,3,4,5].forEach(z=>{const e=zc[z]||[];if(e.length>0){p.push("\n\n"+buildZehe(z,e,isFirstZ));isFirstZ=false;}});
+    const zehenBlock=buildZehen(zc);if(zehenBlock)p.push("\n\n"+zehenBlock);
     if(dmmo.length>0)p.push("\n\n"+buildDMMO(dmmo));
     // Der Baustein beschreibt EINEN Strahl ("über dem betroffenen Strahl") und
     // nennt eine Schraube. Die Einleitungszeile sagt, welche Strahlen versorgt
@@ -5813,18 +5918,10 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       +T.weil);
     osgOp.forEach(op=>{
       if(op==="ask"){
-        if(askOsteo){
-          p.push("\n\nAnlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein ventrales Impingement mit Osteophytenbildung an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, Entfernung der Osteophyten mittels arthroskopischer Fräse, partielle Synovektomie. Es erfolgt eine erneute genaue Prüfung unter Stresstest, kein Hinweis auf Instabilität des lateralen- oder medialen Bandapparates oder der Syndesmose. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.");
-        } else {
-          p.push("\n\nAnlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein weichteiliges Impingement an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, partielle Synovektomie. Es erfolgt eine erneute genaue Prüfung unter Stresstest, kein Hinweis auf Instabilität des lateralen- oder medialen Bandapparates oder der Syndesmose. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.");
-        }
+        p.push("\n\n"+buildAskOsg(side==="rechts"?"rechten":side==="links"?"linken":"___",nanoSeite,askOsteo,false));
       }
       if(op==="ask_nano"){
-        if(askOsteo){
-          p.push("\n\nAnlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein ventrales Impingement mit Osteophytenbildung an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, Entfernung der Osteophyten mittels arthroskopischer Fräse, partielle Synovektomie. Es erfolgt eine erneute genaue Prüfung unter Stresstest, kein Hinweis auf Instabilität des lateralen- oder medialen Bandapparates oder der Syndesmose.\nAuffüllen des "+(side==="rechts"?"rechten":side==="links"?"linken":"___")+" OSG mit 15ml Kochsalzlösung. Anlage des medialen Portales nach Palpation und Markierung des Ext. Dig. longus Sehne, der Tib. Ant. Sehne und des Nerv peroneus superficialis. Dafür Hautinzision oberflächlich medial der Tib. Ant. Sehne, dann stumpfes Eingehen mit Klemmchen in die Kapsel und Dehnen dieser. Eingehen mit Trokar und Optik bei maximaler Dorsalextension des OSG in das Gelenk.\nEs zeigen sich hier deutliche Verwachsungen und Bridenbildung, nun unter Sicht Anlage des antero-lateralen Portales. Eingehen mit dem Shaver und Entfernung der Vernarbungen, dann Eingehen mit dem Tasthaken. Stabilitätstestung, die Syndesmose ist stabil, keine vermehrte laterale Aufklappbarkeit.\nIn Plantarflexion und unter Distraktion kommt ein deutlicher "+nanoSeite+"r IV° Knorpelschaden der Talusschulter zur Darstellung. Hier lokalisiert deutlich avitaler delaminierter Knorpel, keine Zyste. Kürretage des nekrotischen Gewebes, die subchondrale Lamelle ist intakt, Nanofrakturierung, deutliche Fettaugen und Austritt von Blut in den Defekt. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.");
-        } else {
-          p.push("\n\nAnlage der standardisierten Arthroskopie-Portale anterolateral und anteromedial. Einbringen der Optik und des Arthroskopie-Instrumentariums. Spülung des Gelenkes. Systematische Inspektion des oberen Sprunggelenkes: Talus, Tibia-Plafond, medialer und lateraler Gutter, ventrale Kapsel, Syndesmose.\nEs zeigt sich ein weichteiliges Impingement an der ventralen Tibiakante und am Talushals. Synovialitis mit deutlicher Kapselverdickung ventral. Arthroskopisches Debridement, partielle Synovektomie. Es erfolgt eine erneute genaue Prüfung unter Stresstest, kein Hinweis auf Instabilität des lateralen- oder medialen Bandapparates oder der Syndesmose.\nAuffüllen des "+(side==="rechts"?"rechten":side==="links"?"linken":"___")+" OSG mit 15ml Kochsalzlösung. Anlage des medialen Portales nach Palpation und Markierung des Ext. Dig. longus Sehne, der Tib. Ant. Sehne und des Nerv peroneus superficialis. Dafür Hautinzision oberflächlich medial der Tib. Ant. Sehne, dann stumpfes Eingehen mit Klemmchen in die Kapsel und Dehnen dieser. Eingehen mit Trokar und Optik bei maximaler Dorsalextension des OSG in das Gelenk.\nEs zeigen sich hier deutliche Verwachsungen und Bridenbildung, nun unter Sicht Anlage des antero-lateralen Portales. Eingehen mit dem Shaver und Entfernung der Vernarbungen, dann Eingehen mit dem Tasthaken. Stabilitätstestung, die Syndesmose ist stabil, keine vermehrte laterale Aufklappbarkeit.\nIn Plantarflexion und unter Distraktion kommt ein deutlicher "+nanoSeite+"r IV° Knorpelschaden der Talusschulter zur Darstellung. Hier lokalisiert deutlich avitaler delaminierter Knorpel, keine Zyste. Kürretage des nekrotischen Gewebes, die subchondrale Lamelle ist intakt, Nanofrakturierung, deutliche Fettaugen und Austritt von Blut in den Defekt. Ausgiebige Spülung. Abschließende Kontrolle, freie Beweglichkeit des Gelenkes.");
-        }
+        p.push("\n\n"+buildAskOsg(side==="rechts"?"rechten":side==="links"?"linken":"___",nanoSeite,askOsteo,true));
       }
       else if(op==="brostrom"){
         if(askVorher){
@@ -6169,7 +6266,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   const card={background:"rgba(255,255,255,1)",border:"1px solid rgba(0,0,0,.08)",borderRadius:10,padding:14,marginBottom:10};
   const h3s={fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:"#006B6F",marginBottom:8};
 
-  const zehenOpts=[{id:"pip",l:"PIP-Arthrodese"},{id:"fdl",l:"FDL-Tenotomie"},{id:"ext_teno",l:"Strecksehnen-Tenotomie"},{id:"ext_verl",l:"Strecksehnen-Verlängerung"},{id:"beuge_trans",l:"Beugesehnentransfer"},{id:"kapsulo",l:"Dorsale Kapsulotomie"}];
+  const zehenOpts=[{id:"pip",l:"PIP-Arthrodese"},{id:"fdl",l:"FDL-Tenotomie"},{id:"ext_teno",l:"Strecksehnen-Tenotomie"},{id:"ext_verl",l:"Strecksehnen-Verlängerung"},{id:"beuge_trans",l:"Beugesehnentransfer"},{id:"kapsulo",l:"Dorsale Kapsulotomie"},{id:"osteot",l:"Zehenosteotomie"}];
 
   // Gesamt-Reset: alle Zustaende der Komponente auf ihren Anfangswert,
   // ausgenommen Toast und die Sektionsklappen (sec/ucSec).
@@ -6302,6 +6399,8 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
           <div style={{fontSize:11,fontWeight:600,color:sel.length?"#006B6F":"#718096",marginBottom:2}}>D{z}</div>
           <div style={row}>{zehenOpts.map(e=><div key={e.id} style={chip(sel.includes(e.id))} onClick={()=>togZehe(z,e.id)}>{e.l}</div>)}</div>
         </div>;})}
+        {(function(){const n=[2,3,4,5].filter(z=>(zc[z]||[]).includes("osteot")).length;if(n===0)return null;
+          return <div style={{fontSize:10,color:"#718096",marginTop:2}}>Zehenosteotomie: {n} Zehe{n===1?"":"n"} → {ZEHEN_OT_CODE[Math.min(n,5)]}{n===2?" (5-788.58 steht in keinem Katalog)":""}</div>;})()}
 
         <div style={cat}>DMMO (Metatarsale)</div>
         <div style={row}>{[2,3,4,5].map(mt=><div key={mt} style={chip(dmmo.includes(mt))} onClick={()=>togArr(dmmo,setDmmo,mt)}>MT {mt}</div>)}</div>
