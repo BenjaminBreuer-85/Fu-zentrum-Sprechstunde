@@ -2324,6 +2324,13 @@ var _s = useState, _m = useMemo;
     var e = Z && Z[kurzlinkId(ziel)];
     return (e && e.titel) || null;
   }
+  // Fuehrt das Ziel in der Patienten-App zum OP-Begleiter? Das Feld setzt
+  // kurzlinks.json; dort traegt dasselbe Ziel ctx=begleiter in der Adresse.
+  function kurzlinkBegleiter(ziel){
+    var Z = window._KURZLINKS;
+    var e = Z && Z[kurzlinkId(ziel)];
+    return !!(e && e.begleiter === true);
+  }
 
   // Weicht der Brief auf konservativ aus, faellt der OP-Weg weg — auch wenn
   // eine OP-Methode angeklickt ist. Dieselbe Bedingung wie der Satz
@@ -3295,9 +3302,14 @@ var _s = useState, _m = useMemo;
       var qrWas = qr.art === "eingriff"
         ? (qrTitel ? "Zum Thema \u201E" + qrTitel + "\u201C" : "Zum geplanten Eingriff")
         : "Zu Ihrer Diagnose";
+      // Fuehrt dasselbe Ziel auch in den OP-Begleiter, wird er hier genannt —
+      // sonst stuende er im Brief nirgends und der Patient faende ihn nicht.
+      var qrBegleiter = qr.art === "eingriff" && qrTitel && kurzlinkBegleiter(qr.ziel);
       ab += "\n\nWeitere Informationen Online:" +
         "\n\n" + qrWas + " liegen in der Fuss-Track-App weitere Informationen für Sie bereit. " +
-        "Sie können sie über den folgenden Code aufrufen." +
+        (qrBegleiter
+          ? "Dort finden Sie auch den OP-Begleiter, der Sie von der Vorbereitung bis zum Ende der Nachbehandlung Schritt für Schritt durch Ihre Operation führt. Beides erreichen Sie über den folgenden Code."
+          : "Sie können sie über den folgenden Code aufrufen.") +
         "\n\n" + QR_LABEL + kurzlinkId(qr.ziel);
     }
     p.push(ab);
@@ -9967,7 +9979,15 @@ function selbsttestPruefen(D){
     var map = OM[n] || {};
     Object.keys(map).forEach(function(k){ [].concat(map[k]).forEach(function(z){ if(!(kid(z) in ZIELE)) p6.push(n+"."+k+" → "+z); }); });
   });
-  p.push({nr:"6", art:"Fehler", titel:"Patienten-Ziele ohne Kurzlink", treffer:p6.sort()});
+  // Begleiter-Feld und ctx=begleiter in der Adresse muessen zusammenpassen:
+  // der Brief nennt den Begleiter nach dem Feld, erreichbar ist er nur ueber
+  // den Parameter.
+  Object.keys(ZIELE).forEach(function(id){ var e = ZIELE[id] || {};
+    var hatCtx = String(e.url||"").indexOf("ctx=begleiter") >= 0, hatFeld = e.begleiter === true;
+    if (hatCtx && !hatFeld) p6.push(id+" → ctx=begleiter in der Adresse, Feld begleiter fehlt");
+    if (hatFeld && !hatCtx) p6.push(id+" → begleiter: true, aber kein ctx=begleiter in der Adresse");
+  });
+  p.push({nr:"6", art:"Fehler", titel:"Patienten-Ziele ohne Kurzlink, Begleiter-Feld gegen ctx=begleiter", treffer:p6.sort()});
 
   // 7: Steuerungskodes gegen den Katalog
   var herkunft = {}, kontext = {};
