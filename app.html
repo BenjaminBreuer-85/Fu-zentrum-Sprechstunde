@@ -3262,6 +3262,12 @@ var _s = useState, _m = useMemo;
       if (ops.some(function(o) { return o.indexOf("tep") >= 0; })) {
         ab += " In der OP muss befundbezogen über die Notwendigkeit weiterer Maßnahmen zum Erreichen eines achsgerecht stehenden und stabilen Gelenkes entschieden werden, bspw. Bandstabilisierungen oder Korrekturosteotomien am Fersenbein oder Innenknöchel, ggf. auch über separate Inzisionen. Intraoperativ muss ebenfalls situativ über die Art der Implantationstechnik und das gewählte Prothesenmodell entschieden werden.";
       }
+      // Welche Verfahren redressierende Verbaende brauchen, steht in
+      // opmethoden.json (Feld "redression"), damit die Liste ohne Code-
+      // Aenderung waechst. Bei mehreren gewaehlten Eingriffen einmal.
+      if (ops.some(function(o) { return OPS[o] && OPS[o].redression === true; })) {
+        ab += " Nach dem Eingriff sind für mehrere Wochen redressierende Verbände zur Sicherung des OP-Ergebnisses nötig. Hier muss eine Anbindung und regelmäßige Kontrolle durch Behandler mit fußchirurgischer Erfahrung gewährleistet sein.";
+      }
     }
     if (risiken.length > 0) {
       ab += "\n\nEs besteht aufgrund der Risikofaktoren ein erhöhtes Risiko für Komplikationen." + (freitextRisiko ? " " + freitextRisiko : "");
