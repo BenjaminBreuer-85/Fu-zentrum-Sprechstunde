@@ -5719,8 +5719,14 @@ function OPBerichtApp(props){
       : "—";
     var drgCode=obAus.drg||obEff.drg||null;
     var kurzBetrag=(window._KURZ||{})[drgCode];
+    // Beschriftung der Modifikatoren kommt sonst aus opsteuerung.json. Fuer
+    // den Morton-Zwischenraum stehen dort keine Modifikatoren (der Eintrag
+    // bleibt der EBM-Hinweis); die Bezeichnung liefert OP_ZUSATZWAHL, wie im
+    // Sprechstundenbrief.
+    var obModTxt=((obEff._modLabels)||[]).length ? " "+obEff._modLabels.join(" ")
+      : (obKey==="morton_neurom" ? (function(){ var z=opZusatzText(obKey,{morton_neurom:obBest.x.mods}); return z?" "+z:""; })() : "");
     var label=((OPS[obKey]&&OPS[obKey].k)||OB_LABEL[obKey]||obKey)
-      +(((obEff._modLabels)||[]).length?" "+obEff._modLabels.join(" "):"")
+      +obModTxt
       +(obListe.length>1?" (führend)":"");
     return [o,{label:label, ops:o, key:obKey, mods:obBest.x.mods,
       eintraege:obKeys,
