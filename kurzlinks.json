@@ -9,7 +9,7 @@
     "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter.",
     "04.10.2026: OP-Ziele mit Begleiter tragen begleiter: true und ctx=begleiter in der Zieladresse (Begleiter-Karte und Umschalter auf der Artikelseite). Kein Tracking, fester Modus-Schalter."
   ],
-  "_STAND": "2026-10-04",
+  "_STAND": "2026-10-10",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
   "ZIELE": {
     "achilles-insertional": {
@@ -212,6 +212,11 @@
     "metatarsalgie": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=metatarsalgie_kb&modus=aufklaerung",
       "titel": "Metatarsalgie",
+      "art": "diagnose"
+    },
+    "morton-neurom": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=morton_neurom_kb&modus=aufklaerung",
+      "titel": "Morton-Neurom",
       "art": "diagnose"
     },
     "morton": {

@@ -1814,11 +1814,14 @@ function obEintraege(z){
   // --- Vorfuss
   var vf = { chevron: z.mitAkin ? "chevron_akin" : "chevron", lapidus: "lapidus",
              mtp1art: "mtp1_arthrodese", cheilek: "cheilektomie", exostose: "exostose",
-             scarf: "scarf", morton: "morton_neurom" }[z.gz];
+             scarf: "scarf" }[z.gz];
   if (vf) add(vf);
   if (z.mtStrahlen && z.mtStrahlen.length && z.dmmo && z.dmmo.length)
     add("dmmo", [], [DMMO_CODE[({1:"1",2:"2-3",3:"2-4",4:"2-5"})[Math.min(z.mtStrahlen.length,4)]]].filter(Boolean));
   if (z.weil && z.weil.length) add("weil");
+  // Morton: die Zwischenraum-Schluessel sind die Modifikatoren (OB_MODIFIKATOREN
+  // kennt sie laengst); ein Nerv je Zwischenraum, daher 5-041.9 je Eintrag.
+  if (z.morton && z.morton.length) add("morton_neurom", z.morton, ["5-041.9"]);
   if (z.pipZahl > 0) add("kleinzehen_pip", [], [PIP_CODE[Math.min(z.pipZahl, 5)] || "5-808.bh"]);
   if (z.otZahl > 0) add("kleinzehen_osteotomie", [], [ZEHEN_OT_CODE[Math.min(z.otZahl, 5)]]);
   if (z.zeheWeichteil) add("kleinzehen_weichteil");
@@ -4568,6 +4571,9 @@ var _s = useState, _m = useMemo;
 // ============================================================
 const T = window._DATA.optexte.T;
 
+// Ordnungszahl des Intermetatarsalraumes fuer den Morton-Text ({IMR}).
+var IMR_ZAHL = {"23":"2.", "34":"3."};
+
 function buildDMMO(mts){const main=mts.filter(m=>m<=3),extra=mts.filter(m=>m>=4);let t="Zuwendung zum Mittelfuß. Es zeigt sich radiologisch und palpatorisch ein Misalignment der Metatarsale, plantare Mehrbeschwielung. Stichinzision subkapital des MT "+main.join(" und ")+", Umfahren subkapital mit minimalinvasiven Klemmchen, jeweils Schrägosteotomie mit der perkutanen Fräse unter fortlaufender Wasserspülung unter BV-Kontrolle.";if(extra.length>0)t+=" Es zeigt sich hier noch eine relative Überlänge des MT "+extra.join(" und ")+", sodass dort in gleicher Weise eine perkutane Verkürzungsosteotomie im DMMO Stil erfolgt.";t+=" Spülung aller Zugänge.\nInsgesamt zeigt sich nun in der radiologischen Kontrolle eine sehr zufriedenstellende Korrektur des Alignements, palpatorisch gute Verbesserung der Druckverteilung.";return t;}
 
 // ============================================================
@@ -5132,6 +5138,10 @@ function OPBerichtApp(props){
   const [zc,setZc]=useState({2:[],3:[],4:[],5:[]});
   const [dmmo,setDmmo]=useState([]);
   const [weil,setWeil]=useState([]);
+  // Morton-Neurom: Array der Zwischenraeume ("23" = II/III, "34" = III/IV).
+  // Bis 10.10.2026 hing Morton an der Grosszehen-Einfachauswahl und war weder
+  // mit anderen Vorfusseingriffen noch mit zwei Zwischenraeumen moeglich.
+  const [morton,setMorton]=useState([]);
   // Weil und DMMO osteotomieren beide Metatarsalia. Der OPS-Mengenkode
   // 5-788.5x zaehlt KNOCHEN, nicht Eingriffe — bei beiden Verfahren im selben
   // Fuss darf er also nur EINMAL fuer die Summe der Strahlen stehen.
@@ -5244,7 +5254,7 @@ function OPBerichtApp(props){
   const togArr=(arr,setArr,v)=>setArr(p=>p.includes(v)?p.filter(x=>x!==v):[...p,v]);
   const togZehe=(z,e)=>setZc(p=>{const c=p[z]||[];return{...p,[z]:c.includes(e)?c.filter(x=>x!==e):[...c,e]};});
 
-  const hasVF=!!gz||Object.values(zc).some(a=>a.length>0)||dmmo.length>0||weil.length>0;
+  const hasVF=!!gz||Object.values(zc).some(a=>a.length>0)||dmmo.length>0||weil.length>0||morton.length>0;
   const hasOSG=osgOp.length>0;
   const hasTEP=!!tepType;
   const hasRF=rfOp.length>0;
@@ -5411,13 +5421,14 @@ function OPBerichtApp(props){
     if(gz==="lapidus")codes.push({hd:true,code:"M20.1"+s,desc:"Hallux valgus (acquisitus)"});
     if(gz==="mtp1art"){if(hoffTill){codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});}else{codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});}}
     if(gz==="cheilek")codes.push({hd:true,code:"M20.2"+s,desc:"Hallux rigidus"});
-    if(gz==="morton")codes.push({hd:true,code:"G57.6"+s,desc:"Läsion des N. plantaris (Morton-Metatarsalgie)"});
     if(gz==="exostose")codes.push({hd:true,code:"M89.75"+s,desc:"Exostose Fuß"});
     if(mitAkin&&!codes.find(c=>c.code.startsWith("M20.5")))codes.push({hd:false,code:"M20.5"+s,desc:"Sonstige Deformität der Zehe (Hallux interphalangeus)"});
     // Kleinzehen
     if(Object.values(zc).some(a=>a.includes("pip")))codes.push({hd:codes.length===0,code:"M20.4"+s,desc:"Hammerzehe(n)"});
     // Zehenosteotomie ohne PIP-Arthrodese: M20.5. Mit PIP bleibt M20.4 fuehrend.
     if(Object.values(zc).some(a=>a.includes("osteot"))&&!Object.values(zc).some(a=>a.includes("pip"))&&!codes.find(c=>c.code.startsWith("M20.5")))codes.push({hd:codes.length===0,code:"M20.5"+s,desc:"Sonstige Deformitäten der Zehe(n) (erworben)"});
+    // Morton-Neurom: bei einem Grosszehen-Eingriff bleibt dessen ICD fuehrend.
+    if(morton.length>0)codes.push({hd:codes.length===0,code:"G57.6"+s,desc:"Läsion des N. plantaris (Morton-Metatarsalgie)"});
     // Diabetischer Fuß. Die ICD-Ziffern sind noch nicht abgenommen und stehen
     // deshalb als ___ — sichtbare Luecke statt geratener Abrechnungsdaten.
     if(dfOp||dfAmp)codes.push({hd:codes.length===0,code:"___",desc:"Diabetisches Fußsyndrom mit Ulzeration"});
@@ -5483,7 +5494,7 @@ function OPBerichtApp(props){
       if(ucOp==="humerus_schaft_targon")codes.push({hd:true,code:"S42.3"+s,desc:"Fraktur des Humerusschaftes"});
     }
     return codes;
-  },[gz,mitAkin,hoffTill,zc,dmmo,weil,osgOp,tepType,tepStabi,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side,dfOp,dfAmp,dfOsteo,dfKnochen]);
+  },[gz,mitAkin,hoffTill,zc,dmmo,weil,morton,osgOp,tepType,tepStabi,rfOp,peronealTyp,supramalTyp,coalTyp,mfCotton,mfTmt,meOp,fxOp,fxSyndes,ucOp,side,dfOp,dfAmp,dfOsteo,dfKnochen]);
 
     // Collected OPS codes
   const [allOPS,erloesData]=useMemo(()=>{
@@ -5492,7 +5503,10 @@ function OPBerichtApp(props){
     if(gz==="lapidus"){o.push("5-808.a4","5-788.40","5-93b.0","5-93b.e");if(vfSpongiosa)o.push("5-783.0v","5-784.0u");if(mitSubcap)o.push("5-788.5c");if(vfSehnentransfer)o.push("5-854.2c");if(mitAkin)o.push("5-788.56");}
     if(gz==="mtp1art"){if(hoffTill){o.push("5-808.b0","5-93b.0","5-93b.e","5-788.60","5-788.60","5-788.60","5-788.60","5-808.b2","5-808.b2","5-808.b2","5-808.b2");}else{o.push("5-808.b0","5-93b.0","5-93b.e");if(mitAkin)o.push("5-788.56");}}
     if(gz==="cheilek")o.push("5-788.00");
-    if(gz==="morton")o.push("5-846.7");
+    // Morton-Neurom: 5-041.9 "Exzision von Gewebe von Nerven: Nerven Fuss",
+    // je reseziertem Interdigitalnerv einmal. Bis 10.10.2026 stand hier
+    // 5-846.7 — das ist laut Katalog eine Arthrodese an der Hand.
+    for(var _mn=0;_mn<morton.length;_mn++)o.push("5-041.9");
     if(gz==="exostose")o.push("5-788.00");
     if(gz==="scarf"){o.push("5-788.5e");if(vfSehnentransfer)o.push("5-854.2c");}
     // PIP-Kode nach Zahl der Zehen (PIP_CODE, ab 5 Gelenken 5-808.bh).
@@ -5655,7 +5669,7 @@ function OPBerichtApp(props){
     // hdrgAuswertung die Bewertung — dieselbe Rechnung wie im Brief.
     // ============================================================
     var obZustand = {
-      gz:gz, mitAkin:mitAkin, mtStrahlen:mtStrahlen, dmmo:dmmo, weil:weil,
+      gz:gz, mitAkin:mitAkin, mtStrahlen:mtStrahlen, dmmo:dmmo, weil:weil, morton:morton,
       pipZahl:pipZehenCnt, otZahl:otZehenCnt,
       // Weichteileingriffe an den Kleinzehen: die Abfrage hing bis 03.10.2026
       // an einer Option "weichteil", die es in zehenOpts nie gab.
@@ -5717,7 +5731,7 @@ function OPBerichtApp(props){
       empf:obAus.hybrid?"amb":(obAnz.empf==="amb"?"amb":"n2"),
       hinweise:obEff.hinweise||obAnz.hinweise||null,
       auswertung:obAus, sperre:obAus.sperre||null}];
-    return [o,null];},[vfSehnentransfer,vfSpongiosa,rfBursektomie,tepStabi,coalU12,alter,fxOp,fxSyndes,luxRinne,luxNaht,hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,allOPS,osgOp,rfOp,mfCotton,mfCottonKnochen,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
+    return [o,null];},[vfSehnentransfer,vfSpongiosa,rfBursektomie,tepStabi,coalU12,alter,fxOp,fxSyndes,luxRinne,luxNaht,hasAny,hasTEP,hasOSG,hasRF,hasMF,hasME,hasUM,hasFX,hasDF,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,hasVF,hasASnaht,hasRFarthrodese,hasCalcOT,hasLapidusCompanion,hasDMMOover2,gz,zc,dmmo,weil,morton,allOPS,osgOp,rfOp,mfCotton,mfCottonKnochen,mfTmt,tepType,mitAkin,mitSubcap,hoffTill,brostromIB,askOsteo,coalTyp,coalFascie,coalLCOT,nanoSeite,mdoTyp,fdlTransfer,mdoCotton,t2Length,t2Width,arthroNagelBecken,arthroBds,osTibMDO,lage,supramalTyp,supramalFibula,supramalBrostrom,peronealTyp,dwyerSteindler,dwyerElevMT1,dwyerJones,dwyerPeroneal,amicIKO,amicZyste,askVorher,osgArtSchraube,osgArtPlatte,osgArtSpongiosa,meRegion,meImpl,meZusatz]);
 
   // ICD-Codes als Textblock
   const icdText=useMemo(()=>{
@@ -5923,9 +5937,16 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     if(gz==="lapidus"){p.push("\n\n"+T.lapidus);if(mitSubcap)p.push("\n\n"+T.subcapitale);if(mitAkin)p.push("\n\n"+T.akin_lapidus);p.push("\n\n"+T.rebalancing);}
     if(gz==="mtp1art"){if(hoffTill){p.push("\n\n"+T.hoffmann_tillmann);}else{p.push("\n\n"+T.mtp1_arthrodese);if(mitAkin)p.push("\n\n"+T.akin);}}
     if(gz==="cheilek")p.push("\n\n"+T.cheilektomie);
-    if(gz==="morton")p.push("\n\n"+T.morton_neurom);
     if(gz==="exostose")p.push("\n\n"+T.exostose);
     if(gz==="scarf"){p.push("\n\n"+T.scarf);if(mitAkin)p.push("\n\n"+T.akin);p.push("\n\n"+T.rebalancing);}
+    // Morton-Neurom: ein Absatz je Zwischenraum, II/III vor III/IV. Der erste
+    // bekommt den Volltext, jeder weitere die Kurzfassung; {IMR} wird zur
+    // Ordnungszahl des Intermetatarsalraumes. Fehlt die Kurzfassung in den
+    // Daten noch, steht der Volltext ein zweites Mal statt gar nichts.
+    morton.slice().sort().forEach(function(x,i){
+      var t=(i===0 ? T.morton_neurom : (T.morton_neurom_weiterer||T.morton_neurom));
+      if(t)p.push("\n\n"+t.replace(/\{IMR\}/g, IMR_ZAHL[x]||""));
+    });
     const zehenBlock=buildZehen(zc);if(zehenBlock)p.push("\n\n"+zehenBlock);
     if(dmmo.length>0)p.push("\n\n"+buildDMMO(dmmo));
     // Der Baustein beschreibt EINEN Strahl ("über dem betroffenen Strahl") und
@@ -6246,7 +6267,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
   // Die folgenden Unter-Schalter fehlten hier: der Berichtstext wurde erst
   // neu gebaut, wenn zufaellig ein anderer Wert mitkippte. FDL-Transfer und
   // Cotton liessen sich so anklicken, ohne dass der Text erschien.
-  },[vfSehnentransfer,vfSpongiosa,rfBursektomie,tepStabi,gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
+  },[vfSehnentransfer,vfSpongiosa,rfBursektomie,tepStabi,gender,side,risk,riskTxt,fprae,praeType,bs,ss,ana,gz,mitAkin,mitSubcap,hoffTill,zc,dmmo,weil,morton,osgOp,tepType,tepProphecy,tepTibSz,tepTibLong,tepTalSz,tepTalCut,tepInlaySz,tepInlayMM,ibTopStem,ibMidStem1,ibMidStem2,ibBaseStem,ibTalarStem,rfOp,mfCotton,mfCottonKnochen,mfTmt,meOp,meRegion,meImpl,meZusatz,umOp,fxOp,ruhig,entlassGespr,hasVF,hasAny,needsRuhig,askOsteo,nanoSeite,coalTyp,coalFascie,coalLCOT,dfOp,dfAmp,dfTeilamp,dfTeilampHoehe,dfKnochen,dfLavanox,dfVanco,dfLasche,dfVac,amicIKO,amicZyste,arthroBds,askVorher,dwyerElevMT1,dwyerJones,dwyerPeroneal,dwyerSteindler,fdlTransfer,fxSyndes,lage,luxNaht,luxQuartus,luxRinne,mdoCotton,osTibMDO,osgArtPlatte,osgArtSpongiosa,peronealLongus,peronealTyp,supramalBrostrom,supramalFibula,supramalStabi,supramalTyp,t2Length,t2Width]);
 
   const canExport=gender&&side&&hasAny;
   const showToast=m=>{setToast(m);setTimeout(()=>setToast(""),2500);};
@@ -6299,7 +6320,7 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
     setGz(""); setMitAkin(false); setHoffTill(false);
     setMitSubcap(false); setVfSehnentransfer(false); setVfSpongiosa(false);
     setCoalU12(false); setZc({2:[],3:[],4:[],5:[]}); setDmmo([]);
-    setWeil([]); setOsgOp([]); setBrostromIB(false);
+    setWeil([]); setMorton([]); setOsgOp([]); setBrostromIB(false);
     setAskOsteo(false); setAmicIKO(false); setAmicZyste(false);
     setAskVorher(false); setNanoSeite("medial"); setCoalTyp("");
     setMdoTyp(""); setFdlTransfer(false); setMdoCotton("");
@@ -6394,10 +6415,10 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
       <div data-tour="ob-eingriff" style={{marginBottom:10}}><div style={h3s}>③ OP-Durchführung</div>
 
       {/* VORFUSS */}
-      <OBSec title="Vorfuß" open={sec.vf} anzahl={(gz?1:0)+Object.values(zc).reduce(function(a,x){return a+(x.length?1:0);},0)+dmmo.length+weil.length} onToggle={()=>togSec("vf")} active={hasVF} onReset={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setWeil([]);}}>
+      <OBSec title="Vorfuß" open={sec.vf} anzahl={(gz?1:0)+Object.values(zc).reduce(function(a,x){return a+(x.length?1:0);},0)+dmmo.length+weil.length+morton.length} onToggle={()=>togSec("vf")} active={hasVF} onReset={()=>{setGz("");setMitAkin(false);setHoffTill(false);setMitSubcap(false);setZc({2:[],3:[],4:[],5:[]});setDmmo([]);setWeil([]);setMorton([]);}}>
         <div style={cat}>Großzehe (1. Strahl)</div>
         <div style={row}>
-          {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"],["morton","Morton-Neurom"]].map(([k,l])=>
+          {[["chevron","Chevron"],["lapidus","Lapidus"],["mtp1art","MTP-I-Arthrodese"],["cheilek","Cheilektomie"],["exostose","Exostose-Abtragung"],["scarf","Scarf/Mehrdim. OT"]].map(([k,l])=>
             <div key={k} style={chip(gz===k)} onClick={()=>{var nk=gz===k?"":k;setGz(nk);setMitAkin(false);setHoffTill(false);setMitSubcap(false);
               // AHL-Transfer und Spongiosa gehoeren zur Standardtechnik; die
               // Chips dienen dem Abwaehlen (Entscheidung 24.09.2026).
@@ -6410,7 +6431,6 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         {gz==="mtp1art"&&<div style={sub}><div style={tog(mitAkin)} onClick={()=>setMitAkin(!mitAkin)}>+ Akin</div><div style={tog(hoffTill)} onClick={()=>setHoffTill(!hoffTill)}>Hoffmann-Tillmann</div><div style={{fontSize:10,color:"#EF6C00",marginTop:3}}>⚠ Ruhigstellung! · OPS: 5-808.b0, 5-93b.0, 5-93b.e{mitAkin?", 5-788.56":""} · stationär mit Spongiosaplastik 5-784.0v → I20E · ambulant ohne Spongiosaplastik → I20N</div></div>}
         {gz==="cheilek"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-788.00 (Exostosenabtragung MT I) · Amb: H-DRG I20O · Stat: 5-854.2c/0c bei tatsächlich erbrachter Leistung → I20E</div></div>}
         {gz==="scarf"&&<div style={sub}><div style={tog(vfSehnentransfer)} onClick={()=>setVfSehnentransfer(!vfSehnentransfer)}>AHL-Transfer</div><div style={{fontSize:10,color:"#718096",marginTop:3}}>OPS: 5-788.5e{vfSehnentransfer?", 5-854.2c":""}</div></div>}
-        {gz==="morton"&&<div style={sub}><div style={{fontSize:10,color:"#718096"}}>OPS: 5-846.7 · ICD: G57.6 (zu bestätigen) · Intermetatarsalraum im Text anpassen</div></div>}
 
         <div style={cat}>Kleinzehen D2–D5</div>
         {[2,3,4,5].map(z=>{const sel=zc[z]||[];return <div key={z} style={{marginBottom:4,padding:sel.length?"6px 8px":"2px",borderRadius:6,background:sel.length?"rgba(0,107,111,.04)":"transparent"}}>
@@ -6428,6 +6448,12 @@ const UC_TEXT_MAP = window._DATA.optexte.UC_TEXT_MAP;
         {weil.length>0&&<div style={{fontSize:10,color:"#718096",marginTop:2}}>
           {weil.length}× Twist-Off-Schraube · Mengenkode aus {mtStrahlen.length} osteotomierten Strahl{mtStrahlen.length===1?"":"en"}
           {dmmo.length>0?" (DMMO und Weil zusammen)":""}
+        </div>}
+
+        <div style={cat}>Morton-Neurom</div>
+        <div style={row}>{[["23","II/III"],["34","III/IV"]].map(([k,l])=><div key={k} style={chip(morton.includes(k))} onClick={()=>togArr(morton,setMorton,k)}>{l}</div>)}</div>
+        {morton.length>0&&<div style={{fontSize:10,color:"#718096",marginTop:2}}>
+          OPS: 5-041.9{morton.length>1?" ("+morton.length+"×)":""} · ICD: G57.6
         </div>}
       </OBSec>
 
