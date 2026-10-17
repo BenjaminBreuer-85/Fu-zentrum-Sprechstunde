@@ -9,7 +9,7 @@
     "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter.",
     "04.10.2026: OP-Ziele mit Begleiter tragen begleiter: true und ctx=begleiter in der Zieladresse (Begleiter-Karte und Umschalter auf der Artikelseite). Kein Tracking, fester Modus-Schalter."
   ],
-  "_STAND": "2026-10-10",
+  "_STAND": "2026-10-17",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
   "ZIELE": {
     "achilles-insertional": {
@@ -217,6 +217,11 @@
     "morton-neurom": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=morton_neurom_kb&modus=aufklaerung",
       "titel": "Morton-Neurom",
+      "art": "diagnose"
+    },
+    "diabetischer-fuss": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?op=diabetischer_fuss_kb&modus=aufklaerung",
+      "titel": "Diabetisches Fußsyndrom",
       "art": "diagnose"
     },
     "morton": {
