@@ -7,9 +7,10 @@
     "schlimmer als ein toter Link. Soll ein Ziel nicht mehr erreichbar sein, wird",
     "der Eintrag entfernt; die ID bleibt danach dauerhaft unbenutzt.",
     "Ziel-Adressen enthalten niemals Patientendaten, Fallnummern oder Tracking-Parameter.",
-    "04.10.2026: OP-Ziele mit Begleiter tragen begleiter: true und ctx=begleiter in der Zieladresse (Begleiter-Karte und Umschalter auf der Artikelseite). Kein Tracking, fester Modus-Schalter."
+    "04.10.2026: OP-Ziele mit Begleiter tragen begleiter: true und ctx=begleiter in der Zieladresse (Begleiter-Karte und Umschalter auf der Artikelseite). Kein Tracking, fester Modus-Schalter.",
+    "23.10.2026: IDs wegweiser (?finder=1) und wegweiser-studie (?finder=1&studie=1, zeigt den Ergebnis-Code fuer das Studien-Merkblatt) → Beschwerde-Wegweiser der Patienten-App, art werkzeug. Kein Patientenbezug, kein Tracking."
   ],
-  "_STAND": "2026-10-17",
+  "_STAND": "2026-10-23",
   "_BASIS": "https://patienten.fuss-track.de/fusstrack.html",
   "ZIELE": {
     "achilles-insertional": {
@@ -365,6 +366,16 @@
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=usg_arthrose&modus=aufklaerung",
       "titel": "Arthrose des unteren Sprunggelenks",
       "art": "diagnose"
+    },
+    "wegweiser": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?finder=1",
+      "titel": "Beschwerde-Wegweiser",
+      "art": "werkzeug"
+    },
+    "wegweiser-studie": {
+      "url": "https://patienten.fuss-track.de/fusstrack.html?finder=1&studie=1",
+      "titel": "Beschwerde-Wegweiser (Studie)",
+      "art": "werkzeug"
     },
     "weil": {
       "url": "https://patienten.fuss-track.de/fusstrack.html?op=weil&modus=aufklaerung&ctx=begleiter",
